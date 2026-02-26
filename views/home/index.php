@@ -1,4 +1,5 @@
 <!-- views/home/index.php -->
+<!-- FILTROS -->
 <div class="filters">
     <form method="GET" action="index.php">
         <input type="hidden" name="controller" value="home">
@@ -34,6 +35,17 @@
     </form>
 </div>
 
+<!-- DIAGNÓSTICO (visible solo para depuración) -->
+<div style="background: #333; color: #fff; padding: 15px; margin-bottom: 20px; border-radius: 5px; font-family: monospace;">
+    <strong>🔍 DIAGNÓSTICO DE PAGINACIÓN:</strong><br>
+    Total juegos: <strong><?= $totalJuegos ?? 'NO DEFINIDO' ?></strong><br>
+    Páginas totales: <strong><?= $totalPages ?? 'NO DEFINIDO' ?></strong><br>
+    Página actual: <strong><?= $currentPage ?? 'NO DEFINIDO' ?></strong><br>
+    Juegos mostrados: <strong><?= count($juegos) ?></strong><br>
+    Items por página: <strong>20</strong>
+</div>
+
+<!-- GRID DE JUEGOS -->
 <div class="games-grid">
     <?php if (empty($juegos)): ?>
         <div class="alert alert-info" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
@@ -55,21 +67,21 @@
                     <!-- Título -->
                     <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
                     
-                    <!-- Tags (género, idioma, plataforma) -->
+                    <!-- Tags -->
                     <div class="game-metadata">
                         <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre'] ?? 'Sin género') ?></span>
                         <span class="game-tag platform"><?= htmlspecialchars($juego['consola_nombre'] ?? 'Multi') ?></span>
                         <span class="game-tag language"><?= htmlspecialchars($juego['region'] ?? 'All') ?></span>
                     </div>
                     
-                    <!-- Información de hack/mod (si aplica) -->
+                    <!-- Información de hack/mod -->
                     <?php if (!empty($juego['formato_imagen']) && $juego['formato_imagen'] === 'Hack'): ?>
                         <div class="game-hack-info">
                             🔧 <?= htmlspecialchars($juego['descripcion'] ?? 'ROM Hack') ?>
                         </div>
                     <?php endif; ?>
                     
-                    <!-- Información adicional (como en la imagen) -->
+                    <!-- Información adicional -->
                     <div class="game-info">
                         <div class="game-info-item">
                             <span class="game-info-label">Idiomas</span>
@@ -99,17 +111,42 @@
     <?php endif; ?>
 </div>
 
-<!-- Paginación (opcional) -->
-<?php if (isset($totalPages) && $totalPages > 1): ?>
-<div class="pagination">
+<!-- PAGINACIÓN - VISIBLE SIEMPRE QUE HAYA JUEGOS -->
+<?php if (!empty($juegos) && isset($totalPages) && $totalPages > 0): ?>
+<div class="pagination" style="margin-top: 2rem; text-align: center; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
+    <!-- Botón anterior -->
+    <?php if ($currentPage > 1): ?>
+        <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+           style="background: var(--card-bg); padding: 8px 12px; border-radius: 4px; text-decoration: none; color: var(--text); border: 1px solid var(--border);">
+            ← Anterior
+        </a>
+    <?php endif; ?>
+    
+    <!-- Números de página -->
     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
         <?php if ($i == $currentPage): ?>
-            <span class="current"><?= $i ?></span>
+            <span style="background: var(--accent); color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent);">
+                <?= $i ?>
+            </span>
         <?php else: ?>
-            <a href="?controller=home&action=index&page=<?= $i ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>">
+            <a href="?controller=home&action=index&page=<?= $i ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+               style="background: var(--card-bg); padding: 8px 12px; border-radius: 4px; text-decoration: none; color: var(--text); border: 1px solid var(--border);">
                 <?= $i ?>
             </a>
         <?php endif; ?>
     <?php endfor; ?>
+    
+    <!-- Botón siguiente -->
+    <?php if ($currentPage < $totalPages): ?>
+        <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+           style="background: var(--card-bg); padding: 8px 12px; border-radius: 4px; text-decoration: none; color: var(--text); border: 1px solid var(--border);">
+            Siguiente →
+        </a>
+    <?php endif; ?>
+</div>
+
+<!-- Información de páginas -->
+<div style="text-align: center; margin-top: 1rem; color: var(--text-light); font-size: 0.9rem;">
+    Mostrando <?= count($juegos) ?> de <?= $totalJuegos ?> juegos • Página <?= $currentPage ?> de <?= $totalPages ?>
 </div>
 <?php endif; ?>

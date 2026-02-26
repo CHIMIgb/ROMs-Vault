@@ -33,7 +33,7 @@ body {
 
 /* ===== LAYOUT ===== */
 .container {
-    max-width: 1200px;
+    max-width: 1400px; /* Aumentado para 4 columnas */
     margin: 0 auto;
     padding: 2rem;
 }
@@ -123,12 +123,27 @@ nav a:hover {
     background-color: var(--secondary);
 }
 
-/* ===== GRID DE JUEGOS ===== */
+/* ===== GRID DE JUEGOS - 4 COLUMNAS FIJAS ===== */
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(4, 1fr); /* 4 columnas fijas */
     gap: 1.5rem;
-    margin-top: 2rem;
+    margin: 2rem 0;
+}
+
+/* Tablet: 2 columnas */
+@media (max-width: 992px) {
+    .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+/* Móvil: 1 columna */
+@media (max-width: 576px) {
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ===== TARJETA DE JUEGO (ESTILO CAJA) ===== */
@@ -139,31 +154,36 @@ nav a:hover {
     box-shadow: var(--shadow);
     transition: all 0.3s ease;
     border: 1px solid var(--border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .game-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
     box-shadow: var(--shadow-hover);
     border-color: var(--accent);
 }
 
 .game-card-inner {
-    padding: 1.5rem;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-/* Portada del juego */
+/* Portada del juego - Tamaño uniforme */
 .game-cover {
     width: 100%;
-    height: 180px;
+    aspect-ratio: 1 / 1; /* Cuadrado perfecto */
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border-radius: 6px;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 3rem;
-    font-weight: 600;
+    font-size: 2.5rem;
     overflow: hidden;
 }
 
@@ -177,29 +197,34 @@ nav a:hover {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 }
 
-/* Título del juego */
+/* Título del juego - Altura fija para 2 líneas */
 .game-title {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--primary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     line-height: 1.3;
+    height: 2.6rem; /* 2 líneas de texto */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
-/* Metadatos del juego (estilo como en la imagen) */
+/* Metadatos del juego - Más compactos */
 .game-metadata {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.3rem;
+    margin-bottom: 0.8rem;
 }
 
 .game-tag {
     background: var(--background);
     color: var(--text);
-    padding: 0.2rem 0.6rem;
+    padding: 0.2rem 0.4rem;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -220,19 +245,19 @@ nav a:hover {
     color: white;
 }
 
-/* Información adicional (como en la imagen) */
+/* Información adicional - Más compacta */
 .game-info {
-    margin: 1rem 0;
-    padding: 0.75rem 0;
+    margin: 0.8rem 0;
+    padding: 0.5rem 0;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
 }
 
 .game-info-item {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.2rem;
 }
 
 .game-info-label {
@@ -245,75 +270,89 @@ nav a:hover {
     font-weight: 500;
 }
 
-/* Hack/Mod info (como en la imagen) */
+/* Hack/Mod info - Más compacto */
 .game-hack-info {
     background: var(--background);
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.6rem;
     border-radius: 4px;
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.8rem;
     color: var(--text);
     border-left: 3px solid var(--accent);
 }
 
-/* Botón de descarga */
+/* Botón de descarga - Más compacto */
 .game-download {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.6rem;
     background: var(--primary);
     color: white;
     text-decoration: none;
     border-radius: 6px;
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: background-color 0.2s ease;
     border: none;
     cursor: pointer;
+    margin-top: auto; /* Empuja el botón hacia abajo */
 }
 
 .game-download:hover {
     background: var(--secondary);
 }
 
-.game-download i {
-    margin-right: 0.5rem;
-    font-size: 1rem;
+.game-download span {
+    margin-right: 0.3rem;
 }
 
-/* ===== PAGINACIÓN ===== */
+/* ===== PAGINACIÓN MEJORADA ===== */
 .pagination {
     display: flex;
     justify-content: center;
     gap: 0.5rem;
-    margin-top: 3rem;
+    margin: 3rem 0 1rem;
+    flex-wrap: wrap;
 }
 
 .pagination a,
 .pagination span {
     padding: 0.5rem 1rem;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 6px;
     color: var(--text);
     text-decoration: none;
     transition: all 0.2s ease;
+    font-size: 0.9rem;
+    min-width: 40px;
+    text-align: center;
 }
 
 .pagination a:hover {
     background: var(--primary);
     color: white;
     border-color: var(--primary);
+    transform: translateY(-2px);
 }
 
 .pagination .current {
     background: var(--primary);
     color: white;
     border-color: var(--primary);
+    font-weight: 600;
 }
 
-/* ===== ADMIN PANEL ===== */
+/* Información de páginas */
+.pagination-info {
+    text-align: center;
+    margin-top: 0.5rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+/* ===== ADMIN PANEL (sin cambios) ===== */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -519,21 +558,26 @@ nav a:hover {
 /* ===== FOOTER ===== */
 footer {
     margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 2px solid var(--border);
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
     text-align: center;
+}
+
+.footer-content {
     color: var(--text-light);
     font-size: 0.9rem;
+}
+
+.footer-note {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
-    }
-    
-    .games-grid {
-        grid-template-columns: 1fr;
     }
     
     .filters form {
@@ -554,5 +598,10 @@ footer {
     .admin-table {
         display: block;
         overflow-x: auto;
+    }
+    
+    .game-title {
+        font-size: 1rem;
+        height: 2.4rem;
     }
 }

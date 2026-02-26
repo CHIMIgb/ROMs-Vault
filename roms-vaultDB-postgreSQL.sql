@@ -3,6 +3,8 @@
 -- =====================================================
 -- CREATE DATABASE "roms-vault" WITH ENCODING 'UTF8' LC_COLLATE='Spanish_Spain.1252' LC_CTYPE='Spanish_Spain.1252';
 
+ALTER TABLE public.consolas ADD CONSTRAINT consolas_nombre_unique UNIQUE (nombre);
+
 -- =====================================================
 -- Tabla: categorias
 -- =====================================================
