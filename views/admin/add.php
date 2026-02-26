@@ -1,82 +1,172 @@
-<h2><?= isset($juego) ? 'Editar' : 'Añadir' ?> Juego</h2>
-<?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
-
-<form autocomplete="off" method="POST" enctype="multipart/form-data">
-    <div>
-        <label>Título:</label>
-        <input type="text" name="titulo" value="<?= $juego['titulo'] ?? '' ?>" required>
-    </div>
-    <div>
-        <label>Descripción:</label>
-        <textarea name="descripcion"><?= $juego['descripcion'] ?? '' ?></textarea>
-    </div>
-    <div>
-        <label>Consola:</label>
-        <select name="consola_id" required>
-            <?php foreach ($consolas as $consola): ?>
-                <option value="<?= $consola['id'] ?>" <?= (isset($juego) && $juego['consola_id'] == $consola['id']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($consola['nombre']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    <div>
-        <label>Categoría:</label>
-        <select name="categoria_id" required>
-            <?php foreach ($categorias as $categoria): ?>
-                <option value="<?= $categoria['id'] ?>" <?= (isset($juego) && $juego['categoria_id'] == $categoria['id']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($categoria['nombre']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    <div>
-        <label>Región:</label>
-        <select name="region">
-            <option value="PAL" <?= (isset($juego) && $juego['region'] == 'PAL') ? 'selected' : '' ?>>PAL</option>
-            <option value="NTSC" <?= (isset($juego) && $juego['region'] == 'NTSC') ? 'selected' : '' ?>>NTSC</option>
-            <option value="NTSC-J" <?= (isset($juego) && $juego['region'] == 'NTSC-J') ? 'selected' : '' ?>>NTSC-J</option>
-        </select>
-    </div>
-    <div>
-        <label>Fecha de lanzamiento:</label>
-        <input type="date" name="fecha_lanzamiento" value="<?= $juego['fecha_lanzamiento'] ?? '' ?>">
-    </div>
-    <div>
-        <label>Idiomas:</label>
-        <input type="text" name="idiomas" value="<?= $juego['idiomas'] ?? '' ?>">
-    </div>
-    <div>
-        <label>Formato de imagen:</label>
-        <input type="text" name="formato_imagen" value="<?= $juego['formato_imagen'] ?? '' ?>">
-    </div>
-    <div>
-        <label>Game ID Code:</label>
-        <input type="text" name="game_id_code" value="<?= $juego['game_id_code'] ?? '' ?>">
-    </div>
-    <div>
-        <label>Google Drive File ID:</label>
-        <input type="text" name="google_drive_file_id" value="<?= $juego['google_drive_file_id'] ?? '' ?>" required>
-    </div>
-    <div>
-        <label>Google Drive View Link:</label>
-        <input type="url" name="google_drive_view_link" value="<?= $juego['google_drive_view_link'] ?? '' ?>">
-    </div>
-    <div>
-        <label>Tamaño en bytes:</label>
-        <input type="text" name="size_bytes" value="<?= $juego['size_bytes'] ?? '' ?>" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-    </div>
-    <div>
-        <label>Portada:</label>
-        <input type="file" name="imagen" accept="image/*">
-        <?php if (isset($juego) && $juego['imagen']): ?>
-            <img src="<?= $juego['imagen'] ?>" width="100">
-        <?php endif; ?>
-    </div>
-    <div>
-        <label>
-            <input type="checkbox" name="activo" <?= (isset($juego) && $juego['activo']) ? 'checked' : '' ?>> Activo
-        </label>
-    </div>
-    <button type="submit">Guardar</button>
-</form>
+<!-- views/admin/add.php -->
+<div class="form-container">
+    <h2>Añadir Nuevo Juego</h2>
+    
+    <?php if (isset($error)): ?>
+        <div class="alert alert-error">
+            <?= $error ?>
+        </div>
+    <?php endif; ?>
+    
+    <form autocomplete="off" method="POST" enctype="multipart/form-data">
+        <!-- Información básica -->
+        <div class="form-group">
+            <label for="titulo">Título del juego *</label>
+            <input type="text" 
+                   id="titulo"
+                   name="titulo" 
+                   value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>" 
+                   required
+                   placeholder="Ej: WipEout Pulse">
+        </div>
+        
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion"
+                      name="descripcion" 
+                      rows="4"
+                      placeholder="Breve descripción del juego..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
+        </div>
+        
+        <!-- Plataforma y categoría -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="consola_id">Consola *</label>
+                <select id="consola_id" name="consola_id" required>
+                    <option value="">Seleccionar consola</option>
+                    <?php foreach ($consolas as $consola): ?>
+                        <option value="<?= $consola['id'] ?>" 
+                            <?= (isset($_POST['consola_id']) && $_POST['consola_id'] == $consola['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($consola['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="categoria_id">Categoría *</label>
+                <select id="categoria_id" name="categoria_id" required>
+                    <option value="">Seleccionar categoría</option>
+                    <?php foreach ($categorias as $categoria): ?>
+                        <option value="<?= $categoria['id'] ?>" 
+                            <?= (isset($_POST['categoria_id']) && $_POST['categoria_id'] == $categoria['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($categoria['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Región y fecha -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="region">Región</label>
+                <select id="region" name="region">
+                    <option value="">Seleccionar región</option>
+                    <option value="PAL" <?= (isset($_POST['region']) && $_POST['region'] == 'PAL') ? 'selected' : '' ?>>PAL</option>
+                    <option value="NTSC" <?= (isset($_POST['region']) && $_POST['region'] == 'NTSC') ? 'selected' : '' ?>>NTSC</option>
+                    <option value="NTSC-J" <?= (isset($_POST['region']) && $_POST['region'] == 'NTSC-J') ? 'selected' : '' ?>>NTSC-J</option>
+                    <option value="NTSC-U" <?= (isset($_POST['region']) && $_POST['region'] == 'NTSC-U') ? 'selected' : '' ?>>NTSC-U</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="fecha_lanzamiento">Fecha de lanzamiento</label>
+                <input type="date" 
+                       id="fecha_lanzamiento"
+                       name="fecha_lanzamiento" 
+                       value="<?= htmlspecialchars($_POST['fecha_lanzamiento'] ?? '') ?>">
+            </div>
+        </div>
+        
+        <!-- Idiomas y formato -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="idiomas">Idiomas</label>
+                <input type="text" 
+                       id="idiomas"
+                       name="idiomas" 
+                       value="<?= htmlspecialchars($_POST['idiomas'] ?? '') ?>"
+                       placeholder="Ej: Español, Inglés">
+            </div>
+            
+            <div class="form-group">
+                <label for="formato_imagen">Formato</label>
+                <input type="text" 
+                       id="formato_imagen"
+                       name="formato_imagen" 
+                       value="<?= htmlspecialchars($_POST['formato_imagen'] ?? '') ?>"
+                       placeholder="Ej: ISO, ROM, Hack">
+            </div>
+        </div>
+        
+        <!-- Códigos -->
+        <div class="form-group">
+            <label for="game_id_code">Game ID Code</label>
+            <input type="text" 
+                   id="game_id_code"
+                   name="game_id_code" 
+                   value="<?= htmlspecialchars($_POST['game_id_code'] ?? '') ?>"
+                   placeholder="Ej: ULES-12345">
+        </div>
+        
+        <!-- Google Drive -->
+        <div class="form-group">
+            <label for="google_drive_file_id">Google Drive File ID *</label>
+            <input type="text" 
+                   id="google_drive_file_id"
+                   name="google_drive_file_id" 
+                   value="<?= htmlspecialchars($_POST['google_drive_file_id'] ?? '') ?>" 
+                   required
+                   placeholder="Ej: 1fVWgArFcMMUFVX5SXkdMR5pQYU2uyXYj">
+            <small>El ID del archivo en Google Drive</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="google_drive_view_link">Google Drive View Link</label>
+            <input type="url" 
+                   id="google_drive_view_link"
+                   name="google_drive_view_link" 
+                   value="<?= htmlspecialchars($_POST['google_drive_view_link'] ?? '') ?>"
+                   placeholder="https://drive.google.com/file/d/...">
+        </div>
+        
+        <!-- Tamaño -->
+        <div class="form-group">
+            <label for="size_bytes">Tamaño en bytes</label>
+            <input type="text" 
+                   id="size_bytes"
+                   name="size_bytes" 
+                   value="<?= htmlspecialchars($_POST['size_bytes'] ?? '0') ?>"
+                   pattern="[0-9]+"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                   placeholder="Ej: 452984832">
+            <small>Solo números enteros positivos</small>
+        </div>
+        
+        <!-- Imagen -->
+        <div class="form-group">
+            <label for="imagen">Portada del juego</label>
+            <input type="file" 
+                   id="imagen"
+                   name="imagen" 
+                   accept="image/jpeg,image/png,image/gif,image/webp">
+            <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB</small>
+        </div>
+        
+        <!-- Activo -->
+        <div class="form-group form-checkbox">
+            <input type="checkbox" 
+                   id="activo"
+                   name="activo" 
+                   <?= (isset($_POST['activo']) || !isset($_POST)) ? 'checked' : '' ?>>
+            <label for="activo">Juego activo (visible en el catálogo)</label>
+        </div>
+        
+        <!-- Botones -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Guardar juego</button>
+            <a href="index.php?controller=admin&action=dashboard" class="btn-secondary" style="padding: 0.6rem 1.2rem; background: var(--background); color: var(--text); text-decoration: none; border-radius: 6px;">Cancelar</a>
+        </div>
+    </form>
+</div>
