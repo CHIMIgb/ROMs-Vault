@@ -1,7 +1,7 @@
 <h2><?= isset($juego) ? 'Editar' : 'Añadir' ?> Juego</h2>
 <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
 
-<form method="POST" enctype="multipart/form-data">
+<form autocomplete="off" method="POST" enctype="multipart/form-data">
     <div>
         <label>Título:</label>
         <input type="text" name="titulo" value="<?= $juego['titulo'] ?? '' ?>" required>
@@ -64,7 +64,7 @@
     </div>
     <div>
         <label>Tamaño en bytes:</label>
-        <input type="number" name="size_bytes" value="<?= $juego['size_bytes'] ?? '' ?>">
+        <input type="text" name="size_bytes" value="<?= $juego['size_bytes'] ?? '' ?>">
     </div>
     <div>
         <label>Portada:</label>

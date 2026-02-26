@@ -6,8 +6,7 @@
         <?= $error ?>
     </div>
 <?php endif; ?>
-
-<form method="POST" enctype="multipart/form-data">
+<form autocomplete="off" method="POST" enctype="multipart/form-data">
     <div>
         <label>Título:</label>
         <input type="text" name="titulo" value="<?= htmlspecialchars($juego['titulo'] ?? '') ?>" required>
@@ -86,7 +85,7 @@
     
     <div>
         <label>Tamaño en bytes:</label>
-        <input type="number" name="size_bytes" value="<?= $juego['size_bytes'] ?? 0 ?>">
+        <input type="text" name="size_bytes" value="<?= $juego['size_bytes'] ?? 0 ?>">
     </div>
     
     <div>
