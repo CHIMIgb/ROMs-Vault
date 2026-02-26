@@ -17,9 +17,10 @@ class Database {
         $db   = $_ENV['DB_NAME'];
         $user = $_ENV['DB_USER'];
         $pass = $_ENV['DB_PASSWORD'];
-        $charset = $_ENV['DB_CHARSET'];
-
-        $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+        
+        // DSN para PostgreSQL
+        $dsn = "pgsql:host=$host;port=$port;dbname=$db";
+        
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -28,8 +29,16 @@ class Database {
 
         try {
             $this->pdo = new PDO($dsn, $user, $pass, $options);
+            
+            // Establecer codificación UTF-8
+            $this->pdo->exec("SET NAMES 'UTF8'");
+            
         } catch (PDOException $e) {
-            die("Error de conexión: " . $e->getMessage());
+            // Log del error para depuración
+            error_log("Error de conexión PostgreSQL: " . $e->getMessage());
+            
+            // Mensaje amigable para el usuario
+            die("Error de conexión a la base de datos. Por favor, contacte al administrador.");
         }
     }
 
@@ -38,5 +47,23 @@ class Database {
             self::$instance = new Database();
         }
         return self::$instance->pdo;
+    }
+    
+    // Método para probar la conexión (útil para depuración)
+    public static function testConnection() {
+        try {
+            $pdo = self::getInstance();
+            $version = $pdo->query("SELECT version()")->fetch();
+            return [
+                'success' => true,
+                'message' => 'Conexión exitosa a PostgreSQL',
+                'version' => $version['version']
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error de conexión: ' . $e->getMessage()
+            ];
+        }
     }
 }

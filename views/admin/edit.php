@@ -85,7 +85,7 @@
     
     <div>
         <label>Tamaño en bytes:</label>
-        <input type="text" name="size_bytes" value="<?= $juego['size_bytes'] ?? 0 ?>">
+        <input type="text" name="size_bytes" value="<?= $juego['size_bytes'] ?? 0 ?>" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
     </div>
     
     <div>
