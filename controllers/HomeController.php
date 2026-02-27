@@ -13,6 +13,11 @@ class HomeController {
 
         // Obtener filtros
         $filters = [];
+
+        if (isset($_GET['busqueda']) && $_GET['busqueda'] !== '') {
+            $filters['busqueda'] = $_GET['busqueda'];
+        }
+
         if (isset($_GET['consola']) && $_GET['consola'] !== '') {
             $filters['consola'] = $_GET['consola'];
         }

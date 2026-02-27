@@ -2,8 +2,7 @@
         </main>
         <footer>
             <div class="footer-content">
-                <p>© <?= date('Y') ?> ROMs Vault - Catálogo profesional de videojuegos</p>
-                <p class="footer-note">📀 Todos los archivos son almacenados en Google Drive</p>
+                <p>© <?= date('Y') ?> ROMs Vault - Catálogo profesional de videojuegos retro</p>
             </div>
         </footer>
     </div>

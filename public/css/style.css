@@ -33,7 +33,7 @@ body {
 
 /* ===== LAYOUT ===== */
 .container {
-    max-width: 1400px; /* Aumentado para 4 columnas */
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
 }
@@ -75,6 +75,65 @@ nav a {
 
 nav a:hover {
     color: var(--accent);
+}
+
+/* ===== BARRA DE BÚSQUEDA ===== */
+.search-section {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.search-form {
+    width: 100%;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 3rem 1rem 1.5rem;
+    border: 2px solid var(--border);
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--text);
+    box-shadow: var(--shadow);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.search-input::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+.search-button {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--text-light);
+    transition: all 0.2s ease;
+    font-size: 1.2rem;
+}
+
+.search-button:hover {
+    color: var(--accent);
+    transform: translateY(-50%) scale(1.1);
 }
 
 /* ===== FILTROS ===== */
@@ -123,15 +182,41 @@ nav a:hover {
     background-color: var(--secondary);
 }
 
-/* ===== GRID DE JUEGOS - 4 COLUMNAS FIJAS ===== */
+/* Botón limpiar filtros */
+.clear-filters {
+    padding: 0.6rem 1.2rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card-bg);
+}
+
+.clear-filters:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: rgba(231, 76, 60, 0.05);
+}
+
+/* ===== GRID DE JUEGOS ===== */
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 columnas fijas */
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
     margin: 2rem 0;
 }
 
-/* Tablet: 2 columnas */
+/* Tablet horizontal: 3 columnas */
+@media (max-width: 1200px) {
+    .games-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.2rem;
+    }
+}
+
+/* Tablet vertical: 2 columnas */
 @media (max-width: 992px) {
     .games-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -139,14 +224,7 @@ nav a:hover {
     }
 }
 
-/* Móvil: 1 columna */
-@media (max-width: 576px) {
-    .games-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ===== TARJETA DE JUEGO (ESTILO CAJA) ===== */
+/* ===== TARJETA DE JUEGO ===== */
 .game-card {
     background: var(--card-bg);
     border-radius: 8px;
@@ -172,10 +250,10 @@ nav a:hover {
     height: 100%;
 }
 
-/* Portada del juego - Tamaño uniforme */
+/* Portada */
 .game-cover {
     width: 100%;
-    aspect-ratio: 1 / 1; /* Cuadrado perfecto */
+    aspect-ratio: 1 / 1;
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border-radius: 6px;
     margin-bottom: 1rem;
@@ -197,21 +275,21 @@ nav a:hover {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 }
 
-/* Título del juego - Altura fija para 2 líneas */
+/* Título */
 .game-title {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--primary);
     margin-bottom: 0.5rem;
     line-height: 1.3;
-    height: 2.6rem; /* 2 líneas de texto */
+    height: 2.6rem;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
-/* Metadatos del juego - Más compactos */
+/* Tags */
 .game-metadata {
     display: flex;
     flex-wrap: wrap;
@@ -245,7 +323,7 @@ nav a:hover {
     color: white;
 }
 
-/* Información adicional - Más compacta */
+/* Información adicional */
 .game-info {
     margin: 0.8rem 0;
     padding: 0.5rem 0;
@@ -270,7 +348,7 @@ nav a:hover {
     font-weight: 500;
 }
 
-/* Hack/Mod info - Más compacto */
+/* Hack/Mod info */
 .game-hack-info {
     background: var(--background);
     padding: 0.4rem 0.6rem;
@@ -281,7 +359,7 @@ nav a:hover {
     border-left: 3px solid var(--accent);
 }
 
-/* Botón de descarga - Más compacto */
+/* Botón de descarga */
 .game-download {
     display: inline-flex;
     align-items: center;
@@ -297,7 +375,7 @@ nav a:hover {
     transition: background-color 0.2s ease;
     border: none;
     cursor: pointer;
-    margin-top: auto; /* Empuja el botón hacia abajo */
+    margin-top: auto;
 }
 
 .game-download:hover {
@@ -308,7 +386,7 @@ nav a:hover {
     margin-right: 0.3rem;
 }
 
-/* ===== PAGINACIÓN MEJORADA ===== */
+/* ===== PAGINACIÓN ===== */
 .pagination {
     display: flex;
     justify-content: center;
@@ -344,7 +422,6 @@ nav a:hover {
     font-weight: 600;
 }
 
-/* Información de páginas */
 .pagination-info {
     text-align: center;
     margin-top: 0.5rem;
@@ -352,7 +429,7 @@ nav a:hover {
     font-size: 0.85rem;
 }
 
-/* ===== ADMIN PANEL (sin cambios) ===== */
+/* ===== ADMIN PANEL ===== */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -535,7 +612,7 @@ nav a:hover {
     font-size: 1.8rem;
 }
 
-/* ===== ALERTAS Y MENSAJES ===== */
+/* ===== ALERTAS ===== */
 .alert {
     padding: 1rem;
     border-radius: 6px;
@@ -574,7 +651,205 @@ footer {
     color: var(--text-light);
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== AJUSTES PARA MÓVIL - 3 COLUMNAS ===== */
+@media (max-width: 576px) {
+    /* Grid: 3 columnas */
+    .games-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    /* Header */
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    header .subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+    
+    nav {
+        gap: 1rem;
+        padding-bottom: 0.7rem;
+    }
+    
+    nav a {
+        font-size: 0.8rem;
+    }
+    
+    /* Búsqueda */
+    .search-wrapper {
+        max-width: 100%;
+    }
+    
+    .search-input {
+        padding: 0.7rem 2.5rem 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Filtros */
+    .filters form {
+        padding: 0.8rem;
+        gap: 0.5rem;
+    }
+    
+    .filters select,
+    .filters button,
+    .clear-filters {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+        min-width: auto;
+    }
+    
+    /* Tarjetas de juego */
+    .game-card-inner {
+        padding: 0.6rem;
+    }
+    
+    .game-cover {
+        aspect-ratio: 1 / 1;
+        font-size: 1.5rem;
+        margin-bottom: 0.4rem;
+        border-radius: 4px;
+    }
+    
+    .game-title {
+        font-size: 0.7rem;
+        height: 2rem;
+        line-height: 1rem;
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: auto;
+    }
+    
+    .game-metadata {
+        gap: 0.15rem;
+        margin-bottom: 0.3rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.2rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .game-metadata::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .game-tag {
+        font-size: 0.5rem;
+        padding: 0.15rem 0.25rem;
+        border-radius: 3px;
+        white-space: nowrap;
+    }
+    
+    .game-info {
+        margin: 0.3rem 0;
+        padding: 0.25rem 0;
+        font-size: 0.55rem;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .game-info-item {
+        margin-bottom: 0.1rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .game-info-label {
+        font-size: 0.5rem;
+    }
+    
+    .game-info-value {
+        font-size: 0.5rem;
+        font-weight: 600;
+    }
+    
+    /* Ocultar descargas en móvil */
+    .game-info-item:last-child {
+        display: none;
+    }
+    
+    .game-hack-info {
+        padding: 0.2rem 0.3rem;
+        font-size: 0.5rem;
+        margin-bottom: 0.3rem;
+        border-left-width: 2px;
+    }
+    
+    .game-download {
+        padding: 0.3rem 0.2rem;
+        font-size: 0.55rem;
+        border-radius: 4px;
+    }
+    
+    .game-download span {
+        margin-right: 0.15rem;
+        font-size: 0.6rem;
+    }
+    
+    /* Paginación */
+    .pagination {
+        gap: 0.3rem;
+    }
+    
+    .pagination a,
+    .pagination span {
+        padding: 0.4rem 0.7rem;
+        font-size: 0.8rem;
+        min-width: 30px;
+    }
+    
+    .pagination-info {
+        font-size: 0.75rem;
+    }
+    
+    /* Footer */
+    footer {
+        margin-top: 2rem;
+        padding: 1rem 0;
+    }
+    
+    .footer-content {
+        font-size: 0.8rem;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 380px) {
+    .games-grid {
+        gap: 0.3rem;
+    }
+    
+    .game-card-inner {
+        padding: 0.4rem;
+    }
+    
+    .game-title {
+        font-size: 0.6rem;
+    }
+    
+    .game-tag {
+        font-size: 0.45rem;
+        padding: 0.1rem 0.2rem;
+    }
+    
+    .game-info {
+        font-size: 0.5rem;
+    }
+    
+    .game-download {
+        font-size: 0.5rem;
+        padding: 0.25rem 0.15rem;
+    }
+}
+
+/* ===== RESPONSIVE GENERAL ===== */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
@@ -598,10 +873,5 @@ footer {
     .admin-table {
         display: block;
         overflow-x: auto;
-    }
-    
-    .game-title {
-        font-size: 1rem;
-        height: 2.4rem;
     }
 }

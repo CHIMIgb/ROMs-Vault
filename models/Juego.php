@@ -60,13 +60,18 @@ class Juego extends Model {
         return "https://drive.google.com/uc?export=download&id={$fileId}&confirm=t";
     }
 
-    // Método con paginación
+    // Método con paginación y búsqueda
     public function getWithRelationsPaginated($filters = [], $offset = 0, $limit = 20) {
         $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
                 FROM juegos j
                 LEFT JOIN consolas c ON j.consola_id = c.id
                 LEFT JOIN categorias cat ON j.categoria_id = cat.id
                 WHERE j.activo = true";
+
+        // Añadir búsqueda por título si existe
+        if (!empty($filters['busqueda'])) {
+            $sql .= " AND j.titulo ILIKE :busqueda"; // ILIKE para PostgreSQL (case insensitive)
+        }
 
         if (!empty($filters['consola'])) {
             $sql .= " AND j.consola_id = :consola";
@@ -81,6 +86,11 @@ class Juego extends Model {
         $sql .= " ORDER BY j.titulo ASC LIMIT :limit OFFSET :offset";
         
         $stmt = $this->pdo->prepare($sql);
+        
+        // Bind de parámetros de búsqueda
+        if (!empty($filters['busqueda'])) {
+            $stmt->bindValue(':busqueda', '%' . $filters['busqueda'] . '%', PDO::PARAM_STR);
+        }
         
         // Bind de parámetros de filtros
         if (!empty($filters['consola'])) {
@@ -101,9 +111,14 @@ class Juego extends Model {
         return $stmt->fetchAll();
     }
 
-    // Contar juegos con filtros
+    // Contar juegos con filtros y búsqueda
     public function countWithFilters($filters = []) {
         $sql = "SELECT COUNT(*) as total FROM juegos j WHERE j.activo = true";
+
+        // Añadir búsqueda por título si existe
+        if (!empty($filters['busqueda'])) {
+            $sql .= " AND j.titulo ILIKE :busqueda";
+        }
 
         if (!empty($filters['consola'])) {
             $sql .= " AND j.consola_id = :consola";
@@ -117,6 +132,12 @@ class Juego extends Model {
 
         $stmt = $this->pdo->prepare($sql);
         
+        // Bind de parámetros de búsqueda
+        if (!empty($filters['busqueda'])) {
+            $stmt->bindValue(':busqueda', '%' . $filters['busqueda'] . '%', PDO::PARAM_STR);
+        }
+        
+        // Bind de parámetros de filtros
         if (!empty($filters['consola'])) {
             $stmt->bindValue(':consola', $filters['consola'], PDO::PARAM_INT);
         }

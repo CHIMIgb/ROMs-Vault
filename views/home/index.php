@@ -1,9 +1,29 @@
 <!-- views/home/index.php -->
+<!-- BARRA DE BÚSQUEDA (ARRIBA DE LOS FILTROS) -->
+<div class="search-section">
+    <form method="GET" action="index.php" class="search-form">
+        <input type="hidden" name="controller" value="home">
+        <input type="hidden" name="action" value="index">
+        
+        <div class="search-wrapper">
+            <input type="text" 
+                   name="busqueda" 
+                   placeholder="Buscar juego por título..." 
+                   value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
+                   class="search-input">
+            <button type="submit" class="search-button">
+                <span>🔍</span>
+            </button>
+        </div>
+    </form>
+</div>
+
 <!-- FILTROS -->
 <div class="filters">
     <form method="GET" action="index.php">
         <input type="hidden" name="controller" value="home">
         <input type="hidden" name="action" value="index">
+        <input type="hidden" name="busqueda" value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>">
         
         <select name="consola">
             <option value="">Todas las plataformas</option>
@@ -32,17 +52,12 @@
         </select>
 
         <button type="submit">Filtrar</button>
+        
+        <!-- Botón para limpiar filtros -->
+        <?php if (isset($_GET['consola']) || isset($_GET['categoria']) || isset($_GET['region']) || isset($_GET['busqueda'])): ?>
+            <a href="?controller=home&action=index" class="clear-filters">Limpiar</a>
+        <?php endif; ?>
     </form>
-</div>
-
-<!-- DIAGNÓSTICO (visible solo para depuración) -->
-<div style="background: #333; color: #fff; padding: 15px; margin-bottom: 20px; border-radius: 5px; font-family: monospace;">
-    <strong>🔍 DIAGNÓSTICO DE PAGINACIÓN:</strong><br>
-    Total juegos: <strong><?= $totalJuegos ?? 'NO DEFINIDO' ?></strong><br>
-    Páginas totales: <strong><?= $totalPages ?? 'NO DEFINIDO' ?></strong><br>
-    Página actual: <strong><?= $currentPage ?? 'NO DEFINIDO' ?></strong><br>
-    Juegos mostrados: <strong><?= count($juegos) ?></strong><br>
-    Items por página: <strong>20</strong>
 </div>
 
 <!-- GRID DE JUEGOS -->
@@ -50,6 +65,9 @@
     <?php if (empty($juegos)): ?>
         <div class="alert alert-info" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
             No hay juegos disponibles que coincidan con los filtros.
+            <?php if (isset($_GET['busqueda'])): ?>
+                <br>Prueba con otro término de búsqueda.
+            <?php endif; ?>
         </div>
     <?php else: ?>
         <?php foreach ($juegos as $juego): ?>
@@ -111,13 +129,13 @@
     <?php endif; ?>
 </div>
 
-<!-- PAGINACIÓN - VISIBLE SIEMPRE QUE HAYA JUEGOS -->
+<!-- PAGINACIÓN -->
 <?php if (!empty($juegos) && isset($totalPages) && $totalPages > 0): ?>
-<div class="pagination" style="margin-top: 2rem; text-align: center; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
+<div class="pagination">
     <!-- Botón anterior -->
     <?php if ($currentPage > 1): ?>
-        <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
-           style="background: var(--card-bg); padding: 8px 12px; border-radius: 4px; text-decoration: none; color: var(--text); border: 1px solid var(--border);">
+        <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+           class="pagination-link">
             ← Anterior
         </a>
     <?php endif; ?>
@@ -125,12 +143,12 @@
     <!-- Números de página -->
     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
         <?php if ($i == $currentPage): ?>
-            <span style="background: var(--accent); color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent);">
+            <span class="pagination-current">
                 <?= $i ?>
             </span>
         <?php else: ?>
-            <a href="?controller=home&action=index&page=<?= $i ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
-               style="background: var(--card-bg); padding: 8px 12px; border-radius: 4px; text-decoration: none; color: var(--text); border: 1px solid var(--border);">
+            <a href="?controller=home&action=index&page=<?= $i ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+               class="pagination-link">
                 <?= $i ?>
             </a>
         <?php endif; ?>
@@ -138,15 +156,18 @@
     
     <!-- Botón siguiente -->
     <?php if ($currentPage < $totalPages): ?>
-        <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
-           style="background: var(--card-bg); padding: 8px 12px; border-radius: 4px; text-decoration: none; color: var(--text); border: 1px solid var(--border);">
+        <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+           class="pagination-link">
             Siguiente →
         </a>
     <?php endif; ?>
 </div>
 
 <!-- Información de páginas -->
-<div style="text-align: center; margin-top: 1rem; color: var(--text-light); font-size: 0.9rem;">
+<div class="pagination-info">
     Mostrando <?= count($juegos) ?> de <?= $totalJuegos ?> juegos • Página <?= $currentPage ?> de <?= $totalPages ?>
+    <?php if (isset($_GET['busqueda'])): ?>
+        • Búsqueda: "<?= htmlspecialchars($_GET['busqueda']) ?>"
+    <?php endif; ?>
 </div>
 <?php endif; ?>
