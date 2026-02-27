@@ -1,9 +1,4 @@
 -- =====================================================
--- Crear la base de datos (ejecutar como superusuario)
--- =====================================================
--- CREATE DATABASE "roms-vault" WITH ENCODING 'UTF8' LC_COLLATE='Spanish_Spain.1252' LC_CTYPE='Spanish_Spain.1252';
-
--- =====================================================
 -- Tabla: categorias
 -- =====================================================
 CREATE TABLE IF NOT EXISTS public.categorias (
@@ -94,14 +89,14 @@ CREATE TABLE IF NOT EXISTS public.descargas (
     id SERIAL PRIMARY KEY,
     juego_id INTEGER REFERENCES public.juegos(id) ON DELETE CASCADE,
     cookie_id VARCHAR(64) NOT NULL,
-    ip_address INET, -- PostgreSQL tiene tipo inet nativo
+    ip_address INET,
     user_agent TEXT,
     downloaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed BOOLEAN DEFAULT FALSE
 );
 
 -- =====================================================
--- Índices para mejorar rendimiento
+-- Índices
 -- =====================================================
 CREATE INDEX IF NOT EXISTS idx_juegos_consola ON public.juegos(consola_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_categoria ON public.juegos(categoria_id);
@@ -113,7 +108,7 @@ CREATE INDEX IF NOT EXISTS idx_usuarios_persona ON public.usuarios(persona_id);
 CREATE INDEX IF NOT EXISTS idx_usuarios_rol ON public.usuarios(rol_id);
 
 -- =====================================================
--- Función para actualizar updated_at automáticamente
+-- Función y triggers para updated_at
 -- =====================================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -123,7 +118,6 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Triggers para updated_at
 CREATE TRIGGER update_juegos_updated_at BEFORE UPDATE ON public.juegos
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -131,10 +125,10 @@ CREATE TRIGGER update_usuarios_updated_at BEFORE UPDATE ON public.usuarios
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- =====================================================
--- Insertar datos iniciales
+-- Datos iniciales
 -- =====================================================
 
--- Insertar categorías
+-- Categorías
 INSERT INTO public.categorias (nombre, descripcion, activo) VALUES
 ('Acción', 'Juegos de acción', TRUE),
 ('Aventura', 'Juegos de aventura', TRUE),
@@ -145,8 +139,8 @@ INSERT INTO public.categorias (nombre, descripcion, activo) VALUES
 ('Estrategia', 'Juegos de estrategia', TRUE),
 ('Plataformas', 'Juegos de plataformas', TRUE);
 
--- Insertar consolas
-INSERT INTO `consolas` (`nombre`, `descripcion`, `fabricante`, `activo`) VALUES
+-- Consolas
+INSERT INTO public.consolas (nombre, descripcion, fabricante, activo) VALUES
 ('PSP', 'PlayStation Portable', 'Sony', TRUE),
 ('PSX', 'PlayStation 1', 'Sony', TRUE),
 ('PS2', 'PlayStation 2', 'Sony', TRUE),
@@ -159,26 +153,25 @@ INSERT INTO `consolas` (`nombre`, `descripcion`, `fabricante`, `activo`) VALUES
 ('Wii', 'Nintendo Wii', 'Nintendo', TRUE),
 ('NES', 'Nintendo Entretaiment System', 'Nintendo', TRUE),
 ('SNES', 'Super Nintendo Entretaiment System', 'Nintendo', TRUE),
-('Dremcast', 'Sega Dreamcast', 'Sega', TRUE),
+('Dreamcast', 'Sega Dreamcast', 'Sega', TRUE),
 ('Saturn', 'Sega Saturn', 'Sega', TRUE),
-('Genesis', 'Sega Genesis', 'Sega', TRUE),
+('Genesis', 'Sega Genesis', 'Sega', TRUE);
 
--- Insertar roles
+-- Roles
 INSERT INTO public.roles (nombre, descripcion) VALUES
 ('Administrador', 'Acceso total al sistema'),
 ('Usuario', 'Acceso básico de lectura'),
 ('Editor', 'Puede editar contenido');
 
--- Insertar una persona de ejemplo (admin)
+-- Persona admin
 INSERT INTO public.personas (nombre, apellido, email, telefono) VALUES
 ('Admin', 'Principal', 'admin@romsvault.com', '123456789');
 
--- Insertar usuario admin (contraseña: 'password')
--- IMPORTANTE: Cambia este hash por uno generado con password_hash()
+-- Usuario admin (contraseña: password)
 INSERT INTO public.usuarios (persona_id, username, password_hash, rol_id, activo) VALUES
 (1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, TRUE);
 
--- Insertar juegos de ejemplo
+-- Juegos de ejemplo
 INSERT INTO public.juegos (titulo, imagen, descripcion, consola_id, categoria_id, region, fecha_lanzamiento, idiomas, formato_imagen, game_id_code, google_drive_file_id, google_drive_view_link, size_bytes, activo) VALUES
 ('WipEout Pulse', NULL, 'Juego de carreras futurista con naves de alta velocidad', 1, 4, 'PAL', '2007-12-07', 'Español, Inglés', 'ISO', 'ULES-12345', '1fVWgArFcMMUFVX5SXkdMR5pQYU2uyXYj', 'https://drive.google.com/file/d/1fVWgArFcMMUFVX5SXkdMR5pQYU2uyXYj', 452984832, TRUE),
 ('WipEout Pure', NULL, 'La primera entrega de WipEout para PSP', 1, 4, 'NTSC', '2005-03-24', 'Inglés', 'ISO', 'ULES-12346', '1zRYOBNATxrbsN1WLzLioTRQD_tTx8L-z', 'https://drive.google.com/file/d/1zRYOBNATxrbsN1WLzLioTRQD_tTx8L-z', 435159040, TRUE),
