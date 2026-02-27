@@ -142,21 +142,30 @@
         <!-- Imagen -->
         <div class="form-group">
             <label for="imagen">Portada del juego</label>
-            <input type="file" 
-                   id="imagen"
-                   name="imagen" 
-                   accept="image/jpeg,image/png,image/gif,image/webp">
             <?php if (!empty($juego['imagen'])): ?>
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--background); border-radius: 6px;">
-                    <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">Imagen actual:</p>
-                    <img src="<?= htmlspecialchars($juego['imagen']) ?>" 
-                         alt="Portada actual" 
-                         style="max-width: 150px; border-radius: 4px;">
-                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-light);">
-                        ⚠️ Sube una nueva imagen para reemplazarla
-                    </p>
+                <div style="display:flex; align-items:flex-start; gap:1rem; margin-bottom:0.75rem; padding:0.75rem; background:var(--cream-dark); border:2px solid var(--border-dark); box-shadow:var(--raise-shadow);">
+                    <img src="<?= htmlspecialchars($juego['imagen']) ?>"
+                         alt="Portada actual"
+                         style="width:80px; height:80px; object-fit:cover; border:2px solid var(--border-dark); flex-shrink:0;">
+                    <div style="font-family:'Courier Prime',monospace;">
+                        <p style="font-size:0.78rem; font-weight:700; color:var(--slate); margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.05em;">Imagen actual</p>
+                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;">⚠ Sube una nueva imagen para reemplazarla</p>
+                    </div>
                 </div>
             <?php endif; ?>
+            <div class="file-input-wrapper">
+                <input type="file"
+                       id="imagen"
+                       name="imagen"
+                       accept="image/jpeg,image/png,image/gif,image/webp">
+                <div class="file-input-display" onclick="document.getElementById('imagen').click()">
+                    <div class="file-input-btn">
+                        Elegir archivo
+                    </div>
+                    <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
+                </div>
+            </div>
+            <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB</small>
         </div>
                 
         <!-- Botones -->
@@ -166,3 +175,16 @@
         </div>
     </form>
 </div>
+
+<script>
+document.getElementById('imagen').addEventListener('change', function() {
+    const nameEl = document.getElementById('imagen-name');
+    if (this.files && this.files[0]) {
+        nameEl.textContent = this.files[0].name;
+        nameEl.classList.add('has-file');
+    } else {
+        nameEl.textContent = 'Sin archivo seleccionado';
+        nameEl.classList.remove('has-file');
+    }
+});
+</script>

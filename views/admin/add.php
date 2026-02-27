@@ -137,7 +137,7 @@
             <input type="text" 
                    id="size_bytes"
                    name="size_bytes" 
-                   value="<?= htmlspecialchars($_POST['size_bytes'] ?? '0') ?>"
+                   value="<?= htmlspecialchars($_POST['size_bytes'] ?? '') ?>"
                    pattern="[0-9]+"
                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                    placeholder="Ej: 452984832">
@@ -147,10 +147,18 @@
         <!-- Imagen -->
         <div class="form-group">
             <label for="imagen">Portada del juego</label>
-            <input type="file" 
-                   id="imagen"
-                   name="imagen" 
-                   accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="file-input-wrapper">
+                <input type="file"
+                       id="imagen"
+                       name="imagen"
+                       accept="image/jpeg,image/png,image/gif,image/webp">
+                <div class="file-input-display" onclick="document.getElementById('imagen').click()">
+                    <div class="file-input-btn">
+                        Elegir archivo
+                    </div>
+                    <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
+                </div>
+            </div>
             <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB</small>
         </div>
 
@@ -164,3 +172,16 @@
         </div>
     </form>
 </div>
+
+<script>
+document.getElementById('imagen').addEventListener('change', function() {
+    const nameEl = document.getElementById('imagen-name');
+    if (this.files && this.files[0]) {
+        nameEl.textContent = this.files[0].name;
+        nameEl.classList.add('has-file');
+    } else {
+        nameEl.textContent = 'Sin archivo seleccionado';
+        nameEl.classList.remove('has-file');
+    }
+});
+</script>
