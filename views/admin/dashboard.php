@@ -60,6 +60,7 @@
                     <th>ID</th>
                     <th>Portada</th>
                     <th>Título</th>
+                    <th>ID Juego</th>
                     <th>Consola</th>
                     <th>Categoría</th>
                     <th>Región</th>
@@ -81,6 +82,7 @@
                         <?php endif; ?>
                     </td>
                     <td><strong><?= htmlspecialchars($juego['titulo']) ?></strong></td>
+                    <td><strong><?= htmlspecialchars($juego['game_id_code']) ?></strong></td>
                     <td><?= htmlspecialchars($juego['consola_nombre'] ?? '—') ?></td>
                     <td><?= htmlspecialchars($juego['categoria_nombre'] ?? '—') ?></td>
                     <td>
