@@ -89,7 +89,6 @@
                         </span>
                     </td>
                     <td>
-                        <br>
                         <a href="index.php?controller=admin&action=toggleActive&id=<?= $juego['id'] ?>&page=<?= $currentPage ?>"
                            style="font-size: 0.75rem; text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; margin-top: 0.3rem;
                                   background: <?= $juego['activo'] ? 'var(--danger, #e74c3c)' : 'var(--success, #27ae60)' ?>;
@@ -101,9 +100,11 @@
                     <td>
                         <a href="index.php?controller=admin&action=edit&id=<?= $juego['id'] ?>" 
                            class="btn-edit">Editar</a>
+                        <!--
                         <a href="index.php?controller=admin&action=delete&id=<?= $juego['id'] ?>" 
                            class="btn-delete" 
                            onclick="return confirm('¿Estás seguro de eliminar este juego? Esta acción no se puede deshacer.')">Eliminar</a>
+                        -->
                     </td>
                 </tr>
                 <?php endforeach; ?>

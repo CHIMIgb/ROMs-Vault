@@ -612,6 +612,51 @@ nav a:hover {
     font-size: 1.8rem;
 }
 
+/* ===== CAMPO CONTRASEÑA CON TOGGLE ===== */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: white;
+    color: var(--text);
+}
+
+.password-wrapper input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    border-radius: 4px;
+}
+
+.password-toggle:hover {
+    color: var(--accent);
+}
+
 /* ===== ALERTAS ===== */
 .alert {
     padding: 1rem;
@@ -817,6 +862,12 @@ footer {
     
     .footer-content {
         font-size: 0.8rem;
+    }
+
+    /* Login en móvil */
+    .login-container {
+        margin: 2rem auto;
+        padding: 1.5rem;
     }
 }
 

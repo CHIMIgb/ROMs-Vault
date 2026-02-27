@@ -21,9 +21,9 @@
                     <a href="index.php?controller=admin&action=dashboard">Panel Admin</a>
                     <a href="index.php?controller=auth&action=logout">Cerrar sesión</a>    
                 <?php else: ?>
-                    
+                    <!--
                     <a href="index.php?controller=auth&action=login">Acceso Admin</a>
-                    
+                    -->
                 <?php endif; ?>
             </nav>
         </header>
