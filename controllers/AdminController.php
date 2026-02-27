@@ -5,12 +5,10 @@ require_once 'models/Categoria.php';
 
 class AdminController {
     public function __construct() {
-        // Verificar si la sesión no está activa antes de iniciarla
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         
-        // Verificar si el usuario está logueado
         if (!isset($_SESSION['user_id'])) {
             header('Location: index.php?controller=auth&action=login');
             exit;
@@ -18,12 +16,26 @@ class AdminController {
     }
 
     public function dashboard() {
-            $juegoModel = new Juego();
-            $juegos = $juegoModel->getWithRelations(); // Todos, incluso inactivos
-            require_once 'views/layout/header.php';
-            require_once 'views/admin/dashboard.php';
-            require_once 'views/layout/footer.php';
-        }
+        $juegoModel = new Juego();
+
+        // Búsqueda
+        $busqueda = isset($_GET['busqueda']) && $_GET['busqueda'] !== '' ? $_GET['busqueda'] : null;
+
+        // Paginación
+        $itemsPerPage = 20;
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($currentPage < 1) $currentPage = 1;
+        $offset = ($currentPage - 1) * $itemsPerPage;
+
+        // Obtener juegos paginados (activos e inactivos), con búsqueda opcional
+        $juegos = $juegoModel->getAllPaginated($offset, $itemsPerPage, $busqueda);
+        $totalJuegos = $juegoModel->countAll($busqueda);
+        $totalPages = ceil($totalJuegos / $itemsPerPage);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/dashboard.php';
+        require_once 'views/layout/footer.php';
+    }
 
     public function add() {
         $consolaModel = new Consola();
@@ -45,10 +57,9 @@ class AdminController {
                 'google_drive_file_id' => $_POST['google_drive_file_id'],
                 'google_drive_view_link' => $_POST['google_drive_view_link'],
                 'size_bytes' => $_POST['size_bytes'] ?: 0,
-                'activo' => isset($_POST['activo']) ? 1 : 0,
+                'activo' => 1, // Siempre activo al crear
             ];
 
-            // PROCESAR LA IMAGEN
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
                 $imagenResult = $this->uploadImage($_FILES['imagen']);
                 if ($imagenResult['success']) {
@@ -75,7 +86,6 @@ class AdminController {
     }
 
     public function edit($id = null) {
-        // Verificar si se proporcionó un ID
         if (!$id) {
             die("Error: No se especificó el ID del juego a editar");
         }
@@ -109,11 +119,9 @@ class AdminController {
                 'activo' => isset($_POST['activo']) ? 1 : 0,
             ];
 
-            // Procesar imagen si se subió una nueva
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
                 $imagenResult = $this->uploadImage($_FILES['imagen']);
                 if ($imagenResult['success']) {
-                    // Eliminar imagen anterior si existe
                     if ($juego['imagen'] && file_exists($juego['imagen'])) {
                         unlink($juego['imagen']);
                     }
@@ -138,7 +146,26 @@ class AdminController {
         require_once 'views/layout/footer.php';
     }
 
-    // Asegúrate de que el método uploadImage existe (del mensaje anterior)
+    public function toggleActive($id) {
+        if (!$id) {
+            header('Location: index.php?controller=admin&action=dashboard');
+            exit;
+        }
+
+        $juegoModel = new Juego();
+        $juego = $juegoModel->find($id);
+
+        if ($juego) {
+            $nuevoEstado = $juego['activo'] ? 0 : 1;
+            $juegoModel->update($id, ['activo' => $nuevoEstado]);
+        }
+
+        // Redirigir a la misma página
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        header('Location: index.php?controller=admin&action=dashboard&page=' . $page);
+        exit;
+    }
+
     private function uploadImage($file) {
         $uploadDir = __DIR__ . '/../public/uploads/';
         if (!is_dir($uploadDir)) {

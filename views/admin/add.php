@@ -153,15 +153,9 @@
                    accept="image/jpeg,image/png,image/gif,image/webp">
             <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB</small>
         </div>
-        
-        <!-- Activo -->
-        <div class="form-group form-checkbox">
-            <input type="checkbox" 
-                   id="activo"
-                   name="activo" 
-                   <?= (isset($_POST['activo']) || !isset($_POST)) ? 'checked' : '' ?>>
-            <label for="activo">Juego activo (visible en el catálogo)</label>
-        </div>
+
+        <!-- Campo oculto: activo siempre en true al crear -->
+        <input type="hidden" name="activo" value="1">
         
         <!-- Botones -->
         <div class="form-actions">

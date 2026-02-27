@@ -15,8 +15,8 @@
             <nav>
                 <!--
                 <a href="index.php">Inicio</a>    
-                <a href="index.php?controller=home&action=index">Catálogo</a>
                 -->
+                <a href="index.php?controller=home&action=index">Catálogo</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="index.php?controller=admin&action=dashboard">Panel Admin</a>
                     <a href="index.php?controller=auth&action=logout">Cerrar sesión</a>    

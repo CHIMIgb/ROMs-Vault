@@ -158,16 +158,7 @@
                 </div>
             <?php endif; ?>
         </div>
-        
-        <!-- Activo -->
-        <div class="form-group form-checkbox">
-            <input type="checkbox" 
-                   id="activo"
-                   name="activo" 
-                   <?= ($juego['activo']) ? 'checked' : '' ?>>
-            <label for="activo">Juego activo (visible en el catálogo)</label>
-        </div>
-        
+                
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">Guardar cambios</button>
