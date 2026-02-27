@@ -39,7 +39,7 @@
                    value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                    class="search-input">
             <button type="submit" class="search-button">
-                <span>🔍</span>
+                <span>⌕</span>
             </button>
         </div>
     </form>

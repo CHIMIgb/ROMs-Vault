@@ -15,7 +15,7 @@ CREATE TABLE `categorias` (
 -- =====================================================
 CREATE TABLE `consolas` (
     `id` INT NOT NULL AUTO_INCREMENT,
-    `nombre` VARCHAR(100) NOT NULL,
+    `nombre` VARCHAR(100) UNIQUE NOT NULL,
     `descripcion` TEXT,
     `fabricante` VARCHAR(100),
     `activo` BOOLEAN DEFAULT TRUE,
@@ -138,15 +138,20 @@ INSERT INTO `categorias` (`nombre`, `descripcion`, `activo`) VALUES
 -- Insertar consolas
 INSERT INTO `consolas` (`nombre`, `descripcion`, `fabricante`, `activo`) VALUES
 ('PSP', 'PlayStation Portable', 'Sony', TRUE),
-('PS1', 'PlayStation 1', 'Sony', TRUE),
+('PSX', 'PlayStation 1', 'Sony', TRUE),
 ('PS2', 'PlayStation 2', 'Sony', TRUE),
-('PS3', 'PlayStation 3', 'Sony', TRUE),
-('PS4', 'PlayStation 4', 'Sony', TRUE),
-('PS5', 'PlayStation 5', 'Sony', TRUE),
-('Nintendo Switch', 'Nintendo Switch', 'Nintendo', TRUE),
 ('Game Boy Advance', 'Game Boy Advance', 'Nintendo', TRUE),
+('Game Boy Color', 'Game Boy Color', 'Nintendo', TRUE),
+('Game Boy', 'Game Boy', 'Nintendo', TRUE),
 ('Nintendo DS', 'Nintendo DS', 'Nintendo', TRUE),
-('Xbox 360', 'Xbox 360', 'Microsoft', TRUE);
+('Nintendo 64', 'Nintendo 64', 'Nintendo', TRUE),
+('Gamecube', 'Nintendo Gamecube', 'Nintendo', TRUE),
+('Wii', 'Nintendo Wii', 'Nintendo', TRUE),
+('NES', 'Nintendo Entretaiment System', 'Nintendo', TRUE),
+('SNES', 'Super Nintendo Entretaiment System', 'Nintendo', TRUE),
+('Dremcast', 'Sega Dreamcast', 'Sega', TRUE),
+('Saturn', 'Sega Saturn', 'Sega', TRUE),
+('Genesis', 'Sega Genesis', 'Sega', TRUE),
 
 -- Insertar roles
 INSERT INTO `roles` (`nombre`, `descripcion`) VALUES

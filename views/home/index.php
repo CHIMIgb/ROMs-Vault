@@ -12,7 +12,7 @@
                    value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                    class="search-input">
             <button type="submit" class="search-button">
-                <span>🔍</span>
+                <span>⌕</span>
             </button>
         </div>
     </form>
@@ -95,7 +95,7 @@
                     <!-- Información de hack/mod -->
                     <?php if (!empty($juego['formato_imagen']) && $juego['formato_imagen'] === 'Hack'): ?>
                         <div class="game-hack-info">
-                            🔧 <?= htmlspecialchars($juego['descripcion'] ?? 'ROM Hack') ?>
+                            <?= htmlspecialchars($juego['descripcion'] ?? 'ROM Hack') ?>
                         </div>
                     <?php endif; ?>
                     
@@ -121,7 +121,7 @@
                     <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" 
                        class="game-download" 
                        target="_blank">
-                        <span>⬇️</span> Descargar ROM
+                        Descargar ROM
                     </a>
                 </div>
             </div>
