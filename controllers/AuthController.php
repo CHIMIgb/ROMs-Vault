@@ -11,7 +11,6 @@ class AuthController {
             $user = $usuarioModel->findByUsername($username);
 
             if ($user && $usuarioModel->verifyPassword($password, $user['password_hash'])) {
-                session_start();
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['rol_id'] = $user['rol_id'];
@@ -27,7 +26,6 @@ class AuthController {
     }
 
     public function logout() {
-        session_start();
         session_destroy();
         header('Location: index.php');
         exit;

@@ -5,10 +5,6 @@ require_once 'models/Categoria.php';
 
 class AdminController {
     public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
         if (!isset($_SESSION['user_id'])) {
             header('Location: index.php?controller=auth&action=login');
             exit;
@@ -18,16 +14,13 @@ class AdminController {
     public function dashboard() {
         $juegoModel = new Juego();
 
-        // Búsqueda
         $busqueda = isset($_GET['busqueda']) && $_GET['busqueda'] !== '' ? $_GET['busqueda'] : null;
 
-        // Paginación
         $itemsPerPage = 20;
         $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         if ($currentPage < 1) $currentPage = 1;
         $offset = ($currentPage - 1) * $itemsPerPage;
 
-        // Obtener juegos paginados (activos e inactivos), con búsqueda opcional
         $juegos = $juegoModel->getAllPaginated($offset, $itemsPerPage, $busqueda);
         $totalJuegos = $juegoModel->countAll($busqueda);
         $totalPages = ceil($totalJuegos / $itemsPerPage);
@@ -57,7 +50,7 @@ class AdminController {
                 'google_drive_file_id' => $_POST['google_drive_file_id'],
                 'google_drive_view_link' => $_POST['google_drive_view_link'],
                 'size_bytes' => $_POST['size_bytes'] ?: 0,
-                'activo' => 1, // Siempre activo al crear
+                'activo' => 1,
             ];
 
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
@@ -160,7 +153,6 @@ class AdminController {
             $juegoModel->update($id, ['activo' => $nuevoEstado]);
         }
 
-        // Redirigir a la misma página
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         header('Location: index.php?controller=admin&action=dashboard&page=' . $page);
         exit;
