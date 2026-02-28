@@ -1,34 +1,40 @@
-Options -Indexes
+# ROMs Vault — Apache configuration
+
+# ── Enrutamiento principal ──────────────────────────────────────────────────
+# Redirigir todo al index.php excepto archivos y directorios reales
 RewriteEngine On
-
-# ── Excluir rom_proxy.php del rewrite (es un archivo real) ──────────────────
-RewriteCond %{REQUEST_URI} !^/rom_proxy\.php
-
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]
 
-# ── Cabeceras de seguridad globales ──────────────────────────────────────────
+# ── Errores personalizados ──────────────────────────────────────────────────
+ErrorDocument 404 /index.php?controller=errors&action=notFound
+ErrorDocument 403 /index.php?controller=errors&action=forbidden
+ErrorDocument 500 /index.php?controller=errors&action=serverError
+
+# ── Seguridad básica ────────────────────────────────────────────────────────
+# Bloquear acceso directo a archivos sensibles
+<FilesMatch "\.(env|log|sql|sh|bak)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Bloquear listado de directorios
+Options -Indexes
+
+# Ocultar versión de PHP
 <IfModule mod_headers.c>
-    # Necesarias para SharedArrayBuffer (PSP, N64 en EmulatorJS con threads)
-    # Solo se aplican a la página play y al proxy
-    <FilesMatch "^(index\.php|rom_proxy\.php)$">
-        Header set Cross-Origin-Opener-Policy "same-origin"
-        Header set Cross-Origin-Embedder-Policy "require-corp"
-    </FilesMatch>
-
-    # CORS para el proxy (permite que el JS del navegador acceda a la ROM)
-    <Files "rom_proxy.php">
-        Header set Access-Control-Allow-Origin "*"
-        Header set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
-        Header set Access-Control-Allow-Headers "Range, Content-Type"
-        Header set Access-Control-Expose-Headers "Content-Length, Content-Range, Accept-Ranges"
-        Header set Timing-Allow-Origin "*"
-    </Files>
+    Header unset X-Powered-By
+    Header always unset X-Powered-By
 </IfModule>
 
-# ── Comprimir JS/CSS pero NO archivos de ROM (evita doble compresión) ────────
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css application/javascript
-    SetEnvIfNoCase Request_URI rom_proxy\.php no-gzip dont-vary
+# ── Caché para assets estáticos ─────────────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css              "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType image/png             "access plus 1 month"
+    ExpiresByType image/jpeg            "access plus 1 month"
+    ExpiresByType image/webp            "access plus 1 month"
+    ExpiresByType image/gif             "access plus 1 month"
 </IfModule>

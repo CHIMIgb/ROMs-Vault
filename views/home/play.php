@@ -15,19 +15,75 @@
     </span>
 </div>
 
-<?php if (!empty($error)): ?>
-<!-- ====== Error: consola no soportada o BIOS faltante ====== -->
-<div class="emulator-unsupported">
-    <div class="unsupported-icon">⚠️</div>
-    <h2 class="unsupported-title">Emulación no disponible</h2>
-    <p class="unsupported-msg"><?= $error /* puede contener <code> */ ?></p>
-    <p style="margin-bottom:1.5rem; color: var(--slate-mid);">
-        Puedes descargar la ROM y ejecutarla con un emulador local.
-    </p>
-    <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>"
-       class="btn-download-big" target="_blank">
-        ⬇ Descargar ROM
-    </a>
+<?php
+// ── Determinar si hay cualquier tipo de error que bloquee el emulador ────────
+$hayError   = !empty($error) || !empty($proxyError);
+$errorType  = $proxyError['type']    ?? 'unsupported';
+$errorMsg   = !empty($proxyError)    ? $proxyError['message'] : ($error ?? '');
+?>
+
+<?php if ($hayError): ?>
+<?php
+// Icono y título según tipo
+$iconMap  = [
+    'not_found'   => ['🗑️',  'Archivo no encontrado'],
+    'private'     => ['🔒',  'Archivo privado o bloqueado'],
+    'quota'       => ['⏳',  'Límite de descargas alcanzado'],
+    'network'     => ['📡',  'Error de conexión con Google Drive'],
+    'unsupported' => ['⚙️',  'Emulación no disponible'],
+];
+[$icon, $titulo] = $iconMap[$errorType] ?? ['⚠️', 'Error desconocido'];
+
+// Consejo específico por tipo
+$consejo = match($errorType) {
+    'not_found'   => 'El administrador del sitio tendrá que actualizar el enlace de Google Drive para este juego.',
+    'private'     => 'Puede que el propietario del archivo haya cambiado sus permisos. El equipo del sitio puede solucionarlo.',
+    'quota'       => 'Google Drive limita el número de descargas de archivos grandes. Vuelve a intentarlo en 24 horas o descarga la ROM directamente.',
+    'network'     => 'Esto suele ser temporal. Espera unos minutos e inténtalo de nuevo.',
+    default       => 'Puedes descargar la ROM y ejecutarla con un emulador local en tu equipo.',
+};
+?>
+<!-- ====== Error con diagnóstico ====== -->
+<div class="proxy-error-page">
+
+    <div class="proxy-error-icon"><?= $icon ?></div>
+    <h2 class="proxy-error-title"><?= htmlspecialchars($titulo) ?></h2>
+    <p class="proxy-error-msg"><?= $errorMsg /* puede contener <code> */ ?></p>
+
+    <div class="proxy-error-tip">
+        <span class="proxy-tip-label">💡 ¿Qué puedo hacer?</span>
+        <?= htmlspecialchars($consejo) ?>
+    </div>
+
+    <!-- Acciones disponibles -->
+    <div class="proxy-error-actions">
+        <?php if ($errorType !== 'quota'): ?>
+        <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>"
+           class="btn-download-big" target="_blank">
+            ⬇ Descargar ROM
+        </a>
+        <?php endif; ?>
+        <?php if ($errorType === 'quota'): ?>
+        <a href="javascript:location.reload()" class="btn-retry">
+            🔄 Reintentar ahora
+        </a>
+        <?php endif; ?>
+        <a href="index.php?controller=home&action=index" class="btn-back-catalog">
+            ← Volver al catálogo
+        </a>
+    </div>
+
+    <!-- Detalles técnicos colapsables para el admin -->
+    <details class="proxy-error-details">
+        <summary>Detalles técnicos</summary>
+        <div class="proxy-error-technical">
+            <div><span>Juego:</span> <?= htmlspecialchars($juego['titulo']) ?></div>
+            <div><span>Consola:</span> <?= htmlspecialchars($juego['consola_nombre'] ?? '—') ?></div>
+            <div><span>File ID:</span> <code><?= htmlspecialchars($juego['google_drive_file_id']) ?></code></div>
+            <div><span>Error:</span> <code><?= htmlspecialchars($errorType) ?></code></div>
+        </div>
+    </details>
+
 </div>
 
 <?php else: ?>
@@ -320,14 +376,70 @@
             loadBar.style.display = 'none';
 
         } catch (err) {
-            loadText.textContent      = '❌ Error al cargar la ROM';
-            loadDetail.textContent    = err.message + ' — intentando carga directa…';
-            loadFill.style.background = '#c0392b';
+            loadFill.style.background = 'var(--red)';
             loadFill.style.width      = '100%';
             console.error('[proxy preload]', err);
-            await new Promise(r => setTimeout(r, 2500));
-            loadBar.style.display = 'none';
-            // EJS_gameUrl sigue siendo la URL del proxy, EJS intentará de todas formas
+
+            // Intentar leer el JSON de error del proxy para mostrar diagnóstico
+            let errorType = 'network';
+            let errorMsg  = err.message;
+
+            // Si el error viene de un HTTP no-OK, intentar parsear la respuesta JSON
+            try {
+                const errRes = await fetch(romUrl);
+                if (!errRes.ok) {
+                    const ct = errRes.headers.get('Content-Type') || '';
+                    if (ct.includes('json')) {
+                        const data = await errRes.json();
+                        errorType  = data.error_type || 'network';
+                        errorMsg   = data.error      || errorMsg;
+                    }
+                }
+            } catch (_) { /* ignorar errores al releer */ }
+
+            // Mostrar página de error amigable en vez del emulador
+            const iconMap = {
+                not_found: ['🗑️',  'Archivo no encontrado'],
+                private:   ['🔒',  'Archivo privado o bloqueado'],
+                quota:     ['⏳',  'Límite de descargas alcanzado'],
+                network:   ['📡',  'Error de conexión con Google Drive'],
+            };
+            const tipMap = {
+                not_found: 'El administrador del sitio tendrá que actualizar el enlace de Google Drive para este juego.',
+                private:   'Puede que el propietario haya cambiado los permisos. El equipo del sitio puede solucionarlo.',
+                quota:     'Google Drive limita las descargas de archivos grandes. Vuelve a intentarlo en 24 horas.',
+                network:   'Esto suele ser temporal. Espera unos minutos e inténtalo de nuevo.',
+            };
+            const [icon, titulo] = iconMap[errorType] || ['⚠️', 'Error al cargar la ROM'];
+            const consejo        = tipMap[errorType]   || 'Inténtalo de nuevo o descarga la ROM.';
+            const fileId         = romUrl.split('file_id=')[1] || '';
+
+            document.querySelector('.emulator-wrapper').innerHTML = `
+                <div class="proxy-error-page">
+                    <div class="proxy-error-icon">${icon}</div>
+                    <h2 class="proxy-error-title">${titulo}</h2>
+                    <p class="proxy-error-msg">${errorMsg}</p>
+                    <div class="proxy-error-tip">
+                        <span class="proxy-tip-label">💡 ¿Qué puedo hacer?</span>
+                        ${consejo}
+                    </div>
+                    <div class="proxy-error-actions">
+                        ${errorType !== 'quota'
+                            ? `<a href="index.php?controller=home&action=download&file_id=${encodeURIComponent(fileId)}"
+                                  class="btn-download-big" target="_blank">⬇ Descargar ROM</a>`
+                            : `<a href="javascript:location.reload()" class="btn-retry">🔄 Reintentar</a>`
+                        }
+                        <a href="index.php?controller=home&action=index" class="btn-back-catalog">← Volver al catálogo</a>
+                    </div>
+                    <details class="proxy-error-details">
+                        <summary>Detalles técnicos</summary>
+                        <div class="proxy-error-technical">
+                            <div><span>Error:</span> <code>${errorType}</code></div>
+                            <div><span>Mensaje:</span> <code>${errorMsg}</code></div>
+                        </div>
+                    </details>
+                </div>`;
+            return; // No cargar EmulatorJS
         }
 
         loadEmulatorJS();

@@ -223,12 +223,66 @@ class HomeController {
         }
 
         // Pasar flags a la vista
-        $needsThreads   = $core ? $this->requiresThreads($core) : false;
-        $modoStreaming   = $core ? $this->usarStreaming($core)   : false;
+        $needsThreads  = $core ? $this->requiresThreads($core) : false;
+        $modoStreaming  = $core ? $this->usarStreaming($core)   : false;
+
+        // Verificar accesibilidad del archivo en Google Drive (solo si hay core)
+        // HEAD ligero al proxy para detectar errores antes de cargar el emulador.
+        $proxyError = null;
+        if (!$error && $core) {
+            $proxyError = $this->checkProxyAccess($fileId);
+        }
 
         require_once 'views/layout/header.php';
         require_once 'views/home/play.php';
         require_once 'views/layout/footer.php';
+    }
+
+    /**
+     * Hace un HEAD al proxy para detectar si el archivo de Google Drive
+     * es accesible antes de intentar cargar el emulador.
+     * Devuelve null si todo va bien, o un array ['type'=>..., 'message'=>...].
+     */
+    private function checkProxyAccess(string $fileId): ?array {
+        $scheme   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $dir      = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/');
+        $proxyUrl = $scheme . '://' . $host . $dir . '/rom_proxy.php?file_id=' . urlencode($fileId);
+
+        $ch = curl_init($proxyUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_NOBODY         => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 12,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 5,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT      => 'ROMs-Vault/Preflight',
+        ]);
+        curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr  = curl_error($ch);
+        curl_close($ch);
+
+        // Si cURL no pudo conectar al proxy local, ignorar el error
+        if ($httpCode === 0 || !empty($curlErr)) {
+            return null;
+        }
+        if ($httpCode === 200 || $httpCode === 206) {
+            return null; // Todo OK
+        }
+
+        $typeMap = [
+            404 => ['type' => 'not_found', 'message' => 'El archivo de esta ROM ya no existe en Google Drive. Puede haber sido eliminado o el enlace está desactualizado.'],
+            403 => ['type' => 'private',   'message' => 'Google Drive está bloqueando el acceso a este archivo. Puede que sea privado o que su cuota de descargas se haya agotado.'],
+            429 => ['type' => 'quota',     'message' => 'Google Drive ha limitado temporalmente el acceso por exceso de descargas. Inténtalo de nuevo en unos minutos.'],
+            502 => ['type' => 'network',   'message' => 'No se pudo conectar con Google Drive. El servicio puede estar caído o el archivo fue movido.'],
+        ];
+
+        return $typeMap[$httpCode] ?? [
+            'type'    => 'network',
+            'message' => "Error inesperado al acceder al archivo (código $httpCode). Inténtalo de nuevo más tarde.",
+        ];
     }
 
     public function download() {

@@ -1254,6 +1254,427 @@ nav a:hover {
     transition: opacity 0.15s ease;
 }
 
+
+/* =====================================================
+   ERROR DE PROXY — Archivo de Google Drive inaccesible
+   ===================================================== */
+
+.proxy-error-page {
+    max-width: 560px;
+    margin: 2rem auto;
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.proxy-error-page::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.4);
+    pointer-events: none;
+}
+
+.proxy-error-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    line-height: 1;
+}
+
+.proxy-error-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.72rem;
+    color: var(--red);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    text-shadow: 2px 2px 0 var(--red-dark);
+}
+
+.proxy-error-msg {
+    color: var(--slate);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.proxy-error-tip {
+    background: var(--cream-dark);
+    border: 2px solid var(--border-mid);
+    border-left: 4px solid var(--amber);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    color: var(--slate);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.proxy-tip-label {
+    display: block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.proxy-error-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.btn-retry {
+    display: inline-block;
+    background: var(--green-ok);
+    color: #fff;
+    padding: 0.7rem 1.5rem;
+    border: 2px solid #2a5a32;
+    box-shadow: 4px 4px 0 #1a3a20;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+
+.btn-retry:hover {
+    box-shadow: 1px 1px 0 #1a3a20;
+    transform: translate(3px, 3px);
+}
+
+.btn-back-catalog {
+    display: inline-block;
+    background: var(--slate);
+    color: var(--cream-light);
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 4px 4px 0 #1a1a1a;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    transition: box-shadow 0.1s, transform 0.1s, background 0.1s;
+}
+
+.btn-back-catalog:hover {
+    background: var(--red);
+    box-shadow: 1px 1px 0 #1a1a1a;
+    transform: translate(3px, 3px);
+}
+
+.proxy-error-details {
+    text-align: left;
+    border: 2px solid var(--border-light);
+    padding: 0.5rem 0.75rem;
+    background: var(--cream-dark);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+}
+
+.proxy-error-details summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--slate-mid);
+    font-size: 0.78rem;
+    user-select: none;
+    list-style: none;
+    padding: 0.25rem 0;
+}
+
+.proxy-error-details summary::before {
+    content: '▶ ';
+    font-size: 0.55rem;
+}
+
+.proxy-error-details[open] summary::before {
+    content: '▼ ';
+}
+
+.proxy-error-technical {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: var(--slate-mid);
+}
+
+.proxy-error-technical div {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+}
+
+.proxy-error-technical span {
+    color: var(--slate);
+    font-weight: 700;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    min-width: 4rem;
+    flex-shrink: 0;
+}
+
+.proxy-error-technical code {
+    font-size: 0.82rem;
+    background: var(--cream-light);
+    border: 1px solid var(--border-light);
+    padding: 0.1rem 0.3rem;
+    word-break: break-all;
+}
+
+/* =====================================================
+   PÁGINA 404 — Game Over estilo arcade
+   ===================================================== */
+
+.error-404-page {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Pantalla CRT simulada */
+.error-404-screen {
+    position: relative;
+    background: #0a0a0a;
+    border: 4px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg), inset 0 0 40px rgba(0,0,0,0.8);
+    padding: 2.5rem 2rem 2rem;
+    margin: 0 auto 2.5rem;
+    max-width: 420px;
+    overflow: hidden;
+}
+
+/* Líneas de escaneo CRT */
+.error-404-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.25) 3px,
+        rgba(0,0,0,0.25) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+.error-404-code {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 4rem;
+    color: var(--red);
+    text-shadow: 0 0 20px rgba(192,57,43,0.8), 3px 3px 0 var(--red-dark);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 3;
+    animation: glitch 4s infinite;
+}
+
+@keyframes glitch {
+    0%, 90%, 100% { transform: none; text-shadow: 0 0 20px rgba(192,57,43,0.8), 3px 3px 0 var(--red-dark); }
+    92%  { transform: translate(-3px, 1px); text-shadow: 2px 0 0 #00ffff, -2px 0 0 #ff00ff; }
+    94%  { transform: translate(3px, -1px); text-shadow: -2px 0 0 #00ffff, 2px 0 0 #ff00ff; }
+    96%  { transform: translate(0, 2px); }
+}
+
+.error-404-gameover {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+    color: var(--cream);
+    letter-spacing: 0.15em;
+    margin-bottom: 1.25rem;
+    text-shadow: 0 0 10px rgba(232,224,200,0.5);
+    position: relative;
+    z-index: 3;
+}
+
+.error-404-insert {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: var(--border-mid);
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+    animation: insertBlink 1.2s step-end infinite;
+    position: relative;
+    z-index: 3;
+}
+
+@keyframes insertBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}
+
+.error-404-blink {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    color: var(--red);
+    animation: insertBlink 0.8s step-end infinite;
+    position: relative;
+    z-index: 3;
+}
+
+.error-404-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.85rem;
+    color: var(--slate);
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 0 var(--border-mid);
+    line-height: 1.6;
+}
+
+.error-404-msg {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.95rem;
+    color: var(--slate-mid);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.error-404-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.btn-404-home {
+    display: inline-block;
+    background: var(--red);
+    color: var(--cream-light);
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--red-dark);
+    box-shadow: 4px 4px 0 var(--red-dark);
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+
+.btn-404-home:hover {
+    box-shadow: 1px 1px 0 var(--red-dark);
+    transform: translate(3px, 3px);
+}
+
+.btn-404-back {
+    display: inline-block;
+    background: var(--slate);
+    color: var(--cream-light);
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 4px 4px 0 #1a1a1a;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    transition: box-shadow 0.1s, transform 0.1s, background 0.1s;
+}
+
+.btn-404-back:hover {
+    background: var(--red);
+    box-shadow: 1px 1px 0 #1a1a1a;
+    transform: translate(3px, 3px);
+}
+
+.error-404-details {
+    text-align: left;
+    max-width: 480px;
+    margin: 0 auto;
+    border: 2px solid var(--border-light);
+    padding: 0.5rem 0.75rem;
+    background: var(--cream-dark);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+}
+
+.error-404-details summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--slate-mid);
+    font-size: 0.78rem;
+    user-select: none;
+    list-style: none;
+    padding: 0.25rem 0;
+}
+
+.error-404-details summary::before { content: '▶ '; font-size: 0.55rem; }
+.error-404-details[open] summary::before { content: '▼ '; }
+
+.error-technical-content {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: var(--slate-mid);
+}
+
+.error-technical-content div {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+}
+
+.error-technical-content span {
+    color: var(--slate);
+    font-weight: 700;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    min-width: 3.5rem;
+    flex-shrink: 0;
+}
+
+.error-technical-content code {
+    font-size: 0.78rem;
+    background: var(--cream-light);
+    border: 1px solid var(--border-light);
+    padding: 0.1rem 0.3rem;
+    word-break: break-all;
+}
+
+/* Créditos decorativos */
+.error-404-credits {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: var(--border-mid);
+    letter-spacing: 0.15em;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+#credits-num {
+    color: var(--red);
+}
+
+@media (max-width: 480px) {
+    .error-404-code   { font-size: 2.8rem; }
+    .error-404-screen { padding: 2rem 1rem 1.5rem; }
+    .error-404-actions, .proxy-error-actions { flex-direction: column; }
+    .btn-404-home, .btn-404-back,
+    .btn-retry, .btn-back-catalog { width: 100%; text-align: center; }
+}
+
 /* ===== FOOTER ===== */
 footer {
     margin-top: 4rem;

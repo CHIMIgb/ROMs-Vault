@@ -1,28 +1,46 @@
 <?php
-// index.php
+// index.php — Router principal
 session_start();
 
 $controller = $_GET['controller'] ?? 'home';
-$action = $_GET['action'] ?? 'index';
-$id = $_GET['id'] ?? null; // Capturar el ID de la URL
+$action     = $_GET['action']     ?? 'index';
+$id         = $_GET['id']         ?? null;
 
-$controllerFile = "controllers/" . ucfirst($controller) . "Controller.php";
+// Sanitizar — solo letras y dígitos para controller y action
+if (!preg_match('/^[a-zA-Z0-9]+$/', $controller) || !preg_match('/^[a-zA-Z0-9_]+$/', $action)) {
+    http_response_code(404);
+    require_once 'views/layout/header.php';
+    require_once 'views/errors/404.php';
+    require_once 'views/layout/footer.php';
+    exit;
+}
 
-if (file_exists($controllerFile)) {
-    require_once $controllerFile;
-    $controllerClass = ucfirst($controller) . "Controller";
-    $controllerInstance = new $controllerClass();
-    
-    if (is_callable([$controllerInstance, $action])) {
-        // Pasar el ID si existe
-        if ($id) {
-            $controllerInstance->$action($id);
-        } else {
-            $controllerInstance->$action();
-        }
-    } else {
-        die("Acción no encontrada: " . $action);
-    }
+$controllerFile  = 'controllers/' . ucfirst($controller) . 'Controller.php';
+$controllerClass = ucfirst($controller) . 'Controller';
+
+if (!file_exists($controllerFile)) {
+    http_response_code(404);
+    $errorContext = "Controlador «$controller» no encontrado.";
+    require_once 'views/layout/header.php';
+    require_once 'views/errors/404.php';
+    require_once 'views/layout/footer.php';
+    exit;
+}
+
+require_once $controllerFile;
+$controllerInstance = new $controllerClass();
+
+if (!is_callable([$controllerInstance, $action])) {
+    http_response_code(404);
+    $errorContext = "Acción «$action» no encontrada en el controlador «$controller».";
+    require_once 'views/layout/header.php';
+    require_once 'views/errors/404.php';
+    require_once 'views/layout/footer.php';
+    exit;
+}
+
+if ($id !== null) {
+    $controllerInstance->$action($id);
 } else {
-    die("Controlador no encontrado: " . $controller);
+    $controllerInstance->$action();
 }

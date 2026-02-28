@@ -203,7 +203,11 @@ $resolved = resolveGDriveUrl($gdriveUrl);
 if ($resolved['error'] || !$resolved['url']) {
     http_response_code(502);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'No se pudo resolver la URL de Google Drive: ' . ($resolved['error'] ?? 'desconocido')]);
+    echo json_encode([
+        'error'      => 'No se pudo resolver la URL de Google Drive.',
+        'error_type' => 'network',
+        'detail'     => $resolved['error'] ?? 'Sin respuesta del servidor de Google Drive.',
+    ]);
     error_log('[rom_proxy] Error resolviendo URL para file_id=' . $fileId . ': ' . ($resolved['error'] ?? ''));
     exit;
 }
@@ -296,10 +300,28 @@ if ($httpCode === 206) {
 } elseif ($httpCode >= 200 && $httpCode < 300) {
     http_response_code(200);
 } else {
+    // Determinar tipo de error según código HTTP de Google Drive
+    if ($httpCode === 404) {
+        $errorType   = 'not_found';
+        $errorMsg    = 'El archivo ya no existe en Google Drive (fue eliminado o el enlace es incorrecto).';
+    } elseif ($httpCode === 403) {
+        $errorType   = 'private';
+        $errorMsg    = 'Google Drive ha bloqueado el acceso a este archivo (permisos insuficientes o cuota de descargas superada).';
+    } elseif ($httpCode === 429) {
+        $errorType   = 'quota';
+        $errorMsg    = 'Google Drive ha limitado el acceso temporalmente por exceso de descargas. Inténtalo más tarde.';
+    } else {
+        $errorType   = 'network';
+        $errorMsg    = "Google Drive devolvió un error inesperado (HTTP $httpCode).";
+    }
     http_response_code(502);
     header('Content-Type: application/json');
-    echo json_encode(['error' => "Google Drive devolvió HTTP $httpCode"]);
-    error_log("[rom_proxy] Google Drive HTTP $httpCode para file_id=$fileId");
+    echo json_encode([
+        'error'      => $errorMsg,
+        'error_type' => $errorType,
+        'http_code'  => $httpCode,
+    ]);
+    error_log("[rom_proxy] Google Drive HTTP $httpCode ($errorType) para file_id=$fileId");
     exit;
 }
 
@@ -358,7 +380,10 @@ while (ob_get_level() > 0) {
 $result = curl_exec($ch);
 
 if ($result === false) {
-    error_log('[rom_proxy] cURL streaming error para file_id=' . $fileId . ': ' . curl_error($ch));
+    $curlErr = curl_error($ch);
+    error_log('[rom_proxy] cURL streaming error para file_id=' . $fileId . ': ' . $curlErr);
+    // No podemos emitir JSON aquí porque los headers ya fueron enviados;
+    // el navegador detectará la conexión truncada y play.php lo capturará.
 }
 
 curl_close($ch);
