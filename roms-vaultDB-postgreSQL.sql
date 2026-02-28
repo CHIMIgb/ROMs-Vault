@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS public.juegos (
     google_drive_view_link VARCHAR(500),
     size_bytes BIGINT DEFAULT 0,
     downloads_count INTEGER DEFAULT 0,
+    plays_count INTEGER DEFAULT 0,
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

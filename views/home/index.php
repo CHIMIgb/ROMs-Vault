@@ -4,6 +4,9 @@
     <form method="GET" action="index.php" class="search-form">
         <input type="hidden" name="controller" value="home">
         <input type="hidden" name="action" value="index">
+        <?php if (isset($_GET['orden']) && $_GET['orden'] !== ''): ?>
+        <input type="hidden" name="orden" value="<?= htmlspecialchars($_GET['orden']) ?>">
+        <?php endif; ?>
         
         <div class="search-wrapper">
             <input type="text" 
@@ -51,10 +54,19 @@
             <option value="NTSC-U" <?= (isset($_GET['region']) && $_GET['region'] == 'NTSC-U') ? 'selected' : '' ?>>NTSC-U</option>
         </select>
 
+        <select name="orden">
+            <option value="titulo"    <?= (($_GET['orden'] ?? '') === 'titulo')    ? 'selected' : '' ?>>A – Z</option>
+            <option value="recientes" <?= (($_GET['orden'] ?? '') === 'recientes') ? 'selected' : '' ?>>Más recientes</option>
+            <option value="descargas" <?= (($_GET['orden'] ?? '') === 'descargas') ? 'selected' : '' ?>>Más descargados</option>
+            <option value="jugados"   <?= (($_GET['orden'] ?? '') === 'jugados')   ? 'selected' : '' ?>>Más jugados</option>
+            <option value="año_desc"  <?= (($_GET['orden'] ?? '') === 'año_desc')  ? 'selected' : '' ?>>Año ↓ (nuevos primero)</option>
+            <option value="año_asc"   <?= (($_GET['orden'] ?? '') === 'año_asc')   ? 'selected' : '' ?>>Año ↑ (clásicos primero)</option>
+        </select>
+
         <button type="submit">Filtrar</button>
         
         <!-- Botón para limpiar filtros -->
-        <?php if (isset($_GET['consola']) || isset($_GET['categoria']) || isset($_GET['region']) || isset($_GET['busqueda'])): ?>
+        <?php if (isset($_GET['consola']) || isset($_GET['categoria']) || isset($_GET['region']) || isset($_GET['busqueda']) || isset($_GET['orden'])): ?>
             <a href="?controller=home&action=index" class="clear-filters">Limpiar</a>
         <?php endif; ?>
     </form>
@@ -115,6 +127,12 @@
                                 <span class="game-info-value"><?= number_format($juego['downloads_count']) ?></span>
                             </div>
                         <?php endif; ?>
+                        <?php if (!empty($juego['plays_count'])): ?>
+                            <div class="game-info-item">
+                                <span class="game-info-label">Jugadas</span>
+                                <span class="game-info-value"><?= number_format($juego['plays_count']) ?></span>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- Botones de acción -->
@@ -140,7 +158,7 @@
 <div class="pagination">
     <!-- Botón anterior -->
     <?php if ($currentPage > 1): ?>
-        <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+        <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?><?= isset($_GET['orden']) ? '&orden='.urlencode($_GET['orden']) : '' ?>" 
            class="pagination-link">
             ← Anterior
         </a>
@@ -153,7 +171,7 @@
                 <?= $i ?>
             </span>
         <?php else: ?>
-            <a href="?controller=home&action=index&page=<?= $i ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+            <a href="?controller=home&action=index&page=<?= $i ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?><?= isset($_GET['orden']) ? '&orden='.urlencode($_GET['orden']) : '' ?>" 
                class="pagination-link">
                 <?= $i ?>
             </a>
@@ -162,7 +180,7 @@
     
     <!-- Botón siguiente -->
     <?php if ($currentPage < $totalPages): ?>
-        <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?>" 
+        <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= isset($_GET['busqueda']) ? '&busqueda='.urlencode($_GET['busqueda']) : '' ?><?= isset($_GET['consola']) ? '&consola='.$_GET['consola'] : '' ?><?= isset($_GET['categoria']) ? '&categoria='.$_GET['categoria'] : '' ?><?= isset($_GET['region']) ? '&region='.$_GET['region'] : '' ?><?= isset($_GET['orden']) ? '&orden='.urlencode($_GET['orden']) : '' ?>" 
            class="pagination-link">
             Siguiente →
         </a>

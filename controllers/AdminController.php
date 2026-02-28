@@ -109,7 +109,7 @@ class AdminController {
                 'google_drive_file_id' => $_POST['google_drive_file_id'],
                 'google_drive_view_link' => $_POST['google_drive_view_link'],
                 'size_bytes' => $_POST['size_bytes'] ?: 0,
-                'activo' => isset($_POST['activo']) ? 1 : 0,
+                'activo' => $juego['activo'],
             ];
 
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {

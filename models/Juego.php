@@ -29,6 +29,12 @@ class Juego extends Model {
         return $stmt->execute([$id]);
     }
 
+    // Incrementar contador de jugadas online
+    public function incrementPlays($id) {
+        $stmt = $this->pdo->prepare("UPDATE {$this->table} SET plays_count = plays_count + 1 WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
     public function getWithRelations($filters = []) {
         $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
                 FROM juegos j
@@ -104,7 +110,23 @@ class Juego extends Model {
         return (int)$result['total'];
     }
 
-    // Método con paginación y búsqueda (catálogo público)
+    /**
+     * Whitelist de ordenamientos permitidos para el catálogo público.
+     * Previene inyección SQL al construir el ORDER BY dinámicamente.
+     */
+    private function resolveOrder(string $orden): string {
+        $map = [
+            'titulo'    => 'j.titulo ASC',
+            'recientes' => 'j.created_at DESC',
+            'descargas' => 'j.downloads_count DESC',
+            'jugados'   => 'j.plays_count DESC',
+            'año_asc'   => 'j.fecha_lanzamiento ASC NULLS LAST',
+            'año_desc'  => 'j.fecha_lanzamiento DESC NULLS LAST',
+        ];
+        return $map[$orden] ?? 'j.titulo ASC';
+    }
+
+    // Método con paginación, búsqueda y ordenamiento (catálogo público)
     public function getWithRelationsPaginated($filters = [], $offset = 0, $limit = 20) {
         $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
                 FROM juegos j
@@ -125,7 +147,9 @@ class Juego extends Model {
             $sql .= " AND j.region = :region";
         }
 
-        $sql .= " ORDER BY j.titulo ASC LIMIT :limit OFFSET :offset";
+        // Ordenamiento seguro mediante whitelist
+        $orden = $this->resolveOrder($filters['orden'] ?? '');
+        $sql .= " ORDER BY {$orden} LIMIT :limit OFFSET :offset";
         
         $stmt = $this->pdo->prepare($sql);
         

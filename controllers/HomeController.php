@@ -27,6 +27,9 @@ class HomeController {
         if (isset($_GET['region']) && $_GET['region'] !== '') {
             $filters['region'] = $_GET['region'];
         }
+        if (isset($_GET['orden']) && $_GET['orden'] !== '') {
+            $filters['orden'] = $_GET['orden'];
+        }
 
         // Configuración de paginación
         $itemsPerPage = 20; // 4 columnas × 5 filas
@@ -41,15 +44,6 @@ class HomeController {
         // Obtener total de juegos para la paginación
         $totalJuegos = $juegoModel->countWithFilters($filters);
         $totalPages = ceil($totalJuegos / $itemsPerPage);
-        
-        // DEBUG - Registrar valores para verificar
-        error_log("=== PAGINACIÓN ===");
-        error_log("totalJuegos: " . $totalJuegos);
-        error_log("itemsPerPage: " . $itemsPerPage);
-        error_log("totalPages: " . $totalPages);
-        error_log("currentPage: " . $currentPage);
-        error_log("offset: " . $offset);
-        error_log("juegos encontrados: " . count($juegos));
         
         // Obtener datos para filtros
         $consolas = $consolaModel->all();
@@ -198,6 +192,10 @@ class HomeController {
         if (!$juego) {
             die("Error: El juego solicitado no existe en la base de datos.");
         }
+
+        // Registrar jugada online (solo cuando hay core disponible; se incrementa aquí
+        // antes de resolver el core para contabilizar también intentos de consolas no soportadas).
+        $juegoModel->incrementPlays($juego['id']);
 
         // Obtener nombre de consola si no viene del JOIN
         if (empty($juego['consola_nombre'])) {

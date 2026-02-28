@@ -68,6 +68,7 @@ CREATE TABLE `juegos` (
     `google_drive_view_link` VARCHAR(500),
     `size_bytes` BIGINT DEFAULT 0,
     `downloads_count` INT DEFAULT 0,
+    `plays_count` INT DEFAULT 0,
     `activo` BOOLEAN DEFAULT TRUE,
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

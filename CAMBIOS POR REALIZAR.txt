@@ -1,0 +1,28 @@
+CAMBIOS POR REALIZAR
+
+3. Contador de jugadas online
+Tienes downloads_count en la BD pero no hay equivalente para las veces que se juega online. No sabes qué juegos se juegan más.
+
+4. Ordenar el catálogo
+Solo puedes filtrar, no ordenar. No hay forma de ver "los más descargados", "los más jugados", "los más recientes" o "por año de lanzamiento". Es una funcionalidad básica en cualquier catálogo.
+
+5. Búsqueda desde el admin con más filtros
+El dashboard admin solo busca por título. No puedes filtrar por consola, categoría, activo/inactivo o región desde el panel. Con muchos juegos eso se vuelve muy incómodo.
+
+6. Estadísticas reales en el dashboard
+El dashboard muestra "Total juegos / Activos / Inactivos" pero calculado sobre la página actual (20 juegos), no sobre el total real. Los números mienten cuando hay más de una página. También falta un ranking de los más descargados o jugados.
+
+7. Mensaje de error más claro cuando falla el proxy
+Si Google Drive pone el archivo como privado o lo elimina, el usuario ve un error técnico. Falta una página de error amigable que explique qué pasó y ofrezca alternativas.
+
+8. Página 404 personalizada
+Si alguien navega a una URL incorrecta, el error que devuelve el servidor es genérico de PHP/Apache. Falta una página 404 con el estilo del sitio.
+
+9. Juegos relacionados en la página de juego/emulador
+Al terminar de jugar o al entrar a un juego, mostrar "Otros juegos de la misma consola" o "Del mismo género". Aumenta el tiempo en el sitio.
+
+10. Buscador con autocompletado
+Cuando el usuario empieza a escribir en el buscador, que aparezcan sugerencias en tiempo real via AJAX sin necesidad de enviar el formulario.
+
+12. Compartir juego
+Un botón para copiar el enlace directo a un juego específico o compartirlo en redes. Actualmente no hay URLs permanentes por juego.
