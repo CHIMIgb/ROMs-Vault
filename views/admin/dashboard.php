@@ -1,54 +1,45 @@
 <!-- views/admin/dashboard.php -->
 
-<!-- ═══════════════════════════════════════════════════════════
-     ESTADÍSTICAS GLOBALES REALES
-     ═══════════════════════════════════════════════════════════ -->
+<!-- ESTADÍSTICAS GLOBALES REALES -->
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label">Total juegos</div>
-        <div class="stat-value" style="color: var(--primary);"><?= number_format($stats['total']) ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Activos</div>
-        <div class="stat-value" style="color: var(--success);"><?= number_format($stats['activos']) ?></div>
+        <div class="stat-value" style="color:var(--success);"><?= number_format($stats['activos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Inactivos</div>
-        <div class="stat-value" style="color: var(--text-light);"><?= number_format($stats['inactivos']) ?></div>
+        <div class="stat-value" style="color:var(--text-light);"><?= number_format($stats['inactivos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Total descargas</div>
-        <div class="stat-value" style="color: var(--primary);"><?= number_format($stats['total_descargas']) ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total_descargas']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Total jugadas online</div>
-        <div class="stat-value" style="color: var(--primary);"><?= number_format($stats['total_jugadas']) ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total_jugadas']) ?></div>
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     RANKINGS
-     ═══════════════════════════════════════════════════════════ -->
+<!-- RANKINGS -->
 <?php if (!empty($topDescargas) || !empty($topJugados)): ?>
 <div class="admin-rankings">
-
     <?php if (!empty($topDescargas)): ?>
     <div class="ranking-card">
-        <h3 class="ranking-title">⬇ Top 5 más descargados</h3>
+        <h3 class="ranking-title">Top 5 mas descargados</h3>
         <ol class="ranking-list">
-            <?php
-            $maxD = $topDescargas[0]['downloads_count'] ?: 1;
+            <?php $maxD = $topDescargas[0]['downloads_count'] ?: 1;
             foreach ($topDescargas as $i => $j):
-                $pct = round(($j['downloads_count'] / $maxD) * 100);
-            ?>
+                $pct = round(($j['downloads_count'] / $maxD) * 100); ?>
             <li class="ranking-item">
                 <span class="ranking-pos"><?= $i + 1 ?></span>
                 <div class="ranking-info">
                     <span class="ranking-game"><?= htmlspecialchars($j['titulo']) ?></span>
-                    <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '—') ?></span>
-                    <div class="ranking-bar-track">
-                        <div class="ranking-bar-fill" style="width:<?= $pct ?>%"></div>
-                    </div>
+                    <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '') ?></span>
+                    <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:<?= $pct ?>%"></div></div>
                 </div>
                 <span class="ranking-count"><?= number_format($j['downloads_count']) ?></span>
             </li>
@@ -56,24 +47,19 @@
         </ol>
     </div>
     <?php endif; ?>
-
     <?php if (!empty($topJugados)): ?>
     <div class="ranking-card">
-        <h3 class="ranking-title">▶ Top 5 más jugados online</h3>
+        <h3 class="ranking-title">Top 5 mas jugados online</h3>
         <ol class="ranking-list">
-            <?php
-            $maxP = $topJugados[0]['plays_count'] ?: 1;
+            <?php $maxP = $topJugados[0]['plays_count'] ?: 1;
             foreach ($topJugados as $i => $j):
-                $pct = round(($j['plays_count'] / $maxP) * 100);
-            ?>
+                $pct = round(($j['plays_count'] / $maxP) * 100); ?>
             <li class="ranking-item">
                 <span class="ranking-pos"><?= $i + 1 ?></span>
                 <div class="ranking-info">
                     <span class="ranking-game"><?= htmlspecialchars($j['titulo']) ?></span>
-                    <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '—') ?></span>
-                    <div class="ranking-bar-track">
-                        <div class="ranking-bar-fill" style="width:<?= $pct ?>%; background: var(--success);"></div>
-                    </div>
+                    <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '') ?></span>
+                    <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:<?= $pct ?>%;background:var(--success);"></div></div>
                 </div>
                 <span class="ranking-count"><?= number_format($j['plays_count']) ?></span>
             </li>
@@ -81,38 +67,32 @@
         </ol>
     </div>
     <?php endif; ?>
-
 </div>
 <?php endif; ?>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CABECERA + BOTÓN AÑADIR
-     ═══════════════════════════════════════════════════════════ -->
+<!-- CABECERA -->
 <div class="admin-header">
-    <h2>Panel de Administración</h2>
-    <a href="index.php?controller=admin&action=add" class="btn-primary">+ Añadir nuevo juego</a>
+    <h2>Panel de Administracion</h2>
+    <a href="index.php?controller=admin&action=add" class="btn-primary">+ Anadir nuevo juego</a>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     FILTROS EXTENDIDOS
-     ═══════════════════════════════════════════════════════════ -->
+<!-- FILTROS EXTENDIDOS EN TIEMPO REAL -->
 <div class="search-section">
-    <form method="GET" action="index.php" class="admin-filter-form">
-        <input type="hidden" name="controller" value="admin">
-        <input type="hidden" name="action"     value="dashboard">
-
-        <!-- Búsqueda por título -->
-        <div class="search-wrapper" style="flex:2; min-width:180px;">
+    <div class="admin-filter-form">
+        <div class="search-wrapper" style="flex:2;min-width:180px;">
             <input type="text"
-                   name="busqueda"
-                   placeholder="Buscar por título…"
+                   id="af-busqueda"
+                   placeholder="Buscar por titulo..."
                    value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
-                   class="search-input">
-            <button type="submit" class="search-button"><span>⌕</span></button>
+                   class="search-input"
+                   autocomplete="off">
+            <button type="button" class="search-button"
+                    onclick="document.getElementById('af-busqueda').dispatchEvent(new Event('input'))">
+                <span>&#8981;</span>
+            </button>
         </div>
 
-        <!-- Consola -->
-        <select name="consola" class="admin-filter-select">
+        <select id="af-consola" class="admin-filter-select">
             <option value="">Todas las consolas</option>
             <?php foreach ($consolas as $c): ?>
                 <option value="<?= $c['id'] ?>" <?= (($_GET['consola'] ?? '') == $c['id']) ? 'selected' : '' ?>>
@@ -121,9 +101,8 @@
             <?php endforeach; ?>
         </select>
 
-        <!-- Categoría -->
-        <select name="categoria" class="admin-filter-select">
-            <option value="">Todas las categorías</option>
+        <select id="af-categoria" class="admin-filter-select">
+            <option value="">Todas las categorias</option>
             <?php foreach ($categorias as $cat): ?>
                 <option value="<?= $cat['id'] ?>" <?= (($_GET['categoria'] ?? '') == $cat['id']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($cat['nombre']) ?>
@@ -131,8 +110,7 @@
             <?php endforeach; ?>
         </select>
 
-        <!-- Región -->
-        <select name="region" class="admin-filter-select">
+        <select id="af-region" class="admin-filter-select">
             <option value="">Todas las regiones</option>
             <option value="PAL"    <?= (($_GET['region'] ?? '') === 'PAL')    ? 'selected' : '' ?>>PAL</option>
             <option value="NTSC"   <?= (($_GET['region'] ?? '') === 'NTSC')   ? 'selected' : '' ?>>NTSC</option>
@@ -140,55 +118,44 @@
             <option value="NTSC-U" <?= (($_GET['region'] ?? '') === 'NTSC-U') ? 'selected' : '' ?>>NTSC-U</option>
         </select>
 
-        <!-- Estado -->
-        <select name="activo" class="admin-filter-select">
+        <select id="af-activo" class="admin-filter-select">
             <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>>Todos los estados</option>
             <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>>Solo activos</option>
             <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>>Solo inactivos</option>
         </select>
 
-        <button type="submit" class="btn-primary" style="white-space:nowrap;">Filtrar</button>
+        <button type="button" id="af-limpiar" class="clear-filters" style="display:none;white-space:nowrap;">X Limpiar</button>
+    </div>
 
-        <?php
-        $hayFiltros = !empty($_GET['busqueda'])  || !empty($_GET['consola'])
-                   || !empty($_GET['categoria']) || !empty($_GET['region'])
-                   || (isset($_GET['activo']) && $_GET['activo'] !== '');
-        ?>
-        <?php if ($hayFiltros): ?>
-            <a href="?controller=admin&action=dashboard" class="clear-filters" style="white-space:nowrap;">✕ Limpiar</a>
-        <?php endif; ?>
-    </form>
+    <!-- Indicador de carga -->
+    <div id="admin-filter-loading" class="filter-loading" style="display:none;">
+        <span class="filter-loading-bar"></span>
+        <span class="filter-loading-text">Buscando...</span>
+    </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     TABLA DE JUEGOS
-     ═══════════════════════════════════════════════════════════ -->
-<?php if (empty($juegos)): ?>
-    <div class="alert alert-info" style="text-align:center; padding:3rem;">
-        No hay juegos que coincidan con los filtros aplicados.
-    </div>
-<?php else: ?>
+<!-- ZONA DE RESULTADOS ADMIN -->
+<div id="admin-results">
+
+    <?php if (empty($juegos)): ?>
+        <div class="alert alert-info" style="text-align:center;padding:3rem;">
+            No hay juegos que coincidan con los filtros.
+        </div>
+    <?php else: ?>
     <div style="overflow-x:auto;">
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Portada</th>
-                    <th>Título</th>
-                    <th>ID Juego</th>
-                    <th>Consola</th>
-                    <th>Categoría</th>
-                    <th>Región</th>
-                    <th style="text-align:center;" title="Descargas">⬇</th>
-                    <th style="text-align:center;" title="Jugadas online">▶</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th>ID</th><th>Portada</th><th>Titulo</th><th>ID Juego</th>
+                    <th>Consola</th><th>Categoria</th><th>Region</th>
+                    <th style="text-align:center;" title="Descargas">D</th>
+                    <th style="text-align:center;" title="Jugadas">J</th>
+                    <th>Estado</th><th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($juegos as $juego): ?>
                 <?php
-                // Construir query string con filtros actuales para preservarlos en toggleActive
                 $filterQS = '';
                 foreach (['busqueda','consola','categoria','region','activo'] as $p) {
                     if (isset($_GET[$p]) && $_GET[$p] !== '') {
@@ -200,33 +167,28 @@
                     <td>#<?= $juego['id'] ?></td>
                     <td>
                         <?php if (!empty($juego['imagen'])): ?>
-                            <img src="<?= htmlspecialchars($juego['imagen']) ?>"
-                                 alt="Portada"
-                                 style="width:40px;height:40px;object-fit:cover;border-radius:4px;">
+                            <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="Portada"
+                                 style="width:40px;height:40px;object-fit:cover;">
                         <?php else: ?>
-                            <span style="color:var(--text-light);">📁</span>
+                            <span style="color:var(--text-light);">&#128193;</span>
                         <?php endif; ?>
                     </td>
                     <td><strong><?= htmlspecialchars($juego['titulo']) ?></strong></td>
-                    <td><code style="font-size:0.78rem;"><?= htmlspecialchars($juego['game_id_code'] ?? '—') ?></code></td>
-                    <td><?= htmlspecialchars($juego['consola_nombre']  ?? '—') ?></td>
-                    <td><?= htmlspecialchars($juego['categoria_nombre'] ?? '—') ?></td>
+                    <td><code style="font-size:0.78rem;"><?= htmlspecialchars($juego['game_id_code'] ?? '-') ?></code></td>
+                    <td><?= htmlspecialchars($juego['consola_nombre']  ?? '-') ?></td>
+                    <td><?= htmlspecialchars($juego['categoria_nombre'] ?? '-') ?></td>
                     <td>
                         <span class="game-tag" style="background:var(--background);color:var(--text);">
-                            <?= htmlspecialchars($juego['region'] ?? '—') ?>
+                            <?= htmlspecialchars($juego['region'] ?? '-') ?>
                         </span>
                     </td>
-                    <td style="text-align:center;font-variant-numeric:tabular-nums;font-size:0.85rem;">
-                        <?= number_format($juego['downloads_count'] ?? 0) ?>
-                    </td>
-                    <td style="text-align:center;font-variant-numeric:tabular-nums;font-size:0.85rem;">
-                        <?= number_format($juego['plays_count'] ?? 0) ?>
-                    </td>
+                    <td style="text-align:center;font-size:0.85rem;"><?= number_format($juego['downloads_count'] ?? 0) ?></td>
+                    <td style="text-align:center;font-size:0.85rem;"><?= number_format($juego['plays_count'] ?? 0) ?></td>
                     <td>
                         <a href="index.php?controller=admin&action=toggleActive&id=<?= $juego['id'] ?>&page=<?= $currentPage ?><?= $filterQS ?>"
                            style="font-size:0.75rem;text-decoration:none;padding:0.2rem 0.5rem;border-radius:4px;display:inline-block;margin-top:0.3rem;
                                   background:<?= $juego['activo'] ? 'var(--danger,#e74c3c)' : 'var(--success,#27ae60)' ?>;color:#fff;"
-                           onclick="return confirm('¿Confirmas <?= $juego['activo'] ? 'desactivar' : 'activar' ?> este juego?')">
+                           onclick="return confirm('Confirmas <?= $juego['activo'] ? 'desactivar' : 'activar' ?> este juego?')">
                             <?= $juego['activo'] ? 'Desactivar' : 'Activar' ?>
                         </a>
                     </td>
@@ -239,40 +201,160 @@
         </table>
     </div>
 
-    <!-- PAGINACIÓN -->
+    <!-- PAGINACION -->
     <?php
     $paramStr = '';
     foreach (['busqueda','consola','categoria','region','activo'] as $p) {
-        if (isset($_GET[$p]) && $_GET[$p] !== '') {
-            $paramStr .= '&' . $p . '=' . urlencode($_GET[$p]);
-        }
+        if (isset($_GET[$p]) && $_GET[$p] !== '') $paramStr .= '&' . $p . '=' . urlencode($_GET[$p]);
     }
     ?>
     <?php if (isset($totalPages) && $totalPages > 1): ?>
-    <div class="pagination" style="margin-top:1.5rem;">
+    <div class="pagination" style="margin-top:1.5rem;" id="admin-pagination">
         <?php if ($currentPage > 1): ?>
-            <a href="?controller=admin&action=dashboard&page=<?= $currentPage - 1 ?><?= $paramStr ?>" class="pagination-link">← Anterior</a>
+            <a href="?controller=admin&action=dashboard&page=<?= $currentPage - 1 ?><?= $paramStr ?>"
+               class="pagination-link" data-page="<?= $currentPage - 1 ?>">Anterior</a>
         <?php endif; ?>
-
-        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-            <?php if ($i == $currentPage): ?>
+        <?php
+        $range = 2; $pages = [];
+        for ($i = 1; $i <= $totalPages; $i++) {
+            if ($i === 1 || $i === $totalPages || abs($i - $currentPage) <= $range) $pages[] = $i;
+        }
+        $prev = null;
+        foreach ($pages as $i):
+            if ($prev !== null && $i - $prev > 1): ?>
+                <span style="padding:0 0.3rem;color:var(--slate-light);">...</span>
+            <?php endif;
+            if ($i === $currentPage): ?>
                 <span class="pagination-current"><?= $i ?></span>
             <?php else: ?>
-                <a href="?controller=admin&action=dashboard&page=<?= $i ?><?= $paramStr ?>" class="pagination-link"><?= $i ?></a>
-            <?php endif; ?>
-        <?php endfor; ?>
-
+                <a href="?controller=admin&action=dashboard&page=<?= $i ?><?= $paramStr ?>"
+                   class="pagination-link" data-page="<?= $i ?>"><?= $i ?></a>
+            <?php endif;
+            $prev = $i;
+        endforeach; ?>
         <?php if ($currentPage < $totalPages): ?>
-            <a href="?controller=admin&action=dashboard&page=<?= $currentPage + 1 ?><?= $paramStr ?>" class="pagination-link">Siguiente →</a>
-        <?php endif; ?>
-    </div>
-
-    <div class="pagination-info" style="margin-top:0.75rem;">
-        Mostrando <?= count($juegos) ?> de <?= number_format($totalJuegos) ?> juegos • Página <?= $currentPage ?> de <?= $totalPages ?>
-        <?php if ($hayFiltros): ?>
-            <span style="color:var(--text-light);"> • Filtros activos</span>
+            <a href="?controller=admin&action=dashboard&page=<?= $currentPage + 1 ?><?= $paramStr ?>"
+               class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente</a>
         <?php endif; ?>
     </div>
     <?php endif; ?>
 
-<?php endif; ?>
+    <div class="pagination-info" style="margin-top:0.75rem;" id="admin-info">
+        Mostrando <?= count($juegos) ?> de <?= number_format($totalJuegos) ?> juegos
+        <?php if ($currentPage && $totalPages): ?>
+            - Pagina <?= $currentPage ?> de <?= $totalPages ?>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
+</div><!-- /#admin-results -->
+
+<script>
+(function () {
+    'use strict';
+
+    const busquedaEl  = document.getElementById('af-busqueda');
+    const consolaEl   = document.getElementById('af-consola');
+    const categoriaEl = document.getElementById('af-categoria');
+    const regionEl    = document.getElementById('af-region');
+    const activoEl    = document.getElementById('af-activo');
+    const btnLimpiar  = document.getElementById('af-limpiar');
+    const resultsEl   = document.getElementById('admin-results');
+    const loadingEl   = document.getElementById('admin-filter-loading');
+
+    let debounceTimer  = null;
+    let currentRequest = null;
+
+    function getAjaxParams(page) {
+        const p = new URLSearchParams();
+        p.set('page', page || 1);
+        const b = busquedaEl.value.trim();
+        if (b)                 p.set('busqueda',  b);
+        if (consolaEl.value)   p.set('consola',   consolaEl.value);
+        if (categoriaEl.value) p.set('categoria', categoriaEl.value);
+        if (regionEl.value)    p.set('region',    regionEl.value);
+        if (activoEl.value !== '') p.set('activo', activoEl.value);
+        return p;
+    }
+
+    function getUiParams(page) {
+        const p = getAjaxParams(page);
+        p.set('controller', 'admin');
+        p.set('action', 'dashboard');
+        return p;
+    }
+
+    function updateLimpiar() {
+        const has = busquedaEl.value.trim() || consolaEl.value
+            || categoriaEl.value || regionEl.value || activoEl.value !== '';
+        btnLimpiar.style.display = has ? 'inline-block' : 'none';
+    }
+
+    async function fetchResults(page) {
+        if (currentRequest) currentRequest.abort();
+        currentRequest = new AbortController();
+
+        loadingEl.style.display = 'flex';
+        resultsEl.style.opacity = '0.45';
+        resultsEl.style.pointerEvents = 'none';
+
+        history.replaceState(null, '', '?' + getUiParams(page).toString());
+
+        try {
+            const res = await fetch('ajax_admin.php?' + getAjaxParams(page).toString(), {
+                signal: currentRequest.signal
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            resultsEl.innerHTML = await res.text();
+            bindPagination();
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                resultsEl.innerHTML = '<div class="alert alert-error">Error al cargar. Intenta de nuevo.</div>';
+            }
+        } finally {
+            loadingEl.style.display = 'none';
+            resultsEl.style.opacity = '';
+            resultsEl.style.pointerEvents = '';
+        }
+    }
+
+    function scheduleSearch() {
+        clearTimeout(debounceTimer);
+        updateLimpiar();
+        debounceTimer = setTimeout(() => fetchResults(1), 380);
+    }
+
+    function onSelectChange() {
+        updateLimpiar();
+        fetchResults(1);
+    }
+
+    function bindPagination() {
+        resultsEl.querySelectorAll('.pagination-link[data-page]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                fetchResults(parseInt(a.dataset.page));
+            });
+        });
+    }
+
+    btnLimpiar.addEventListener('click', () => {
+        busquedaEl.value  = '';
+        consolaEl.value   = '';
+        categoriaEl.value = '';
+        regionEl.value    = '';
+        activoEl.value    = '';
+        updateLimpiar();
+        fetchResults(1);
+    });
+
+    busquedaEl.addEventListener('input',   scheduleSearch);
+    consolaEl.addEventListener('change',   onSelectChange);
+    categoriaEl.addEventListener('change', onSelectChange);
+    regionEl.addEventListener('change',    onSelectChange);
+    activoEl.addEventListener('change',    onSelectChange);
+
+    bindPagination();
+    updateLimpiar();
+})();
+</script>

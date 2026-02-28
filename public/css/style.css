@@ -1180,6 +1180,80 @@ nav a:hover {
     border-left: 5px solid var(--blue-btn);
 }
 
+
+/* =====================================================
+   FILTRADO EN TIEMPO REAL — Loading indicator
+   ===================================================== */
+
+/* Fila de controles de filtros (sin form nativo) */
+.filters-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Barra de carga debajo de los filtros */
+.filter-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+    padding: 0.4rem 0;
+}
+
+.filter-loading-bar {
+    display: block;
+    width: 120px;
+    height: 8px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.filter-loading-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 60%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--red)      0px,
+        var(--red)      5px,
+        var(--red-dark) 5px,
+        var(--red-dark) 10px
+    );
+    animation: filterScan 0.9s linear infinite;
+}
+
+@keyframes filterScan {
+    0%   { left: -60%; }
+    100% { left: 110%; }
+}
+
+.filter-loading-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    color: var(--slate-mid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: filterBlink 1s step-end infinite;
+}
+
+@keyframes filterBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+/* Suavizar la zona de resultados durante la carga */
+#catalog-results,
+#admin-results {
+    transition: opacity 0.15s ease;
+}
+
 /* ===== FOOTER ===== */
 footer {
     margin-top: 4rem;
