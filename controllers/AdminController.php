@@ -14,16 +14,34 @@ class AdminController {
     public function dashboard() {
         $juegoModel = new Juego();
 
-        $busqueda = isset($_GET['busqueda']) && $_GET['busqueda'] !== '' ? $_GET['busqueda'] : null;
+        // Recoger filtros extendidos
+        $filters = [];
+        if (isset($_GET['busqueda'])  && $_GET['busqueda']  !== '') $filters['busqueda']  = $_GET['busqueda'];
+        if (isset($_GET['consola'])   && $_GET['consola']   !== '') $filters['consola']   = $_GET['consola'];
+        if (isset($_GET['categoria']) && $_GET['categoria'] !== '') $filters['categoria'] = $_GET['categoria'];
+        if (isset($_GET['region'])    && $_GET['region']    !== '') $filters['region']    = $_GET['region'];
+        // activo: '' todos, '1' activos, '0' inactivos
+        if (isset($_GET['activo']) && $_GET['activo'] !== '') $filters['activo'] = $_GET['activo'];
 
         $itemsPerPage = 20;
         $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         if ($currentPage < 1) $currentPage = 1;
         $offset = ($currentPage - 1) * $itemsPerPage;
 
-        $juegos = $juegoModel->getAllPaginated($offset, $itemsPerPage, $busqueda);
-        $totalJuegos = $juegoModel->countAll($busqueda);
-        $totalPages = ceil($totalJuegos / $itemsPerPage);
+        $juegos      = $juegoModel->getAllPaginatedFiltered($filters, $offset, $itemsPerPage);
+        $totalJuegos = $juegoModel->countAllFiltered($filters);
+        $totalPages  = (int)ceil($totalJuegos / $itemsPerPage);
+
+        // Estadísticas globales reales (independientes de filtros/paginación)
+        $stats       = $juegoModel->getGlobalStats();
+        $topDescargas = $juegoModel->getTopByDownloads(5);
+        $topJugados   = $juegoModel->getTopByPlays(5);
+
+        // Para los selects de filtro en la vista
+        require_once 'models/Consola.php';
+        require_once 'models/Categoria.php';
+        $consolas   = (new Consola())->all();
+        $categorias = (new Categoria())->all();
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/dashboard.php';

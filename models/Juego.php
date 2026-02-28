@@ -209,4 +209,126 @@ class Juego extends Model {
         $result = $stmt->fetch();
         return (int)$result['total'];
     }
+
+    // ── ADMIN: filtros extendidos ─────────────────────────────────────────
+
+    /**
+     * Construye la cláusula WHERE compartida para las consultas del admin.
+     * Devuelve ['sql' => string, 'params' => array]
+     */
+    private function buildAdminWhere(array $f): array {
+        $where  = [];
+        $params = [];
+
+        if (!empty($f['busqueda'])) {
+            $where[]              = "j.titulo ILIKE :busqueda";
+            $params['busqueda']   = '%' . $f['busqueda'] . '%';
+        }
+        if (!empty($f['consola'])) {
+            $where[]            = "j.consola_id = :consola";
+            $params['consola']  = (int)$f['consola'];
+        }
+        if (!empty($f['categoria'])) {
+            $where[]              = "j.categoria_id = :categoria";
+            $params['categoria']  = (int)$f['categoria'];
+        }
+        if (!empty($f['region'])) {
+            $where[]           = "j.region = :region";
+            $params['region']  = $f['region'];
+        }
+        // activo: '' = todos, '1' = activos, '0' = inactivos
+        if (isset($f['activo']) && $f['activo'] !== '') {
+            $where[]           = "j.activo = :activo";
+            $params['activo']  = (bool)(int)$f['activo'];
+        }
+
+        $sql = $where ? ' WHERE ' . implode(' AND ', $where) : '';
+        return ['sql' => $sql, 'params' => $params];
+    }
+
+    // Todos los juegos paginados para el dashboard con filtros extendidos
+    public function getAllPaginatedFiltered(array $filters, int $offset, int $limit): array {
+        $w = $this->buildAdminWhere($filters);
+
+        $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre
+                FROM juegos j
+                LEFT JOIN consolas c   ON j.consola_id   = c.id
+                LEFT JOIN categorias cat ON j.categoria_id = cat.id"
+             . $w['sql']
+             . " ORDER BY j.id DESC LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($w['params'] as $k => $v) {
+            $type = is_int($v) ? PDO::PARAM_INT : (is_bool($v) ? PDO::PARAM_BOOL : PDO::PARAM_STR);
+            $stmt->bindValue(":$k", $v, $type);
+        }
+        $stmt->bindValue(':limit',  $limit,  PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    // Contar con filtros extendidos (admin)
+    public function countAllFiltered(array $filters): int {
+        $w   = $this->buildAdminWhere($filters);
+        $sql = "SELECT COUNT(*) as total FROM juegos j" . $w['sql'];
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($w['params'] as $k => $v) {
+            $type = is_int($v) ? PDO::PARAM_INT : (is_bool($v) ? PDO::PARAM_BOOL : PDO::PARAM_STR);
+            $stmt->bindValue(":$k", $v, $type);
+        }
+        $stmt->execute();
+        return (int)$stmt->fetch()['total'];
+    }
+
+    // ── ADMIN: estadísticas globales reales ───────────────────────────────
+
+    public function getGlobalStats(): array {
+        $row = $this->pdo->query(
+            "SELECT
+                COUNT(*)                            AS total,
+                COUNT(*) FILTER (WHERE activo)      AS activos,
+                COUNT(*) FILTER (WHERE NOT activo)  AS inactivos,
+                COALESCE(SUM(downloads_count), 0)   AS total_descargas,
+                COALESCE(SUM(plays_count), 0)       AS total_jugadas
+             FROM juegos"
+        )->fetch();
+
+        return [
+            'total'            => (int)$row['total'],
+            'activos'          => (int)$row['activos'],
+            'inactivos'        => (int)$row['inactivos'],
+            'total_descargas'  => (int)$row['total_descargas'],
+            'total_jugadas'    => (int)$row['total_jugadas'],
+        ];
+    }
+
+    // Top N juegos por descargas
+    public function getTopByDownloads(int $n = 5): array {
+        $stmt = $this->pdo->prepare(
+            "SELECT j.titulo, c.nombre as consola_nombre, j.downloads_count
+             FROM juegos j
+             LEFT JOIN consolas c ON j.consola_id = c.id
+             WHERE j.activo = true AND j.downloads_count > 0
+             ORDER BY j.downloads_count DESC
+             LIMIT ?"
+        );
+        $stmt->execute([$n]);
+        return $stmt->fetchAll();
+    }
+
+    // Top N juegos por jugadas online
+    public function getTopByPlays(int $n = 5): array {
+        $stmt = $this->pdo->prepare(
+            "SELECT j.titulo, c.nombre as consola_nombre, j.plays_count
+             FROM juegos j
+             LEFT JOIN consolas c ON j.consola_id = c.id
+             WHERE j.activo = true AND j.plays_count > 0
+             ORDER BY j.plays_count DESC
+             LIMIT ?"
+        );
+        $stmt->execute([$n]);
+        return $stmt->fetchAll();
+    }
+
 }
