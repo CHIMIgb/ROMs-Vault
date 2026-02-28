@@ -1434,3 +1434,121 @@ footer::before {
     align-items: center;
     gap: 0.25rem;
 }
+
+/* ── Aviso de streaming (ISOs grandes) ── */
+.proxy-streaming-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    background: var(--cream-light);
+    border: 2px solid var(--amber);
+    box-shadow: 3px 3px 0 #8a6a00;
+    padding: 0.75rem 1rem;
+    font-size: 0.84rem;
+    color: var(--slate);
+    line-height: 1.5;
+}
+.streaming-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+/* ── Aviso experimental PSP ── */
+.psp-warning {
+    background: #fff8e1;
+    border: 2px solid var(--amber);
+    box-shadow: 3px 3px 0 #8a6a00;
+    padding: 0.75rem 1rem;
+    font-size: 0.84rem;
+    color: var(--slate);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+/* =====================================================
+   SLIDER DE TAMAÑO DE PANTALLA DEL EMULADOR
+   ===================================================== */
+
+.emulator-size-control {
+    background: var(--cream-light);
+    border: 2px solid var(--border-mid);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.size-control-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--slate);
+    white-space: nowrap;
+}
+
+.size-control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.size-control-min,
+.size-control-max {
+    font-size: 0.72rem;
+    color: var(--slate-light);
+    font-family: 'Courier Prime', monospace;
+    white-space: nowrap;
+}
+
+/* El slider en sí */
+#emulator-size-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    outline: none;
+    cursor: pointer;
+}
+#emulator-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--red);
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--red-dark);
+    cursor: pointer;
+}
+#emulator-size-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--red);
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--red-dark);
+    cursor: pointer;
+    border-radius: 0;
+}
+#emulator-size-slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.3), 2px 2px 0 var(--red-dark);
+}
+
+.size-control-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.58rem;
+    color: var(--red);
+    min-width: 3.5ch;
+    text-align: right;
+}
+
+/* El contenedor se centra solo con el JS,
+   pero definimos la transición aquí */
+#emulator-container {
+    transition: width 0.2s ease;
+}
+
+@media (max-width: 600px) {
+    .emulator-size-control { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .size-control-row { width: 100%; }
+}
