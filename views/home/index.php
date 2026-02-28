@@ -2,16 +2,22 @@
 
 <!-- BARRA DE BÚSQUEDA -->
 <div class="search-section">
-    <div class="search-wrapper">
+    <div class="search-wrapper" style="position:relative;">
         <input type="text"
                id="f-busqueda"
                placeholder="Buscar juego por título..."
                value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                class="search-input"
-               autocomplete="off">
+               autocomplete="off"
+               aria-label="Buscar juego"
+               aria-autocomplete="list"
+               aria-controls="autocomplete-list"
+               aria-expanded="false">
         <button type="button" class="search-button" onclick="document.getElementById('f-busqueda').dispatchEvent(new Event('input'))">
             <span>⌕</span>
         </button>
+        <!-- Dropdown autocompletado -->
+        <ul id="autocomplete-list" class="autocomplete-list" role="listbox" aria-label="Sugerencias"></ul>
     </div>
 </div>
 
@@ -277,5 +283,123 @@
 
     bindPagination();
     updateLimpiar();
+
+    // ── AUTOCOMPLETADO ────────────────────────────────────────────────────
+    const acList        = document.getElementById('autocomplete-list');
+    let   acTimer       = null;
+    let   acRequest     = null;
+    let   acIndex       = -1;   // ítem activo con teclado
+    let   acItems       = [];   // últimas sugerencias
+
+    function closeAC() {
+        acList.innerHTML = '';
+        acList.style.display = 'none';
+        busquedaEl.setAttribute('aria-expanded', 'false');
+        acIndex = -1;
+    }
+
+    function renderAC(items) {
+        acItems = items;
+        acList.innerHTML = '';
+        acIndex = -1;
+
+        if (!items.length) { closeAC(); return; }
+
+        items.forEach((item, i) => {
+            const li = document.createElement('li');
+            li.className  = 'autocomplete-item';
+            li.setAttribute('role', 'option');
+            li.setAttribute('id', 'ac-item-' + i);
+            li.innerHTML  = `
+                <div class="ac-cover">
+                    ${item.imagen
+                        ? `<img src="${item.imagen}" alt="" loading="lazy">`
+                        : '<span>📀</span>'
+                    }
+                </div>
+                <div class="ac-text">
+                    <span class="ac-titulo">${escHtml(item.titulo)}</span>
+                    <span class="ac-consola">${escHtml(item.consola)}</span>
+                </div>
+                <div class="ac-actions">
+                    <a href="${item.play_url}" class="ac-btn-play" title="Jugar online">▶</a>
+                    <a href="${item.download_url}" class="ac-btn-dl" title="Descargar" target="_blank">⬇</a>
+                </div>`;
+
+            // Clic en el item (no en los botones internos)
+            li.addEventListener('mousedown', e => {
+                if (e.target.closest('a')) return; // dejar que el enlace actúe
+                busquedaEl.value = item.titulo;
+                closeAC();
+                fetchResults(1);
+            });
+
+            acList.appendChild(li);
+        });
+
+        acList.style.display = 'block';
+        busquedaEl.setAttribute('aria-expanded', 'true');
+    }
+
+    function setActiveItem(idx) {
+        const all = acList.querySelectorAll('.autocomplete-item');
+        all.forEach((el, i) => el.classList.toggle('autocomplete-item--active', i === idx));
+        if (all[idx]) {
+            busquedaEl.setAttribute('aria-activedescendant', 'ac-item-' + idx);
+            all[idx].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function fetchAC(term) {
+        if (acRequest) acRequest.abort();
+        acRequest = new AbortController();
+        try {
+            const res  = await fetch('ajax_autocomplete.php?q=' + encodeURIComponent(term), {
+                signal: acRequest.signal
+            });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            renderAC(Array.isArray(data) ? data : []);
+        } catch (e) {
+            if (e.name !== 'AbortError') closeAC();
+        }
+    }
+
+    busquedaEl.addEventListener('input', () => {
+        clearTimeout(acTimer);
+        const val = busquedaEl.value.trim();
+        if (val.length < 2) { closeAC(); return; }
+        acTimer = setTimeout(() => fetchAC(val), 220);
+    });
+
+    busquedaEl.addEventListener('keydown', e => {
+        if (!acItems.length) return;
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            acIndex = Math.min(acIndex + 1, acItems.length - 1);
+            setActiveItem(acIndex);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            acIndex = Math.max(acIndex - 1, -1);
+            setActiveItem(acIndex);
+        } else if (e.key === 'Enter' && acIndex >= 0) {
+            e.preventDefault();
+            busquedaEl.value = acItems[acIndex].titulo;
+            closeAC();
+            fetchResults(1);
+        } else if (e.key === 'Escape') {
+            closeAC();
+        }
+    });
+
+    busquedaEl.addEventListener('blur', () => {
+        // Delay para permitir clic en sugerencias antes de cerrar
+        setTimeout(closeAC, 180);
+    });
+
 })();
 </script>

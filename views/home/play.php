@@ -156,7 +156,13 @@ $consejo = match($errorType) {
                             onclick="document.getElementById('emulator-container').requestFullscreen()">
                         ⛶ Pantalla completa
                     </button>
+                    <button class="btn-share" id="btn-share-game"
+                            data-url="<?= htmlspecialchars((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $_SERVER['REQUEST_URI']) ?>"
+                            title="Copiar enlace permanente del juego">
+                        🔗 Compartir
+                    </button>
                 </div>
+                <div id="share-toast" class="share-toast" aria-live="polite"></div>
             </div>
         </div>
     </div>
@@ -455,3 +461,109 @@ $consejo = match($errorType) {
 </script>
 
 <?php endif; ?>
+
+<!-- ====== JUEGOS RELACIONADOS ============================================= -->
+<?php
+$relacionados = [];
+if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categoria_id'])) {
+    require_once 'models/Juego.php';
+    $relacionados = (new Juego())->getRelated(
+        (int)$juego['id'],
+        (int)$juego['consola_id'],
+        (int)$juego['categoria_id'],
+        8
+    );
+}
+?>
+<?php if (!empty($relacionados)): ?>
+<section class="related-section">
+    <h2 class="related-title">
+        <span class="related-title-icon">🎮</span>
+        Juegos relacionados
+        <span class="related-title-sub">— misma consola o género</span>
+    </h2>
+    <div class="related-grid">
+        <?php foreach ($relacionados as $rel): ?>
+        <a href="index.php?controller=home&action=play&file_id=<?= urlencode($rel['google_drive_file_id']) ?>"
+           class="related-card" title="<?= htmlspecialchars($rel['titulo']) ?>">
+            <div class="related-cover <?= empty($rel['imagen']) ? 'no-image' : '' ?>">
+                <?php if (!empty($rel['imagen'])): ?>
+                    <img src="<?= htmlspecialchars($rel['imagen']) ?>"
+                         alt="<?= htmlspecialchars($rel['titulo']) ?>"
+                         loading="lazy">
+                <?php else: ?>
+                    <span>📀</span>
+                <?php endif; ?>
+            </div>
+            <div class="related-info">
+                <span class="related-game-title"><?= htmlspecialchars($rel['titulo']) ?></span>
+                <span class="related-game-meta">
+                    <span class="game-tag platform" style="font-size:.55rem;padding:.1rem .4rem;">
+                        <?= htmlspecialchars($rel['consola_nombre'] ?? '') ?>
+                    </span>
+                    <?php if (!empty($rel['region'])): ?>
+                    <span class="game-tag language" style="font-size:.55rem;padding:.1rem .4rem;">
+                        <?= htmlspecialchars($rel['region']) ?>
+                    </span>
+                    <?php endif; ?>
+                </span>
+            </div>
+        </a>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- ====== SHARE + AUTOCOMPLETE JS ======================================== -->
+<script>
+(function () {
+    'use strict';
+
+    // ── Botón Compartir ───────────────────────────────────────────────────
+    const btnShare = document.getElementById('btn-share-game');
+    const toast    = document.getElementById('share-toast');
+
+    if (btnShare) {
+        btnShare.addEventListener('click', () => {
+            const url = btnShare.dataset.url;
+            copyToClipboard(url);
+        });
+    }
+
+    function copyToClipboard(text) {
+        // Método 1: API moderna (requiere HTTPS o localhost)
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text)
+                .then(() => showToast('✅ Enlace copiado al portapapeles'))
+                .catch(() => legacyCopy(text));
+            return;
+        }
+        // Método 2: execCommand — funciona en HTTP e IPs locales
+        legacyCopy(text);
+    }
+
+    function legacyCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+            const ok = document.execCommand('copy');
+            showToast(ok ? '✅ Enlace copiado al portapapeles' : '❌ No se pudo copiar');
+        } catch (_) {
+            showToast('❌ No se pudo copiar el enlace');
+        }
+        document.body.removeChild(ta);
+    }
+
+    function showToast(msg) {
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('share-toast--visible');
+        setTimeout(() => toast.classList.remove('share-toast--visible'), 2800);
+    }
+
+})();
+</script>

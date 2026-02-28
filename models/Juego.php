@@ -331,4 +331,55 @@ class Juego extends Model {
         return $stmt->fetchAll();
     }
 
+    /**
+     * Juegos relacionados: misma consola O misma categoría, excluyendo el actual.
+     * Devuelve hasta $limit resultados mezclados y ordenados por descargas.
+     */
+    public function getRelated(int $juegoId, int $consolaId, int $categoriaId, int $limit = 7): array {
+        $stmt = $this->pdo->prepare(
+            "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre,
+                    CASE
+                        WHEN j.consola_id  = :consola_id   THEN 2
+                        WHEN j.categoria_id = :categoria_id THEN 1
+                        ELSE 0
+                    END AS relevancia
+             FROM juegos j
+             LEFT JOIN consolas    c   ON j.consola_id   = c.id
+             LEFT JOIN categorias  cat ON j.categoria_id = cat.id
+             WHERE j.activo = true
+               AND j.id != :juego_id
+               AND (j.consola_id = :consola_id2 OR j.categoria_id = :categoria_id2)
+             ORDER BY relevancia DESC, j.downloads_count DESC
+             LIMIT :lim"
+        );
+        $stmt->bindValue(':juego_id',    $juegoId,    PDO::PARAM_INT);
+        $stmt->bindValue(':consola_id',  $consolaId,  PDO::PARAM_INT);
+        $stmt->bindValue(':categoria_id',$categoriaId,PDO::PARAM_INT);
+        $stmt->bindValue(':consola_id2', $consolaId,  PDO::PARAM_INT);
+        $stmt->bindValue(':categoria_id2',$categoriaId,PDO::PARAM_INT);
+        $stmt->bindValue(':lim',         $limit,      PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Autocompletado: busca títulos que coincidan con el término.
+     * Devuelve id, titulo, consola_nombre, imagen para sugerencias rápidas.
+     */
+    public function autocomplete(string $term, int $limit = 8): array {
+        $stmt = $this->pdo->prepare(
+            "SELECT j.id, j.titulo, j.google_drive_file_id, j.imagen,
+                    c.nombre as consola_nombre
+             FROM juegos j
+             LEFT JOIN consolas c ON j.consola_id = c.id
+             WHERE j.activo = true AND j.titulo ILIKE :term
+             ORDER BY j.downloads_count DESC
+             LIMIT :lim"
+        );
+        $stmt->bindValue(':term', '%' . $term . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':lim',  $limit,            PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
 }
