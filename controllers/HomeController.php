@@ -61,6 +61,124 @@ class HomeController {
         require_once 'views/layout/footer.php';
     }
 
+    /**
+     * Mapeo de nombre de consola → core de EmulatorJS
+     * Se puede extender según las consolas registradas en la BD.
+     */
+    private function getEmulatorCore(string $consolaNombre): ?string {
+        $nombre = strtolower(trim($consolaNombre));
+
+        $mapa = [
+            // Nintendo
+            'nes'                          => 'nes',
+            'famicom'                      => 'nes',
+            'nintendo entertainment system'=> 'nes',
+            'snes'                         => 'snes',
+            'super nintendo'               => 'snes',
+            'super famicom'                => 'snes',
+            'game boy'                     => 'gb',
+            'gameboy'                      => 'gb',
+            'gb'                           => 'gb',
+            'game boy color'               => 'gb',
+            'gbc'                          => 'gb',
+            'game boy advance'             => 'gba',
+            'gba'                          => 'gba',
+            'nintendo 64'                  => 'n64',
+            'n64'                          => 'n64',
+            'nintendo ds'                  => 'nds',
+            'nds'                          => 'nds',
+            'virtual boy'                  => 'vb',
+            // Sega
+            'sega master system'           => 'segaMS',
+            'master system'                => 'segaMS',
+            'sega mega drive'              => 'segaMD',
+            'mega drive'                   => 'segaMD',
+            'genesis'                      => 'segaMD',
+            'sega genesis'                 => 'segaMD',
+            'sega game gear'               => 'segaGG',
+            'game gear'                    => 'segaGG',
+            'sega cd'                      => 'segaCD',
+            'sega-cd'                      => 'segaCD',
+            'mega-cd'                      => 'segaCD',
+            'sega 32x'                     => 'sega32x',
+            '32x'                          => 'sega32x',
+            'sega saturn'                  => 'saturn',
+            'saturn'                       => 'saturn',
+            // Sony
+            'playstation'                  => 'psx',
+            'psx'                          => 'psx',
+            'ps1'                          => 'psx',
+            'playstation portable'         => 'psp',
+            'psp'                          => 'psp',
+            // Atari
+            'atari 2600'                   => 'atari2600',
+            'atari2600'                    => 'atari2600',
+            'atari 7800'                   => 'atari7800',
+            'atari 5200'                   => 'atari5200',
+            'atari jaguar'                 => 'jaguar',
+            'atari lynx'                   => 'lynx',
+            // Arcade
+            'arcade'                       => 'arcade',
+            'mame'                         => 'mame2003',
+            // Other
+            '3do'                          => '3do',
+            'colecovision'                 => 'coleco',
+        ];
+
+        // Búsqueda exacta
+        if (isset($mapa[$nombre])) {
+            return $mapa[$nombre];
+        }
+
+        // Búsqueda parcial (si el nombre contiene alguna clave)
+        foreach ($mapa as $clave => $core) {
+            if (str_contains($nombre, $clave) || str_contains($clave, $nombre)) {
+                return $core;
+            }
+        }
+
+        return null; // Consola no soportada
+    }
+
+    /**
+     * Reproducir un juego en línea usando EmulatorJS
+     */
+    public function play() {
+        $fileId = $_GET['file_id'] ?? null;
+
+        if (!$fileId) {
+            die("Error: No se especificó el juego a reproducir.");
+        }
+
+        $juegoModel = new Juego();
+        $juego = $juegoModel->findByFileId($fileId);
+
+        if (!$juego) {
+            die("Error: El juego solicitado no existe en la base de datos.");
+        }
+
+        // Obtener nombre de consola (puede venir del JOIN o hay que consultarlo)
+        if (empty($juego['consola_nombre'])) {
+            $consolaModel = new Consola();
+            $consola = $consolaModel->find($juego['consola_id']);
+            $juego['consola_nombre'] = $consola['nombre'] ?? '';
+        }
+
+        $core = $this->getEmulatorCore($juego['consola_nombre']);
+
+        // El proxy resuelve el CORS de Google Drive y soporta Range Requests
+        // para que EmulatorJS pueda hacer seeking dentro del archivo.
+        $romUrl = "rom_proxy.php?file_id=" . urlencode($fileId);
+
+        if (!$core) {
+            $error = "La consola «{$juego['consola_nombre']}» aún no está soportada por el emulador en línea.";
+        }
+
+        require_once 'views/layout/header.php';
+        require_once 'views/home/play.php';
+        require_once 'views/layout/footer.php';
+    }
+
     public function download() {
         $fileId = $_GET['file_id'] ?? null;
         

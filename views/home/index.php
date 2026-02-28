@@ -117,12 +117,18 @@
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Botón descarga -->
-                    <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" 
-                       class="game-download" 
-                       target="_blank">
-                        Descargar ROM
-                    </a>
+                    <!-- Botones de acción -->
+                    <div class="game-actions">
+                        <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>"
+                           class="game-play">
+                            ▶ Jugar Online
+                        </a>
+                        <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" 
+                           class="game-download" 
+                           target="_blank">
+                            ⬇ Descargar
+                        </a>
+                    </div>
                 </div>
             </div>
         <?php endforeach; ?>
