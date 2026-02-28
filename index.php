@@ -20,7 +20,7 @@ $controllerClass = ucfirst($controller) . 'Controller';
 
 if (!file_exists($controllerFile)) {
     http_response_code(404);
-    $errorContext = "Controlador «$controller» no encontrado.";
+    $errorContext = 'Controlador "' . $controller . '" no encontrado.';
     require_once 'views/layout/header.php';
     require_once 'views/errors/404.php';
     require_once 'views/layout/footer.php';
@@ -32,7 +32,7 @@ $controllerInstance = new $controllerClass();
 
 if (!is_callable([$controllerInstance, $action])) {
     http_response_code(404);
-    $errorContext = "Acción «$action» no encontrada en el controlador «$controller».";
+    $errorContext = 'Acción "' . $action . '" no encontrada en el controlador "' . $controller . '".';
     require_once 'views/layout/header.php';
     require_once 'views/errors/404.php';
     require_once 'views/layout/footer.php';
