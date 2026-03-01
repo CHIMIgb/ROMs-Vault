@@ -2999,3 +2999,321 @@ footer::before {
     .related-title { font-size: 0.6rem; }
     .btn-share { font-size: 0.5rem; padding: 0.45rem 0.8rem; }
 }
+
+/* =====================================================
+   PIXELARTICONS — Sistema de iconos pixel art
+   https://pixelarticons.com — MIT License
+   ===================================================== */
+
+/* ── Base SVG icon ────────────────────────────────── */
+.pxi {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    /* Sin antialiasing: mantiene el look pixel nítido */
+    shape-rendering: crispEdges;
+    image-rendering: pixelated;
+}
+
+/* Placeholder de cover: disco centrado */
+.pxi-cover-placeholder {
+    width: 40%;
+    height: 40%;
+    opacity: 0.45;
+    display: block;
+    margin: auto;
+}
+
+/* Iconos en alertas */
+.pxi-alert {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+}
+
+/* Icono subtitle (play pequeño) */
+.pxi-subtitle {
+    width: 0.85em;
+    height: 0.85em;
+    position: relative;
+    top: -1px;
+    margin-right: 0.25em;
+}
+
+/* ── game-cover placeholder centrado ─────────────── */
+.game-cover.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.game-cover.no-image i[data-i],
+.game-cover.no-image svg.pxi {
+    width: 42%;
+    height: 42%;
+    opacity: 0.4;
+    display: block;
+}
+
+/* ── related cover placeholder ───────────────────── */
+.related-cover.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.related-cover.no-image i[data-i],
+.related-cover.no-image svg.pxi {
+    width: 50%;
+    height: 50%;
+    opacity: 0.4;
+}
+
+/* ── emulator cover placeholder ──────────────────── */
+.emulator-cover--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.emulator-cover--placeholder svg.pxi {
+    width: 60%;
+    height: 60%;
+    opacity: 0.4;
+}
+
+/* ── search button icon ──────────────────────────── */
+.search-button svg.pxi,
+.search-button i[data-i] {
+    display: block;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+/* ── nav icons ───────────────────────────────────── */
+nav a svg.pxi {
+    width: 14px;
+    height: 14px;
+    margin-right: 0.4em;
+    position: relative;
+    top: -1px;
+}
+
+/* ── game action buttons ─────────────────────────── */
+.game-play,
+.game-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+}
+.game-play svg.pxi,
+.game-download svg.pxi {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+}
+
+/* ── autocomplete action icons ───────────────────── */
+.ac-btn-play svg.pxi,
+.ac-btn-dl svg.pxi {
+    width: 13px;
+    height: 13px;
+    vertical-align: middle;
+}
+
+/* ── error page big icon ─────────────────────────── */
+.proxy-error-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1rem; /* reset emoji */
+}
+.proxy-error-icon svg.pxi {
+    width: 52px;
+    height: 52px;
+    opacity: 0.7;
+}
+
+/* ── tip label icon ──────────────────────────────── */
+.proxy-tip-label svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}
+
+/* ── related section title icon ──────────────────── */
+.related-title-icon svg.pxi {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+/* ── emulator meta icons ─────────────────────────── */
+.emulator-meta-item svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+    flex-shrink: 0;
+}
+
+/* ── streaming notice icon ───────────────────────── */
+.streaming-icon svg.pxi {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+/* ── btn icons ───────────────────────────────────── */
+.btn-primary svg.pxi,
+.btn-secondary svg.pxi,
+.btn-primary i[data-i],
+.btn-secondary i[data-i] {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+    flex-shrink: 0;
+    position: relative;
+    top: -1px;
+}
+
+/* ── form file input icon ────────────────────────── */
+.file-input-btn svg.pxi {
+    width: 13px;
+    height: 13px;
+    margin-right: 0.35em;
+    vertical-align: middle;
+}
+
+/* ── alert system icons ──────────────────────────── */
+.rv-inline-icon,
+.rv-toast-icon,
+.rv-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.rv-inline-icon svg.pxi,
+.rv-toast-icon svg.pxi {
+    width: 16px;
+    height: 16px;
+}
+.rv-modal-icon svg.pxi {
+    width: 22px;
+    height: 22px;
+}
+/* Close buttons in alerts */
+.rv-toast-close svg.pxi,
+.rv-inline-close svg.pxi {
+    width: 10px;
+    height: 10px;
+}
+
+/* ── warning icon in edit form ───────────────────── */
+p svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.25em;
+}
+
+/* ── paginación icons ────────────────────────────── */
+.pagination-link svg.pxi {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+}
+
+/* ── loading bar text icon ───────────────────────── */
+#proxy-load-text svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}
+
+/* =====================================================
+   HEADER BRAND — Logo + título en línea
+   ===================================================== */
+
+/* Desactivar el layout anterior del header */
+header h1 { margin-bottom: 0; }
+header .subtitle { margin-bottom: 1.2rem; }
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.2rem;
+}
+
+/* Logo wrapper: marco pixel art retro */
+.header-logo-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-decoration: none;
+    /* Marco estilo Game Boy */
+    border: 3px solid var(--border-dark);
+    box-shadow: 3px 3px 0 #5a4a28, 5px 5px 0 #3a2a10;
+    background: #0d0f1a; /* fondo oscuro tipo pantalla */
+    padding: 5px;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.header-logo-link:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #5a4a28;
+}
+
+.header-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+    /* Preserva la estética pixelada del logo */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.header-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.header-brand-text h1 { margin-bottom: 0; }
+.header-brand-text .subtitle { margin-bottom: 0; }
+
+/* Subtitle con icono play */
+.subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.subtitle svg.pxi {
+    margin-right: 0.4em;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--red);
+}
+
+/* ── Responsive header brand ─────────────────────── */
+@media (max-width: 576px) {
+    .header-brand { gap: 0.6rem; margin-bottom: 0.9rem; }
+    .header-logo  { width: 42px; height: 42px; }
+    .header-logo-link { padding: 3px; }
+    .header-brand-text h1 { font-size: 0.82rem; }
+    .header-brand-text .subtitle { font-size: 0.65rem; }
+    nav a svg.pxi { width: 11px; height: 11px; margin-right: 0.3em; }
+}
+
+@media (max-width: 360px) {
+    .header-logo  { width: 34px; height: 34px; }
+    .header-brand { gap: 0.4rem; }
+}

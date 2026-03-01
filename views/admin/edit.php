@@ -4,7 +4,7 @@
     
     <?php if (isset($error)): ?>
         <div class="rv-inline-alert rv-inline--danger rv-inline--visible">
-            <span class="rv-inline-icon">✖</span>
+            <span class="rv-inline-icon"><i data-i="close"></i></span>
             <span class="rv-inline-msg"><?= htmlspecialchars($error) ?></span>
         </div>
     <?php endif; ?>
@@ -150,7 +150,7 @@
                          style="width:80px; height:80px; object-fit:cover; border:2px solid var(--border-dark); flex-shrink:0;">
                     <div style="font-family:'Courier Prime',monospace;">
                         <p style="font-size:0.78rem; font-weight:700; color:var(--slate); margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.05em;">Imagen actual</p>
-                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;">⚠ Sube una nueva imagen para reemplazarla</p>
+                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;"><i data-i="warning"></i> Sube una nueva imagen para reemplazarla</p>
                     </div>
                 </div>
             <?php endif; ?>
@@ -160,8 +160,7 @@
                        name="imagen"
                        accept="image/jpeg,image/png,image/gif,image/webp">
                 <div class="file-input-display" onclick="document.getElementById('imagen').click()">
-                    <div class="file-input-btn">
-                        Elegir archivo
+                    <div class="file-input-btn"><i data-i="upload-2"></i> Elegir archivo
                     </div>
                     <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
                 </div>
@@ -171,8 +170,8 @@
                 
         <!-- Botones -->
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Guardar cambios</button>
-            <a href="index.php?controller=admin&action=dashboard" class="btn-secondary" style="padding: 0.6rem 1.2rem; background: var(--background); color: var(--text); text-decoration: none; border-radius: 6px;">Cancelar</a>
+            <button type="submit" class="btn-primary"><i data-i="save"></i> Guardar cambios</button>
+            <a href="index.php?controller=admin&action=dashboard" class="btn-secondary" style="padding: 0.6rem 1.2rem; background: var(--background); color: var(--text); text-decoration: none; border-radius: 6px;"><i data-i="close"></i> Cancelar</a>
         </div>
     </form>
 </div>

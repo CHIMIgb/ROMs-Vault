@@ -13,8 +13,8 @@
                aria-autocomplete="list"
                aria-controls="autocomplete-list"
                aria-expanded="false">
-        <button type="button" class="search-button" onclick="document.getElementById('f-busqueda').dispatchEvent(new Event('input'))">
-            <span>⌕</span>
+        <button type="button" class="search-button" onclick="document.getElementById('f-busqueda').dispatchEvent(new Event('input'))" aria-label="Buscar">
+            <i data-i="search" aria-hidden="true"></i>
         </button>
         <!-- Dropdown autocompletado -->
         <ul id="autocomplete-list" class="autocomplete-list" role="listbox" aria-label="Sugerencias"></ul>
@@ -59,7 +59,7 @@
             <option value="año_asc"   <?= (($_GET['orden'] ?? '') === 'año_asc')   ? 'selected' : '' ?>>Año clasicos primero</option>
         </select>
 
-        <button type="button" id="btn-limpiar" class="clear-filters" style="display:none;">X Limpiar</button>
+        <button type="button" id="btn-limpiar" class="clear-filters" style="display:none;"><i data-i="close" aria-hidden="true"></i> Limpiar</button>
     </div>
 
     <!-- Indicador de carga -->
@@ -86,7 +86,7 @@
                             <?php if (!empty($juego['imagen'])): ?>
                                 <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>">
                             <?php else: ?>
-                                <span>📀</span>
+                                <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                             <?php endif; ?>
                         </div>
                         <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
@@ -121,8 +121,8 @@
                             <?php endif; ?>
                         </div>
                         <div class="game-actions">
-                            <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-play">Jugar Online</a>
-                            <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-download" target="_blank">Descargar</a>
+                            <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-play"><i data-i="play" aria-hidden="true"></i> Jugar Online</a>
+                            <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-download" target="_blank"><i data-i="download" aria-hidden="true"></i> Descargar</a>
                         </div>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
     ?>
     <div class="pagination" id="catalog-pagination">
         <?php if ($currentPage > 1): ?>
-            <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage - 1 ?>">Anterior</a>
+            <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage - 1 ?>"><i data-i="chevron-left" aria-hidden="true"></i> Anterior</a>
         <?php endif; ?>
         <?php
         $range = 2; $pages = [];
@@ -161,7 +161,7 @@
             $prev = $i;
         endforeach; ?>
         <?php if ($currentPage < $totalPages): ?>
-            <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente</a>
+            <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente <i data-i="chevron-right" aria-hidden="true"></i></a>
         <?php endif; ?>
     </div>
     <div class="pagination-info" id="catalog-info">
@@ -314,7 +314,7 @@
                 <div class="ac-cover">
                     ${item.imagen
                         ? `<img src="${item.imagen}" alt="" loading="lazy">`
-                        : '<span>📀</span>'
+                        : '<i data-i="disc" data-cls="pxi-cover-placeholder"></i>'
                     }
                 </div>
                 <div class="ac-text">
@@ -322,8 +322,8 @@
                     <span class="ac-consola">${escHtml(item.consola)}</span>
                 </div>
                 <div class="ac-actions">
-                    <a href="${item.play_url}" class="ac-btn-play" title="Jugar online">▶</a>
-                    <a href="${item.download_url}" class="ac-btn-dl" title="Descargar" target="_blank">⬇</a>
+                    <a href="${item.play_url}" class="ac-btn-play" title="Jugar online"><i data-i="play"></i></a>
+                    <a href="${item.download_url}" class="ac-btn-dl" title="Descargar" target="_blank"><i data-i="download"></i></a>
                 </div>`;
 
             // Clic en el item (no en los botones internos)

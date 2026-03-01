@@ -6,7 +6,7 @@
 <!-- Breadcrumb / Back -->
 <div class="play-nav">
     <a href="index.php?controller=home&action=index" class="btn-back">
-        ← Volver al Catálogo
+        <i data-i="arrow-left"></i> Volver al Catálogo
     </a>
     <span class="play-nav-sep">|</span>
     <span class="play-nav-title">
@@ -26,13 +26,13 @@ $errorMsg   = !empty($proxyError)    ? $proxyError['message'] : ($error ?? '');
 <?php
 // Icono y título según tipo
 $iconMap  = [
-    'not_found'   => ['🗑️',  'Archivo no encontrado'],
-    'private'     => ['🔒',  'Archivo privado o bloqueado'],
-    'quota'       => ['⏳',  'Límite de descargas alcanzado'],
-    'network'     => ['📡',  'Error de conexión con Google Drive'],
-    'unsupported' => ['⚙️',  'Emulación no disponible'],
+    'not_found'   => ['<i data-i="trash"></i>',   'Archivo no encontrado'],
+    'private'     => ['<i data-i="lock"></i>',    'Archivo privado o bloqueado'],
+    'quota'       => ['<i data-i="clock"></i>',   'Límite de descargas alcanzado'],
+    'network'     => ['<i data-i="wifi"></i>',    'Error de conexión con Google Drive'],
+    'unsupported' => ['<i data-i="settings-cog"></i>', 'Emulación no disponible'],
 ];
-[$icon, $titulo] = $iconMap[$errorType] ?? ['⚠️', 'Error desconocido'];
+[$icon, $titulo] = $iconMap[$errorType] ?? ['<i data-i="warning"></i>',  'Error desconocido'];
 
 // Consejo específico por tipo
 $consejo = match($errorType) {
@@ -51,7 +51,7 @@ $consejo = match($errorType) {
     <p class="proxy-error-msg"><?= $errorMsg /* puede contener <code> */ ?></p>
 
     <div class="proxy-error-tip">
-        <span class="proxy-tip-label">💡 ¿Qué puedo hacer?</span>
+        <span class="proxy-tip-label"><i data-i="lightbulb"></i> ¿Qué puedo hacer?</span>
         <?= htmlspecialchars($consejo) ?>
     </div>
 
@@ -60,16 +60,16 @@ $consejo = match($errorType) {
         <?php if ($errorType !== 'quota'): ?>
         <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>"
            class="btn-download-big" target="_blank">
-            ⬇ Descargar ROM
+            <i data-i="download"></i> Descargar ROM
         </a>
         <?php endif; ?>
         <?php if ($errorType === 'quota'): ?>
         <a href="javascript:location.reload()" class="btn-retry">
-            🔄 Reintentar ahora
+            <i data-i="reload"></i> Reintentar ahora
         </a>
         <?php endif; ?>
         <a href="index.php?controller=home&action=index" class="btn-back-catalog">
-            ← Volver al catálogo
+            <i data-i="arrow-left"></i> Volver al catálogo
         </a>
     </div>
 
@@ -92,14 +92,14 @@ $consejo = match($errorType) {
 <?php if ($core === 'psp'): ?>
 <!-- Aviso experimental PSP -->
 <div class="psp-warning">
-    <strong>⚠️ PSP — Soporte experimental:</strong>
+    <strong><i data-i="warning"></i> PSP — Soporte experimental:</strong>
     El emulador de PSP en navegador es inestable. Juegos 3D complejos pueden no funcionar
     o ir lentos. Se recomienda Chrome o Edge en escritorio para mejores resultados.
 </div>
 <?php elseif ($core === 'psx'): ?>
 <!-- Aviso experimental PSX -->
 <div class="psp-warning">
-    <strong>⚠️ PlayStation — Soporte experimental:</strong>
+    <strong><i data-i="warning"></i> PlayStation — Soporte experimental:</strong>
     El emulador de PS1 en navegador es inestable. Algunos juegos pueden presentar
     fallos gráficos, lentitud o no cargar correctamente.
     Se recomienda Chrome o Edge en escritorio para mejores resultados.
@@ -116,7 +116,7 @@ $consejo = match($errorType) {
                      alt="<?= htmlspecialchars($juego['titulo']) ?>"
                      class="emulator-cover">
             <?php else: ?>
-                <div class="emulator-cover emulator-cover--placeholder">📀</div>
+                <div class="emulator-cover emulator-cover--placeholder"><i data-i="disc" data-cls="pxi-cover-placeholder"></i></div>
             <?php endif; ?>
 
             <div class="emulator-game-details">
@@ -139,27 +139,27 @@ $consejo = match($errorType) {
                 <div class="emulator-meta-row">
                     <?php if (!empty($juego['size_bytes'])): ?>
                         <span class="emulator-meta-item">
-                            💾 <?= number_format($juego['size_bytes'] / 1048576, 1) ?> MB
+                            <i data-i="hard-drive"></i> <?= number_format($juego['size_bytes'] / 1048576, 1) ?> MB
                         </span>
                     <?php endif; ?>
                     <?php if (!empty($juego['idiomas'])): ?>
                         <span class="emulator-meta-item">
-                            🌐 <?= htmlspecialchars($juego['idiomas']) ?>
+                            <i data-i="globe"></i> <?= htmlspecialchars($juego['idiomas']) ?>
                         </span>
                     <?php endif; ?>
                 </div>
 
                 <div class="emulator-actions">
                     <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>"
-                       class="btn-dl-small" target="_blank">⬇ Descargar ROM</a>
+                       class="btn-dl-small" target="_blank"><i data-i="download"></i> Descargar ROM</a>
                     <button class="btn-fullscreen"
                             onclick="document.getElementById('emulator-container').requestFullscreen()">
-                        ⛶ Pantalla completa
+                        <i data-i="expand"></i> Pantalla completa
                     </button>
                     <button class="btn-share" id="btn-share-game"
                             data-url="<?= htmlspecialchars((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $_SERVER['REQUEST_URI']) ?>"
                             title="Copiar enlace permanente del juego">
-                        🔗 Compartir
+                        <i data-i="share"></i> Compartir
                     </button>
                 </div>
                 <div id="share-toast" class="share-toast" aria-live="polite"></div>
@@ -171,7 +171,7 @@ $consejo = match($errorType) {
     <!-- Barra de progreso — ROMs pequeñas (NES, SNES, GBA, N64…) -->
     <div id="proxy-load-bar" class="proxy-load-bar" style="display:none;">
         <div class="proxy-load-label">
-            <span id="proxy-load-text">⏳ Cargando ROM desde el servidor…</span>
+            <span id="proxy-load-text"><i data-i="clock"></i> Cargando ROM desde el servidor…</span>
             <span id="proxy-load-pct">0%</span>
         </div>
         <div class="proxy-load-track">
@@ -182,7 +182,7 @@ $consejo = match($errorType) {
     <?php else: ?>
     <!-- Aviso streaming — ISOs grandes (PSP, PS1, Saturn…) -->
     <div class="proxy-streaming-notice">
-        <span class="streaming-icon">📡</span>
+        <span class="streaming-icon"><i data-i="wifi"></i></span>
         <span>
             Esta es una ISO grande<?php if (!empty($juego['size_bytes'])): ?>
                 (<?= number_format($juego['size_bytes'] / 1048576, 0) ?> MB)<?php endif; ?>.
@@ -194,7 +194,7 @@ $consejo = match($errorType) {
 
     <!-- Slider de tamaño de pantalla -->
     <div class="emulator-size-control">
-        <span class="size-control-label">🖥️ Tamaño de pantalla</span>
+        <span class="size-control-label"><svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14" height="14"><path d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z"/></svg> Tamaño de pantalla</span>
         <div class="size-control-row">
             <span class="size-control-min">40%</span>
             <input type="range" id="emulator-size-slider"
@@ -213,7 +213,7 @@ $consejo = match($errorType) {
     <!-- Controles de teclado -->
     <div class="emulator-controls-hint">
         <details>
-            <summary>🎮 Controles por defecto (teclado)</summary>
+            <summary><svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14" height="14"><path d="M17 6H7c-2.8 0-5 2.2-5 5s2.2 5 5 5h10c2.8 0 5-2.2 5-5s-2.2-5-5-5zm-9 7H6v-2h2v-2h2v2h2v2h-2v2H8v-2zm7 1h-2v-2h2v2zm2-3h-2v-2h2v2z"/></svg> Controles por defecto (teclado)</summary>
             <div class="controls-grid">
                 <div><strong>Mover</strong> — Flechas ↑ ↓ ← →</div>
                 <div><strong>A / B / X / Y</strong> — Z / X / A / S</div>
@@ -373,7 +373,7 @@ $consejo = match($errorType) {
             loadFill.style.width   = '100%';
             loadFill.classList.remove('indeterminate');
             loadPct.textContent    = '100%';
-            loadText.textContent   = '✅ ROM cargada — iniciando emulador…';
+            loadText.innerHTML   = '<svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> ROM cargada — iniciando emulador…';
             loadDetail.textContent = 'Procesando ' + fmtBytes(received) + '…';
 
             window.EJS_gameUrl = URL.createObjectURL(new Blob(chunks));
@@ -405,10 +405,10 @@ $consejo = match($errorType) {
 
             // Mostrar página de error amigable en vez del emulador
             const iconMap = {
-                not_found: ['🗑️',  'Archivo no encontrado'],
-                private:   ['🔒',  'Archivo privado o bloqueado'],
-                quota:     ['⏳',  'Límite de descargas alcanzado'],
-                network:   ['📡',  'Error de conexión con Google Drive'],
+                not_found: ['<i data-i="trash"></i>',   'Archivo no encontrado'],
+                private:   ['<i data-i="lock"></i>',    'Archivo privado o bloqueado'],
+                quota:     ['<i data-i="clock"></i>',   'Límite de descargas alcanzado'],
+                network:   ['<i data-i="wifi"></i>',    'Error de conexión con Google Drive'],
             };
             const tipMap = {
                 not_found: 'El administrador del sitio tendrá que actualizar el enlace de Google Drive para este juego.',
@@ -416,7 +416,7 @@ $consejo = match($errorType) {
                 quota:     'Google Drive limita las descargas de archivos grandes. Vuelve a intentarlo en 24 horas.',
                 network:   'Esto suele ser temporal. Espera unos minutos e inténtalo de nuevo.',
             };
-            const [icon, titulo] = iconMap[errorType] || ['⚠️', 'Error al cargar la ROM'];
+            const [icon, titulo] = iconMap[errorType] || ['<i data-i="warning"></i>', 'Error al cargar la ROM'];
             const consejo        = tipMap[errorType]   || 'Inténtalo de nuevo o descarga la ROM.';
             const fileId         = romUrl.split('file_id=')[1] || '';
 
@@ -426,16 +426,16 @@ $consejo = match($errorType) {
                     <h2 class="proxy-error-title">${titulo}</h2>
                     <p class="proxy-error-msg">${errorMsg}</p>
                     <div class="proxy-error-tip">
-                        <span class="proxy-tip-label">💡 ¿Qué puedo hacer?</span>
+                        <span class="proxy-tip-label"><i data-i="lightbulb"></i> ¿Qué puedo hacer?</span>
                         ${consejo}
                     </div>
                     <div class="proxy-error-actions">
                         ${errorType !== 'quota'
                             ? `<a href="index.php?controller=home&action=download&file_id=${encodeURIComponent(fileId)}"
-                                  class="btn-download-big" target="_blank">⬇ Descargar ROM</a>`
-                            : `<a href="javascript:location.reload()" class="btn-retry">🔄 Reintentar</a>`
+                                  class="btn-download-big" target="_blank"><i data-i="download"></i> Descargar ROM</a>`
+                            : `<a href="javascript:location.reload()" class="btn-retry"><i data-i="reload"></i> Reintentar</a>`
                         }
-                        <a href="index.php?controller=home&action=index" class="btn-back-catalog">← Volver al catálogo</a>
+                        <a href="index.php?controller=home&action=index" class="btn-back-catalog"><i data-i="arrow-left"></i> Volver al catálogo</a>
                     </div>
                     <details class="proxy-error-details">
                         <summary>Detalles técnicos</summary>
@@ -478,7 +478,7 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
 <?php if (!empty($relacionados)): ?>
 <section class="related-section">
     <h2 class="related-title">
-        <span class="related-title-icon">🎮</span>
+        <span class="related-title-icon"><i data-i="gamepad"></i></span>
         Juegos relacionados
         <span class="related-title-sub">— misma consola o género</span>
     </h2>
@@ -492,7 +492,7 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
                          alt="<?= htmlspecialchars($rel['titulo']) ?>"
                          loading="lazy">
                 <?php else: ?>
-                    <span>📀</span>
+                    <i data-i="disc" data-cls="pxi-cover-placeholder"></i>
                 <?php endif; ?>
             </div>
             <div class="related-info">
@@ -534,7 +534,7 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
         // Método 1: API moderna (requiere HTTPS o localhost)
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(text)
-                .then(() => showToast('✅ Enlace copiado al portapapeles'))
+                .then(() => showToast('<i data-i="check"></i> Enlace copiado al portapapeles'))
                 .catch(() => legacyCopy(text));
             return;
         }
@@ -551,16 +551,16 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
         ta.select();
         try {
             const ok = document.execCommand('copy');
-            showToast(ok ? '✅ Enlace copiado al portapapeles' : '❌ No se pudo copiar');
+            showToast(ok ? '<i data-i="check"></i> Enlace copiado al portapapeles' : '<i data-i="close"></i> No se pudo copiar');
         } catch (_) {
-            showToast('❌ No se pudo copiar el enlace');
+            showToast('<i data-i="close"></i> No se pudo copiar el enlace');
         }
         document.body.removeChild(ta);
     }
 
     function showToast(msg) {
         if (!toast) return;
-        toast.textContent = msg;
+        toast.innerHTML = msg;
         toast.classList.add('share-toast--visible');
         setTimeout(() => toast.classList.remove('share-toast--visible'), 2800);
     }

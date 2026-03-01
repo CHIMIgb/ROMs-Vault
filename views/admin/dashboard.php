@@ -73,7 +73,7 @@
 <!-- CABECERA -->
 <div class="admin-header">
     <h2>Panel de Administracion</h2>
-    <a href="index.php?controller=admin&action=add" class="btn-primary">+ Anadir nuevo juego</a>
+    <a href="index.php?controller=admin&action=add" class="btn-primary"><i data-i="plus"></i> Añadir nuevo juego</a>
 </div>
 
 <!-- FILTROS EXTENDIDOS EN TIEMPO REAL -->
@@ -88,7 +88,7 @@
                    autocomplete="off">
             <button type="button" class="search-button"
                     onclick="document.getElementById('af-busqueda').dispatchEvent(new Event('input'))">
-                <span>&#8981;</span>
+                <i data-i="search" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -124,7 +124,7 @@
             <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>>Solo inactivos</option>
         </select>
 
-        <button type="button" id="af-limpiar" class="clear-filters" style="display:none;white-space:nowrap;">X Limpiar</button>
+        <button type="button" id="af-limpiar" class="clear-filters" style="display:none;white-space:nowrap;"><i data-i="close" aria-hidden="true"></i> Limpiar</button>
     </div>
 
     <!-- Indicador de carga -->
@@ -139,7 +139,7 @@
 
     <?php if (empty($juegos)): ?>
         <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="text-align:center;padding:3rem;justify-content:center;">
-            <span class="rv-inline-icon">ℹ</span>
+            <span class="rv-inline-icon"><i data-i="info"></i></span>
             <span class="rv-inline-msg">No hay juegos que coincidan con los filtros.</span>
         </div>
     <?php else: ?>
@@ -171,7 +171,7 @@
                             <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="Portada"
                                  style="width:40px;height:40px;object-fit:cover;">
                         <?php else: ?>
-                            <span style="color:var(--text-light);">&#128193;</span>
+                            <span style="color:var(--text-light);"><i data-i="image"></i></span>
                         <?php endif; ?>
                     </td>
                     <td><strong><?= htmlspecialchars($juego['titulo']) ?></strong></td>
@@ -213,7 +213,7 @@
     <div class="pagination" style="margin-top:1.5rem;" id="admin-pagination">
         <?php if ($currentPage > 1): ?>
             <a href="?controller=admin&action=dashboard&page=<?= $currentPage - 1 ?><?= $paramStr ?>"
-               class="pagination-link" data-page="<?= $currentPage - 1 ?>">Anterior</a>
+               class="pagination-link" data-page="<?= $currentPage - 1 ?>"><i data-i="chevron-left"></i> Anterior</a>
         <?php endif; ?>
         <?php
         $range = 2; $pages = [];
@@ -235,7 +235,7 @@
         endforeach; ?>
         <?php if ($currentPage < $totalPages): ?>
             <a href="?controller=admin&action=dashboard&page=<?= $currentPage + 1 ?><?= $paramStr ?>"
-               class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente</a>
+               class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente <i data-i="chevron-right"></i></a>
         <?php endif; ?>
     </div>
     <?php endif; ?>

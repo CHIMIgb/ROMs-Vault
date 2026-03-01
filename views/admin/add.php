@@ -4,7 +4,7 @@
     
     <?php if (isset($error)): ?>
         <div class="rv-inline-alert rv-inline--danger rv-inline--visible">
-            <span class="rv-inline-icon">✖</span>
+            <span class="rv-inline-icon"><i data-i="close"></i></span>
             <span class="rv-inline-msg"><?= htmlspecialchars($error) ?></span>
         </div>
     <?php endif; ?>
@@ -154,8 +154,7 @@
                        name="imagen"
                        accept="image/jpeg,image/png,image/gif,image/webp">
                 <div class="file-input-display" onclick="document.getElementById('imagen').click()">
-                    <div class="file-input-btn">
-                        Elegir archivo
+                    <div class="file-input-btn"><i data-i="upload-2"></i> Elegir archivo
                     </div>
                     <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
                 </div>
@@ -168,8 +167,8 @@
         
         <!-- Botones -->
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Guardar juego</button>
-            <a href="index.php?controller=admin&action=dashboard" class="btn-secondary" style="padding: 0.6rem 1.2rem; background: var(--background); color: var(--text); text-decoration: none; border-radius: 6px;">Cancelar</a>
+            <button type="submit" class="btn-primary"><i data-i="save"></i> Guardar juego</button>
+            <a href="index.php?controller=admin&action=dashboard" class="btn-secondary" style="padding: 0.6rem 1.2rem; background: var(--background); color: var(--text); text-decoration: none; border-radius: 6px;"><i data-i="close"></i> Cancelar</a>
         </div>
     </form>
 </div>
