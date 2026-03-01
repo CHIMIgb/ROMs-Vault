@@ -122,8 +122,9 @@ class Juego extends Model {
             'jugados'   => 'j.plays_count DESC',
             'año_asc'   => 'j.fecha_lanzamiento ASC NULLS LAST',
             'año_desc'  => 'j.fecha_lanzamiento DESC NULLS LAST',
+            'random'    => 'RANDOM()',
         ];
-        return $map[$orden] ?? 'j.titulo ASC';
+        return $map[$orden] ?? 'RANDOM()';
     }
 
     // Método con paginación, búsqueda y ordenamiento (catálogo público)

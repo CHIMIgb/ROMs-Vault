@@ -27,9 +27,9 @@ class HomeController {
         if (isset($_GET['region']) && $_GET['region'] !== '') {
             $filters['region'] = $_GET['region'];
         }
-        if (isset($_GET['orden']) && $_GET['orden'] !== '') {
-            $filters['orden'] = $_GET['orden'];
-        }
+        $filters['orden'] = (isset($_GET['orden']) && $_GET['orden'] !== '')
+            ? $_GET['orden']
+            : 'random';
 
         // Configuración de paginación
         $itemsPerPage = 20; // 4 columnas × 5 filas
