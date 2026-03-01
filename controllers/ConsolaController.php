@@ -19,18 +19,13 @@ class ConsolaController {
         $busqueda = isset($_GET['busqueda']) && $_GET['busqueda'] !== ''
             ? trim($_GET['busqueda']) : null;
 
-        // Filtro activo: '' todos, '1' activas, '0' inactivas
-        $activo = isset($_GET['activo']) && $_GET['activo'] !== ''
-            ? $_GET['activo'] : null;
-
         $itemsPerPage = 20;
         $currentPage  = max(1, (int)($_GET['page'] ?? 1));
         $offset       = ($currentPage - 1) * $itemsPerPage;
 
-        $consolas    = $consolaModel->getAllPaginated($busqueda, $offset, $itemsPerPage, $activo);
-        $total       = $consolaModel->countAll($busqueda); // total sin filtro activo para stat card
-        $totalActivas = $consolaModel->countActivas();
-        $totalPages  = (int)ceil($consolaModel->countAll($busqueda, $activo) / $itemsPerPage);
+        $consolas   = $consolaModel->getAllPaginated($busqueda, $offset, $itemsPerPage);
+        $total      = $consolaModel->countAll($busqueda);
+        $totalPages = (int)ceil($total / $itemsPerPage);
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/consolas/index.php';
@@ -46,7 +41,6 @@ class ConsolaController {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             $fabricante  = trim($_POST['fabricante']  ?? '');
-            $activo      = isset($_POST['activo']) ? 1 : 0;
 
             if ($nombre === '') {
                 $error = 'El nombre de la consola es obligatorio.';
@@ -56,7 +50,7 @@ class ConsolaController {
                     'nombre'      => $nombre,
                     'descripcion' => $descripcion ?: null,
                     'fabricante'  => $fabricante  ?: null,
-                    'activo'      => $activo,
+                    'activo'      => 1,
                 ]);
 
                 if ($ok) {
@@ -94,7 +88,6 @@ class ConsolaController {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             $fabricante  = trim($_POST['fabricante']  ?? '');
-            $activo      = isset($_POST['activo']) ? 1 : 0;
 
             if ($nombre === '') {
                 $error = 'El nombre de la consola es obligatorio.';
@@ -103,7 +96,7 @@ class ConsolaController {
                     'nombre'      => $nombre,
                     'descripcion' => $descripcion ?: null,
                     'fabricante'  => $fabricante  ?: null,
-                    'activo'      => $activo,
+                    'activo'      => 1,
                 ]);
 
                 if ($ok) {
@@ -129,7 +122,7 @@ class ConsolaController {
 
         // Verificar si hay juegos asociados
         $juegoModel = new Juego();
-        $filters    = ['consola' => $id, 'activo' => ''];
+        $filters    = ['consola' => $id, 'activo' => ''];   // todos, activos e inactivos
         $total      = $juegoModel->countAllFiltered($filters);
 
         if ($total > 0) {

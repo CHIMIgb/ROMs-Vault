@@ -19,18 +19,13 @@ class CategoriaController {
         $busqueda = isset($_GET['busqueda']) && $_GET['busqueda'] !== ''
             ? trim($_GET['busqueda']) : null;
 
-        // Filtro activo: '' todos, '1' activas, '0' inactivas
-        $activo = isset($_GET['activo']) && $_GET['activo'] !== ''
-            ? $_GET['activo'] : null;
-
         $itemsPerPage = 20;
         $currentPage  = max(1, (int)($_GET['page'] ?? 1));
         $offset       = ($currentPage - 1) * $itemsPerPage;
 
-        $categorias   = $categoriaModel->getAllPaginated($busqueda, $offset, $itemsPerPage, $activo);
-        $total        = $categoriaModel->countAll($busqueda); // total sin filtro activo para stat card
-        $totalActivas = $categoriaModel->countActivas();
-        $totalPages   = (int)ceil($categoriaModel->countAll($busqueda, $activo) / $itemsPerPage);
+        $categorias = $categoriaModel->getAllPaginated($busqueda, $offset, $itemsPerPage);
+        $total      = $categoriaModel->countAll($busqueda);
+        $totalPages = (int)ceil($total / $itemsPerPage);
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/categorias/index.php';
@@ -44,8 +39,6 @@ class CategoriaController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
-            $activo      = isset($_POST['activo']) ? 1 : 0;
-
             if ($nombre === '') {
                 $error = 'El nombre de la categoría es obligatorio.';
             } else {
@@ -53,7 +46,7 @@ class CategoriaController {
                 $ok = $categoriaModel->create([
                     'nombre'      => $nombre,
                     'descripcion' => $descripcion ?: null,
-                    'activo'      => $activo,
+                    'activo'      => 1,
                 ]);
 
                 if ($ok) {
@@ -90,15 +83,13 @@ class CategoriaController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
-            $activo      = isset($_POST['activo']) ? 1 : 0;
-
             if ($nombre === '') {
                 $error = 'El nombre de la categoría es obligatorio.';
             } else {
                 $ok = $categoriaModel->update($id, [
                     'nombre'      => $nombre,
                     'descripcion' => $descripcion ?: null,
-                    'activo'      => $activo,
+                    'activo'      => 1,
                 ]);
 
                 if ($ok) {

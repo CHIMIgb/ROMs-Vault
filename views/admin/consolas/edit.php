@@ -4,11 +4,6 @@
     <!-- Cabecera del formulario -->
     <div class="form-container-header">
         <h2>Editar Consola: <?= htmlspecialchars($consola['nombre']) ?></h2>
-        <a href="index.php?controller=consola&action=index"
-           class="btn-primary"
-           style="font-size:0.45rem;">
-            <i data-i="arrow-left"></i> Volver
-        </a>
     </div>
 
     <?php if (isset($error)): ?>

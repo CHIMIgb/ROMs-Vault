@@ -168,7 +168,9 @@
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary"><i data-i="save"></i> Guardar juego</button>
-            <a href="index.php?controller=admin&action=dashboard" class="btn-secondary" style="padding: 0.6rem 1.2rem; background: var(--background); color: var(--text); text-decoration: none; border-radius: 6px;"><i data-i="close"></i> Cancelar</a>
+                <a href="index.php?controller=admin&action=dashboard" class="btn-primary" style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
+                    <i data-i="close"></i> Cancelar
+                </a>
         </div>
     </form>
 </div>

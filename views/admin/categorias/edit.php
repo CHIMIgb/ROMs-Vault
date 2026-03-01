@@ -4,11 +4,6 @@
     <!-- Cabecera del formulario -->
     <div class="form-container-header">
         <h2>Editar Categoría: <?= htmlspecialchars($categoria['nombre']) ?></h2>
-        <a href="index.php?controller=categoria&action=index"
-           class="btn-primary"
-           style="font-size:0.45rem;">
-            <i data-i="arrow-left"></i> Volver
-        </a>
     </div>
 
     <?php if (isset($error)): ?>
@@ -38,18 +33,6 @@
                       rows="4"><?= htmlspecialchars($_POST['descripcion'] ?? $categoria['descripcion'] ?? '') ?></textarea>
         </div>
 
-        <!-- Activo — mismo .form-checkbox del sistema -->
-        <div class="form-group">
-            <div class="form-checkbox">
-                <input type="checkbox"
-                       id="activo"
-                       name="activo"
-                       value="1"
-                       <?= (isset($_POST['nombre']) ? isset($_POST['activo']) : $categoria['activo']) ? 'checked' : '' ?>>
-                <label for="activo">Categoría activa (visible en filtros del catálogo)</label>
-            </div>
-        </div>
-
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">
@@ -62,23 +45,6 @@
             </a>
         </div>
     </form>
-
-    <!-- Zona peligrosa — mismo estilo que consolas/edit.php -->
-    <div style="margin-top:2.5rem;padding:1.25rem 1.5rem;border:3px solid var(--red);background:var(--cream-light);box-shadow:4px 4px 0 var(--red-dark);">
-        <p style="font-family:'Press Start 2P',monospace;font-size:0.5rem;color:var(--red);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.06em;">
-            <i data-i="warning"></i> Zona peligrosa
-        </p>
-        <p style="font-family:'Courier Prime',monospace;font-size:0.88rem;color:var(--slate-mid);margin-bottom:1rem;">
-            Eliminar esta categoría solo es posible si no tiene juegos asociados.
-            Esta acción no se puede deshacer.
-        </p>
-        <button class="btn-delete" id="btn-eliminar-categoria"
-                style="font-family:'Press Start 2P',monospace;cursor:pointer;"
-                data-id="<?= $categoria['id'] ?>"
-                data-nombre="<?= htmlspecialchars($categoria['nombre'], ENT_QUOTES) ?>">
-            <i data-i="trash"></i> Eliminar categoría
-        </button>
-    </div>
 </div>
 
 <script>

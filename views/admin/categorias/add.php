@@ -4,11 +4,6 @@
     <!-- Cabecera del formulario -->
     <div class="form-container-header">
         <h2>Nueva Categoría</h2>
-        <a href="index.php?controller=categoria&action=index"
-           class="btn-primary"
-           style="font-size:0.45rem;">
-            <i data-i="arrow-left"></i> Volver
-        </a>
     </div>
 
     <?php if (isset($error)): ?>
@@ -38,18 +33,6 @@
                       name="descripcion"
                       rows="4"
                       placeholder="Breve descripción del género o tipo de juego..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
-        </div>
-
-        <!-- Activo — mismo .form-checkbox del sistema -->
-        <div class="form-group">
-            <div class="form-checkbox">
-                <input type="checkbox"
-                       id="activo"
-                       name="activo"
-                       value="1"
-                       <?= (!isset($_POST['nombre']) || isset($_POST['activo'])) ? 'checked' : '' ?>>
-                <label for="activo">Categoría activa (visible en filtros del catálogo)</label>
-            </div>
         </div>
 
         <!-- Botones -->
