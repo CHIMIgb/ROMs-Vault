@@ -1,0 +1,176 @@
+<?php
+// controllers/ConsolaController.php
+require_once 'models/Consola.php';
+require_once 'models/Juego.php';
+
+class ConsolaController {
+
+    public function __construct() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php?controller=auth&action=login');
+            exit;
+        }
+    }
+
+    // ── Listado ───────────────────────────────────────────────────────────
+    public function index() {
+        $consolaModel = new Consola();
+
+        $busqueda = isset($_GET['busqueda']) && $_GET['busqueda'] !== ''
+            ? trim($_GET['busqueda']) : null;
+
+        // Filtro activo: '' todos, '1' activas, '0' inactivas
+        $activo = isset($_GET['activo']) && $_GET['activo'] !== ''
+            ? $_GET['activo'] : null;
+
+        $itemsPerPage = 20;
+        $currentPage  = max(1, (int)($_GET['page'] ?? 1));
+        $offset       = ($currentPage - 1) * $itemsPerPage;
+
+        $consolas    = $consolaModel->getAllPaginated($busqueda, $offset, $itemsPerPage, $activo);
+        $total       = $consolaModel->countAll($busqueda); // total sin filtro activo para stat card
+        $totalActivas = $consolaModel->countActivas();
+        $totalPages  = (int)ceil($consolaModel->countAll($busqueda, $activo) / $itemsPerPage);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/consolas/index.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    // ── Crear ─────────────────────────────────────────────────────────────
+    public function add() {
+        $error   = null;
+        $success = null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre      = trim($_POST['nombre']      ?? '');
+            $descripcion = trim($_POST['descripcion'] ?? '');
+            $fabricante  = trim($_POST['fabricante']  ?? '');
+            $activo      = isset($_POST['activo']) ? 1 : 0;
+
+            if ($nombre === '') {
+                $error = 'El nombre de la consola es obligatorio.';
+            } else {
+                $consolaModel = new Consola();
+                $ok = $consolaModel->create([
+                    'nombre'      => $nombre,
+                    'descripcion' => $descripcion ?: null,
+                    'fabricante'  => $fabricante  ?: null,
+                    'activo'      => $activo,
+                ]);
+
+                if ($ok) {
+                    header('Location: index.php?controller=consola&action=index&created=1');
+                    exit;
+                } else {
+                    $error = 'Error al guardar la consola. Es posible que el nombre ya exista.';
+                }
+            }
+        }
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/consolas/add.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    // ── Editar ────────────────────────────────────────────────────────────
+    public function edit($id = null) {
+        if (!$id) {
+            header('Location: index.php?controller=consola&action=index');
+            exit;
+        }
+
+        $consolaModel = new Consola();
+        $consola      = $consolaModel->find($id);
+
+        if (!$consola) {
+            header('Location: index.php?controller=consola&action=index');
+            exit;
+        }
+
+        $error = null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre      = trim($_POST['nombre']      ?? '');
+            $descripcion = trim($_POST['descripcion'] ?? '');
+            $fabricante  = trim($_POST['fabricante']  ?? '');
+            $activo      = isset($_POST['activo']) ? 1 : 0;
+
+            if ($nombre === '') {
+                $error = 'El nombre de la consola es obligatorio.';
+            } else {
+                $ok = $consolaModel->update($id, [
+                    'nombre'      => $nombre,
+                    'descripcion' => $descripcion ?: null,
+                    'fabricante'  => $fabricante  ?: null,
+                    'activo'      => $activo,
+                ]);
+
+                if ($ok) {
+                    header('Location: index.php?controller=consola&action=index&updated=1');
+                    exit;
+                } else {
+                    $error = 'Error al actualizar la consola. El nombre puede estar duplicado.';
+                }
+            }
+        }
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/consolas/edit.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    // ── Eliminar ──────────────────────────────────────────────────────────
+    public function delete($id = null) {
+        if (!$id) {
+            header('Location: index.php?controller=consola&action=index');
+            exit;
+        }
+
+        // Verificar si hay juegos asociados
+        $juegoModel = new Juego();
+        $filters    = ['consola' => $id, 'activo' => ''];
+        $total      = $juegoModel->countAllFiltered($filters);
+
+        if ($total > 0) {
+            header('Location: index.php?controller=consola&action=index&error=has_games&count=' . $total);
+            exit;
+        }
+
+        $consolaModel = new Consola();
+        $consolaModel->delete($id);
+
+        header('Location: index.php?controller=consola&action=index&deleted=1');
+        exit;
+    }
+
+    // ── Toggle activo (AJAX) ──────────────────────────────────────────────
+    public function toggleActiveAjax($id = null) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            exit;
+        }
+
+        $consolaModel = new Consola();
+        $consola      = $consolaModel->find($id);
+
+        if (!$consola) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'error' => 'Consola no encontrada']);
+            exit;
+        }
+
+        $nuevoEstado = $consola['activo'] ? 0 : 1;
+        $ok          = $consolaModel->update($id, ['activo' => $nuevoEstado]);
+
+        echo json_encode([
+            'ok'     => (bool)$ok,
+            'activo' => $nuevoEstado,
+            'nombre' => $consola['nombre'],
+        ]);
+        exit;
+    }
+}

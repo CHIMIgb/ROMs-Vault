@@ -10,9 +10,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="public/css/style.css">
-
-    <!-- pixelicons.js: sistema de iconos pixel art (pixelarticons.com) -->
-    <script src="public/js/pixelicons.js" defer></script>
 </head>
 <body>
     <div class="container">

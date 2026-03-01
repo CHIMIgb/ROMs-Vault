@@ -73,7 +73,17 @@
 <!-- CABECERA -->
 <div class="admin-header">
     <h2>Panel de Administracion</h2>
-    <a href="index.php?controller=admin&action=add" class="btn-primary"><i data-i="plus"></i> Añadir nuevo juego</a>
+    <div class="admin-header-actions">
+        <a href="index.php?controller=consola&action=index" class="btn-primary">
+            <i data-i="plus"></i> Consolas
+        </a>
+        <a href="index.php?controller=categoria&action=index" class="btn-primary">
+            <i data-i="plus"></i> Categorías
+        </a>
+        <a href="index.php?controller=admin&action=add" class="btn-primary">
+            <i data-i="plus"></i> Añadir nuevo juego
+        </a>
+    </div>
 </div>
 
 <!-- FILTROS EXTENDIDOS EN TIEMPO REAL -->
@@ -377,7 +387,6 @@
             btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
             btnCancel: 'Cancelar',
             onOk: async () => {
-                // Deshabilitar botón mientras procesa
                 btn.disabled    = true;
                 btn.textContent = '...';
 
@@ -390,7 +399,6 @@
 
                     if (!data.ok) throw new Error(data.error || 'Error desconocido');
 
-                    // Actualizar botón en el DOM sin recargar
                     const estaActivo = data.activo === 1;
                     btn.textContent      = estaActivo ? 'Desactivar' : 'Activar';
                     btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
@@ -403,7 +411,6 @@
 
                 } catch (err) {
                     RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
-                    // Restaurar botón
                     btn.disabled    = false;
                     btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
                 }
@@ -415,5 +422,21 @@
 
 })();
 </script>
+<style>
+/* Cabecera con múltiples acciones */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+}
 
-<script src="public/js/rv-alerts.js"></script>
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
+</style>

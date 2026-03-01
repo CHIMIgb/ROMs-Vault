@@ -6,7 +6,8 @@
             </div>
         </footer>
     </div>
-    <!-- Script opcional para funcionalidades adicionales -->
+    <script src="public/js/pixelicons.js"></script>
+    <script src="public/js/rv-alerts.js"></script>
     <script src="public/js/script.js"></script>
 </body>
 </html>

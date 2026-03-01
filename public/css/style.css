@@ -3317,3 +3317,32 @@ header .subtitle { margin-bottom: 1.2rem; }
     .header-logo  { width: 34px; height: 34px; }
     .header-brand { gap: 0.4rem; }
 }
+
+/* ── Cabecera del formulario (título + botón Volver) ── */
+.form-container-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--border-dark);
+    flex-wrap: wrap;
+    gap: .8rem;
+}
+
+.form-container-header h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.72rem;
+    color: var(--slate);
+    text-shadow: 2px 2px 0 var(--border-mid);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ── Grupo de acciones en el admin-header (botones múltiples) ── */
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
