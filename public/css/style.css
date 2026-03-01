@@ -1152,32 +1152,282 @@ nav a:hover {
 }
 
 /* ===== ALERTAS ===== */
+/* =====================================================
+   RVAlerts — Sistema de alertas ROMs Vault
+   Incluye: .alert legacy (compatibilidad), modal,
+            toast/notificación y alerta inline.
+   ===================================================== */
+
+/* ── Variables de color compartidas por el sistema ── */
+:root {
+    --rv-success-bg  : #e8f5ea;
+    --rv-success-fg  : #2d6a35;
+    --rv-success-brd : var(--green-ok);
+    --rv-warning-bg  : #fff8e1;
+    --rv-warning-fg  : #7a5800;
+    --rv-warning-brd : var(--amber);
+    --rv-danger-bg   : #faeaea;
+    --rv-danger-fg   : var(--red-dark);
+    --rv-danger-brd  : var(--red);
+    --rv-info-bg     : var(--cream-dark);
+    --rv-info-fg     : var(--slate-mid);
+    --rv-info-brd    : var(--blue-btn);
+}
+
+/* ── .alert legacy (compatibilidad con PHP existente) ── */
 .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
     padding: 0.85rem 1rem;
     margin-bottom: 1.25rem;
     font-family: 'Courier Prime', monospace;
     font-size: 0.9rem;
+    border: 2px solid;
+    border-left-width: 5px;
 }
-
-.alert-error {
-    background: #faeaea;
-    color: var(--red-dark);
-    border: 2px solid var(--red);
-    border-left: 5px solid var(--red);
+.alert-error, .alert-danger {
+    background: var(--rv-danger-bg);
+    color: var(--rv-danger-fg);
+    border-color: var(--rv-danger-brd);
 }
-
 .alert-success {
-    background: #e8f5ea;
-    color: #2d6a35;
-    border: 2px solid var(--green-ok);
-    border-left: 5px solid var(--green-ok);
+    background: var(--rv-success-bg);
+    color: var(--rv-success-fg);
+    border-color: var(--rv-success-brd);
+}
+.alert-warning {
+    background: var(--rv-warning-bg);
+    color: var(--rv-warning-fg);
+    border-color: var(--rv-warning-brd);
+}
+.alert-info {
+    background: var(--rv-info-bg);
+    color: var(--rv-info-fg);
+    border-color: var(--rv-info-brd);
 }
 
-.alert-info {
-    background: var(--cream-dark);
+/* ─────────────────────────────────────────────────────
+   MODAL DE CONFIRMACIÓN
+   ───────────────────────────────────────────────────── */
+.rv-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 25, 15, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+}
+
+.rv-modal-box {
+    background: var(--cream-light);
+    border: 4px solid var(--border-dark);
+    box-shadow: 8px 8px 0 #3a3a3a;
+    width: 100%;
+    max-width: 430px;
+    font-family: 'Courier Prime', monospace;
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.rv-modal--open  { opacity: 1; transform: translateY(0) scale(1); }
+.rv-modal--close { opacity: 0; transform: translateY(10px) scale(0.97); }
+
+.rv-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem 0.85rem;
+    border-bottom: 3px solid var(--border-dark);
+    border-left: 6px solid transparent;
+}
+.rv-modal--warning .rv-modal-header { background: var(--rv-warning-bg); border-left-color: var(--rv-warning-brd); }
+.rv-modal--danger  .rv-modal-header { background: var(--rv-danger-bg);  border-left-color: var(--rv-danger-brd);  }
+.rv-modal--success .rv-modal-header { background: var(--rv-success-bg); border-left-color: var(--rv-success-brd); }
+.rv-modal--info    .rv-modal-header { background: var(--rv-info-bg);    border-left-color: var(--rv-info-brd);    }
+
+.rv-modal-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+.rv-modal--warning .rv-modal-icon { color: var(--rv-warning-brd); }
+.rv-modal--danger  .rv-modal-icon { color: var(--rv-danger-brd);  }
+.rv-modal--success .rv-modal-icon { color: var(--rv-success-brd); }
+.rv-modal--info    .rv-modal-icon { color: var(--rv-info-brd);    }
+
+.rv-modal-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.65rem;
+    color: var(--slate);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.rv-modal-body {
+    padding: 1.1rem 1.25rem 0.9rem;
+    font-size: 0.88rem;
     color: var(--slate-mid);
-    border: 2px solid var(--border-mid);
-    border-left: 5px solid var(--blue-btn);
+    line-height: 1.65;
+}
+.rv-modal-body strong { color: var(--slate); }
+
+.rv-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem 1.1rem;
+    border-top: 2px solid var(--border-light);
+    background: var(--cream-dark);
+}
+
+/* Botones del modal */
+.rv-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.56rem;
+    padding: 0.6rem 1.1rem;
+    border: 3px solid var(--border-dark);
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--border-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    letter-spacing: 0.03em;
+}
+.rv-btn:hover  { transform: translateY(-2px); box-shadow: 5px 5px 0 var(--border-dark); }
+.rv-btn:active { transform: translateY(1px);  box-shadow: 1px 1px 0 var(--border-dark); }
+
+.rv-btn-cancel                { background: var(--cream-light); color: var(--slate); }
+.rv-btn-cancel:hover          { background: var(--cream-dark); }
+.rv-btn--warning              { background: var(--amber);       color: #fff; }
+.rv-btn--warning:hover        { background: #9a6f09; }
+.rv-btn--danger               { background: var(--red);         color: #fff; }
+.rv-btn--danger:hover         { background: var(--red-dark); }
+.rv-btn--success              { background: var(--green-ok);    color: #fff; }
+.rv-btn--success:hover        { background: #2d6336; }
+.rv-btn--info                 { background: var(--blue-btn);    color: #fff; }
+.rv-btn--info:hover           { background: #1e4a73; }
+
+/* Botones toggle de la tabla admin */
+.btn-toggle-active {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.53rem;
+    padding: 0.28rem 0.55rem;
+    border: 2px solid var(--border-dark);
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--border-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    white-space: nowrap;
+}
+.btn-toggle-active:hover  { transform: translateY(-1px); box-shadow: 3px 3px 0 var(--border-dark); }
+.btn-toggle-active:active { transform: translateY(1px);  box-shadow: none; }
+.btn-toggle--on  { background: var(--red);      color: #fff; }
+.btn-toggle--off { background: var(--green-ok); color: #fff; }
+
+/* ─────────────────────────────────────────────────────
+   TOAST — notificación flotante
+   ───────────────────────────────────────────────────── */
+.rv-toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+.rv-toast {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: var(--slate);
+    color: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: 4px 4px 0 var(--border-dark);
+    padding: 0.7rem 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    min-width: 240px;
+    max-width: 360px;
+    pointer-events: all;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.25s, transform 0.25s;
+}
+.rv-toast--visible { opacity: 1; transform: translateX(0); }
+.rv-toast--hide    { opacity: 0; transform: translateX(30px); }
+
+.rv-toast--success { border-left: 5px solid var(--rv-success-brd); }
+.rv-toast--warning { border-left: 5px solid var(--rv-warning-brd); }
+.rv-toast--danger  { border-left: 5px solid var(--rv-danger-brd);  }
+.rv-toast--info    { border-left: 5px solid var(--rv-info-brd);    }
+
+.rv-toast-icon { font-size: 1.05rem; flex-shrink: 0; }
+.rv-toast--success .rv-toast-icon { color: #6fcf7a; }
+.rv-toast--warning .rv-toast-icon { color: #f0c040; }
+.rv-toast--danger  .rv-toast-icon { color: #e88080; }
+.rv-toast--info    .rv-toast-icon { color: #7ab8f0; }
+
+.rv-toast-msg   { flex: 1; line-height: 1.4; }
+.rv-toast-close {
+    background: none;
+    border: none;
+    color: var(--slate-light);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0 0.2rem;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+.rv-toast-close:hover { color: var(--cream-light); }
+
+/* ─────────────────────────────────────────────────────
+   ALERTA INLINE
+   ───────────────────────────────────────────────────── */
+.rv-inline-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.1rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    border: 2px solid;
+    border-left-width: 5px;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.2s, transform 0.2s;
+}
+.rv-inline--visible { opacity: 1; transform: translateY(0); }
+.rv-inline--hide    { opacity: 0; transform: translateY(-6px); }
+
+.rv-inline--success { background: var(--rv-success-bg); color: var(--rv-success-fg); border-color: var(--rv-success-brd); }
+.rv-inline--warning { background: var(--rv-warning-bg); color: var(--rv-warning-fg); border-color: var(--rv-warning-brd); }
+.rv-inline--danger  { background: var(--rv-danger-bg);  color: var(--rv-danger-fg);  border-color: var(--rv-danger-brd);  }
+.rv-inline--info    { background: var(--rv-info-bg);    color: var(--rv-info-fg);    border-color: var(--rv-info-brd);    }
+
+.rv-inline-icon  { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+.rv-inline-msg   { flex: 1; }
+.rv-inline-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: inherit;
+    opacity: 0.6;
+    padding: 0 0.2rem;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+}
+.rv-inline-close:hover { opacity: 1; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .rv-modal-box       { max-width: 98vw; }
+    .rv-modal-title     { font-size: 0.55rem; }
+    .rv-btn             { font-size: 0.48rem; padding: 0.5rem 0.8rem; }
+    .rv-toast-container { right: 0.5rem; bottom: 0.5rem; }
+    .rv-toast           { min-width: unset; max-width: calc(100vw - 1rem); }
 }
 
 

@@ -138,8 +138,9 @@
 <div id="admin-results">
 
     <?php if (empty($juegos)): ?>
-        <div class="alert alert-info" style="text-align:center;padding:3rem;">
-            No hay juegos que coincidan con los filtros.
+        <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="text-align:center;padding:3rem;justify-content:center;">
+            <span class="rv-inline-icon">ℹ</span>
+            <span class="rv-inline-msg">No hay juegos que coincidan con los filtros.</span>
         </div>
     <?php else: ?>
     <div style="overflow-x:auto;">
@@ -185,12 +186,12 @@
                     <td style="text-align:center;font-size:0.85rem;"><?= number_format($juego['downloads_count'] ?? 0) ?></td>
                     <td style="text-align:center;font-size:0.85rem;"><?= number_format($juego['plays_count'] ?? 0) ?></td>
                     <td>
-                        <a href="index.php?controller=admin&action=toggleActive&id=<?= $juego['id'] ?>&page=<?= $currentPage ?><?= $filterQS ?>"
-                           style="font-size:0.75rem;text-decoration:none;padding:0.2rem 0.5rem;border-radius:4px;display:inline-block;margin-top:0.3rem;
-                                  background:<?= $juego['activo'] ? 'var(--danger,#e74c3c)' : 'var(--success,#27ae60)' ?>;color:#fff;"
-                           onclick="return confirm('Confirmas <?= $juego['activo'] ? 'desactivar' : 'activar' ?> este juego?')">
+                        <button class="btn-toggle-active <?= $juego['activo'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
+                                data-href="index.php?controller=admin&action=toggleActive&id=<?= $juego['id'] ?>&page=<?= $currentPage ?><?= $filterQS ?>"
+                                data-titulo="<?= htmlspecialchars($juego['titulo'], ENT_QUOTES) ?>"
+                                data-accion="<?= $juego['activo'] ? 'desactivar' : 'activar' ?>">
                             <?= $juego['activo'] ? 'Desactivar' : 'Activar' ?>
-                        </a>
+                        </button>
                     </td>
                     <td>
                         <a href="index.php?controller=admin&action=edit&id=<?= $juego['id'] ?>" class="btn-edit">Editar</a>
@@ -309,7 +310,7 @@
             bindPagination();
         } catch (err) {
             if (err.name !== 'AbortError') {
-                resultsEl.innerHTML = '<div class="alert alert-error">Error al cargar. Intenta de nuevo.</div>';
+                RVAlerts.toast('Error al cargar los resultados. Intenta de nuevo.', 'danger');
             }
         } finally {
             loadingEl.style.display = 'none';
@@ -356,5 +357,30 @@
 
     bindPagination();
     updateLimpiar();
+
+    // ── Delegación de clics en botones toggle (funciona con AJAX también) ──
+    document.getElementById('admin-results').addEventListener('click', e => {
+        const btn = e.target.closest('.btn-toggle-active');
+        if (!btn) return;
+        e.preventDefault();
+
+        const accion = btn.dataset.accion;
+        const titulo = btn.dataset.titulo;
+        const href   = btn.dataset.href;
+
+        RVAlerts.confirm({
+            tipo:      accion === 'desactivar' ? 'warning' : 'success',
+            titulo:    accion === 'desactivar' ? '¿Desactivar juego?' : '¿Activar juego?',
+            mensaje:   `<strong>${titulo}</strong> quedará ${accion === 'desactivar'
+                            ? 'oculto en el catálogo público'
+                            : 'visible en el catálogo público'}.`,
+            btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
+            btnCancel: 'Cancelar',
+            onOk:      () => { window.location.href = href; }
+        });
+    });
+
 })();
 </script>
+
+<script src="public/js/rv-alerts.js"></script>

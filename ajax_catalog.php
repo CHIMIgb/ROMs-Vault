@@ -44,8 +44,9 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <!-- GRID -->
 <div class="games-grid" id="games-grid">
     <?php if (empty($juegos)): ?>
-        <div class="alert alert-info" style="grid-column:1/-1;text-align:center;padding:3rem;">
-            No hay juegos disponibles que coincidan con los filtros.
+        <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="grid-column:1/-1;text-align:center;padding:3rem;justify-content:center;">
+            <span class="rv-inline-icon">ℹ</span>
+            <span class="rv-inline-msg">No hay juegos disponibles que coincidan con los filtros.</span>
         </div>
     <?php else: ?>
         <?php foreach ($juegos as $juego): ?>

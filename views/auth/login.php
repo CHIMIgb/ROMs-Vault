@@ -3,8 +3,9 @@
     <h2>Acceso Administrador</h2>
     
     <?php if (isset($error)): ?>
-        <div class="alert alert-error">
-            <?= htmlspecialchars($error) ?>
+        <div class="rv-inline-alert rv-inline--danger rv-inline--visible">
+            <span class="rv-inline-icon">✖</span>
+            <span class="rv-inline-msg"><?= htmlspecialchars($error) ?></span>
         </div>
     <?php endif; ?>
     

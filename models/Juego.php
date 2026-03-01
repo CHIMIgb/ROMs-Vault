@@ -335,7 +335,7 @@ class Juego extends Model {
      * Juegos relacionados: misma consola O misma categoría, excluyendo el actual.
      * Devuelve hasta $limit resultados mezclados y ordenados por descargas.
      */
-    public function getRelated(int $juegoId, int $consolaId, int $categoriaId, int $limit = 7): array {
+    public function getRelated(int $juegoId, int $consolaId, int $categoriaId, int $limit = 8): array {
         $stmt = $this->pdo->prepare(
             "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre,
                     CASE
@@ -349,7 +349,7 @@ class Juego extends Model {
              WHERE j.activo = true
                AND j.id != :juego_id
                AND (j.consola_id = :consola_id2 OR j.categoria_id = :categoria_id2)
-             ORDER BY relevancia DESC, j.downloads_count DESC
+             ORDER BY relevancia DESC, (j.downloads_count * RANDOM()) DESC
              LIMIT :lim"
         );
         $stmt->bindValue(':juego_id',    $juegoId,    PDO::PARAM_INT);
