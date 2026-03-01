@@ -23,9 +23,11 @@ class CategoriaController {
         $currentPage  = max(1, (int)($_GET['page'] ?? 1));
         $offset       = ($currentPage - 1) * $itemsPerPage;
 
-        $categorias = $categoriaModel->getAllPaginated($busqueda, $offset, $itemsPerPage);
-        $total      = $categoriaModel->countAll($busqueda);
-        $totalPages = (int)ceil($total / $itemsPerPage);
+        $activo     = isset($_GET['activo']) && $_GET['activo'] !== '' ? $_GET['activo'] : null;
+        $categorias = $categoriaModel->getAllPaginated($busqueda, $offset, $itemsPerPage, $activo);
+        $total        = $categoriaModel->countAll($busqueda);
+        $totalActivas = $categoriaModel->countActivas();
+        $totalPages   = (int)ceil($categoriaModel->countAll($busqueda, $activo) / $itemsPerPage);
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/categorias/index.php';

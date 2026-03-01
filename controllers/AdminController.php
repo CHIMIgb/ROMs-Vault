@@ -51,8 +51,8 @@ class AdminController {
     public function add() {
         $consolaModel = new Consola();
         $categoriaModel = new Categoria();
-        $consolas = $consolaModel->all();
-        $categorias = $categoriaModel->all();
+        $consolas = $consolaModel->allActivas();
+        $categorias = $categoriaModel->allActivas();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
@@ -110,8 +110,8 @@ class AdminController {
 
         $consolaModel = new Consola();
         $categoriaModel = new Categoria();
-        $consolas = $consolaModel->all();
-        $categorias = $categoriaModel->all();
+        $consolas = $consolaModel->allActivas();
+        $categorias = $categoriaModel->allActivas();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [

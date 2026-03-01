@@ -43,18 +43,6 @@
                       rows="4"><?= htmlspecialchars($_POST['descripcion'] ?? $consola['descripcion'] ?? '') ?></textarea>
         </div>
 
-        <!-- Activo — mismo .form-checkbox del sistema -->
-        <div class="form-group">
-            <div class="form-checkbox">
-                <input type="checkbox"
-                       id="activo"
-                       name="activo"
-                       value="1"
-                       <?= (isset($_POST['nombre']) ? isset($_POST['activo']) : $consola['activo']) ? 'checked' : '' ?>>
-                <label for="activo">Consola activa (visible en filtros del catálogo)</label>
-            </div>
-        </div>
-
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">
@@ -67,23 +55,6 @@
             </a>
         </div>
     </form>
-
-    <!-- Zona peligrosa — usa la imagen actual de la consola igual que edit.php de juego usa la imagen -->
-    <div style="margin-top:2.5rem;padding:1.25rem 1.5rem;border:3px solid var(--red);background:var(--cream-light);box-shadow:4px 4px 0 var(--red-dark);">
-        <p style="font-family:'Press Start 2P',monospace;font-size:0.5rem;color:var(--red);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.06em;">
-            <i data-i="warning"></i> Zona peligrosa
-        </p>
-        <p style="font-family:'Courier Prime',monospace;font-size:0.88rem;color:var(--slate-mid);margin-bottom:1rem;">
-            Eliminar esta consola solo es posible si no tiene juegos asociados.
-            Esta acción no se puede deshacer.
-        </p>
-        <button class="btn-delete" id="btn-eliminar-consola"
-                style="font-family:'Press Start 2P',monospace;cursor:pointer;"
-                data-id="<?= $consola['id'] ?>"
-                data-nombre="<?= htmlspecialchars($consola['nombre'], ENT_QUOTES) ?>">
-            <i data-i="trash"></i> Eliminar consola
-        </button>
-    </div>
 </div>
 
 <script>

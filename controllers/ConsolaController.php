@@ -23,9 +23,11 @@ class ConsolaController {
         $currentPage  = max(1, (int)($_GET['page'] ?? 1));
         $offset       = ($currentPage - 1) * $itemsPerPage;
 
-        $consolas   = $consolaModel->getAllPaginated($busqueda, $offset, $itemsPerPage);
-        $total      = $consolaModel->countAll($busqueda);
-        $totalPages = (int)ceil($total / $itemsPerPage);
+        $activo   = isset($_GET['activo']) && $_GET['activo'] !== '' ? $_GET['activo'] : null;
+        $consolas = $consolaModel->getAllPaginated($busqueda, $offset, $itemsPerPage, $activo);
+        $total        = $consolaModel->countAll($busqueda);
+        $totalActivas = $consolaModel->countActivas();
+        $totalPages   = (int)ceil($consolaModel->countAll($busqueda, $activo) / $itemsPerPage);
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/consolas/index.php';

@@ -45,18 +45,6 @@
                       placeholder="Breve descripción de la consola..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
         </div>
 
-        <!-- Activo — mismo .form-checkbox que usa el sistema -->
-        <div class="form-group">
-            <div class="form-checkbox">
-                <input type="checkbox"
-                       id="activo"
-                       name="activo"
-                       value="1"
-                       <?= (!isset($_POST['nombre']) || isset($_POST['activo'])) ? 'checked' : '' ?>>
-                <label for="activo">Consola activa (visible en filtros del catálogo)</label>
-            </div>
-        </div>
-
         <!-- Botones — mismo .form-actions que add.php de juegos -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">

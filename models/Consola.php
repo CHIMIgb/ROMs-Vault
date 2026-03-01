@@ -40,4 +40,9 @@ class Consola extends Model {
     public function countActivas(): int {
         return (int)$this->pdo->query("SELECT COUNT(*) FROM {$this->table} WHERE activo = true")->fetchColumn();
     }
+
+    public function allActivas(): array {
+        $stmt = $this->pdo->query("SELECT * FROM {$this->table} WHERE activo = true ORDER BY nombre ASC");
+        return $stmt->fetchAll();
+    }
 }
