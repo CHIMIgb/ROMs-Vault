@@ -75,10 +75,10 @@
     <h2>Panel de Administracion</h2>
     <div class="admin-header-actions">
         <a href="index.php?controller=consola&action=index" class="btn-primary">
-            <i data-i="plus"></i> Consolas
+            <i data-i="gamepad"></i> Consolas
         </a>
         <a href="index.php?controller=categoria&action=index" class="btn-primary">
-            <i data-i="plus"></i> Categorías
+            <i data-i="dashboard"></i> Categorías
         </a>
         <a href="index.php?controller=admin&action=add" class="btn-primary">
             <i data-i="plus"></i> Añadir nuevo juego
