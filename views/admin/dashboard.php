@@ -187,7 +187,7 @@
                     <td style="text-align:center;font-size:0.85rem;"><?= number_format($juego['plays_count'] ?? 0) ?></td>
                     <td>
                         <button class="btn-toggle-active <?= $juego['activo'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
-                                data-href="index.php?controller=admin&action=toggleActive&id=<?= $juego['id'] ?>&page=<?= $currentPage ?><?= $filterQS ?>"
+                                data-id="<?= $juego['id'] ?>"
                                 data-titulo="<?= htmlspecialchars($juego['titulo'], ENT_QUOTES) ?>"
                                 data-accion="<?= $juego['activo'] ? 'desactivar' : 'activar' ?>">
                             <?= $juego['activo'] ? 'Desactivar' : 'Activar' ?>
@@ -366,7 +366,7 @@
 
         const accion = btn.dataset.accion;
         const titulo = btn.dataset.titulo;
-        const href   = btn.dataset.href;
+        const id     = btn.dataset.id;
 
         RVAlerts.confirm({
             tipo:      accion === 'desactivar' ? 'warning' : 'success',
@@ -376,7 +376,40 @@
                             : 'visible en el catálogo público'}.`,
             btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
             btnCancel: 'Cancelar',
-            onOk:      () => { window.location.href = href; }
+            onOk: async () => {
+                // Deshabilitar botón mientras procesa
+                btn.disabled    = true;
+                btn.textContent = '...';
+
+                try {
+                    const res  = await fetch(
+                        `index.php?controller=admin&action=toggleActiveAjax&id=${id}`,
+                        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+                    );
+                    const data = await res.json();
+
+                    if (!data.ok) throw new Error(data.error || 'Error desconocido');
+
+                    // Actualizar botón en el DOM sin recargar
+                    const estaActivo = data.activo === 1;
+                    btn.textContent      = estaActivo ? 'Desactivar' : 'Activar';
+                    btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
+                    btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
+
+                    RVAlerts.toast(
+                        `"${data.titulo}" ${estaActivo ? 'activado' : 'desactivado'} correctamente`,
+                        estaActivo ? 'success' : 'warning'
+                    );
+
+                } catch (err) {
+                    RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
+                    // Restaurar botón
+                    btn.disabled    = false;
+                    btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
+                }
+
+                btn.disabled = false;
+            }
         });
     });
 

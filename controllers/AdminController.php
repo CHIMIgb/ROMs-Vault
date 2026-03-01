@@ -176,6 +176,36 @@ class AdminController {
         exit;
     }
 
+    // Versión AJAX — devuelve JSON, no recarga la página
+    public function toggleActiveAjax($id) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            exit;
+        }
+
+        $juegoModel = new Juego();
+        $juego      = $juegoModel->find($id);
+
+        if (!$juego) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'error' => 'Juego no encontrado']);
+            exit;
+        }
+
+        $nuevoEstado = $juego['activo'] ? 0 : 1;
+        $ok          = $juegoModel->update($id, ['activo' => $nuevoEstado]);
+
+        echo json_encode([
+            'ok'       => (bool)$ok,
+            'activo'   => $nuevoEstado,
+            'titulo'   => $juego['titulo'],
+        ]);
+        exit;
+    }
+
     private function uploadImage($file) {
         $uploadDir = __DIR__ . '/../public/uploads/';
         if (!is_dir($uploadDir)) {

@@ -102,7 +102,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                 </td>
                 <td>
                     <button class="btn-toggle-active <?= $juego['activo'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
-                            data-href="index.php?controller=admin&action=toggleActive&id=<?= $juego['id'] ?>&page=<?= $currentPage ?><?= $filterQS ?>"
+                            data-id="<?= $juego['id'] ?>"
                             data-titulo="<?= htmlspecialchars($juego['titulo'], ENT_QUOTES) ?>"
                             data-accion="<?= $juego['activo'] ? 'desactivar' : 'activar' ?>">
                         <?= $juego['activo'] ? 'Desactivar' : 'Activar' ?>
