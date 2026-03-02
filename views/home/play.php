@@ -89,7 +89,7 @@ $consejo = match($errorType) {
 <?php else: ?>
 <!-- ====== Emulador ====== -->
 
-<?php if ($core === 'psp'): ?>
+<?php if ($core === 'ppsspp'): ?>
 <!-- Aviso experimental PSP -->
 <div class="psp-warning">
     <strong><i data-i="warning"></i> PSP — Soporte experimental:</strong>
