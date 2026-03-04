@@ -288,8 +288,8 @@
     const acList        = document.getElementById('autocomplete-list');
     let   acTimer       = null;
     let   acRequest     = null;
-    let   acIndex       = -1;   // ítem activo con teclado
-    let   acItems       = [];   // últimas sugerencias
+    let   acIndex       = -1;
+    let   acItems       = [];
 
     function closeAC() {
         acList.innerHTML = '';
@@ -326,9 +326,8 @@
                     <a href="${item.download_url}" class="ac-btn-dl" title="Descargar" target="_blank"><i data-i="download"></i></a>
                 </div>`;
 
-            // Clic en el item (no en los botones internos)
             li.addEventListener('mousedown', e => {
-                if (e.target.closest('a')) return; // dejar que el enlace actúe
+                if (e.target.closest('a')) return;
                 busquedaEl.value = item.titulo;
                 closeAC();
                 fetchResults(1);
@@ -397,7 +396,6 @@
     });
 
     busquedaEl.addEventListener('blur', () => {
-        // Delay para permitir clic en sugerencias antes de cerrar
         setTimeout(closeAC, 180);
     });
 

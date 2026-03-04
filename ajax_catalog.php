@@ -5,7 +5,6 @@
  * Llamado por el JS de tiempo real en views/home/index.php
  */
 
-// Mismo bootstrapping que index.php principal
 session_start();
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/models/Model.php';
@@ -14,7 +13,6 @@ require_once __DIR__ . '/models/Consola.php';
 require_once __DIR__ . '/models/Categoria.php';
 
 header('Content-Type: text/html; charset=utf-8');
-// Evitar que se cachee — los filtros cambian constantemente
 header('Cache-Control: no-store');
 
 $juegoModel = new Juego();
@@ -34,7 +32,6 @@ $juegos      = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsP
 $totalJuegos = $juegoModel->countWithFilters($filters);
 $totalPages  = (int)ceil($totalJuegos / $itemsPerPage);
 
-// Construir query string para links de paginación (sin page)
 $qParts = [];
 foreach (['busqueda','consola','categoria','region','orden'] as $p) {
     if (!empty($filters[$p])) $qParts[] = $p . '=' . urlencode($filters[$p]);
@@ -56,7 +53,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                         <?php if (!empty($juego['imagen'])): ?>
                             <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>">
                         <?php else: ?>
-                            <span>📀</span>
+                            <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                         <?php endif; ?>
                     </div>
                     <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
@@ -91,8 +88,8 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                         <?php endif; ?>
                     </div>
                     <div class="game-actions">
-                        <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-play">▶ Jugar Online</a>
-                        <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-download" target="_blank">⬇ Descargar</a>
+                        <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-play"><i data-i="play" aria-hidden="true"></i> Jugar Online</a>
+                        <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-download" target="_blank"><i data-i="download" aria-hidden="true"></i> Descargar</a>
                     </div>
                 </div>
             </div>
@@ -104,10 +101,9 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <?php if ($totalPages > 0): ?>
 <div class="pagination" id="catalog-pagination">
     <?php if ($currentPage > 1): ?>
-        <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage - 1 ?>">← Anterior</a>
+        <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage - 1 ?>"><i data-i="chevron-left" aria-hidden="true"></i> Anterior</a>
     <?php endif; ?>
     <?php
-    // Mostrar máximo 7 páginas con elipsis
     $range = 2;
     $pages = [];
     for ($i = 1; $i <= $totalPages; $i++) {
@@ -118,7 +114,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
     $prev = null;
     foreach ($pages as $i):
         if ($prev !== null && $i - $prev > 1): ?>
-            <span style="padding:0 0.3rem;color:var(--slate-light);">…</span>
+            <span style="padding:0 0.3rem;color:var(--slate-light);">...</span>
         <?php endif;
         if ($i === $currentPage): ?>
             <span class="pagination-current"><?= $i ?></span>
@@ -128,7 +124,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
         $prev = $i;
     endforeach; ?>
     <?php if ($currentPage < $totalPages): ?>
-        <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente →</a>
+        <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente <i data-i="chevron-right" aria-hidden="true"></i></a>
     <?php endif; ?>
 </div>
 <div class="pagination-info" id="catalog-info">
