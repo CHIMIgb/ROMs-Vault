@@ -158,8 +158,11 @@ class HomeController {
         $regionKey = isset($biosMap[$core][$region]) ? $region : 'default';
         $biosPath  = $biosMap[$core][$regionKey];
 
+        $exists = file_exists($biosPath);
+        file_put_contents(__DIR__ . '/../bios_debug.log', "BIOS Debug: Core=$core, Region=$region, Key=$regionKey, Path=$biosPath, Exists=" . ($exists ? "YES" : "NO") . ", CWD=" . getcwd() . "\n", FILE_APPEND);
+
         // Solo devolver la URL si el archivo existe en disco
-        return file_exists($biosPath) ? $biosPath : null;
+        return $exists ? $biosPath : null;
     }
 
     /**
@@ -173,7 +176,7 @@ class HomeController {
      * Cores con ISOs grandes: van directo en streaming sin precarga en memoria.
      */
     private function usarStreaming(string $core): bool {
-        return in_array($core, ['psp', 'psx', 'saturn', 'segaCD', 'sega32x', '3do']);
+        return in_array($core, ['psp', 'psx', 'saturn', 'segaCD', 'sega32x', '3do', 'n64', 'nds']);
     }
 
     /**

@@ -88,7 +88,9 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                         <?php endif; ?>
                     </div>
                     <div class="game-actions">
-                        <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-play"><i data-i="play" aria-hidden="true"></i> Jugar Online</a>
+                        <?php if (strtoupper($juego['consola_nombre'] ?? '') !== 'PSP'): ?>
+                            <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-play"><i data-i="play" aria-hidden="true"></i> Jugar Online</a>
+                        <?php endif; ?>
                         <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-download" target="_blank"><i data-i="download" aria-hidden="true"></i> Descargar</a>
                     </div>
                 </div>

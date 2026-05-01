@@ -122,7 +122,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <div class="pagination" style="margin-top:1.5rem;" id="admin-pagination">
     <?php if ($currentPage > 1): ?>
         <a href="?controller=admin&action=dashboard&page=<?= $currentPage - 1 ?><?= $qBase ?>"
-           class="pagination-link" data-page="<?= $currentPage - 1 ?>">← Anterior</a>
+           class="pagination-link" data-page="<?= $currentPage - 1 ?>"><i data-i="chevron-left" aria-hidden="true"></i> Anterior</a>
     <?php endif; ?>
     <?php
     $range = 2;
@@ -145,7 +145,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
     endforeach; ?>
     <?php if ($currentPage < $totalPages): ?>
         <a href="?controller=admin&action=dashboard&page=<?= $currentPage + 1 ?><?= $qBase ?>"
-           class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente →</a>
+           class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente <i data-i="chevron-right"></i></a>
     <?php endif; ?>
 </div>
 <?php endif; ?>
