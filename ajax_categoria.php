@@ -78,43 +78,18 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
     </table>
 </div>
 
-<?php if ($totalPages > 1): ?>
-<div class="pagination" style="margin-top:1.5rem;" id="cat-pagination">
-    <?php if ($currentPage > 1): ?>
-        <a href="?controller=categoria&action=index&page=<?= $currentPage - 1 ?><?= $qBase ?>"
-           class="pagination-link" data-page="<?= $currentPage - 1 ?>">
-            <i data-i="chevron-left"></i> Anterior
-        </a>
-    <?php endif; ?>
-    <?php
-    $range = 2; $pages = [];
-    for ($i = 1; $i <= $totalPages; $i++) {
-        if ($i === 1 || $i === $totalPages || abs($i - $currentPage) <= $range) $pages[] = $i;
-    }
-    $prev = null;
-    foreach ($pages as $i):
-        if ($prev !== null && $i - $prev > 1): ?>
-            <span style="padding:0 0.3rem;color:var(--slate-light);">...</span>
-        <?php endif;
-        if ($i === $currentPage): ?>
-            <span class="pagination-current"><?= $i ?></span>
-        <?php else: ?>
-            <a href="?controller=categoria&action=index&page=<?= $i ?><?= $qBase ?>"
-               class="pagination-link" data-page="<?= $i ?>"><?= $i ?></a>
-        <?php endif;
-        $prev = $i;
-    endforeach; ?>
-    <?php if ($currentPage < $totalPages): ?>
-        <a href="?controller=categoria&action=index&page=<?= $currentPage + 1 ?><?= $qBase ?>"
-           class="pagination-link" data-page="<?= $currentPage + 1 ?>">
-            Siguiente <i data-i="chevron-right"></i>
-        </a>
-    <?php endif; ?>
-</div>
-<?php endif; ?>
-
-<div class="pagination-info" style="margin-top:0.75rem;">
-    Mostrando <?= count($categorias) ?> de <?= number_format($total) ?> categoría<?= $total !== 1 ? 's' : '' ?>
-    <?php if ($totalPages > 1): ?>- Página <?= $currentPage ?> de <?= $totalPages ?><?php endif; ?>
-</div>
+<?php 
+require_once __DIR__ . '/views/components/Pagination.php';
+Pagination::render(
+    $currentPage, 
+    $totalPages ?? 1, 
+    $qBase, 
+    'categoria', 
+    'index', 
+    count($categorias), 
+    $total, 
+    'categorías', 
+    'cat'
+);
+?>
 <?php endif; ?>

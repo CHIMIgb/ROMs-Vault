@@ -221,44 +221,20 @@
     foreach (['busqueda','consola','categoria','region','activo'] as $p) {
         if (isset($_GET[$p]) && $_GET[$p] !== '') $paramStr .= '&' . $p . '=' . urlencode($_GET[$p]);
     }
+    
+    require_once 'views/components/Pagination.php';
+    Pagination::render(
+        $currentPage, 
+        $totalPages ?? 1, 
+        $paramStr, 
+        'admin', 
+        'dashboard', 
+        count($juegos), 
+        $totalJuegos, 
+        'juegos', 
+        'admin'
+    );
     ?>
-    <?php if (isset($totalPages) && $totalPages > 1): ?>
-    <div class="pagination" style="margin-top:1.5rem;" id="admin-pagination">
-        <?php if ($currentPage > 1): ?>
-            <a href="?controller=admin&action=dashboard&page=<?= $currentPage - 1 ?><?= $paramStr ?>"
-               class="pagination-link" data-page="<?= $currentPage - 1 ?>"><i data-i="chevron-left"></i> Anterior</a>
-        <?php endif; ?>
-        <?php
-        $range = 2; $pages = [];
-        for ($i = 1; $i <= $totalPages; $i++) {
-            if ($i === 1 || $i === $totalPages || abs($i - $currentPage) <= $range) $pages[] = $i;
-        }
-        $prev = null;
-        foreach ($pages as $i):
-            if ($prev !== null && $i - $prev > 1): ?>
-                <span style="padding:0 0.3rem;color:var(--slate-light);">...</span>
-            <?php endif;
-            if ($i === $currentPage): ?>
-                <span class="pagination-current"><?= $i ?></span>
-            <?php else: ?>
-                <a href="?controller=admin&action=dashboard&page=<?= $i ?><?= $paramStr ?>"
-                   class="pagination-link" data-page="<?= $i ?>"><?= $i ?></a>
-            <?php endif;
-            $prev = $i;
-        endforeach; ?>
-        <?php if ($currentPage < $totalPages): ?>
-            <a href="?controller=admin&action=dashboard&page=<?= $currentPage + 1 ?><?= $paramStr ?>"
-               class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente <i data-i="chevron-right"></i></a>
-        <?php endif; ?>
-    </div>
-    <?php endif; ?>
-
-    <div class="pagination-info" style="margin-top:0.75rem;" id="admin-info">
-        Mostrando <?= count($juegos) ?> de <?= number_format($totalJuegos) ?> juegos
-        <?php if ($currentPage && $totalPages): ?>
-            - Pagina <?= $currentPage ?> de <?= $totalPages ?>
-        <?php endif; ?>
-    </div>
     <?php endif; ?>
 
 </div><!-- /#admin-results -->

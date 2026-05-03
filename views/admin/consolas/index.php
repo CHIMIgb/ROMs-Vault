@@ -128,52 +128,26 @@ endif;
         </table>
     </div>
 
-    <!-- PAGINACIÓN — misma estructura que el dashboard -->
+    <!-- PAGINACIÓN -->
     <?php
     $paramStr = '';
     foreach (['busqueda', 'activo'] as $p) {
         if (isset($_GET[$p]) && $_GET[$p] !== '') $paramStr .= '&' . $p . '=' . urlencode($_GET[$p]);
     }
+    
+    require_once 'views/components/Pagination.php';
+    Pagination::render(
+        $currentPage, 
+        $totalPages ?? 1, 
+        $paramStr, 
+        'consola', 
+        'index', 
+        count($consolas), 
+        $total, 
+        'consolas', 
+        'cs'
+    );
     ?>
-    <?php if (isset($totalPages) && $totalPages > 1): ?>
-    <div class="pagination" style="margin-top:1.5rem;" id="cs-pagination">
-        <?php if ($currentPage > 1): ?>
-            <a href="?controller=consola&action=index&page=<?= $currentPage - 1 ?><?= $paramStr ?>"
-               class="pagination-link" data-page="<?= $currentPage - 1 ?>">
-                <i data-i="chevron-left"></i> Anterior
-            </a>
-        <?php endif; ?>
-        <?php
-        $range = 2; $pages = [];
-        for ($i = 1; $i <= $totalPages; $i++) {
-            if ($i === 1 || $i === $totalPages || abs($i - $currentPage) <= $range) $pages[] = $i;
-        }
-        $prev = null;
-        foreach ($pages as $i):
-            if ($prev !== null && $i - $prev > 1): ?>
-                <span style="padding:0 0.3rem;color:var(--slate-light);">...</span>
-            <?php endif;
-            if ($i === $currentPage): ?>
-                <span class="pagination-current"><?= $i ?></span>
-            <?php else: ?>
-                <a href="?controller=consola&action=index&page=<?= $i ?><?= $paramStr ?>"
-                   class="pagination-link" data-page="<?= $i ?>"><?= $i ?></a>
-            <?php endif;
-            $prev = $i;
-        endforeach; ?>
-        <?php if ($currentPage < $totalPages): ?>
-            <a href="?controller=consola&action=index&page=<?= $currentPage + 1 ?><?= $paramStr ?>"
-               class="pagination-link" data-page="<?= $currentPage + 1 ?>">
-                Siguiente <i data-i="chevron-right"></i>
-            </a>
-        <?php endif; ?>
-    </div>
-    <?php endif; ?>
-
-    <div class="pagination-info" style="margin-top:0.75rem;">
-        Mostrando <?= count($consolas) ?> de <?= number_format($total) ?> consola<?= $total !== 1 ? 's' : '' ?>
-        <?php if (($totalPages ?? 1) > 1): ?>- Página <?= $currentPage ?> de <?= $totalPages ?><?php endif; ?>
-    </div>
     <?php endif; ?>
 
 </div><!-- /#consolas-results -->

@@ -140,38 +140,25 @@
         if (!empty($_GET[$p])) $qParts[] = $p . '=' . urlencode($_GET[$p]);
     }
     $qBase = $qParts ? '&' . implode('&', $qParts) : '';
+    
+    require_once 'views/components/Pagination.php';
+    $extra = isset($_GET['busqueda']) && $_GET['busqueda'] !== '' 
+        ? ' - Búsqueda: "' . htmlspecialchars($_GET['busqueda']) . '"' 
+        : '';
+        
+    Pagination::render(
+        $currentPage, 
+        $totalPages ?? 1, 
+        $qBase, 
+        'home', 
+        'index', 
+        count($juegos), 
+        $totalJuegos ?? 0, 
+        'juegos', 
+        'catalog',
+        $extra
+    );
     ?>
-    <div class="pagination" id="catalog-pagination">
-        <?php if ($currentPage > 1): ?>
-            <a href="?controller=home&action=index&page=<?= $currentPage - 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage - 1 ?>"><i data-i="chevron-left" aria-hidden="true"></i> Anterior</a>
-        <?php endif; ?>
-        <?php
-        $range = 2; $pages = [];
-        for ($i = 1; $i <= $totalPages; $i++) {
-            if ($i === 1 || $i === $totalPages || abs($i - $currentPage) <= $range) $pages[] = $i;
-        }
-        $prev = null;
-        foreach ($pages as $i):
-            if ($prev !== null && $i - $prev > 1): ?>
-                <span style="padding:0 0.3rem;color:var(--slate-light);">...</span>
-            <?php endif;
-            if ($i === $currentPage): ?>
-                <span class="pagination-current"><?= $i ?></span>
-            <?php else: ?>
-                <a href="?controller=home&action=index&page=<?= $i ?><?= $qBase ?>" class="pagination-link" data-page="<?= $i ?>"><?= $i ?></a>
-            <?php endif;
-            $prev = $i;
-        endforeach; ?>
-        <?php if ($currentPage < $totalPages): ?>
-            <a href="?controller=home&action=index&page=<?= $currentPage + 1 ?><?= $qBase ?>" class="pagination-link" data-page="<?= $currentPage + 1 ?>">Siguiente <i data-i="chevron-right" aria-hidden="true"></i></a>
-        <?php endif; ?>
-    </div>
-    <div class="pagination-info" id="catalog-info">
-        Mostrando <?= count($juegos) ?> de <?= $totalJuegos ?> juegos - Pagina <?= $currentPage ?> de <?= $totalPages ?>
-        <?php if (isset($_GET['busqueda'])): ?>
-            - Busqueda: "<?= htmlspecialchars($_GET['busqueda']) ?>"
-        <?php endif; ?>
-    </div>
     <?php endif; ?>
 
 </div><!-- /#catalog-results -->
