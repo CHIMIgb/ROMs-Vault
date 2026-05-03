@@ -41,10 +41,10 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <!-- GRID -->
 <div class="games-grid" id="games-grid">
     <?php if (empty($juegos)): ?>
-        <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="grid-column:1/-1;text-align:center;padding:3rem;justify-content:center;">
-            <span class="rv-inline-icon">ℹ</span>
-            <span class="rv-inline-msg">No hay juegos disponibles que coincidan con los filtros.</span>
-        </div>
+        <?php 
+        require_once __DIR__ . '/views/components/Alert.php';
+        Alert::render('info', 'No hay juegos disponibles que coincidan con los filtros.', 'info', 'grid-column:1/-1;text-align:center;padding:3rem;justify-content:center;');
+        ?>
     <?php else: ?>
         <?php foreach ($juegos as $juego): ?>
             <div class="game-card">

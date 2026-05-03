@@ -30,30 +30,19 @@
 </div>
 
 <!-- Alertas de estado -->
-<?php if (isset($_GET['created'])): ?>
-<div class="rv-inline-alert rv-inline--success rv-inline--visible" style="margin-bottom:1.25rem;">
-    <span class="rv-inline-icon"><i data-i="check"></i></span>
-    <span class="rv-inline-msg">Consola creada correctamente.</span>
-</div>
-<?php elseif (isset($_GET['updated'])): ?>
-<div class="rv-inline-alert rv-inline--success rv-inline--visible" style="margin-bottom:1.25rem;">
-    <span class="rv-inline-icon"><i data-i="check"></i></span>
-    <span class="rv-inline-msg">Consola actualizada correctamente.</span>
-</div>
-<?php elseif (isset($_GET['deleted'])): ?>
-<div class="rv-inline-alert rv-inline--success rv-inline--visible" style="margin-bottom:1.25rem;">
-    <span class="rv-inline-icon"><i data-i="check"></i></span>
-    <span class="rv-inline-msg">Consola eliminada correctamente.</span>
-</div>
-<?php elseif (isset($_GET['error']) && $_GET['error'] === 'has_games'): ?>
-<div class="rv-inline-alert rv-inline--danger rv-inline--visible" style="margin-bottom:1.25rem;">
-    <span class="rv-inline-icon"><i data-i="warning"></i></span>
-    <span class="rv-inline-msg">
-        No se puede eliminar: esta consola tiene <?= (int)($_GET['count'] ?? 0) ?> juego(s) asociado(s).
-        Reasígnalos o elimínalos primero.
-    </span>
-</div>
-<?php endif; ?>
+<?php 
+require_once 'views/components/Alert.php';
+if (isset($_GET['created'])): 
+    Alert::render('success', 'Consola creada correctamente.', 'check', 'margin-bottom:1.25rem;');
+elseif (isset($_GET['updated'])): 
+    Alert::render('success', 'Consola actualizada correctamente.', 'check', 'margin-bottom:1.25rem;');
+elseif (isset($_GET['deleted'])): 
+    Alert::render('success', 'Consola eliminada correctamente.', 'check', 'margin-bottom:1.25rem;');
+elseif (isset($_GET['error']) && $_GET['error'] === 'has_games'): 
+    $count = (int)($_GET['count'] ?? 0);
+    Alert::render('danger', "No se puede eliminar: esta consola tiene {$count} juego(s) asociado(s). Reasígnalos o elimínalos primero.", 'alert-triangle', 'margin-bottom:1.25rem;');
+endif; 
+?>
 
 <!-- FILTROS — mismo patrón exacto que el dashboard -->
 <div class="search-section">
@@ -92,10 +81,10 @@
 <div id="consolas-results">
 
     <?php if (empty($consolas)): ?>
-        <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="text-align:center;padding:3rem;justify-content:center;">
-            <span class="rv-inline-icon"><i data-i="info"></i></span>
-            <span class="rv-inline-msg">No hay consolas que coincidan con los filtros.</span>
-        </div>
+        <?php 
+        require_once 'views/components/Alert.php';
+        Alert::render('info', 'No hay consolas que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+        ?>
     <?php else: ?>
     <div style="overflow-x:auto;">
         <table class="admin-table">

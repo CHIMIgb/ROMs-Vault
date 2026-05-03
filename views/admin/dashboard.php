@@ -80,6 +80,9 @@
         <a href="index.php?controller=categoria&action=index" class="btn-primary">
             <i data-i="dashboard"></i> Categorías
         </a>
+        <button type="button" id="btn-export" class="btn-primary" style="background-color: var(--success);">
+            <i data-i="save"></i> Exportar
+        </button>
         <a href="index.php?controller=admin&action=add" class="btn-primary">
             <i data-i="plus"></i> Añadir nuevo juego
         </a>
@@ -148,10 +151,10 @@
 <div id="admin-results">
 
     <?php if (empty($juegos)): ?>
-        <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="text-align:center;padding:3rem;justify-content:center;">
-            <span class="rv-inline-icon"><i data-i="info"></i></span>
-            <span class="rv-inline-msg">No hay juegos que coincidan con los filtros.</span>
-        </div>
+        <?php 
+        require_once 'views/components/Alert.php';
+        Alert::render('info', 'No hay juegos que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+        ?>
     <?php else: ?>
     <div style="overflow-x:auto;">
         <table class="admin-table">
@@ -259,6 +262,32 @@
     <?php endif; ?>
 
 </div><!-- /#admin-results -->
+
+<!-- MODAL DE EXPORTACION -->
+<div id="export-modal" class="rv-modal-overlay" style="display:none;">
+    <div class="rv-modal-box rv-modal--info rv-modal--open">
+        <div class="rv-modal-header">
+            <span class="rv-modal-icon"><i data-i="save"></i></span>
+            <h3 class="rv-modal-title">Exportar a Excel</h3>
+        </div>
+        <div class="rv-modal-body" style="padding-top:0.5rem; text-align:center;">
+            <p style="margin-bottom: 1rem; color: var(--text-light);">Selecciona la tabla que deseas descargar:</p>
+            <select id="export-table" class="admin-filter-select" style="width:100%;">
+                <option value="juegos">Juegos</option>
+                <option value="consolas">Consolas</option>
+                <option value="categorias">Categorías</option>
+                <option value="usuarios">Usuarios</option>
+                <option value="personas">Personas</option>
+                <option value="roles">Roles</option>
+                <option value="descargas">Descargas</option>
+            </select>
+        </div>
+        <div class="rv-modal-footer">
+            <button class="rv-btn rv-btn-cancel" id="btn-export-cancel">Cancelar</button>
+            <button class="rv-btn rv-btn-ok rv-btn--success" id="btn-export-confirm">Descargar</button>
+        </div>
+    </div>
+</div>
 
 <script>
 (function () {
@@ -418,6 +447,51 @@
                 btn.disabled = false;
             }
         });
+    });
+
+    // ── Lógica de Exportación ──
+    const btnExport = document.getElementById('btn-export');
+    const modalExport = document.getElementById('export-modal');
+    const btnCancelExport = document.getElementById('btn-export-cancel');
+    const btnConfirmExport = document.getElementById('btn-export-confirm');
+    const selectExportTable = document.getElementById('export-table');
+
+    function closeExportModal() {
+        const box = modalExport.querySelector('.rv-modal-box');
+        box.classList.remove('rv-modal--open');
+        box.classList.add('rv-modal--close');
+        setTimeout(() => {
+            modalExport.style.display = 'none';
+            box.classList.remove('rv-modal--close');
+        }, 220);
+    }
+
+    if (btnExport) {
+        btnExport.addEventListener('click', () => {
+            modalExport.style.display = 'flex';
+            const box = modalExport.querySelector('.rv-modal-box');
+            void box.offsetWidth;
+            box.classList.add('rv-modal--open');
+        });
+    }
+
+    if (btnCancelExport) {
+        btnCancelExport.addEventListener('click', closeExportModal);
+    }
+
+    if (btnConfirmExport) {
+        btnConfirmExport.addEventListener('click', () => {
+            const table = selectExportTable.value;
+            window.location.href = `index.php?controller=export&action=download&table=${table}`;
+            closeExportModal();
+        });
+    }
+
+    // Cerrar modal al hacer clic afuera
+    window.addEventListener('click', (e) => {
+        if (e.target === modalExport) {
+            closeExportModal();
+        }
     });
 
 })();

@@ -191,7 +191,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                 <div class="proxy-load-track">
                     <div id="proxy-load-fill" class="proxy-load-fill"></div>
                 </div>
-                <div id="proxy-load-detail" class="proxy-load-detail">Conectando con Google Drive…</div>
+                <div id="proxy-load-detail" class="proxy-load-detail">Conectando con el servidor...</div>
             </div>
         <?php else: ?>
             <!-- Aviso streaming — ISOs grandes (PSP, PS1, Saturn…) -->

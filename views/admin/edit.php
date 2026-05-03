@@ -3,10 +3,10 @@
     <h2>Editar Juego: <?= htmlspecialchars($juego['titulo']) ?></h2>
     
     <?php if (isset($error)): ?>
-        <div class="rv-inline-alert rv-inline--danger rv-inline--visible">
-            <span class="rv-inline-icon"><i data-i="close"></i></span>
-            <span class="rv-inline-msg"><?= htmlspecialchars($error) ?></span>
-        </div>
+        <?php 
+        require_once 'views/components/Alert.php';
+        Alert::render('danger', htmlspecialchars($error), 'close'); 
+        ?>
     <?php endif; ?>
     
     <form autocomplete="off" method="POST" enctype="multipart/form-data">

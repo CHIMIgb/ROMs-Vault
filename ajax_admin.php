@@ -44,10 +44,10 @@ foreach (['busqueda','consola','categoria','region','activo'] as $p) {
 $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 ?>
 <?php if (empty($juegos)): ?>
-    <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="text-align:center;padding:3rem;justify-content:center;">
-        <span class="rv-inline-icon">ℹ</span>
-        <span class="rv-inline-msg">No hay juegos que coincidan con los filtros aplicados.</span>
-    </div>
+    <?php 
+    require_once __DIR__ . '/views/components/Alert.php';
+    Alert::render('info', 'No hay juegos que coincidan con los filtros aplicados.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+    ?>
 <?php else: ?>
 <div style="overflow-x:auto;">
     <table class="admin-table" id="admin-table">

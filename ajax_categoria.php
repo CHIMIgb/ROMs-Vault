@@ -35,10 +35,10 @@ if ($activo !== null) $qParts[] = 'activo=' . urlencode($activo);
 $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 ?>
 <?php if (empty($categorias)): ?>
-    <div class="rv-inline-alert rv-inline--info rv-inline--visible" style="text-align:center;padding:3rem;justify-content:center;">
-        <span class="rv-inline-icon"><i data-i="info"></i></span>
-        <span class="rv-inline-msg">No hay categorías que coincidan con los filtros.</span>
-    </div>
+    <?php 
+    require_once __DIR__ . '/views/components/Alert.php';
+    Alert::render('info', 'No hay categorías que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+    ?>
 <?php else: ?>
 <div style="overflow-x:auto;">
     <table class="admin-table">

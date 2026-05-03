@@ -36,10 +36,8 @@ class AuthMiddleware {
         $user = JWTService::getCurrentUser();
         if ($user === null) {
             http_response_code(403);
-            echo '<div class="rv-inline-alert rv-inline--danger rv-inline--visible">'
-               . '<span class="rv-inline-icon">✖</span>'
-               . '<span class="rv-inline-msg">Acceso denegado.</span>'
-               . '</div>';
+            require_once __DIR__ . '/../views/components/Alert.php';
+            Alert::render('danger', 'Acceso denegado.', '✖');
             exit;
         }
         return $user;

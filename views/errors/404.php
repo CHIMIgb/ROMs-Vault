@@ -33,7 +33,7 @@
         </a>
     </div>
 
-    <?php if (!empty($errorContext) && isset($currentUser)): ?>
+    <?php if (!empty($errorContext) && AuthMiddleware::getUser()): ?>
     <!-- Solo visible para admins logueados -->
     <details class="error-404-details">
         <summary>Detalles técnicos (admin)</summary>

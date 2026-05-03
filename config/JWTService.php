@@ -9,6 +9,10 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Cargar variables de entorno (necesario para JWT_SECRET, JWT_EXPIRATION, etc.)
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->safeLoad();
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\ExpiredException;
