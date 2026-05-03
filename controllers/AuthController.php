@@ -1,5 +1,6 @@
 <?php
 require_once 'models/Usuario.php';
+require_once __DIR__ . '/../config/JWTService.php';
 
 class AuthController {
     public function login() {
@@ -11,9 +12,8 @@ class AuthController {
             $user = $usuarioModel->findByUsername($username);
 
             if ($user && $usuarioModel->verifyPassword($password, $user['password_hash'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['rol_id'] = $user['rol_id'];
+                $token = JWTService::generate($user);
+                JWTService::setTokenCookie($token);
                 header('Location: index.php?controller=admin&action=dashboard');
                 exit;
             } else {
@@ -26,7 +26,7 @@ class AuthController {
     }
 
     public function logout() {
-        session_destroy();
+        JWTService::clearTokenCookie();
         header('Location: index.php');
         exit;
     }

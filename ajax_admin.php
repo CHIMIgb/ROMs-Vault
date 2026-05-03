@@ -5,12 +5,8 @@
  * Llamado por el JS de tiempo real en views/admin/dashboard.php
  */
 
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(403);
-    echo '<div class="rv-inline-alert rv-inline--danger rv-inline--visible"><span class="rv-inline-icon">✖</span><span class="rv-inline-msg">Acceso denegado.</span></div>';
-    exit;
-}
+require_once __DIR__ . '/config/AuthMiddleware.php';
+AuthMiddleware::requireAuthAjax();
 
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/models/Model.php';

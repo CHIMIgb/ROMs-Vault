@@ -5,7 +5,7 @@
  * Llamado por el JS de tiempo real en views/home/index.php
  */
 
-session_start();
+// Endpoint público — no requiere autenticación
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/models/Model.php';
 require_once __DIR__ . '/models/Juego.php';

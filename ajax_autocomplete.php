@@ -1,6 +1,6 @@
 <?php
 // ajax_autocomplete.php — Sugerencias de búsqueda en tiempo real
-session_start();
+// Endpoint público — no requiere autenticación
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 

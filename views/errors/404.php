@@ -33,7 +33,7 @@
         </a>
     </div>
 
-    <?php if (!empty($errorContext) && isset($_SESSION['user_id'])): ?>
+    <?php if (!empty($errorContext) && isset($currentUser)): ?>
     <!-- Solo visible para admins logueados -->
     <details class="error-404-details">
         <summary>Detalles técnicos (admin)</summary>

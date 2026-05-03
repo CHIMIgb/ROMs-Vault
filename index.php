@@ -1,6 +1,9 @@
 <?php
 // index.php — Router principal
-session_start();
+require_once __DIR__ . '/config/AuthMiddleware.php';
+
+// Cargar usuario actual desde JWT (disponible como $currentUser en las vistas)
+$currentUser = AuthMiddleware::getUser();
 
 $controller = $_GET['controller'] ?? 'home';
 $action     = $_GET['action']     ?? 'index';

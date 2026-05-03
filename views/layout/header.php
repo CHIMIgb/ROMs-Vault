@@ -42,7 +42,7 @@
                     <i data-i="gamepad"  aria-hidden="true"></i>
                     Catálogo
                 </a>
-                <?php if (isset($_SESSION['user_id'])): ?>
+                <?php if (isset($currentUser)): ?>
                 <a href="index.php?controller=admin&action=dashboard">
                     <i data-i="shield-2" aria-hidden="true"></i>
                     Panel Admin

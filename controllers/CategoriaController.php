@@ -2,14 +2,12 @@
 // controllers/CategoriaController.php
 require_once 'models/Categoria.php';
 require_once 'models/Juego.php';
+require_once __DIR__ . '/../config/AuthMiddleware.php';
 
 class CategoriaController {
 
     public function __construct() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: index.php?controller=auth&action=login');
-            exit;
-        }
+        AuthMiddleware::requireAuth();
     }
 
     // ── Listado ───────────────────────────────────────────────────────────
