@@ -23,6 +23,13 @@ RUN mkdir -p /var/www/html/public/uploads \
     && chown -R www-data:www-data /var/www/html/public/uploads \
     && chmod -R 755 /var/www/html/public/uploads
 
-EXPOSE 80
+# Configurar Apache para escuchar en el puerto proporcionado por Vercel ($PORT)
+RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
-ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
+# Habilitar mod_rewrite para que funcione el enrutamiento .htaccess
+RUN a2enmod rewrite
+
+# EXPOSE no es estrictamente necesario en Vercel, pero lo dejamos documentado
+EXPOSE 8080
+
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
