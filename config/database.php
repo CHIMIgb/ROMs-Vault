@@ -12,11 +12,11 @@ class Database {
     private $pdo;
 
     private function __construct() {
-        $host = $_ENV['DB_HOST'];
-        $port = $_ENV['DB_PORT'] ?? 5432;
-        $db   = $_ENV['DB_NAME'];
-        $user = $_ENV['DB_USER'];
-        $pass = $_ENV['DB_PASSWORD'];
+        $host = $_ENV['DB_HOST'] ?? getenv('DB_HOST');
+        $port = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: 5432;
+        $db   = $_ENV['DB_NAME'] ?? getenv('DB_NAME');
+        $user = $_ENV['DB_USER'] ?? getenv('DB_USER');
+        $pass = $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD');
         
         // DSN para PostgreSQL (Neon requiere SSL)
         $dsn = "pgsql:host=$host;port=$port;dbname=$db;sslmode=require";
