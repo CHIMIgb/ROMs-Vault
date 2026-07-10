@@ -208,7 +208,7 @@ class HomeController {
         }
 
         $core    = $this->getEmulatorCore($juego['consola_nombre']);
-        $romUrl  = "rom_proxy.php?file_id=" . urlencode($fileId);
+        $romUrl  = $this->signProxyUrl($fileId);
         $biosUrl = null;
         $error   = null;
 
@@ -250,7 +250,7 @@ class HomeController {
         $scheme   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $dir      = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/');
-        $proxyUrl = $scheme . '://' . $host . $dir . '/rom_proxy.php?file_id=' . urlencode($fileId);
+        $proxyUrl = $scheme . '://' . $host . $dir . '/' . $this->signProxyUrl($fileId);
 
         $ch = curl_init($proxyUrl);
         curl_setopt_array($ch, [
@@ -308,5 +308,17 @@ class HomeController {
         $downloadLink = "https://drive.google.com/uc?export=download&id={$fileId}&confirm=t";
         header("Location: " . $downloadLink);
         exit;
+    }
+
+    /**
+     * Genera una URL firmada con HMAC para el proxy de ROMs.
+     * La firma incluye el file_id y un timestamp, válida por 2 horas.
+     */
+    private function signProxyUrl(string $fileId): string {
+        $t   = time();
+        $sig = hash_hmac('sha256', $fileId . '|' . $t, $_ENV['JWT_SECRET']);
+        return 'rom_proxy.php?file_id=' . urlencode($fileId)
+             . '&t=' . $t
+             . '&sig=' . $sig;
     }
 }

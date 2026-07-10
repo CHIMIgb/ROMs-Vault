@@ -262,6 +262,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
             window.EJS_color = '#c0392b';
             window.EJS_startOnLoaded = false;
             window.EJS_backgroundColor = '#1a1a1a';
+            window.EJS_language = 'es-419';  // Español Latinoamérica (código oficial de EmulatorJS)
             window.EJS_Buttons = {
                 saveState: true,
                 loadState: true,

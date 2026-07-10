@@ -24,6 +24,47 @@ if (php_sapi_name() === 'cli') {
     die("Este script solo puede ejecutarse desde el servidor web.\n");
 }
 
+// ── Cargar entorno (necesario antes del preflight para leer ALLOWED_ORIGINS) ─
+require_once __DIR__ . '/vendor/autoload.php';
+use Dotenv\Dotenv;
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
+
+// ── Función CORS centralizada ────────────────────────────────────────────────
+function emitCorsHeaders(): void {
+    $originsEnv = trim($_ENV['ALLOWED_ORIGINS'] ?? '');
+    $origin     = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+    if (empty($originsEnv)) {
+        // Sin orígenes configurados → permitir todo (desarrollo)
+        header('Access-Control-Allow-Origin: *');
+    } else {
+        $allowed = array_map('trim', explode(',', $originsEnv));
+        if (in_array($origin, $allowed, true)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Vary: Origin');
+        } else {
+            header('Access-Control-Allow-Origin: null');
+        }
+    }
+
+    header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
+    header('Access-Control-Allow-Headers: Range, Content-Type');
+    header('Access-Control-Expose-Headers: Content-Length, Content-Range, Accept-Ranges');
+}
+
+// ── Responder preflight CORS inmediatamente (sin tocar BD ni Google) ────────
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    emitCorsHeaders();
+    header('Access-Control-Max-Age: 86400');
+    http_response_code(204);
+    exit;
+}
+
+// ── Límites de ejecución ─────────────────────────────────────────────────────
+set_time_limit(0);          // Sin timeout — necesario para ROMs grandes (ISOs de 1-2 GB)
+ignore_user_abort(false);   // Detener si el cliente cierra la conexión (ahorra recursos)
+
 // ── Configuración ────────────────────────────────────────────────────────────
 define('CHUNK_SIZE',   1024 * 256);   // 256 KB por chunk de streaming
 define('MAX_REDIRECTS', 8);           // Máximo de redirecciones a seguir
@@ -31,11 +72,7 @@ define('CONNECT_TIMEOUT', 15);        // Segundos para establecer conexión
 define('READ_TIMEOUT',    0);         // Sin límite de tiempo de lectura (streaming)
 define('GDRIVE_BASE',  'https://drive.google.com/uc?export=download&confirm=t&id=');
 
-// ── Cargar entorno y base de datos ───────────────────────────────────────────
-require_once __DIR__ . '/vendor/autoload.php';
-use Dotenv\Dotenv;
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
+// ── Cargar base de datos ─────────────────────────────────────────────────────
 
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/models/Model.php';
@@ -48,6 +85,84 @@ if (empty($fileId) || !preg_match('/^[a-zA-Z0-9_\-]+$/', $fileId)) {
     http_response_code(400);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'file_id inválido o ausente']);
+    exit;
+}
+
+// ── Validar firma HMAC de la URL (anti-scraping) ─────────────────────────────
+$timestamp = (int)($_GET['t']   ?? 0);
+$signature = $_GET['sig']       ?? '';
+$jwtSecret = $_ENV['JWT_SECRET'] ?? '';
+
+if (empty($signature) || empty($timestamp) || empty($jwtSecret)) {
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Acceso denegado: enlace sin firma.', 'error_type' => 'auth']);
+    exit;
+}
+
+$expectedSig = hash_hmac('sha256', $fileId . '|' . $timestamp, $jwtSecret);
+
+if (!hash_equals($expectedSig, $signature)) {
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Acceso denegado: firma inválida.', 'error_type' => 'auth']);
+    exit;
+}
+
+// Verificar que el enlace no haya expirado (2 horas = 7200 segundos)
+define('SIGNED_URL_TTL', 7200);
+if ((time() - $timestamp) > SIGNED_URL_TTL) {
+    http_response_code(410);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Este enlace ha expirado. Recarga la página.', 'error_type' => 'expired']);
+    exit;
+}
+
+// ── Rate limiting por IP ─────────────────────────────────────────────────────
+function checkRateLimit(string $ip, int $max = 30, int $window = 60): bool {
+    $dir = sys_get_temp_dir() . '/romproxy_rl';
+    if (!is_dir($dir)) @mkdir($dir, 0700, true);
+
+    $file = $dir . '/' . md5($ip) . '.json';
+
+    // Limpiar archivos viejos cada ~100 peticiones (probabilístico)
+    if (random_int(1, 100) === 1) {
+        foreach (glob($dir . '/*.json') as $f) {
+            if (filemtime($f) < time() - $window * 2) @unlink($f);
+        }
+    }
+
+    $data = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
+
+    if (!$data || $data['window_start'] < time() - $window) {
+        file_put_contents($file, json_encode([
+            'window_start' => time(), 'count' => 1
+        ]), LOCK_EX);
+        return true;
+    }
+
+    if ($data['count'] >= $max) return false;
+
+    $data['count']++;
+    file_put_contents($file, json_encode($data), LOCK_EX);
+    return true;
+}
+
+$clientIp = $_SERVER['HTTP_X_FORWARDED_FOR']
+    ?? $_SERVER['HTTP_X_REAL_IP']
+    ?? $_SERVER['REMOTE_ADDR']
+    ?? '0.0.0.0';
+// Tomar solo la primera IP si hay varias (X-Forwarded-For: ip1, ip2)
+$clientIp = trim(explode(',', $clientIp)[0]);
+
+$rlMax    = (int)($_ENV['RATE_LIMIT_MAX']    ?? 30);
+$rlWindow = (int)($_ENV['RATE_LIMIT_WINDOW'] ?? 60);
+
+if (!checkRateLimit($clientIp, $rlMax, $rlWindow)) {
+    http_response_code(429);
+    header('Content-Type: application/json');
+    header('Retry-After: ' . $rlWindow);
+    echo json_encode(['error' => 'Demasiadas peticiones. Intenta en ' . $rlWindow . ' segundos.', 'error_type' => 'rate_limit']);
     exit;
 }
 
@@ -197,23 +312,58 @@ function guessContentType(string $titulo, string $consolaNombre): string {
     return 'application/octet-stream';
 }
 
-// ── Resolver URL final con cookies ───────────────────────────────────────────
-$resolved = resolveGDriveUrl($gdriveUrl);
+// ── Cache de URLs resueltas de Google Drive ──────────────────────────────────
+define('URL_CACHE_TTL', 600); // 10 minutos (conservador)
 
-if ($resolved['error'] || !$resolved['url']) {
-    http_response_code(502);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error'      => 'No se pudo resolver la URL de Google Drive.',
-        'error_type' => 'network',
-        'detail'     => $resolved['error'] ?? 'Sin respuesta del servidor de Google Drive.',
-    ]);
-    error_log('[rom_proxy] Error resolviendo URL para file_id=' . $fileId . ': ' . ($resolved['error'] ?? ''));
-    exit;
+function getCachedUrl(string $fileId): ?array {
+    $cacheFile = sys_get_temp_dir() . '/romproxy_cache/' . md5($fileId) . '.json';
+    if (!file_exists($cacheFile)) return null;
+
+    $data = json_decode(file_get_contents($cacheFile), true);
+    if (!$data || $data['expires'] < time()) {
+        @unlink($cacheFile);
+        return null;
+    }
+    return $data;
 }
 
-$finalUrl  = $resolved['url'];
-$cookieJar = $resolved['cookies'];
+function cacheUrl(string $fileId, string $url, array $cookies): void {
+    $dir = sys_get_temp_dir() . '/romproxy_cache';
+    if (!is_dir($dir)) @mkdir($dir, 0700, true);
+
+    $cacheFile = $dir . '/' . md5($fileId) . '.json';
+    file_put_contents($cacheFile, json_encode([
+        'url'     => $url,
+        'cookies' => $cookies,
+        'expires' => time() + URL_CACHE_TTL,
+    ]), LOCK_EX);
+}
+
+// ── Resolver URL final con cookies (cache → resolución) ─────────────────────
+$cached = getCachedUrl($fileId);
+
+if ($cached) {
+    $finalUrl  = $cached['url'];
+    $cookieJar = $cached['cookies'];
+} else {
+    $resolved = resolveGDriveUrl($gdriveUrl);
+
+    if ($resolved['error'] || !$resolved['url']) {
+        http_response_code(502);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'error'      => 'No se pudo resolver la URL de Google Drive.',
+            'error_type' => 'network',
+            'detail'     => $resolved['error'] ?? 'Sin respuesta del servidor de Google Drive.',
+        ]);
+        error_log('[rom_proxy] Error resolviendo URL para file_id=' . $fileId . ': ' . ($resolved['error'] ?? ''));
+        exit;
+    }
+
+    $finalUrl  = $resolved['url'];
+    $cookieJar = $resolved['cookies'];
+    cacheUrl($fileId, $finalUrl, $cookieJar);
+}
 
 // ── Procesar Range Request del cliente (para seeking en EmulatorJS) ───────────
 $rangeHeader  = '';
@@ -260,15 +410,119 @@ if (!empty($rangeHeader)) {
     curl_setopt($ch, CURLOPT_RANGE, str_replace('bytes=', '', $rangeHeader));
 }
 
-// Capturar cabeceras de respuesta de Google Drive para reenviarlas al cliente
-$responseHeaders = [];
-curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (&$responseHeaders) {
-    $responseHeaders[] = rtrim($headerLine);
+// ── Preparar nombre de descarga limpio ────────────────────────────────────────
+$cleanTitle = preg_replace('/[^a-zA-Z0-9\s\-_]/', '', $juego['titulo']);
+$cleanTitle = trim(preg_replace('/\s+/', '_', $cleanTitle));
+
+// ── Variables de estado para el HEADERFUNCTION integrado ─────────────────────
+$streamHttpCode    = 0;
+$streamContentLen  = -1;
+$streamContentType = '';
+$streamContentRange = '';
+$headersSent       = false;
+$streamError       = false;
+
+// Capturar cabeceras de Google Drive y emitir las nuestras al terminar los headers
+curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (
+    &$streamHttpCode, &$streamContentLen, &$streamContentType,
+    &$streamContentRange, &$headersSent, &$streamError,
+    $juego, $cleanTitle, $fileId, $rangeHeader
+) {
+    $trimmed = rtrim($headerLine);
+
+    // Capturar código HTTP de la línea de estado
+    if (preg_match('#^HTTP/[\d.]+ (\d{3})#', $trimmed, $m)) {
+        $streamHttpCode = (int)$m[1];
+    }
+
+    // Capturar headers relevantes de Google Drive
+    if (stripos($trimmed, 'Content-Length:') === 0) {
+        $streamContentLen = (int)trim(substr($trimmed, 15));
+    }
+    if (stripos($trimmed, 'Content-Type:') === 0) {
+        $streamContentType = trim(substr($trimmed, 13));
+    }
+    if (stripos($trimmed, 'Content-Range:') === 0) {
+        $streamContentRange = $trimmed;
+    }
+
+    // Línea vacía = fin de headers → emitir nuestros headers de respuesta
+    if ($trimmed === '' && !$headersSent && $streamHttpCode > 0) {
+        $headersSent = true;
+
+        // ── Manejar errores de Google Drive ──────────────────────────────
+        if ($streamHttpCode >= 400) {
+            if ($streamHttpCode === 404) {
+                $errorType = 'not_found';
+                $errorMsg  = 'El archivo ya no existe en Google Drive (fue eliminado o el enlace es incorrecto).';
+            } elseif ($streamHttpCode === 403) {
+                $errorType = 'private';
+                $errorMsg  = 'Google Drive ha bloqueado el acceso a este archivo (permisos insuficientes o cuota de descargas superada).';
+            } elseif ($streamHttpCode === 429) {
+                $errorType = 'quota';
+                $errorMsg  = 'Google Drive ha limitado el acceso temporalmente por exceso de descargas. Inténtalo más tarde.';
+            } else {
+                $errorType = 'network';
+                $errorMsg  = "Google Drive devolvió un error inesperado (HTTP $streamHttpCode).";
+            }
+
+            http_response_code(502);
+            header('Content-Type: application/json');
+            echo json_encode([
+                'error'      => $errorMsg,
+                'error_type' => $errorType,
+                'http_code'  => $streamHttpCode,
+            ]);
+            error_log("[rom_proxy] Google Drive HTTP $streamHttpCode ($errorType) para file_id=$fileId");
+            $streamError = true;
+            return strlen($headerLine);
+        }
+
+        // ── Código de respuesta exitoso ──────────────────────────────────
+        if ($streamHttpCode === 206) {
+            http_response_code(206);
+        } else {
+            http_response_code(200);
+        }
+
+        // ── Cabeceras CORS ──────────────────────────────────────────────
+        emitCorsHeaders();
+
+        // ── Cabeceras de seguridad ──────────────────────────────────────
+        header('X-Content-Type-Options: nosniff');
+        header('X-Frame-Options: DENY');
+        header('Referrer-Policy: no-referrer');
+
+        // ── Cabeceras de contenido ──────────────────────────────────────
+        $mimeType = !empty($streamContentType)
+            ? explode(';', $streamContentType)[0]
+            : 'application/octet-stream';
+        header('Content-Type: ' . $mimeType);
+        header('Accept-Ranges: bytes');
+        header('Cache-Control: no-store');
+        header('Content-Disposition: inline; filename="' . $cleanTitle . '"');
+
+        // Tamaño del contenido
+        if ($streamContentLen > 0) {
+            header('Content-Length: ' . (int)$streamContentLen);
+        } elseif (!empty($juego['size_bytes']) && $juego['size_bytes'] > 0) {
+            header('Content-Length: ' . (int)$juego['size_bytes']);
+        }
+
+        // Content-Range si fue una petición parcial
+        if (!empty($rangeHeader) && $streamHttpCode === 206 && !empty($streamContentRange)) {
+            header($streamContentRange);
+        }
+    }
+
     return strlen($headerLine);
 });
 
 // Función de escritura: hace streaming chunk a chunk hacia el cliente
-curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
+curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) use (&$streamError) {
+    // Si hubo error en los headers, abortar el streaming
+    if ($streamError) return -1;
+
     echo $data;
     if (ob_get_level() > 0) {
         ob_flush();
@@ -276,94 +530,6 @@ curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
     flush();
     return strlen($data);
 });
-
-// ── Enviar cabeceras CORS y de control antes de abrir el stream ──────────────
-// (No podemos enviarlas después de que empiece el stream)
-
-// Ejecutar cURL en modo "peek" primero para obtener el código HTTP y cabeceras
-// sin hacer streaming aún. Lo hacemos con una petición HEAD separada.
-$chHead = curl_copy_handle($ch);
-curl_setopt($chHead, CURLOPT_NOBODY, true);
-curl_setopt($chHead, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($chHead, CURLOPT_WRITEFUNCTION, null); // Desactivar writer del stream
-curl_exec($chHead);
-
-$httpCode    = curl_getinfo($chHead, CURLINFO_HTTP_CODE);
-$contentLen  = curl_getinfo($chHead, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
-$contentType = curl_getinfo($chHead, CURLINFO_CONTENT_TYPE);
-curl_close($chHead);
-
-// ── Determinar código de respuesta HTTP ──────────────────────────────────────
-if ($httpCode === 206) {
-    // Partial content (Range response)
-    http_response_code(206);
-} elseif ($httpCode >= 200 && $httpCode < 300) {
-    http_response_code(200);
-} else {
-    // Determinar tipo de error según código HTTP de Google Drive
-    if ($httpCode === 404) {
-        $errorType   = 'not_found';
-        $errorMsg    = 'El archivo ya no existe en Google Drive (fue eliminado o el enlace es incorrecto).';
-    } elseif ($httpCode === 403) {
-        $errorType   = 'private';
-        $errorMsg    = 'Google Drive ha bloqueado el acceso a este archivo (permisos insuficientes o cuota de descargas superada).';
-    } elseif ($httpCode === 429) {
-        $errorType   = 'quota';
-        $errorMsg    = 'Google Drive ha limitado el acceso temporalmente por exceso de descargas. Inténtalo más tarde.';
-    } else {
-        $errorType   = 'network';
-        $errorMsg    = "Google Drive devolvió un error inesperado (HTTP $httpCode).";
-    }
-    http_response_code(502);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error'      => $errorMsg,
-        'error_type' => $errorType,
-        'http_code'  => $httpCode,
-    ]);
-    error_log("[rom_proxy] Google Drive HTTP $httpCode ($errorType) para file_id=$fileId");
-    exit;
-}
-
-// ── Cabeceras CORS (permiten que EmulatorJS cargue el archivo) ────────────────
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
-header('Access-Control-Allow-Headers: Range, Content-Type');
-header('Access-Control-Expose-Headers: Content-Length, Content-Range, Accept-Ranges');
-
-// ── Cabeceras de contenido ────────────────────────────────────────────────────
-$mimeType = !empty($contentType) ? explode(';', $contentType)[0] : 'application/octet-stream';
-header('Content-Type: ' . $mimeType);
-header('Accept-Ranges: bytes');
-header('Cache-Control: no-store');  // No cachear ROMs en el proxy (pueden ser grandes)
-
-// Nombre de descarga limpio basado en el título del juego
-$cleanTitle = preg_replace('/[^a-zA-Z0-9\s\-_]/', '', $juego['titulo']);
-$cleanTitle = trim(preg_replace('/\s+/', '_', $cleanTitle));
-header('Content-Disposition: inline; filename="' . $cleanTitle . '"');
-
-// Tamaño del contenido (si está disponible)
-if ($contentLen > 0) {
-    header('Content-Length: ' . (int)$contentLen);
-} elseif (!empty($juego['size_bytes']) && $juego['size_bytes'] > 0) {
-    header('Content-Length: ' . (int)$juego['size_bytes']);
-}
-
-// Content-Range si fue una petición parcial
-if (!empty($rangeHeader) && $httpCode === 206) {
-    foreach ($responseHeaders as $rh) {
-        if (stripos($rh, 'Content-Range:') === 0) {
-            header($rh);
-            break;
-        }
-    }
-}
-
-// Responder OPTIONS preflight de CORS sin body
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
 
 // ── Activar output buffering sin límite y deshabilitar compresión ─────────────
 if (function_exists('apache_setenv')) {
@@ -379,7 +545,7 @@ while (ob_get_level() > 0) {
 // ── Ejecutar el stream real ───────────────────────────────────────────────────
 $result = curl_exec($ch);
 
-if ($result === false) {
+if ($result === false && !$streamError) {
     $curlErr = curl_error($ch);
     error_log('[rom_proxy] cURL streaming error para file_id=' . $fileId . ': ' . $curlErr);
     // No podemos emitir JSON aquí porque los headers ya fueron enviados;
