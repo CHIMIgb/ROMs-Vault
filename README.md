@@ -8,7 +8,14 @@ Aplicación MVC en PHP para gestionar y mostrar un catálogo de ROMs e ISOs de v
 - Paginación de 20 juegos por página (4 columnas × 5 filas)
 - Sistema de descargas directas desde Google Drive
 - **Emuladores Web Integrados** con soporte para N64, PSP, PS1, NDS y otros (Soporte experimental)
+- **Proxy de streaming seguro** para ROMs con:
+  - Rate limiting configurable por IP
+  - URLs firmadas con HMAC (anti-scraping, TTL de 2 horas)
+  - CORS restrictivo con whitelist de orígenes
+  - Cache de URLs resueltas de Google Drive
+  - Streaming chunk a chunk sin cargar archivos en memoria
 - Panel de administración protegido con **autenticación basada en JWT y Cookies seguras (httpOnly)**
+- **Autenticación con Google OAuth**
 - CRUD completo para gestionar juegos, consolas y categorías
 - Subida de imágenes de portada
 - **Exportación a Excel (.xlsx)** del contenido de todas las tablas de la base de datos
@@ -20,8 +27,9 @@ Aplicación MVC en PHP para gestionar y mostrar un catálogo de ROMs e ISOs de v
 ### Requisitos previos
 
 - PHP 8.1 o superior
-- PostgreSQL 16 o superior (también incluye archivo para MySQL si prefieres)
+- PostgreSQL 16 o superior
 - Composer
+- Docker (opcional, para despliegue containerizado)
 
 ### Pasos de instalación
 
@@ -70,17 +78,30 @@ Copia el archivo `.env.example` a `.env` en la raíz del proyecto y configura tu
 
 ```env
 # Base de datos
-DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=roms-vault
-DB_USERNAME=postgres
+DB_NAME=roms-vault
+DB_USER=postgres
 DB_PASSWORD=tu_password
+DB_CHARSET=
+
+# Sesión
+SESSION_SECRET=tu_session_secret
 
 # JWT y Seguridad
 JWT_SECRET=tu_clave_secreta_super_segura
 JWT_EXPIRATION=3600
-JWT_REFRESH_THRESHOLD=300
+JWT_REFRESH_THRESHOLD=600
+
+# Google OAuth (opcional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# ROM Proxy — Seguridad y rendimiento
+RATE_LIMIT_MAX=30          # Máximo de peticiones por IP en la ventana de tiempo
+RATE_LIMIT_WINDOW=60       # Ventana de tiempo en segundos
+ALLOWED_ORIGINS=           # Orígenes CORS permitidos (separados por coma). Vacío = permitir todos
+                           # Ejemplo: https://mi-dominio.com,https://roms-vault.vercel.app
 ```
 
 6. **Dar permisos a la carpeta de uploads**
@@ -101,6 +122,18 @@ php -S localhost:8000
 
 La aplicación estará disponible en: `http://localhost:8000`
 
+### Usando Docker
+
+```bash
+# Construir la imagen
+docker build -t roms-vault .
+
+# Ejecutar el contenedor
+docker run -p 8080:80 --env-file .env roms-vault
+```
+
+La aplicación estará disponible en: `http://localhost:8080`
+
 ## 🔑 Acceso al panel de administración
 
 Para acceder al área de administración, utiliza la siguiente URL:
@@ -114,22 +147,28 @@ http://localhost:8000/index.php?controller=auth&action=login
 ```
 roms-vault/
 │
-├── .env                      # Configuración de entorno
-├── index.php                 # Front controller
+├── .env                      # Configuración de entorno (no se sube al repo)
+├── .env.example              # Plantilla de configuración
+├── index.php                 # Front controller / Router principal
+├── rom_proxy.php             # Proxy de streaming seguro para ROMs (Google Drive)
 ├── composer.json             # Dependencias PHP
-├── data/                     # Archivos SQL (MySQL y PostgreSQL)
+├── Dockerfile                # Imagen Docker (PHP 8.2 + Apache)
+├── docker-entrypoint.sh      # Script de inicio del contenedor
+├── .htaccess                 # Reglas de rewrite y seguridad Apache
+├── data/                     # Archivos SQL (PostgreSQL)
 │
 ├── config/
-│   ├── database.php          # Conexión a la base de datos
+│   ├── database.php          # Conexión a la base de datos (PostgreSQL)
 │   ├── JWTService.php        # Generación y validación de tokens JWT
 │   └── AuthMiddleware.php    # Middleware para protección de rutas
 │
 ├── controllers/
 │   ├── HomeController.php    # Catálogo público y emulador
-│   ├── AuthController.php    # Login/logout con JWT
+│   ├── AuthController.php    # Login/logout con JWT y Google OAuth
 │   ├── AdminController.php   # Panel de administración (Juegos)
 │   ├── ConsolaController.php # Panel de administración (Consolas)
 │   ├── CategoriaController.php # Panel de administración (Categorías)
+│   ├── ErrorsController.php  # Páginas de error (404, 403, 500)
 │   └── ExportController.php  # Generación de descargas Excel (.xlsx)
 │
 ├── models/
@@ -144,17 +183,38 @@ roms-vault/
 │   ├── components/
 │   │   └── Alert.php         # Componente reutilizable para alertas UI
 │   ├── layout/               # Cabeceras y pies de página
-│   ├── home/                 # Catálogo y emulador
+│   ├── home/                 # Catálogo, detalle y emulador
 │   ├── auth/                 # Login
-│   └── admin/                # Vistas de gestión
+│   ├── admin/                # Vistas de gestión
+│   └── errors/               # Páginas de error personalizadas
 │
-└── public/
-    ├── css/
-    │   └── style.css         # Estilos de la aplicación
-    ├── js/
-    │   └── rv-alerts.js      # Sistema de modales y notificaciones custom
-    └── uploads/              # Imágenes subidas
+├── public/
+│   ├── css/
+│   │   └── style.css         # Estilos de la aplicación
+│   ├── js/
+│   │   └── rv-alerts.js      # Sistema de modales y notificaciones custom
+│   └── uploads/              # Imágenes subidas
+│
+├── ajax_admin.php            # Endpoint AJAX para operaciones de administración
+├── ajax_autocomplete.php     # Endpoint AJAX para autocompletado de búsqueda
+├── ajax_catalog.php          # Endpoint AJAX para filtrado del catálogo
+├── ajax_categoria.php        # Endpoint AJAX para gestión de categorías
+└── ajax_consola.php          # Endpoint AJAX para gestión de consolas
 ```
+
+## 🔒 Seguridad del Proxy de ROMs
+
+El archivo `rom_proxy.php` actúa como intermediario seguro entre EmulatorJS y Google Drive:
+
+| Característica | Descripción |
+|---|---|
+| **Rate Limiting** | Límite configurable de peticiones por IP (`RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW`) |
+| **URLs Firmadas (HMAC)** | Cada URL del proxy incluye una firma temporal que expira en 2 horas |
+| **CORS Restrictivo** | Whitelist de orígenes permitidos (`ALLOWED_ORIGINS` en `.env`) |
+| **Validación en BD** | Solo permite `file_id` que existan en la base de datos y estén activos |
+| **Cache de URLs** | Cachea URLs resueltas de Google Drive por 10 minutos |
+| **Streaming eficiente** | Transmite en chunks de 256 KB sin cargar el archivo completo en memoria |
+| **Security Headers** | `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` |
 
 ## 🎯 Dependencias destacadas
 
@@ -177,3 +237,9 @@ composer install --no-dev
 
 ### No se ven las imágenes
 Asegúrate de que la carpeta `public/uploads/` tenga permisos de escritura y lectura correctos para el usuario de tu servidor web.
+
+### Error 403 o "enlace expirado" al jugar una ROM
+Las URLs del proxy expiran después de 2 horas. Recarga la página del juego para obtener un enlace nuevo.
+
+### Error 429 "Demasiadas peticiones"
+El rate limiting está bloqueando tu IP. Espera el tiempo configurado en `RATE_LIMIT_WINDOW` (por defecto 60 segundos) o ajusta los valores en `.env`.
