@@ -38,7 +38,7 @@ class Database {
             error_log("Error de conexión PostgreSQL: " . $e->getMessage());
             
             // Mensaje amigable para el usuario
-            die("Error de conexión a la base de datos. Por favor, contacte al administrador.");
+            die("Error de conexión a la base de datos. Detalle técnico: " . $e->getMessage());
         }
     }
 
