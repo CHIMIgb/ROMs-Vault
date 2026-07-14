@@ -1,11 +1,4 @@
-<div class="game-detail-page">
-    <div class="detail-actions-top">
-        <a href="index.php?controller=home&action=index" class="btn btn-secondary">
-            <i class="pixel-icon arrow-left"></i> Volver al Catálogo
-        </a>
-    </div>
-
-    <div class="game-detail-container">
+<div class="game-detail-page">    <div class="game-detail-container">
         <!-- Columna de Portada -->
         <div class="game-detail-cover">
             <?php if (!empty($juego['imagen']) && file_exists(ltrim($juego['imagen'], '/'))): ?>
@@ -82,41 +75,5 @@
     <?php endif; ?>
 
     <!-- Juegos Relacionados -->
-    <?php if (!empty($relatedGames)): ?>
-    <div class="related-games-section">
-        <h2>Juegos Relacionados</h2>
-        <div class="games-grid">
-            <?php foreach ($relatedGames as $relacionado): ?>
-                <div class="game-card">
-                    <a href="index.php?controller=home&action=show&id=<?= $relacionado['id'] ?>" class="game-card-link">
-                        <div class="game-cover">
-                            <?php if (!empty($relacionado['imagen']) && file_exists(ltrim($relacionado['imagen'], '/'))): ?>
-                                <img src="<?= htmlspecialchars($relacionado['imagen']) ?>" alt="<?= htmlspecialchars($relacionado['titulo']) ?>" loading="lazy">
-                            <?php else: ?>
-                                <div class="no-image"><i class="pixel-icon image-placeholder"></i></div>
-                            <?php endif; ?>
-                            
-                            <?php if ($relacionado['formato_imagen'] === 'Hack'): ?>
-                                <div class="hack-badge">Hack</div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="game-info">
-                            <h3 class="game-title" title="<?= htmlspecialchars($relacionado['titulo']) ?>">
-                                <?= htmlspecialchars($relacionado['titulo']) ?>
-                            </h3>
-                            <div class="game-tags">
-                                <span class="tag-categoria"><?= htmlspecialchars($relacionado['categoria_nombre'] ?? '') ?></span>
-                                <span class="tag-consola"><?= htmlspecialchars($relacionado['consola_nombre'] ?? '') ?></span>
-                                <?php if (!empty($relacionado['region'])): ?>
-                                    <span class="tag-region"><?= htmlspecialchars($relacionado['region']) ?></span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endif; ?>
+    <?php require_once 'views/components/related_games.php'; ?>
 </div>
