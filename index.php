@@ -1,8 +1,5 @@
 <?php
 // index.php — Router principal
-if (isset($_GET['debug_env'])) {
-    die("VERCEL IS INJECTING THIS DB_HOST: " . getenv('DB_HOST'));
-}
 require_once __DIR__ . '/config/AuthMiddleware.php';
 
 // Cargar usuario actual desde JWT (disponible como $currentUser en las vistas)
