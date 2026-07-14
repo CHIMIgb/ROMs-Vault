@@ -1,0 +1,260 @@
+/* ===== FORMULARIOS ===== */
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--cream-light);
+    padding: 2rem;
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+}
+
+.form-container h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.8rem;
+    color: var(--slate);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--border-dark);
+    text-shadow: 2px 2px 0 var(--border-mid);
+    line-height: 1.8;
+}
+
+.form-group { margin-bottom: 1.25rem; }
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--slate);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.46rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group input[type="url"],
+.form-group input[type="password"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 2px solid var(--border-dark);
+    border-radius: 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.95rem;
+    background: var(--cream-light);
+    color: var(--slate);
+    box-shadow: var(--inset-shadow);
+    transition: border-color 0.15s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    background: #fffdf7;
+}
+
+/* File input oculto — se maneja con JS + wrapper */
+.form-group input[type="file"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* Wrapper del file input */
+.file-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.file-input-display {
+    display: flex;
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--inset-shadow);
+    background: var(--cream-light);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    overflow: hidden;
+}
+
+.file-input-display:hover {
+    border-color: var(--red);
+}
+
+.file-input-display:hover .file-input-btn {
+    background: var(--red);
+}
+
+.file-input-btn {
+    flex-shrink: 0;
+    padding: 0.65rem 1rem;
+    background: var(--slate);
+    color: var(--cream-light);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.42rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.1s;
+    border-right: 2px solid var(--border-dark);
+    user-select: none;
+}
+
+.file-input-name {
+    flex: 1;
+    padding: 0.65rem 0.75rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    color: var(--slate-light);
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-self: center;
+}
+
+.file-input-name.has-file {
+    color: var(--slate);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--slate-light);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
+    font-style: italic;
+}
+
+.form-group select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a3a3a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.25rem;
+    background-color: var(--cream-light);
+}
+
+.form-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.form-checkbox input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--red);
+    cursor: pointer;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+}
+
+.form-checkbox label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--border-light);
+}
+
+/* ===== LOGIN ===== */
+.login-container {
+    max-width: 420px;
+    margin: 4rem auto;
+    background: var(--cream-light);
+    padding: 2.5rem;
+    border: 3px solid var(--border-dark);
+    box-shadow: 8px 8px 0 #8a7a58, 9px 9px 0 #6a5a38;
+    position: relative;
+}
+
+.login-container::before {
+    content: '▶ INSERT COIN ◀';
+    display: block;
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: var(--border-mid);
+    letter-spacing: 0.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.login-container h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.85rem;
+    color: var(--slate);
+    margin-bottom: 2rem;
+    text-align: center;
+    text-shadow: 2px 2px 0 var(--border-mid);
+    line-height: 1.6;
+}
+
+/* ===== CAMPO CONTRASEÑA CON TOGGLE ===== */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    width: 100%;
+    padding: 0.65rem 3rem 0.65rem 0.75rem;
+    border: 2px solid var(--border-dark);
+    border-radius: 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.95rem;
+    background: var(--cream-light);
+    color: var(--slate);
+    box-shadow: var(--inset-shadow);
+    transition: border-color 0.15s;
+}
+
+.password-wrapper input:focus {
+    outline: none;
+    border-color: var(--red);
+    background: #fffdf7;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 2.75rem;
+    background: var(--cream-dark);
+    border: none;
+    border-left: 2px solid var(--border-dark);
+    cursor: pointer;
+    color: var(--slate-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s, color 0.1s;
+}
+
+.password-toggle:hover {
+    background: var(--slate);
+    color: var(--cream-light);
+}

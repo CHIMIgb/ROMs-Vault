@@ -1,0 +1,31 @@
+/* ===== RESET ===== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===== BASE ===== */
+body {
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    background-color: var(--cream-dark);
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,0.018) 2px,
+            rgba(0,0,0,0.018) 4px
+        );
+    color: var(--slate);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--cream-dark); }
+::-webkit-scrollbar-thumb {
+    background: var(--border-mid);
+    border: 2px solid var(--cream-dark);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--slate-mid); }

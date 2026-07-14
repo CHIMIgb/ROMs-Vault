@@ -1,0 +1,45 @@
+/* public/css/style.css */
+/* =====================================================
+   ROMs Vault — Retro Console Theme
+   Estética: Game Boy / consola portátil 90s
+   Paleta: Beige envejecido, gris pizarra, rojo nintendo
+   Tipografía: Press Start 2P + Courier Prime
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* ===== VARIABLES ===== */
+:root {
+    --cream:        #e8e0c8;
+    --cream-dark:   #d4c9a8;
+    --cream-light:  #f2ece0;
+    --slate:        #3a3a3a;
+    --slate-mid:    #5a5a5a;
+    --slate-light:  #8a8a8a;
+    --red:          #c0392b;
+    --red-dark:     #962d22;
+    --blue-btn:     #2c5f8a;
+    --green-ok:     #3a7d44;
+    --amber:        #b8860b;
+    --border-dark:  #3a3a3a;
+    --border-mid:   #a09070;
+    --border-light: #c8bda0;
+    --inset-shadow: inset 2px 2px 0 #c0b48a, inset -2px -2px 0 #8a7a58;
+    --raise-shadow: 3px 3px 0 #8a7a58;
+    --raise-shadow-lg: 5px 5px 0 #8a7a58;
+    --card-raise: 4px 4px 0 #8a7a58, 5px 5px 0 #6a5a38;
+    /* Alias para compatibilidad con código PHP existente */
+    --primary:      #3a3a3a;
+    --secondary:    #5a5a5a;
+    --accent:       #c0392b;
+    --background:   #d4c9a8;
+    --card-bg:      #f2ece0;
+    --text:         #3a3a3a;
+    --text-light:   #8a8a8a;
+    --border:       #c8bda0;
+    --success:      #3a7d44;
+    --warning:      #b8860b;
+    --danger:       #c0392b;
+    --shadow:       4px 4px 0 #8a7a58;
+    --shadow-hover: 6px 6px 0 #6a5a38;
+}
