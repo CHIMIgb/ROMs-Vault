@@ -223,6 +223,11 @@ class AdminController {
         $filename = uniqid() . '_' . time() . '.webp';
         $destination = $uploadDir . $filename;
         
+        // Verificar si la librería GD está activa en el servidor
+        if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
+            return ['success' => false, 'error' => 'La extensión GD de PHP no está activada en este servidor. Habilita "extension=gd" en tu archivo php.ini.'];
+        }
+        
         // Cargar imagen en memoria según formato original
         $image = null;
         switch ($file['type']) {
