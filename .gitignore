@@ -2,3 +2,5 @@
 .env.*
 .vercel
 *.log
+generate_imports.py
+data/backup registros DB/
