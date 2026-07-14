@@ -56,6 +56,39 @@ class HomeController {
     }
 
     /**
+     * Muestra la página de detalles de un juego específico
+     */
+    public function show($id = null) {
+        if (!$id) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $juegoModel = new Juego();
+        $juego = $juegoModel->findWithDetails($id);
+
+        if (!$juego) {
+            http_response_code(404);
+            require_once 'views/layout/header.php';
+            require_once 'views/errors/404.php';
+            require_once 'views/layout/footer.php';
+            return;
+        }
+
+        // Obtener juegos relacionados (4 tarjetas)
+        $relatedGames = $juegoModel->getRelated(
+            $juego['id'], 
+            $juego['consola_id'] ?? 0, 
+            $juego['categoria_id'] ?? 0, 
+            4
+        );
+
+        require_once 'views/layout/header.php';
+        require_once 'views/home/show.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    /**
      * Mapeo de nombre de consola → core de EmulatorJS.
      * Fuente: https://emulatorjs.org/docs/systems/
      * Core PSP confirmado como 'psp' en el demo oficial de EmulatorJS.

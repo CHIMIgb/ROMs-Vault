@@ -49,14 +49,16 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
         <?php foreach ($juegos as $juego): ?>
             <div class="game-card">
                 <div class="game-card-inner">
-                    <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
-                        <?php if (!empty($juego['imagen'])): ?>
-                            <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>">
-                        <?php else: ?>
-                            <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
-                        <?php endif; ?>
-                    </div>
-                    <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
+                    <a href="index.php?controller=home&action=show&id=<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
+                        <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
+                            <?php if (!empty($juego['imagen'])): ?>
+                                <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>">
+                            <?php else: ?>
+                                <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
+                            <?php endif; ?>
+                        </div>
+                        <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
+                    </a>
                     <div class="game-metadata">
                         <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre'] ?? 'Sin género') ?></span>
                         <span class="game-tag platform"><?= htmlspecialchars($juego['consola_nombre'] ?? 'Multi') ?></span>

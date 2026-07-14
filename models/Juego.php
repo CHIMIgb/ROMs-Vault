@@ -23,6 +23,17 @@ class Juego extends Model {
         return $stmt->fetch();
     }
     
+    // Obtener un juego por ID con detalles de relaciones
+    public function findWithDetails($id) {
+        $stmt = $this->pdo->prepare("SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
+                FROM juegos j
+                LEFT JOIN consolas c ON j.consola_id = c.id
+                LEFT JOIN categorias cat ON j.categoria_id = cat.id
+                WHERE j.id = ? AND j.activo = true");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+    
     // Incrementar contador de descargas
     public function incrementDownloads($id) {
         $stmt = $this->pdo->prepare("UPDATE {$this->table} SET downloads_count = downloads_count + 1 WHERE id = ?");
