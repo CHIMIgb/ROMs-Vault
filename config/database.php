@@ -21,6 +21,13 @@ class Database {
         // DSN para PostgreSQL (Neon requiere SSL)
         $dsn = "pgsql:host=$host;port=$port;dbname=$db;sslmode=require";
         
+        // Parche para XAMPP/Windows local: Si el cliente de PostgreSQL es antiguo (no soporta SNI)
+        // Neon requiere que pasemos explícitamente el ID del endpoint en el parámetro 'options'.
+        if (strpos($host, 'neon.tech') !== false) {
+            $endpointId = explode('.', $host)[0];
+            $dsn .= ";options='endpoint=$endpointId'";
+        }
+        
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
