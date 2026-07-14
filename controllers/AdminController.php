@@ -219,14 +219,44 @@ class AdminController {
             return ['success' => false, 'error' => 'La imagen no puede ser mayor a 2MB'];
         }
         
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = uniqid() . '_' . time() . '.' . $extension;
+        // Siempre guardar como .webp
+        $filename = uniqid() . '_' . time() . '.webp';
         $destination = $uploadDir . $filename;
         
-        if (move_uploaded_file($file['tmp_name'], $destination)) {
+        // Cargar imagen en memoria según formato original
+        $image = null;
+        switch ($file['type']) {
+            case 'image/jpeg':
+                $image = @imagecreatefromjpeg($file['tmp_name']);
+                break;
+            case 'image/png':
+                $image = @imagecreatefrompng($file['tmp_name']);
+                if ($image) {
+                    imagepalettetotruecolor($image);
+                    imagealphablending($image, true);
+                    imagesavealpha($image, true);
+                }
+                break;
+            case 'image/gif':
+                $image = @imagecreatefromgif($file['tmp_name']);
+                break;
+            case 'image/webp':
+                $image = @imagecreatefromwebp($file['tmp_name']);
+                break;
+        }
+
+        if (!$image) {
+            return ['success' => false, 'error' => 'Error al procesar la imagen (formato no válido o corrupto)'];
+        }
+
+        // Convertir y guardar a WebP con calidad 80
+        $result = imagewebp($image, $destination, 80);
+        imagedestroy($image); // Liberar memoria
+        
+        if ($result) {
             return ['success' => true, 'filename' => 'public/uploads/' . $filename];
         } else {
-            return ['success' => false, 'error' => 'Error al subir el archivo'];
+            return ['success' => false, 'error' => 'Error al convertir la imagen a WebP'];
         }
     }
 

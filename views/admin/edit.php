@@ -165,7 +165,8 @@
                     <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
                 </div>
             </div>
-            <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB</small>
+            <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB.<br>
+            <i>Las imágenes se optimizarán y convertirán automáticamente a formato WebP.</i></small>
         </div>
                 
         <!-- Botones -->
