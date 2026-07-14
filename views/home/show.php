@@ -52,13 +52,13 @@
             <div class="detail-actions">
                 <!-- El botón de Jugar Online se oculta para PSP u otras consolas no soportadas online si lo deseas, o dejas que el controlador lance el aviso -->
                 <?php if (strtolower(trim($juego['consola_nombre'] ?? '')) !== 'psp' && strtolower(trim($juego['consola_nombre'] ?? '')) !== 'playstation portable'): ?>
-                    <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="btn-play-large">
-                        <i data-i="play"></i> Jugar Online
+                    <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-play btn-play-large">
+                        ▶ Jugar Online
                     </a>
                 <?php endif; ?>
                 
-                <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="btn-download-large" target="_blank" rel="noopener noreferrer">
-                    <i data-i="download"></i> Descargar ROM
+                <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="game-download btn-download-large" target="_blank" rel="noopener noreferrer">
+                    ⬇ Descargar ROM
                 </a>
             </div>
         </div>
