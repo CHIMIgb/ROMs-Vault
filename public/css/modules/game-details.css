@@ -1,0 +1,913 @@
+/* =====================================================
+   FILTRADO EN TIEMPO REAL — Loading indicator
+   ===================================================== */
+
+/* Fila de controles de filtros (sin form nativo) */
+.filters-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Barra de carga debajo de los filtros */
+.filter-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+    padding: 0.4rem 0;
+}
+
+.filter-loading-bar {
+    display: block;
+    width: 120px;
+    height: 8px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.filter-loading-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 60%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--red)      0px,
+        var(--red)      5px,
+        var(--red-dark) 5px,
+        var(--red-dark) 10px
+    );
+    animation: filterScan 0.9s linear infinite;
+}
+
+@keyframes filterScan {
+    0%   { left: -60%; }
+    100% { left: 110%; }
+}
+
+.filter-loading-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    color: var(--slate-mid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: filterBlink 1s step-end infinite;
+}
+
+@keyframes filterBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+/* Suavizar la zona de resultados durante la carga */
+#catalog-results,
+#admin-results {
+    transition: opacity 0.15s ease;
+}
+
+
+/* =====================================================
+   ERROR DE PROXY — Archivo de Google Drive inaccesible
+   ===================================================== */
+
+.proxy-error-page {
+    max-width: 560px;
+    margin: 2rem auto;
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.proxy-error-page::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.4);
+    pointer-events: none;
+}
+
+.proxy-error-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    line-height: 1;
+}
+
+.proxy-error-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.72rem;
+    color: var(--red);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    text-shadow: 2px 2px 0 var(--red-dark);
+}
+
+.proxy-error-msg {
+    color: var(--slate);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.proxy-error-tip {
+    background: var(--cream-dark);
+    border: 2px solid var(--border-mid);
+    border-left: 4px solid var(--amber);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    color: var(--slate);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.proxy-tip-label {
+    display: block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.proxy-error-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.btn-retry {
+    display: inline-block;
+    background: var(--green-ok);
+    color: #fff;
+    padding: 0.7rem 1.5rem;
+    border: 2px solid #2a5a32;
+    box-shadow: 4px 4px 0 #1a3a20;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+
+.btn-retry:hover {
+    box-shadow: 1px 1px 0 #1a3a20;
+    transform: translate(3px, 3px);
+}
+
+.btn-back-catalog {
+    display: inline-block;
+    background: var(--slate);
+    color: var(--cream-light);
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 4px 4px 0 #1a1a1a;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    transition: box-shadow 0.1s, transform 0.1s, background 0.1s;
+}
+
+.btn-back-catalog:hover {
+    background: var(--red);
+    box-shadow: 1px 1px 0 #1a1a1a;
+    transform: translate(3px, 3px);
+}
+
+.proxy-error-details {
+    text-align: left;
+    border: 2px solid var(--border-light);
+    padding: 0.5rem 0.75rem;
+    background: var(--cream-dark);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+}
+
+.proxy-error-details summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--slate-mid);
+    font-size: 0.78rem;
+    user-select: none;
+    list-style: none;
+    padding: 0.25rem 0;
+}
+
+.proxy-error-details summary::before {
+    content: '▶ ';
+    font-size: 0.55rem;
+}
+
+.proxy-error-details[open] summary::before {
+    content: '▼ ';
+}
+
+.proxy-error-technical {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: var(--slate-mid);
+}
+
+.proxy-error-technical div {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+}
+
+.proxy-error-technical span {
+    color: var(--slate);
+    font-weight: 700;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    min-width: 4rem;
+    flex-shrink: 0;
+}
+
+.proxy-error-technical code {
+    font-size: 0.82rem;
+    background: var(--cream-light);
+    border: 1px solid var(--border-light);
+    padding: 0.1rem 0.3rem;
+    word-break: break-all;
+}
+
+/* =====================================================
+   PÁGINA 404 — Game Over estilo arcade
+   ===================================================== */
+
+.error-404-page {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Pantalla CRT simulada */
+.error-404-screen {
+    position: relative;
+    background: #0a0a0a;
+    border: 4px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg), inset 0 0 40px rgba(0,0,0,0.8);
+    padding: 2.5rem 2rem 2rem;
+    margin: 0 auto 2.5rem;
+    max-width: 420px;
+    overflow: hidden;
+}
+
+/* Líneas de escaneo CRT */
+.error-404-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.25) 3px,
+        rgba(0,0,0,0.25) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+.error-404-code {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 4rem;
+    color: var(--red);
+    text-shadow: 0 0 20px rgba(192,57,43,0.8), 3px 3px 0 var(--red-dark);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 3;
+    animation: glitch 4s infinite;
+}
+
+@keyframes glitch {
+    0%, 90%, 100% { transform: none; text-shadow: 0 0 20px rgba(192,57,43,0.8), 3px 3px 0 var(--red-dark); }
+    92%  { transform: translate(-3px, 1px); text-shadow: 2px 0 0 #00ffff, -2px 0 0 #ff00ff; }
+    94%  { transform: translate(3px, -1px); text-shadow: -2px 0 0 #00ffff, 2px 0 0 #ff00ff; }
+    96%  { transform: translate(0, 2px); }
+}
+
+.error-404-gameover {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+    color: var(--cream);
+    letter-spacing: 0.15em;
+    margin-bottom: 1.25rem;
+    text-shadow: 0 0 10px rgba(232,224,200,0.5);
+    position: relative;
+    z-index: 3;
+}
+
+.error-404-insert {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: var(--border-mid);
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+    animation: insertBlink 1.2s step-end infinite;
+    position: relative;
+    z-index: 3;
+}
+
+@keyframes insertBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}
+
+.error-404-blink {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    color: var(--red);
+    animation: insertBlink 0.8s step-end infinite;
+    position: relative;
+    z-index: 3;
+}
+
+.error-404-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.85rem;
+    color: var(--slate);
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 0 var(--border-mid);
+    line-height: 1.6;
+}
+
+.error-404-msg {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.95rem;
+    color: var(--slate-mid);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.error-404-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.btn-404-home {
+    display: inline-block;
+    background: var(--red);
+    color: var(--cream-light);
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--red-dark);
+    box-shadow: 4px 4px 0 var(--red-dark);
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+
+.btn-404-home:hover {
+    box-shadow: 1px 1px 0 var(--red-dark);
+    transform: translate(3px, 3px);
+}
+
+.btn-404-back {
+    display: inline-block;
+    background: var(--slate);
+    color: var(--cream-light);
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 4px 4px 0 #1a1a1a;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    transition: box-shadow 0.1s, transform 0.1s, background 0.1s;
+}
+
+.btn-404-back:hover {
+    background: var(--red);
+    box-shadow: 1px 1px 0 #1a1a1a;
+    transform: translate(3px, 3px);
+}
+
+.error-404-details {
+    text-align: left;
+    max-width: 480px;
+    margin: 0 auto;
+    border: 2px solid var(--border-light);
+    padding: 0.5rem 0.75rem;
+    background: var(--cream-dark);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+}
+
+.error-404-details summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--slate-mid);
+    font-size: 0.78rem;
+    user-select: none;
+    list-style: none;
+    padding: 0.25rem 0;
+}
+
+.error-404-details summary::before { content: '▶ '; font-size: 0.55rem; }
+.error-404-details[open] summary::before { content: '▼ '; }
+
+.error-technical-content {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: var(--slate-mid);
+}
+
+.error-technical-content div {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+}
+
+.error-technical-content span {
+    color: var(--slate);
+    font-weight: 700;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    min-width: 3.5rem;
+    flex-shrink: 0;
+}
+
+.error-technical-content code {
+    font-size: 0.78rem;
+    background: var(--cream-light);
+    border: 1px solid var(--border-light);
+    padding: 0.1rem 0.3rem;
+    word-break: break-all;
+}
+
+/* Créditos decorativos */
+.error-404-credits {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: var(--border-mid);
+    letter-spacing: 0.15em;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+#credits-num {
+    color: var(--red);
+}
+
+@media (max-width: 480px) {
+    .error-404-code   { font-size: 2.8rem; }
+    .error-404-screen { padding: 2rem 1rem 1.5rem; }
+    .error-404-actions, .proxy-error-actions { flex-direction: column; }
+    .btn-404-home, .btn-404-back,
+    .btn-retry, .btn-back-catalog { width: 100%; text-align: center; }
+}
+
+
+/* =====================================================
+   EMULATOR PLAY PAGE — EmulatorJS Integration
+   ===================================================== */
+
+/* ── Navegación de la página play ── */
+.play-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+}
+.btn-back {
+    display: inline-block;
+    background: var(--slate);
+    color: var(--cream);
+    padding: 0.4rem 0.9rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    text-decoration: none;
+    font-weight: 700;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+.btn-back:hover {
+    box-shadow: 1px 1px 0 #8a7a58;
+    transform: translate(2px, 2px);
+    color: var(--cream-light);
+}
+.play-nav-sep   { color: var(--slate-light); }
+.play-nav-title { color: var(--slate); font-weight: 700; }
+.play-nav-platform {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--red);
+}
+
+/* ── Info panel (cover + metadata) ── */
+.emulator-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+.emulator-info {
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--card-raise);
+    padding: 1rem 1.25rem;
+}
+.emulator-game-meta {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+}
+.emulator-cover {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border: 2px solid var(--border-mid);
+    flex-shrink: 0;
+    background: var(--cream-dark);
+}
+.emulator-cover--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+.emulator-game-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.72rem;
+    color: var(--slate);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+.emulator-tags {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+}
+.emulator-description {
+    font-size: 0.82rem;
+    color: var(--slate-mid);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+.emulator-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+.btn-dl-small {
+    display: inline-block;
+    background: var(--blue-btn);
+    color: #fff;
+    padding: 0.35rem 0.85rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 3px 3px 0 #1a3a5a;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+.btn-dl-small:hover {
+    box-shadow: 1px 1px 0 #1a3a5a;
+    transform: translate(2px, 2px);
+}
+.btn-fullscreen {
+    display: inline-block;
+    background: var(--slate-mid);
+    color: #fff;
+    padding: 0.35rem 0.85rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 3px 3px 0 #2a2a2a;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+.btn-fullscreen:hover {
+    box-shadow: 1px 1px 0 #2a2a2a;
+    transform: translate(2px, 2px);
+}
+
+/* ── Contenedor del emulador ── */
+#emulator-container {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #111;
+    border: 4px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+    overflow: hidden;
+    position: relative;
+}
+#game {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Controles hint ── */
+.emulator-controls-hint {
+    background: var(--cream-light);
+    border: 2px solid var(--border-mid);
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+}
+.emulator-controls-hint summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--slate);
+    user-select: none;
+}
+.controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.35rem 1.5rem;
+    margin-top: 0.75rem;
+    color: var(--slate-mid);
+}
+.controls-grid strong { color: var(--slate); }
+
+/* ── Consola no soportada ── */
+.emulator-unsupported {
+    background: var(--cream-light);
+    border: 3px solid var(--red);
+    box-shadow: var(--card-raise);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    max-width: 560px;
+    margin: 2rem auto;
+}
+.unsupported-icon  { font-size: 3rem; margin-bottom: 0.75rem; }
+.unsupported-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.8rem;
+    color: var(--red);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+.unsupported-msg {
+    color: var(--slate-mid);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+.btn-download-big {
+    display: inline-block;
+    background: var(--blue-btn);
+    color: #fff;
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 4px 4px 0 #1a3a5a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+.btn-download-big:hover {
+    box-shadow: 1px 1px 0 #1a3a5a;
+    transform: translate(3px, 3px);
+}
+
+/* ── Responsive emulador ── */
+@media (max-width: 600px) {
+    .emulator-game-meta { flex-direction: column; }
+    .emulator-cover { width: 100%; height: 180px; }
+    #emulator-container { aspect-ratio: 3 / 2; }
+    .emulator-actions { flex-direction: column; }
+    .btn-dl-small, .btn-fullscreen { width: 100%; text-align: center; }
+}
+
+/* =====================================================
+   PROXY LOAD BAR — Barra de progreso de ROM
+   ===================================================== */
+
+.proxy-load-bar {
+    background: var(--cream-light);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0;
+}
+
+.proxy-load-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--slate);
+}
+
+#proxy-load-pct {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    color: var(--red);
+    min-width: 3.5ch;
+    text-align: right;
+}
+
+.proxy-load-track {
+    width: 100%;
+    height: 18px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--inset-shadow);
+    overflow: hidden;
+    position: relative;
+}
+
+.proxy-load-fill {
+    height: 100%;
+    width: 0%;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--red)       0px,
+        var(--red)       8px,
+        var(--red-dark)  8px,
+        var(--red-dark)  16px
+    );
+    background-size: 22px 100%;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+/* Animación indeterminada (cuando no hay Content-Length) */
+.proxy-load-fill.indeterminate {
+    width: 100% !important;
+    animation: proxyIndeterminate 1.4s linear infinite;
+}
+
+@keyframes proxyIndeterminate {
+    0%   { background-position: 0 0; }
+    100% { background-position: 44px 0; }
+}
+
+.proxy-load-detail {
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--slate-mid);
+    font-family: 'Courier Prime', monospace;
+}
+
+/* ── metarow de idiomas/tamaño ── */
+.emulator-meta-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.7rem;
+    font-size: 0.8rem;
+    color: var(--slate-mid);
+}
+.emulator-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* ── Aviso de streaming (ISOs grandes) ── */
+.proxy-streaming-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    background: var(--cream-light);
+    border: 2px solid var(--amber);
+    box-shadow: 3px 3px 0 #8a6a00;
+    padding: 0.75rem 1rem;
+    font-size: 0.84rem;
+    color: var(--slate);
+    line-height: 1.5;
+}
+.streaming-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+/* ── Aviso experimental PSP ── */
+.psp-warning {
+    background: #fff8e1;
+    border: 2px solid var(--amber);
+    box-shadow: 3px 3px 0 #8a6a00;
+    padding: 0.75rem 1rem;
+    font-size: 0.84rem;
+    color: var(--slate);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+/* =====================================================
+   SLIDER DE TAMAÑO DE PANTALLA DEL EMULADOR
+   ===================================================== */
+
+.emulator-size-control {
+    background: var(--cream-light);
+    border: 2px solid var(--border-mid);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.size-control-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--slate);
+    white-space: nowrap;
+}
+
+.size-control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.size-control-min,
+.size-control-max {
+    font-size: 0.72rem;
+    color: var(--slate-light);
+    font-family: 'Courier Prime', monospace;
+    white-space: nowrap;
+}
+
+/* El slider en sí */
+#emulator-size-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    outline: none;
+    cursor: pointer;
+}
+#emulator-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--red);
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--red-dark);
+    cursor: pointer;
+}
+#emulator-size-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--red);
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--red-dark);
+    cursor: pointer;
+    border-radius: 0;
+}
+#emulator-size-slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.3), 2px 2px 0 var(--red-dark);
+}
+
+.size-control-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.58rem;
+    color: var(--red);
+    min-width: 3.5ch;
+    text-align: right;
+}
+
+/* El contenedor se centra solo con el JS,
+   pero definimos la transición aquí */
+#emulator-container {
+    transition: width 0.2s ease;
+}
+
+@media (max-width: 600px) {
+    .emulator-size-control { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .size-control-row { width: 100%; }
+}

@@ -1,0 +1,279 @@
+/* ===== ADMIN PANEL ===== */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--border-dark);
+}
+
+.admin-header h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.9rem;
+    color: var(--slate);
+    text-shadow: 2px 2px 0 var(--border-mid);
+    line-height: 1.5;
+}
+
+
+/* ===== ADMIN: ESTADÍSTICAS GLOBALES ===== */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0 2rem;
+}
+
+.stat-card {
+    background: var(--cream-light);
+    padding: 1rem 1.25rem;
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    position: relative;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px;
+    height: 2px;
+    background: rgba(255,255,255,0.45);
+    pointer-events: none;
+}
+
+.stat-label {
+    color: var(--slate-mid);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.6;
+}
+
+.stat-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1;
+    text-shadow: 2px 2px 0 var(--border-mid);
+}
+
+/* ===== ADMIN: RANKINGS ===== */
+.admin-rankings {
+    display: grid;
+    /* En desktop: 2 columnas lado a lado. En móvil: 1 sola columna */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.ranking-card {
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    padding: 1rem 1.25rem;
+    position: relative;
+    /* Nunca más ancho que su celda */
+    min-width: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.ranking-card::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px;
+    height: 2px;
+    background: rgba(255,255,255,0.45);
+    pointer-events: none;
+}
+
+.ranking-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.42rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--slate-mid);
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--border-light);
+    line-height: 1.8;
+}
+
+.ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    width: 100%;
+    overflow: hidden;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.ranking-pos {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    color: var(--slate-light);
+    width: 1.4rem;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.ranking-info {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.ranking-game {
+    display: block;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--slate);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.ranking-platform {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
+    color: var(--slate-light);
+    font-style: italic;
+}
+
+.ranking-bar-track {
+    height: 4px;
+    background: var(--cream-dark);
+    border: 1px solid var(--border-light);
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.ranking-bar-fill {
+    height: 100%;
+    background: var(--red);
+    border-right: 1px solid var(--red-dark);
+}
+
+.ranking-count {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.44rem;
+    color: var(--slate);
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: var(--cream-dark);
+    border: 1px solid var(--border-mid);
+    padding: 0.2rem 0.4rem;
+}
+
+/* ===== ADMIN: FILTROS EXTENDIDOS ===== */
+.admin-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    width: 100%;
+}
+
+.admin-filter-select {
+    padding: 0.55rem 2rem 0.55rem 0.75rem;
+    border: 2px solid var(--border-dark);
+    border-radius: 0;
+    background: var(--cream-light);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a3a3a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    color: var(--slate);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    min-width: 145px;
+    box-shadow: var(--inset-shadow);
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.admin-filter-select:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+@media (max-width: 900px) {
+    .admin-filter-form { flex-direction: column; align-items: stretch; }
+    .admin-filter-select { min-width: 100%; width: 100%; }
+    .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .admin-rankings { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .admin-stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-value { font-size: 0.9rem; }
+}
+
+
+/* ===== TABLA ADMIN ===== */
+.admin-table {
+    width: 100%;
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+    border-collapse: collapse;
+}
+
+.admin-table thead {
+    background: var(--slate);
+    color: var(--cream);
+}
+
+.admin-table th {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.42rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-table th:last-child { border-right: none; }
+
+.admin-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 2px solid var(--border-light);
+    color: var(--slate);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+
+.admin-table tbody tr:hover { background: var(--cream-dark); }
+
+.admin-table img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 2px solid var(--border-dark);
+    display: block;
+}

@@ -1,0 +1,938 @@
+/* ===== BARRA DE BÚSQUEDA ===== */
+.search-section {
+    margin-bottom: 1.5rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-form { width: 100%; }
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 1rem;
+    border: 3px solid var(--border-dark);
+    border-radius: 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: 1rem;
+    background: var(--cream-light);
+    color: var(--slate);
+    box-shadow: var(--inset-shadow);
+    transition: border-color 0.15s;
+    letter-spacing: 0.03em;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--red);
+    background: #fff;
+}
+
+.search-input::placeholder {
+    color: var(--slate-light);
+    font-style: italic;
+}
+
+.search-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 3rem;
+    background: var(--slate);
+    border: none;
+    border-left: 3px solid var(--border-dark);
+    cursor: pointer;
+    color: var(--cream);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s;
+}
+
+.search-button:hover { background: var(--red); }
+
+/* ===== FILTROS ===== */
+.filters {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--cream);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+}
+
+.filters form {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filters select {
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: 2px solid var(--border-dark);
+    border-radius: 0;
+    background: var(--cream-light);
+    color: var(--slate);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    cursor: pointer;
+    min-width: 160px;
+    box-shadow: var(--inset-shadow);
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a3a3a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-color: var(--cream-light);
+}
+
+.filters select:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+.filters button {
+    padding: 0.5rem 1.25rem;
+    background: var(--slate);
+    color: var(--cream-light);
+    border: 2px solid var(--border-dark);
+    border-radius: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    cursor: pointer;
+    box-shadow: var(--raise-shadow);
+    letter-spacing: 0.04em;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+
+.filters button:hover {
+    background: var(--red);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #6a5a38;
+}
+
+.filters button:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
+}
+
+.clear-filters {
+    padding: 0.5rem 1rem;
+    color: var(--slate-mid);
+    text-decoration: none;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    border: 2px solid var(--border-mid);
+    background: var(--cream);
+    box-shadow: 2px 2px 0 var(--border-mid);
+    transition: all 0.1s;
+    display: inline-block;
+}
+
+.clear-filters:hover {
+    color: var(--red);
+    border-color: var(--red);
+    box-shadow: 2px 2px 0 var(--red-dark);
+}
+
+
+/* ===== PAGINACIÓN ===== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 2.5rem 0 1rem;
+    flex-wrap: wrap;
+}
+
+.pagination a,
+.pagination span {
+    padding: 0.45rem 0.85rem;
+    border: 2px solid var(--border-dark);
+    background: var(--cream-light);
+    color: var(--slate);
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    min-width: 38px;
+    text-align: center;
+    box-shadow: 3px 3px 0 #8a7a58;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination a:hover {
+    background: var(--slate);
+    color: var(--cream-light);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #8a7a58;
+}
+
+.pagination-current,
+.pagination .current {
+    background: var(--red) !important;
+    color: var(--cream-light) !important;
+    border-color: var(--red-dark) !important;
+    box-shadow: 3px 3px 0 var(--red-dark) !important;
+}
+
+.pagination-info {
+    text-align: center;
+    margin-top: 0.6rem;
+    color: var(--slate-mid);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+}
+
+
+/* ===== BOTONES GLOBALES ===== */
+.btn-primary {
+    padding: 0.55rem 1.1rem;
+    background: var(--slate);
+    color: var(--cream-light);
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.04em;
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+
+.btn-primary:hover {
+    background: var(--red);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #6a5a38;
+}
+
+.btn-edit {
+    padding: 0.35rem 0.7rem;
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.42rem;
+    border: 2px solid #1e4266;
+    box-shadow: 2px 2px 0 #1e4266;
+    margin-right: 0.4rem;
+    display: inline-block;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-edit:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 #1e4266;
+}
+
+.btn-delete {
+    padding: 0.35rem 0.7rem;
+    background: var(--red);
+    color: var(--cream-light);
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.42rem;
+    border: 2px solid var(--red-dark);
+    box-shadow: 2px 2px 0 var(--red-dark);
+    display: inline-block;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-delete:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--red-dark);
+}
+
+
+/* ===== ALERTAS ===== */
+/* =====================================================
+   RVAlerts — Sistema de alertas ROMs Vault
+   Incluye: .alert legacy (compatibilidad), modal,
+            toast/notificación y alerta inline.
+   ===================================================== */
+
+/* ── Variables de color compartidas por el sistema ── */
+:root {
+    --rv-success-bg  : #e8f5ea;
+    --rv-success-fg  : #2d6a35;
+    --rv-success-brd : var(--green-ok);
+    --rv-warning-bg  : #fff8e1;
+    --rv-warning-fg  : #7a5800;
+    --rv-warning-brd : var(--amber);
+    --rv-danger-bg   : #faeaea;
+    --rv-danger-fg   : var(--red-dark);
+    --rv-danger-brd  : var(--red);
+    --rv-info-bg     : var(--cream-dark);
+    --rv-info-fg     : var(--slate-mid);
+    --rv-info-brd    : var(--blue-btn);
+}
+
+/* ── .alert legacy (compatibilidad con PHP existente) ── */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.25rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.9rem;
+    border: 2px solid;
+    border-left-width: 5px;
+}
+.alert-error, .alert-danger {
+    background: var(--rv-danger-bg);
+    color: var(--rv-danger-fg);
+    border-color: var(--rv-danger-brd);
+}
+.alert-success {
+    background: var(--rv-success-bg);
+    color: var(--rv-success-fg);
+    border-color: var(--rv-success-brd);
+}
+.alert-warning {
+    background: var(--rv-warning-bg);
+    color: var(--rv-warning-fg);
+    border-color: var(--rv-warning-brd);
+}
+.alert-info {
+    background: var(--rv-info-bg);
+    color: var(--rv-info-fg);
+    border-color: var(--rv-info-brd);
+}
+
+/* ─────────────────────────────────────────────────────
+   MODAL DE CONFIRMACIÓN
+   ───────────────────────────────────────────────────── */
+.rv-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 25, 15, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+}
+
+.rv-modal-box {
+    background: var(--cream-light);
+    border: 4px solid var(--border-dark);
+    box-shadow: 8px 8px 0 #3a3a3a;
+    width: 100%;
+    max-width: 430px;
+    font-family: 'Courier Prime', monospace;
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.rv-modal--open  { opacity: 1; transform: translateY(0) scale(1); }
+.rv-modal--close { opacity: 0; transform: translateY(10px) scale(0.97); }
+
+.rv-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem 0.85rem;
+    border-bottom: 3px solid var(--border-dark);
+    border-left: 6px solid transparent;
+}
+.rv-modal--warning .rv-modal-header { background: var(--rv-warning-bg); border-left-color: var(--rv-warning-brd); }
+.rv-modal--danger  .rv-modal-header { background: var(--rv-danger-bg);  border-left-color: var(--rv-danger-brd);  }
+.rv-modal--success .rv-modal-header { background: var(--rv-success-bg); border-left-color: var(--rv-success-brd); }
+.rv-modal--info    .rv-modal-header { background: var(--rv-info-bg);    border-left-color: var(--rv-info-brd);    }
+
+.rv-modal-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+.rv-modal--warning .rv-modal-icon { color: var(--rv-warning-brd); }
+.rv-modal--danger  .rv-modal-icon { color: var(--rv-danger-brd);  }
+.rv-modal--success .rv-modal-icon { color: var(--rv-success-brd); }
+.rv-modal--info    .rv-modal-icon { color: var(--rv-info-brd);    }
+
+.rv-modal-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.65rem;
+    color: var(--slate);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.rv-modal-body {
+    padding: 1.1rem 1.25rem 0.9rem;
+    font-size: 0.88rem;
+    color: var(--slate-mid);
+    line-height: 1.65;
+}
+.rv-modal-body strong { color: var(--slate); }
+
+.rv-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem 1.1rem;
+    border-top: 2px solid var(--border-light);
+    background: var(--cream-dark);
+}
+
+/* Botones del modal */
+.rv-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.56rem;
+    padding: 0.6rem 1.1rem;
+    border: 3px solid var(--border-dark);
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--border-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    letter-spacing: 0.03em;
+}
+.rv-btn:hover  { transform: translateY(-2px); box-shadow: 5px 5px 0 var(--border-dark); }
+.rv-btn:active { transform: translateY(1px);  box-shadow: 1px 1px 0 var(--border-dark); }
+
+.rv-btn-cancel                { background: var(--cream-light); color: var(--slate); }
+.rv-btn-cancel:hover          { background: var(--cream-dark); }
+.rv-btn--warning              { background: var(--amber);       color: #fff; }
+.rv-btn--warning:hover        { background: #9a6f09; }
+.rv-btn--danger               { background: var(--red);         color: #fff; }
+.rv-btn--danger:hover         { background: var(--red-dark); }
+.rv-btn--success              { background: var(--green-ok);    color: #fff; }
+.rv-btn--success:hover        { background: #2d6336; }
+.rv-btn--info                 { background: var(--blue-btn);    color: #fff; }
+.rv-btn--info:hover           { background: #1e4a73; }
+
+/* Botones toggle de la tabla admin */
+.btn-toggle-active {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.53rem;
+    padding: 0.28rem 0.55rem;
+    border: 2px solid var(--border-dark);
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--border-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    white-space: nowrap;
+}
+.btn-toggle-active:hover  { transform: translateY(-1px); box-shadow: 3px 3px 0 var(--border-dark); }
+.btn-toggle-active:active { transform: translateY(1px);  box-shadow: none; }
+.btn-toggle--on  { background: var(--red);      color: #fff; }
+.btn-toggle--off { background: var(--green-ok); color: #fff; }
+
+/* ─────────────────────────────────────────────────────
+   TOAST — notificación flotante
+   ───────────────────────────────────────────────────── */
+.rv-toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+.rv-toast {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: var(--slate);
+    color: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: 4px 4px 0 var(--border-dark);
+    padding: 0.7rem 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    min-width: 240px;
+    max-width: 360px;
+    pointer-events: all;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.25s, transform 0.25s;
+}
+.rv-toast--visible { opacity: 1; transform: translateX(0); }
+.rv-toast--hide    { opacity: 0; transform: translateX(30px); }
+
+.rv-toast--success { border-left: 5px solid var(--rv-success-brd); }
+.rv-toast--warning { border-left: 5px solid var(--rv-warning-brd); }
+.rv-toast--danger  { border-left: 5px solid var(--rv-danger-brd);  }
+.rv-toast--info    { border-left: 5px solid var(--rv-info-brd);    }
+
+.rv-toast-icon { font-size: 1.05rem; flex-shrink: 0; }
+.rv-toast--success .rv-toast-icon { color: #6fcf7a; }
+.rv-toast--warning .rv-toast-icon { color: #f0c040; }
+.rv-toast--danger  .rv-toast-icon { color: #e88080; }
+.rv-toast--info    .rv-toast-icon { color: #7ab8f0; }
+
+.rv-toast-msg   { flex: 1; line-height: 1.4; }
+.rv-toast-close {
+    background: none;
+    border: none;
+    color: var(--slate-light);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0 0.2rem;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+.rv-toast-close:hover { color: var(--cream-light); }
+
+/* ─────────────────────────────────────────────────────
+   ALERTA INLINE
+   ───────────────────────────────────────────────────── */
+.rv-inline-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.1rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    border: 2px solid;
+    border-left-width: 5px;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.2s, transform 0.2s;
+}
+.rv-inline--visible { opacity: 1; transform: translateY(0); }
+.rv-inline--hide    { opacity: 0; transform: translateY(-6px); }
+
+.rv-inline--success { background: var(--rv-success-bg); color: var(--rv-success-fg); border-color: var(--rv-success-brd); }
+.rv-inline--warning { background: var(--rv-warning-bg); color: var(--rv-warning-fg); border-color: var(--rv-warning-brd); }
+.rv-inline--danger  { background: var(--rv-danger-bg);  color: var(--rv-danger-fg);  border-color: var(--rv-danger-brd);  }
+.rv-inline--info    { background: var(--rv-info-bg);    color: var(--rv-info-fg);    border-color: var(--rv-info-brd);    }
+
+.rv-inline-icon  { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+.rv-inline-msg   { flex: 1; }
+.rv-inline-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: inherit;
+    opacity: 0.6;
+    padding: 0 0.2rem;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+}
+.rv-inline-close:hover { opacity: 1; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .rv-modal-box       { max-width: 98vw; }
+    .rv-modal-title     { font-size: 0.55rem; }
+    .rv-btn             { font-size: 0.48rem; padding: 0.5rem 0.8rem; }
+    .rv-toast-container { right: 0.5rem; bottom: 0.5rem; }
+    .rv-toast           { min-width: unset; max-width: calc(100vw - 1rem); }
+}
+
+
+
+/* ===================================================
+   AUTOCOMPLETADO — Buscador
+   =================================================== */
+
+.autocomplete-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    z-index: 1000;
+    max-height: 380px;
+    overflow-y: auto;
+    display: none;
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    border-bottom: 2px solid var(--border-light);
+    cursor: pointer;
+    transition: background 0.1s;
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover,
+.autocomplete-item--active {
+    background: var(--cream-dark);
+}
+
+.ac-cover {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 1.2rem;
+}
+.ac-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ac-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.ac-titulo {
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--slate);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ac-consola {
+    font-size: 0.65rem;
+    color: var(--slate-light);
+    font-family: 'Press Start 2P', monospace;
+}
+
+.ac-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+.ac-btn-play,
+.ac-btn-dl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border-dark);
+    font-size: 0.7rem;
+    text-decoration: none;
+    transition: background 0.15s;
+    color: var(--slate);
+}
+.ac-btn-play { background: var(--red); color: #fff; }
+.ac-btn-play:hover { background: var(--red-dark); }
+.ac-btn-dl  { background: var(--cream-dark); }
+.ac-btn-dl:hover { background: var(--border-mid); }
+
+
+/* ===================================================
+   BOTÓN COMPARTIR + TOAST
+   =================================================== */
+
+.btn-share {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1rem;
+    background: var(--blue-btn);
+    color: #fff;
+    border: 3px solid var(--border-dark);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    cursor: pointer;
+    box-shadow: var(--raise-shadow);
+    transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
+}
+.btn-share:hover {
+    background: #1e4a73;
+    transform: translateY(-2px);
+    box-shadow: var(--raise-shadow-lg);
+}
+.btn-share:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.share-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--slate);
+    color: var(--cream-light);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.9rem;
+    padding: 0.65rem 1.4rem;
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 9999;
+    white-space: nowrap;
+}
+.share-toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 600px) {
+    .related-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+    .related-title { font-size: 0.6rem; }
+    .btn-share { font-size: 0.5rem; padding: 0.45rem 0.8rem; }
+}
+
+
+/* =====================================================
+   PIXELARTICONS — Sistema de iconos pixel art
+   https://pixelarticons.com — MIT License
+   ===================================================== */
+
+/* ── Base SVG icon ────────────────────────────────── */
+.pxi {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    /* Sin antialiasing: mantiene el look pixel nítido */
+    shape-rendering: crispEdges;
+    image-rendering: pixelated;
+}
+
+/* Placeholder de cover: disco centrado */
+.pxi-cover-placeholder {
+    width: 40%;
+    height: 40%;
+    opacity: 0.45;
+    display: block;
+    margin: auto;
+}
+
+/* Iconos en alertas */
+.pxi-alert {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+}
+
+/* Icono subtitle (play pequeño) */
+.pxi-subtitle {
+    width: 0.85em;
+    height: 0.85em;
+    position: relative;
+    top: -1px;
+    margin-right: 0.25em;
+}
+
+/* ── game-cover placeholder centrado ─────────────── */
+.game-cover.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.game-cover.no-image i[data-i],
+.game-cover.no-image svg.pxi {
+    width: 42%;
+    height: 42%;
+    opacity: 0.4;
+    display: block;
+}
+
+/* ── related cover placeholder ───────────────────── */
+.related-cover.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.related-cover.no-image i[data-i],
+.related-cover.no-image svg.pxi {
+    width: 50%;
+    height: 50%;
+    opacity: 0.4;
+}
+
+/* ── emulator cover placeholder ──────────────────── */
+.emulator-cover--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.emulator-cover--placeholder svg.pxi {
+    width: 60%;
+    height: 60%;
+    opacity: 0.4;
+}
+
+/* ── search button icon ──────────────────────────── */
+.search-button svg.pxi,
+.search-button i[data-i] {
+    display: block;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+/* ── nav icons ───────────────────────────────────── */
+nav a svg.pxi {
+    width: 14px;
+    height: 14px;
+    margin-right: 0.4em;
+    position: relative;
+    top: -1px;
+}
+
+/* ── game action buttons ─────────────────────────── */
+.game-play,
+.game-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+}
+.game-play svg.pxi,
+.game-download svg.pxi {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+}
+
+/* ── autocomplete action icons ───────────────────── */
+.ac-btn-play svg.pxi,
+.ac-btn-dl svg.pxi {
+    width: 13px;
+    height: 13px;
+    vertical-align: middle;
+}
+
+/* ── error page big icon ─────────────────────────── */
+.proxy-error-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1rem; /* reset emoji */
+}
+.proxy-error-icon svg.pxi {
+    width: 52px;
+    height: 52px;
+    opacity: 0.7;
+}
+
+/* ── tip label icon ──────────────────────────────── */
+.proxy-tip-label svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}
+
+/* ── related section title icon ──────────────────── */
+.related-title-icon svg.pxi {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+/* ── emulator meta icons ─────────────────────────── */
+.emulator-meta-item svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+    flex-shrink: 0;
+}
+
+/* ── streaming notice icon ───────────────────────── */
+.streaming-icon svg.pxi {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+/* ── btn icons ───────────────────────────────────── */
+.btn-primary svg.pxi,
+.btn-secondary svg.pxi,
+.btn-primary i[data-i],
+.btn-secondary i[data-i] {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+    flex-shrink: 0;
+    position: relative;
+    top: -1px;
+}
+
+/* ── form file input icon ────────────────────────── */
+.file-input-btn svg.pxi {
+    width: 13px;
+    height: 13px;
+    margin-right: 0.35em;
+    vertical-align: middle;
+}
+
+/* ── alert system icons ──────────────────────────── */
+.rv-inline-icon,
+.rv-toast-icon,
+.rv-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.rv-inline-icon svg.pxi,
+.rv-toast-icon svg.pxi {
+    width: 16px;
+    height: 16px;
+}
+.rv-modal-icon svg.pxi {
+    width: 22px;
+    height: 22px;
+}
+/* Close buttons in alerts */
+.rv-toast-close svg.pxi,
+.rv-inline-close svg.pxi {
+    width: 10px;
+    height: 10px;
+}
+
+/* ── warning icon in edit form ───────────────────── */
+p svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.25em;
+}
+
+/* ── paginación icons ────────────────────────────── */
+.pagination-link svg.pxi {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+}
+
+/* ── loading bar text icon ───────────────────────── */
+#proxy-load-text svg.pxi {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}

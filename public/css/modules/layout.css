@@ -1,0 +1,220 @@
+/* ===== LAYOUT ===== */
+/* Evita desbordamiento horizontal en CUALQUIER pantalla */
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.container {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* ===== HEADER ===== */
+header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 4px solid var(--border-dark);
+    position: relative;
+}
+
+header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: var(--border-mid);
+    margin-top: 4px;
+}
+
+header h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.6rem;
+    color: var(--slate);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.02em;
+    text-shadow: 3px 3px 0 var(--border-mid);
+    line-height: 1.4;
+}
+
+header .subtitle {
+    font-family: 'Courier Prime', monospace;
+    color: var(--slate-mid);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+nav a {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--cream-light);
+    text-decoration: none;
+    background: var(--slate);
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    letter-spacing: 0.04em;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    display: inline-block;
+}
+
+nav a:hover {
+    background: var(--red);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--red-dark);
+}
+
+
+/* ===== FOOTER ===== */
+footer {
+    margin-top: 4rem;
+    padding: 1.5rem 0;
+    border-top: 4px solid var(--border-dark);
+    text-align: center;
+    position: relative;
+}
+
+footer::before {
+    content: '';
+    display: block;
+    height: 2px;
+    background: var(--border-mid);
+    margin-bottom: 4px;
+    margin-top: -6px;
+}
+
+.footer-content {
+    color: var(--slate-mid);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.footer-note {
+    margin-top: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--slate-light);
+    font-style: italic;
+}
+
+
+/* =====================================================
+   HEADER BRAND — Logo + título en línea
+   ===================================================== */
+
+/* Desactivar el layout anterior del header */
+header h1 { margin-bottom: 0; }
+header .subtitle { margin-bottom: 1.2rem; }
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.2rem;
+}
+
+/* Logo wrapper: marco pixel art retro */
+.header-logo-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-decoration: none;
+    /* Marco estilo Game Boy */
+    border: 3px solid var(--border-dark);
+    box-shadow: 3px 3px 0 #5a4a28, 5px 5px 0 #3a2a10;
+    background: #0d0f1a; /* fondo oscuro tipo pantalla */
+    padding: 5px;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.header-logo-link:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #5a4a28;
+}
+
+.header-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+    /* Preserva la estética pixelada del logo */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.header-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.header-brand-text h1 { margin-bottom: 0; }
+.header-brand-text .subtitle { margin-bottom: 0; }
+
+/* Subtitle con icono play */
+.subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.subtitle svg.pxi {
+    margin-right: 0.4em;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--red);
+}
+
+/* ── Responsive header brand ─────────────────────── */
+@media (max-width: 576px) {
+    .header-brand { gap: 0.6rem; margin-bottom: 0.9rem; }
+    .header-logo  { width: 42px; height: 42px; }
+    .header-logo-link { padding: 3px; }
+    .header-brand-text h1 { font-size: 0.82rem; }
+    .header-brand-text .subtitle { font-size: 0.65rem; }
+    nav a svg.pxi { width: 11px; height: 11px; margin-right: 0.3em; }
+}
+
+@media (max-width: 360px) {
+    .header-logo  { width: 34px; height: 34px; }
+    .header-brand { gap: 0.4rem; }
+}
+
+/* ── Cabecera del formulario (título + botón Volver) ── */
+.form-container-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--border-dark);
+    flex-wrap: wrap;
+    gap: .8rem;
+}
+
+.form-container-header h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.72rem;
+    color: var(--slate);
+    text-shadow: 2px 2px 0 var(--border-mid);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ── Grupo de acciones en el admin-header (botones múltiples) ── */
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
