@@ -913,83 +913,157 @@
 }
 
 /* =====================================================
-   GAME DETAIL PAGE � Ficha individual
+   GAME DETAIL PAGE — Ficha individual (v2)
    ===================================================== */
 
+/* ── Page wrapper ── */
 .game-detail-page {
-    max-width: 1000px;
+    max-width: 1060px;
     margin: 0 auto;
-    padding: 1rem 0;
+    padding: 0.5rem 0 2rem;
 }
 
-.detail-actions-top {
+/* ── Back link ── */
+.detail-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--slate-mid);
+    text-decoration: none;
     margin-bottom: 1.5rem;
+    padding: 0.3rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+}
+.detail-back-link:hover {
+    color: var(--red);
+    border-bottom-color: var(--red);
+}
+.detail-back-link svg.pxi {
+    width: 14px;
+    height: 14px;
 }
 
-.game-detail-container {
-    display: flex;
-    gap: 2rem;
+/* ── Hero: cover + info side by side ── */
+.game-detail-hero {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2.5rem;
     background: var(--cream-light);
     border: 4px solid var(--border-dark);
     box-shadow: var(--raise-shadow-lg);
     padding: 2rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+.game-detail-hero::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px;
+    height: 3px;
+    background: rgba(255,255,255,0.4);
+    pointer-events: none;
 }
 
-.game-detail-cover {
+/* ── Cover with CRT-style frame ── */
+.detail-cover-frame {
+    position: relative;
+    background: #0a0a0a;
+    border: 3px solid var(--border-dark);
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.6),
+        0 0 0 2px var(--border-mid);
+    overflow: hidden;
     flex-shrink: 0;
-    width: 300px;
-    background: var(--cream-dark);
-    border: 3px solid var(--border-mid);
-    padding: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
+    min-height: 360px;
+}
+.detail-cover-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.06) 0%,
+        transparent 50%,
+        rgba(0,0,0,0.15) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
 }
 
-.game-detail-cover:hover {
-    transform: scale(1.02);
+.detail-cover-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.12) 2px,
+        rgba(0,0,0,0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 3;
 }
 
-.game-detail-cover img {
+.detail-cover-img {
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover;
     display: block;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+    image-rendering: auto;
 }
 
-.no-image-detail {
+.detail-cover-placeholder {
     width: 100%;
-    height: 400px;
+    height: 360px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 5rem;
-    color: var(--border-light);
+    background: var(--slate);
+    position: relative;
+    z-index: 1;
+}
+.detail-cover-placeholder svg.pxi {
+    width: 64px;
+    height: 64px;
+    opacity: 0.3;
 }
 
-.game-detail-info {
-    flex-grow: 1;
+/* ── Info panel ── */
+.detail-info-panel {
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ── Title block ── */
+.detail-title-block {
+    padding-bottom: 1.25rem;
+    border-bottom: 3px solid var(--border-dark);
 }
 
 .detail-title {
     font-family: 'Press Start 2P', monospace;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     color: var(--slate);
-    margin-bottom: 1rem;
-    line-height: 1.4;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
     text-shadow: 2px 2px 0 var(--border-light);
+    word-break: break-word;
 }
 
 .detail-tags {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-    margin-bottom: 1.5rem;
 }
 
 .detail-tags .tag {
@@ -997,136 +1071,288 @@
     font-size: 0.75rem;
 }
 
-.detail-metadata {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
+/* ── Spec sheet (metadata) ── */
+.detail-spec-sheet {
     background: var(--cream-dark);
     border: 2px solid var(--border-light);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.meta-item {
+    padding: 1rem 1.25rem;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0;
 }
 
-.meta-label {
+.spec-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dotted var(--border-light);
+}
+.spec-row:last-child {
+    border-bottom: none;
+}
+
+.spec-label {
     font-family: 'Press Start 2P', monospace;
-    font-size: 0.45rem;
+    font-size: 0.42rem;
     color: var(--slate-mid);
     text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.04em;
 }
 
-.meta-value {
+.spec-dots {
+    flex: 1;
+    border-bottom: 2px dotted var(--border-mid);
+    min-width: 1.5rem;
+    position: relative;
+    top: -3px;
+    opacity: 0.5;
+}
+
+.spec-value {
     font-family: 'Courier Prime', monospace;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 700;
     color: var(--slate);
+    text-align: right;
+    white-space: nowrap;
 }
 
-.detail-stats {
-    display: flex;
-    gap: 1.5rem;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    color: var(--slate-mid);
-    margin-bottom: 1.5rem;
+.spec-value--code {
+    font-size: 0.82rem;
+    background: var(--cream-light);
+    border: 1px solid var(--border-mid);
+    padding: 0.1rem 0.45rem;
+    letter-spacing: 0.06em;
 }
 
-.detail-actions {
+/* ── Stats bar ── */
+.detail-stats-bar {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--slate-mid);
+    background: var(--cream-dark);
+    border: 2px solid var(--border-light);
+    padding: 0.35rem 0.75rem;
+}
+.stat-chip svg.pxi {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: var(--slate-light);
+}
+
+/* ── Action buttons ── */
+.detail-actions {
+    display: flex;
+    gap: 0.85rem;
     margin-top: auto;
     flex-wrap: wrap;
 }
 
-.btn-play-large, .btn-download-large {
-    padding: 0.8rem 1.5rem;
-    font-size: 0.7rem;
-    font-family: 'Press Start 2P', monospace;
-    text-align: center;
-    flex: 1;
-    min-width: 200px;
-    border: 3px solid var(--border-dark);
-    box-shadow: 4px 4px 0 var(--border-dark);
-    text-decoration: none;
-    color: #fff;
-    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
-    letter-spacing: 0.04em;
+.detail-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
+    padding: 0.85rem 1.6rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: #fff;
+    flex: 1;
+    min-width: 180px;
+    border: 3px solid var(--border-dark);
+    box-shadow: 5px 5px 0 var(--border-dark);
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    cursor: pointer;
+    position: relative;
+}
+.detail-btn::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px;
+    height: 2px;
+    background: rgba(255,255,255,0.25);
+    pointer-events: none;
 }
 
-.btn-play-large:hover, .btn-download-large:hover {
-    transform: translate(2px, 2px);
+.detail-btn:hover {
+    transform: translate(3px, 3px);
     box-shadow: 2px 2px 0 var(--border-dark);
 }
-
-.btn-play-large { background: var(--red); }
-.btn-play-large:hover { background: var(--red-dark); }
-.btn-download-large { background: var(--blue-btn); }
-.btn-download-large:hover { background: #1e4a73; }
-    padding: 0.8rem 1.5rem;
-    font-size: 0.85rem;
-    text-align: center;
-    flex: 1;
-    min-width: 200px;
+.detail-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
 }
 
-.game-detail-synopsis {
+.detail-btn--play {
+    background: var(--red);
+}
+.detail-btn--play:hover {
+    background: var(--red-dark);
+}
+
+.detail-btn--download {
+    background: var(--blue-btn);
+}
+.detail-btn--download:hover {
+    background: #1e4a73;
+}
+
+.detail-btn svg.pxi {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+/* ── Synopsis section ── */
+.detail-synopsis {
     background: var(--cream-light);
     border: 3px solid var(--border-dark);
     box-shadow: var(--card-raise);
     padding: 2rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+.detail-synopsis::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.4);
+    pointer-events: none;
 }
 
-.game-detail-synopsis h2, .related-games-section h2 {
+.detail-section-title {
     font-family: 'Press Start 2P', monospace;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--red);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     text-shadow: 2px 2px 0 var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid var(--border-dark);
+}
+.detail-section-title svg.pxi {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
-.synopsis-content {
+.detail-synopsis-content {
     font-family: 'Courier Prime', monospace;
     font-size: 1rem;
-    line-height: 1.7;
+    line-height: 1.8;
     color: var(--slate);
+    column-count: 1;
 }
 
-.related-games-section {
-    margin-top: 2rem;
-}
-
-@media (max-width: 768px) {
-    .game-detail-container {
-        flex-direction: column;
+/* ── Responsive ── */
+@media (max-width: 860px) {
+    .game-detail-hero {
+        grid-template-columns: 1fr;
         padding: 1.5rem;
     }
-    
-    .game-detail-cover {
-        width: 100%;
-        max-width: 350px;
+
+    .detail-cover-frame {
+        max-width: 360px;
         margin: 0 auto;
+        width: 100%;
+        min-height: auto;
     }
-    
+    .detail-cover-img {
+        aspect-ratio: 3 / 4;
+    }
+    .detail-cover-placeholder {
+        height: 300px;
+    }
+
+    .detail-title {
+        font-size: 1.05rem;
+        text-align: center;
+    }
+
+    .detail-title-block {
+        text-align: center;
+    }
+
+    .detail-tags {
+        justify-content: center;
+    }
+
     .detail-actions {
         flex-direction: column;
     }
-    
-    .detail-title {
-        font-size: 1.1rem;
-        text-align: center;
+    .detail-btn {
+        min-width: unset;
+        width: 100%;
     }
-    
-    .detail-tags, .detail-stats {
-        justify-content: center;
+}
+
+@media (max-width: 576px) {
+    .game-detail-hero {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+
+    .detail-cover-frame {
+        max-width: 280px;
+    }
+    .detail-cover-placeholder {
+        height: 240px;
+    }
+
+    .detail-title {
+        font-size: 0.9rem;
+    }
+
+    .detail-spec-sheet {
+        padding: 0.75rem 1rem;
+    }
+
+    .spec-label {
+        font-size: 0.36rem;
+    }
+    .spec-value {
+        font-size: 0.82rem;
+    }
+
+    .detail-stats-bar {
+        gap: 0.5rem;
+    }
+    .stat-chip {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.55rem;
+    }
+
+    .detail-btn {
+        font-size: 0.5rem;
+        padding: 0.7rem 1rem;
+    }
+
+    .detail-synopsis {
+        padding: 1.25rem;
+    }
+    .detail-section-title {
+        font-size: 0.7rem;
+    }
+    .detail-synopsis-content {
+        font-size: 0.9rem;
     }
 }
