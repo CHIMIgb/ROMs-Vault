@@ -24,3 +24,8 @@ Las tarjetas de juegos relacionados mostraban la región y la consola **tres vec
 - El cover ahora queda limpio: solo la imagen (o placeholder) con el marco CRT y scanline
 - La grilla `auto-fill, minmax(150px, 1fr)` absorbe el nuevo ancho: en pantallas amplias caben las mismas columnas y en tamaños medios una menos pero más respirable
 - Se evitó CSS muerto en el código para mantener el módulo `game-grid.css` sin reglas huérfanas
+
+## Ajuste posterior: 5 columnas fijas
+- Se reemplazó `repeat(auto-fill, minmax(150px, 1fr))` por `repeat(5, 1fr)` en `.related-grid`
+- Con `auto-fill` y el ancho del contenedor el navegador cabía 6 columnas; ahora el grid de escritorio muestra exactamente 5 por fila (los 8 relacionados quedan en 5 + 3)
+- El breakpoint móvil (≤576px → 2 columnas) en `responsive.css` no se tocó
