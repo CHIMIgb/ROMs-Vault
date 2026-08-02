@@ -398,7 +398,67 @@
 }
 .related-card:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #8a7a58, 7px 7px 0 #6a5a38;
+    box-shadow:
+        6px 6px 0 #8a7a58,
+        7px 7px 0 #6a5a38,
+        0 0 16px rgba(192, 57, 43, 0.28);
+}
+/* ── Hover retro "cartucho encendido" ──
+   La portada se enciende como una pantalla CRT: brillo y contraste,
+   scanlines más visibles y un barrido de power-on de una sola pasada. */
+.related-card:hover .related-cover {
+    filter: brightness(1.08) contrast(1.06);
+}
+.related-card:hover .related-cover::after {
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.14) 0px,
+            rgba(0, 0, 0, 0.14) 1px,
+            transparent 1px,
+            transparent 3px
+        ),
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            transparent 45%,
+            rgba(0, 0, 0, 0.18) 100%
+        );
+}
+/* Barrido de brillo: banda que cruza la portada al entrar el cursor */
+.related-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.14) 50%,
+        transparent 100%
+    );
+    transform: translateY(-110%);
+    opacity: 0;
+}
+.related-card:hover .related-cover::before {
+    animation: relatedPowerOn 0.55s ease-out 1;
+}
+@keyframes relatedPowerOn {
+    0%   { transform: translateY(-110%); opacity: 0; }
+    15%  { opacity: 1; }
+    100% { transform: translateY(110%); opacity: 0; }
+}
+/* Título: señal de "seleccionado" en el acento de la app */
+.related-card:hover .related-game-title {
+    color: var(--red);
+}
+/* Sin movimiento si el usuario lo prefiere: solo efectos estáticos */
+@media (prefers-reduced-motion: reduce) {
+    .related-card:hover .related-cover::before {
+        animation: none;
+        opacity: 0;
+    }
 }
 
 /* ── Portada: marco + scanline CRT ── */
@@ -413,6 +473,7 @@
     font-size: 2.5rem;
     overflow: hidden;
     border-bottom: 2px solid var(--border-mid);
+    transition: filter 0.15s;
 }
 .related-cover.no-image {
     display: flex;
@@ -443,6 +504,7 @@
     );
     pointer-events: none;
     z-index: 1;
+    transition: background 0.2s;
 }
 
 /* ── Info: título + tags tipo sello ── */
@@ -462,6 +524,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: calc(0.74rem * 1.35 * 2);
+    transition: color 0.15s;
 }
 .related-game-meta {
     display: flex;
