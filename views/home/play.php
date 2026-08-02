@@ -3,18 +3,6 @@
 // Variables: $juego, $core, $romUrl, $biosUrl, $needsThreads, $modoStreaming, $error
 ?>
 
-<!-- Breadcrumb / Back -->
-<div class="play-nav">
-    <a href="index.php?controller=home&action=index" class="btn-back">
-        <i data-i="arrow-left"></i> Volver al Catálogo
-    </a>
-    <span class="play-nav-sep">|</span>
-    <span class="play-nav-title">
-        <?= htmlspecialchars($juego['titulo']) ?>
-        &nbsp;<span class="play-nav-platform">[<?= htmlspecialchars($juego['consola_nombre'] ?? 'Unknown') ?>]</span>
-    </span>
-</div>
-
 <?php
 // ── Determinar si hay cualquier tipo de error que bloquee el emulador ────────
 $hayError = !empty($error) || !empty($proxyError);

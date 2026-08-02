@@ -241,7 +241,6 @@
     .emulator-cover { width: 100%; height: 150px; }
     .emulator-actions { flex-direction: column; }
     .btn-dl-small, .btn-fullscreen { width: 100%; text-align: center; }
-    .play-nav { font-size: 0.78rem; gap: 0.5rem; }
     #emulator-container { aspect-ratio: 3 / 2; }
     .emulator-size-control { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .size-control-row { width: 100%; }
