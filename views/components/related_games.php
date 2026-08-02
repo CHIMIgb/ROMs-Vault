@@ -27,17 +27,17 @@ foreach ($relacionados as $rel) {
     }
 }
 
-$renderRel = function (array $items, string $titulo, string $subtitulo, string $icon) {
+$renderRel = function (array $items, string $titulo, string $subtitulo, string $icon, string $variant) {
     if (empty($items)) {
         return;
     }
     ?>
-    <section class="related-section related-subsection">
+    <section class="related-section related-subsection related-section--<?= $variant ?>">
         <h2 class="related-title">
             <span class="related-title-icon"><i data-i="<?= $icon ?>" aria-hidden="true"></i></span>
-            <?= $titulo ?>
+            <span class="related-title-text"><?= $titulo ?></span>
             <?php if ($subtitulo !== ''): ?>
-                <span class="related-title-sub">— <?= htmlspecialchars($subtitulo) ?></span>
+                <span class="related-title-sub"><?= htmlspecialchars($subtitulo) ?></span>
             <?php endif; ?>
         </h2>
         <div class="related-grid">
@@ -78,11 +78,13 @@ $renderRel(
     $mismaConsola,
     'Más de ' . ($juego['consola_nombre'] ?? 'la consola'),
     $juego['consola_nombre'] ?? '',
-    'gamepad'
+    'gamepad',
+    'consola'
 );
 $renderRel(
     $mismoGenero,
     'Géneros similares',
     $juego['categoria_nombre'] ?? '',
-    'disc'
+    'disc',
+    'genero'
 );

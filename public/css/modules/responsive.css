@@ -233,7 +233,9 @@
 
     /* ─── Juegos relacionados ─── */
     .related-section { padding: 0; }
-    .related-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .related-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    .related-title { font-size: 0.6rem; }
+    .related-title-sub { font-size: 0.5rem; padding: 0.16rem 0.4rem; }
 
     /* ─── Emulador ─── */
     .emulator-game-meta { flex-direction: column; }
