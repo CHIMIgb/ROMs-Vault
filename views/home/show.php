@@ -17,6 +17,23 @@ $esNuevo = !empty($juego['created_at'])
 $formato = strtoupper(trim($juego['formato_imagen'] ?? ''));
 $esImagenDisco = in_array($formato, ['ISO', 'BIN/CUE', 'ISP'], true);
 
+// ── Idiomas disponibles ──
+// La BD guarda una lista separada por comas (y en datos antiguos, por puntos);
+// se normaliza: recorte, mayúscula inicial y dedupe sin importar mayúsculas,
+// preservando el orden original (el primer idioma suele ser el principal).
+$idiomas = [];
+if (!empty($juego['idiomas'])) {
+    $vistos = [];
+    foreach (preg_split('/[,.;]/u', $juego['idiomas']) as $idioma) {
+        $idioma = trim($idioma);
+        if ($idioma === '') continue;
+        $clave = strtolower($idioma);
+        if (isset($vistos[$clave])) continue;
+        $vistos[$clave] = true;
+        $idiomas[] = ucfirst($idioma);
+    }
+}
+
 // Pasos de instalación del emulador recomendado
 $pasosLocales = [];
 if ($emuladorLocal) {
@@ -108,6 +125,21 @@ if ($emuladorLocal) {
                     <span><?= htmlspecialchars($juego['consola_nombre']) ?></span>
                     <span><?= htmlspecialchars($juego['region'] ?? 'ALL') ?></span>
                     <span><?= htmlspecialchars($juego['formato_imagen'] ?? 'ROM') ?></span>
+                </div>
+            <?php endif; ?>
+
+            <!-- Idiomas disponibles -->
+            <?php if (!empty($idiomas)): ?>
+                <div class="detail-languages" aria-label="Idiomas disponibles">
+                    <span class="detail-languages-label">
+                        <i data-i="globe" aria-hidden="true"></i>
+                        <span>Idiomas</span>
+                    </span>
+                    <span class="detail-languages-list">
+                        <?php foreach ($idiomas as $idioma): ?>
+                            <span class="language-tag"><?= htmlspecialchars($idioma) ?></span>
+                        <?php endforeach; ?>
+                    </span>
                 </div>
             <?php endif; ?>
 

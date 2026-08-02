@@ -1219,6 +1219,10 @@
         justify-content: center;
     }
 
+    .detail-languages {
+        justify-content: center;
+    }
+
     .detail-actions {
         flex-direction: column;
     }
@@ -1243,6 +1247,14 @@
 
     .detail-title {
         font-size: 0.9rem;
+    }
+
+    .language-tag {
+        font-size: 0.32rem;
+        padding: 0.22rem 0.4rem;
+    }
+    .detail-languages-label {
+        font-size: 0.4rem;
     }
 
     .detail-spec-sheet {
@@ -1558,6 +1570,48 @@
     box-shadow: var(--card-raise);
     white-space: nowrap;
     overflow: hidden;
+}
+
+/* ── Idiomas ── */
+.detail-languages {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.detail-languages-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate-light);
+    flex-shrink: 0;
+}
+.detail-languages-label svg.pxi {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: var(--red);
+}
+.detail-languages-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.language-tag {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.36rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cream-light);
+    background: var(--slate);
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--border-dark);
+    padding: 0.28rem 0.5rem;
 }
 
 /* ── Título con año de lanzamiento ── */
