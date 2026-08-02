@@ -397,26 +397,27 @@
     z-index: 2;
 }
 .related-card:hover {
-    transform: translate(-2px, -2px);
+    transform: translate(-3px, -3px);
     box-shadow:
-        6px 6px 0 #8a7a58,
-        7px 7px 0 #6a5a38,
-        0 0 16px rgba(192, 57, 43, 0.28);
+        8px 8px 0 #8a7a58,
+        9px 9px 0 #6a5a38,
+        0 0 18px rgba(192, 57, 43, 0.45),
+        0 0 32px rgba(192, 57, 43, 0.22);
 }
 /* ── Hover retro "cartucho encendido" ──
    La portada se enciende como una pantalla CRT: brillo y contraste,
    scanlines más visibles y un barrido de power-on de una sola pasada. */
 .related-card:hover .related-cover {
-    filter: brightness(1.08) contrast(1.06);
+    filter: brightness(1.12) contrast(1.1) saturate(1.12);
 }
 .related-card:hover .related-cover::after {
     background:
         repeating-linear-gradient(
             0deg,
-            rgba(0, 0, 0, 0.14) 0px,
-            rgba(0, 0, 0, 0.14) 1px,
+            rgba(0, 0, 0, 0.22) 0px,
+            rgba(0, 0, 0, 0.22) 1px,
             transparent 1px,
-            transparent 3px
+            transparent 2px
         ),
         linear-gradient(
             135deg,
@@ -435,7 +436,7 @@
     background: linear-gradient(
         180deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.14) 50%,
+        rgba(255, 255, 255, 0.22) 50%,
         transparent 100%
     );
     transform: translateY(-110%);
@@ -452,6 +453,7 @@
 /* Título: señal de "seleccionado" en el acento de la app */
 .related-card:hover .related-game-title {
     color: var(--red);
+    text-shadow: 1px 1px 0 var(--border-light);
 }
 /* Sin movimiento si el usuario lo prefiere: solo efectos estáticos */
 @media (prefers-reduced-motion: reduce) {
