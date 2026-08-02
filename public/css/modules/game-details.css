@@ -511,21 +511,16 @@
 }
 .emulator-game-meta {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 1.25rem;
+    align-items: flex-start;
 }
 .emulator-cover {
-    width: 140px;
-    height: 140px;
+    width: 90px;
+    height: 90px;
     object-fit: cover;
     border: 2px solid var(--border-mid);
     flex-shrink: 0;
     background: var(--cream-dark);
-}
-.emulator-game-details {
-    width: 100%;
-    text-align: center;
 }
 .emulator-cover--placeholder {
     display: flex;
@@ -545,7 +540,6 @@
     gap: 0.4rem;
     flex-wrap: wrap;
     margin-bottom: 0.6rem;
-    justify-content: center;
 }
 .emulator-description {
     font-size: 0.82rem;
@@ -557,7 +551,6 @@
     display: flex;
     gap: 0.6rem;
     flex-wrap: wrap;
-    justify-content: center;
 }
 .btn-dl-small {
     display: inline-block;
@@ -760,7 +753,6 @@
     margin-bottom: 0.7rem;
     font-size: 0.8rem;
     color: var(--slate-mid);
-    justify-content: center;
 }
 .emulator-meta-item {
     display: flex;
