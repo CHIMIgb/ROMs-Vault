@@ -362,21 +362,6 @@
     min-width: 0;
 }
 
-/* Subtítulo como sello pixel (sin em-dash) */
-.related-title-sub {
-    display: inline-block;
-    font-family: 'Courier Prime', monospace;
-    font-weight: 700;
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--slate-mid);
-    background: var(--cream-dark);
-    border: 2px solid var(--border-mid);
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
-    padding: 0.2rem 0.5rem;
-}
-
 /* Variantes de sección: misma consola (azul) vs mismo género (slate) */
 .related-section--genero .related-title-icon { background: var(--slate); }
 

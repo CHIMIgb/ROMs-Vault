@@ -36,3 +36,9 @@ Las recomendaciones de juegos relacionados se dividen en dos secciones: "Más de
 ## Ajuste posterior: 5 y 5
 - La llamada a `getRelated()` en `views/components/related_games.php` pasó de `8` a `10` juegos
 - Con la división 50/50 del modelo, cada sección recibe 5: 5 de la misma consola + 5 del mismo género, una fila completa del grid de 5 columnas
+
+## Ajuste posterior: títulos de sección sin repeticiones
+- Se eliminó el parámetro `$subtitulo` de `$renderRel` en `views/components/related_games.php`
+- Sección de consola: título "Más de [consola]" sin el subtítulo en recuadro que repetía el nombre de la consola
+- Sección de género: título "Géneros similares" → "Juegos relacionados", sin el subtítulo que repetía la categoría
+- CSS muerto eliminado: `.related-title-sub` en `game-grid.css` y su regla responsive en `responsive.css`
