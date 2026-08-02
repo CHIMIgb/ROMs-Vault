@@ -77,6 +77,9 @@
         <a href="index.php?controller=consola&action=index" class="btn-primary">
             <i data-i="gamepad"></i> Consolas
         </a>
+        <a href="index.php?controller=emulador&action=index" class="btn-primary">
+            <i data-i="joystick"></i> Emuladores
+        </a>
         <a href="index.php?controller=categoria&action=index" class="btn-primary">
             <i data-i="dashboard"></i> Categorías
         </a>

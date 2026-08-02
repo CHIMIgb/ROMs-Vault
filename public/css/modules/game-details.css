@@ -1,4 +1,4 @@
-﻿/* =====================================================
+/* =====================================================
    FILTRADO EN TIEMPO REAL — Loading indicator
    ===================================================== */
 
@@ -923,34 +923,10 @@
     padding: 0.5rem 0 2rem;
 }
 
-/* ── Back link ── */
-.detail-back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--slate-mid);
-    text-decoration: none;
-    margin-bottom: 1.5rem;
-    padding: 0.3rem 0;
-    border-bottom: 2px solid transparent;
-    transition: color 0.15s, border-color 0.15s;
-}
-.detail-back-link:hover {
-    color: var(--red);
-    border-bottom-color: var(--red);
-}
-.detail-back-link svg.pxi {
-    width: 14px;
-    height: 14px;
-}
-
 /* ── Hero: cover + info side by side ── */
 .game-detail-hero {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: auto 1fr;
     gap: 2.5rem;
     background: var(--cream-light);
     border: 4px solid var(--border-dark);
@@ -981,7 +957,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 360px;
+    width: max-content;
+    height: max-content;
+    align-self: center;
 }
 .detail-cover-frame::after {
     content: '';
@@ -1012,9 +990,9 @@
 }
 
 .detail-cover-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 320px;
+    width: auto;
+    height: auto;
     display: block;
     position: relative;
     z-index: 1;
@@ -1069,63 +1047,6 @@
 .detail-tags .tag {
     padding: 0.35rem 0.65rem;
     font-size: 0.75rem;
-}
-
-/* ── Spec sheet (metadata) ── */
-.detail-spec-sheet {
-    background: var(--cream-dark);
-    border: 2px solid var(--border-light);
-    padding: 1rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
-
-.spec-row {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    padding: 0.45rem 0;
-    border-bottom: 1px dotted var(--border-light);
-}
-.spec-row:last-child {
-    border-bottom: none;
-}
-
-.spec-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.42rem;
-    color: var(--slate-mid);
-    text-transform: uppercase;
-    white-space: nowrap;
-    flex-shrink: 0;
-    letter-spacing: 0.04em;
-}
-
-.spec-dots {
-    flex: 1;
-    border-bottom: 2px dotted var(--border-mid);
-    min-width: 1.5rem;
-    position: relative;
-    top: -3px;
-    opacity: 0.5;
-}
-
-.spec-value {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: var(--slate);
-    text-align: right;
-    white-space: nowrap;
-}
-
-.spec-value--code {
-    font-size: 0.82rem;
-    background: var(--cream-light);
-    border: 1px solid var(--border-mid);
-    padding: 0.1rem 0.45rem;
-    letter-spacing: 0.06em;
 }
 
 /* ── Stats bar ── */
@@ -1185,8 +1106,8 @@
     content: '';
     position: absolute;
     top: 3px; left: 3px; right: 3px;
-    height: 2px;
-    background: rgba(255,255,255,0.25);
+    height: 4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.1) 100%);
     pointer-events: none;
 }
 
@@ -1204,6 +1125,7 @@
 }
 .detail-btn--play:hover {
     background: var(--red-dark);
+    box-shadow: 2px 2px 0 var(--border-dark), 0 0 12px rgba(192, 57, 43, 0.35);
 }
 
 .detail-btn--download {
@@ -1211,11 +1133,12 @@
 }
 .detail-btn--download:hover {
     background: #1e4a73;
+    box-shadow: 2px 2px 0 var(--border-dark), 0 0 12px rgba(44, 95, 138, 0.35);
 }
 
 .detail-btn svg.pxi {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
     flex-shrink: 0;
 }
 
@@ -1271,13 +1194,13 @@
     }
 
     .detail-cover-frame {
-        max-width: 360px;
+        max-width: 100%;
         margin: 0 auto;
-        width: 100%;
+        width: max-content;
         min-height: auto;
     }
     .detail-cover-img {
-        aspect-ratio: 3 / 4;
+        max-width: 100%;
     }
     .detail-cover-placeholder {
         height: 300px;
@@ -1354,5 +1277,543 @@
     }
     .detail-synopsis-content {
         font-size: 0.9rem;
+    }
+}
+
+/* =====================================================
+   GAME DETAIL ENHANCEMENTS v3 — Mejoras visuales de ficha
+   Complementa la ficha v2 conservando toda su estructura
+   ===================================================== */
+
+/* ── Tags del detalle (paleta del catálogo) ── */
+.detail-tags .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 2px solid;
+}
+
+.tag-consola {
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    border-color: #1e4266;
+    box-shadow: 3px 3px 0 #1a3a5a;
+}
+.tag-categoria {
+    background: var(--red);
+    color: var(--cream-light);
+    border-color: var(--red-dark);
+    box-shadow: 3px 3px 0 var(--red-dark);
+}
+.tag-region {
+    background: var(--slate);
+    color: var(--cream-light);
+    border-color: #1a1a1a;
+    box-shadow: 3px 3px 0 #1a1a1a;
+}
+.tag-hack {
+    background: var(--amber);
+    color: var(--cream-light);
+    border-color: #8a6a00;
+    box-shadow: 3px 3px 0 #8a6a00;
+}
+
+/* ── Sello de región + ribbon Hack sobre el cover ── */
+.detail-region-seal {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.55rem;
+    z-index: 4;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+    color: var(--cream-light);
+    background: var(--red);
+    border: 3px solid var(--border-dark);
+    box-shadow: 3px 3px 0 var(--border-dark);
+    padding: 0.35rem 0.55rem;
+    transform: rotate(-4deg);
+    pointer-events: none;
+}
+
+.detail-hack-ribbon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.42rem;
+    letter-spacing: 0.06em;
+    color: var(--cream-light);
+    background: var(--amber);
+    border-right: 3px solid var(--border-dark);
+    border-bottom: 3px solid var(--border-dark);
+    padding: 0.4rem 0.7rem 0.4rem 0.85rem;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.25);
+    pointer-events: none;
+}
+.detail-hack-ribbon svg.pxi {
+    width: 12px;
+    height: 12px;
+}
+
+/* ── Spec sheet: valores sin overflow ── */
+.spec-value {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    max-width: 62%;
+    text-align: right;
+}
+
+/* ── Stats: número destacado ── */
+.stat-chip {
+    gap: 0.5rem;
+}
+.stat-chip svg.pxi {
+    width: 14px;
+    height: 14px;
+    color: var(--red);
+}
+.stat-chip-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    line-height: 1.6;
+    color: var(--slate);
+}
+.stat-chip-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--slate-mid);
+}
+
+/* Botón compartir integrado como chip sutil de la barra de stats */
+.stat-chip--share {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--slate-mid);
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.stat-chip--share:hover {
+    color: var(--red);
+    border-color: var(--red);
+    background: var(--cream-light);
+}
+.stat-chip--share:hover svg.pxi {
+    color: var(--red);
+}
+.stat-chip--share:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 2px;
+}
+
+/* ── Sinopsis: tratamiento editorial ── */
+.detail-synopsis-content::first-letter {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 2.3rem;
+    line-height: 1;
+    color: var(--red);
+    float: left;
+    padding: 0.18rem 0.45rem 0 0;
+    text-shadow: 2px 2px 0 var(--border-mid);
+}
+
+.synopsis-hack-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--amber);
+    border: 2px solid var(--amber);
+    background: var(--cream-light);
+    padding: 0.18rem 0.5rem;
+    margin-left: auto;
+}
+.synopsis-hack-badge svg.pxi {
+    width: 12px;
+    height: 12px;
+}
+
+/* ── Relacionados: tags y hover mejorados ── */
+.related-tag {
+    display: inline-block;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.55rem;
+    padding: 0.1rem 0.4rem;
+    white-space: nowrap;
+    border: 1px solid var(--border-mid);
+}
+.related-tag--platform {
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    border-color: #1e4266;
+}
+.related-tag--language {
+    background: var(--slate);
+    color: var(--cream-light);
+    border-color: #1a1a1a;
+}
+
+.related-card {
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.related-card:hover {
+    border-color: var(--red);
+}
+.related-cover {
+    overflow: hidden;
+}
+.related-cover img {
+    transition: transform 0.2s ease;
+}
+.related-card:hover .related-cover img {
+    transform: scale(1.05);
+}
+
+/* ── Focus visible accesible ── */
+.game-detail-page a:focus-visible,
+.game-detail-page button:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 3px;
+}
+
+/* ── Animaciones de entrada (respetan reduced-motion) ── */
+@media (prefers-reduced-motion: no-preference) {
+    .game-detail-hero {
+        opacity: 0;
+        animation: detailRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .detail-synopsis {
+        opacity: 0;
+        animation: detailRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+    }
+    .related-section {
+        opacity: 0;
+        animation: detailRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+    }
+}
+
+@keyframes detailRise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive de las mejoras ── */
+@media (max-width: 576px) {
+    .detail-region-seal { right: 0.4rem; bottom: 0.4rem; font-size: 0.42rem; padding: 0.25rem 0.4rem; }
+    .detail-hack-ribbon { font-size: 0.36rem; padding: 0.3rem 0.55rem 0.3rem 0.65rem; }
+    .detail-hack-ribbon svg.pxi { width: 10px; height: 10px; }
+    .detail-new-badge { font-size: 0.36rem; padding: 0.3rem 0.65rem 0.3rem 0.55rem; }
+    .detail-new-badge svg.pxi { width: 10px; height: 10px; }
+    .stat-chip-num { font-size: 0.42rem; }
+    .stat-chip-label { font-size: 0.7rem; }
+    .stat-chip--share { font-size: 0.72rem; padding: 0.3rem 0.6rem; }
+    .synopsis-hack-badge { margin-left: 0; }
+}
+
+/* =====================================================
+   GAME DETAIL ENHANCEMENTS v4 — Datos y SEO
+   ===================================================== */
+
+/* ── Badge NUEVO (ROMs añadidas en los últimos 30 días) ── */
+.detail-new-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.42rem;
+    letter-spacing: 0.06em;
+    color: var(--cream-light);
+    background: var(--red);
+    border-left: 3px solid var(--border-dark);
+    border-bottom: 3px solid var(--border-dark);
+    padding: 0.4rem 0.85rem 0.4rem 0.7rem;
+    box-shadow: -3px 3px 0 rgba(0,0,0,0.25);
+    pointer-events: none;
+}
+.detail-new-badge svg.pxi {
+    width: 12px;
+    height: 12px;
+}
+
+/* ── Tags de detalle como enlaces (consola / categoría) ── */
+.detail-tags a.tag {
+    text-decoration: none;
+}
+.detail-tags a.tag:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    filter: brightness(1.08);
+}
+
+/* ── Relacionados: dos subsecciones curadas ── */
+.related-subsection {
+    margin-top: 0;
+    margin-bottom: 2.5rem;
+}
+.related-subsection:first-of-type {
+    margin-top: 3rem;
+}
+.related-subsection:last-of-type {
+    margin-bottom: 2rem;
+}
+/* =====================================================
+   GAME DETAIL ENHANCEMENTS v5 — Ficha de producto en 3 actos
+   ===================================================== */
+
+/* ── Columna del cover (marco + franja de caja) ── */
+.detail-cover-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    width: max-content;
+    align-self: center;
+}
+
+.detail-cover-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.4rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cream-light);
+    background: var(--slate);
+    border: 2px solid var(--border-dark);
+    padding: 0.45rem 0.75rem;
+    box-shadow: var(--card-raise);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* ── Título con año de lanzamiento ── */
+.detail-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.detail-year {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.6rem;
+    color: var(--red);
+    text-shadow: 2px 2px 0 var(--border-light);
+    flex-shrink: 0;
+}
+
+/* ── Contexto de colección (código, ranking, 1 de X) ── */
+.detail-collection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.collection-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--slate-mid);
+    background: var(--cream-dark);
+    border: 2px solid var(--border-light);
+    padding: 0.3rem 0.6rem;
+}
+.collection-chip svg.pxi {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    color: var(--slate-light);
+}
+
+/* ── Cómo jugar (Acto 3) ── */
+.detail-howto {
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--card-raise);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+.detail-howto::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px;
+    height: 2px;
+    background: rgba(255,255,255,0.4);
+    pointer-events: none;
+}
+.howto-local {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+.howto-local-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.62rem;
+    color: var(--slate);
+    margin-bottom: 0.9rem;
+    text-shadow: 1px 1px 0 var(--border-light);
+}
+.howto-local-title svg.pxi {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--red);
+}
+.howto-local-intro {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--slate-mid);
+    max-width: 75ch;
+    margin-bottom: 1rem;
+}
+.howto-local-intro strong {
+    color: var(--slate);
+}
+.howto-platforms {
+    display: inline-flex;
+    gap: 0.35rem;
+    vertical-align: middle;
+}
+.platform-tag {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.36rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cream-light);
+    background: var(--blue-btn);
+    border: 1px solid var(--border-dark);
+    padding: 0.2rem 0.4rem;
+    vertical-align: middle;
+}
+.howto-dl-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    color: var(--blue-btn);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-left: 0.4rem;
+    transition: color 0.15s, border-color 0.15s;
+}
+.howto-dl-link:hover {
+    color: var(--red);
+    border-bottom-color: var(--red);
+}
+.howto-dl-link svg.pxi {
+    width: 13px;
+    height: 13px;
+}
+.howto-steps {
+    list-style: none;
+    counter-reset: howto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    max-width: 75ch;
+}
+.howto-steps li {
+    counter-increment: howto;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--slate-mid);
+    background: var(--cream-dark);
+    border: 2px solid var(--border-light);
+    padding: 0.6rem 0.8rem;
+}
+.howto-steps li::before {
+    content: counter(howto, decimal-leading-zero);
+    flex-shrink: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: var(--cream-light);
+    background: var(--red);
+    border: 2px solid var(--border-dark);
+    padding: 0.3rem 0.45rem;
+    margin-top: 0.05rem;
+}
+.howto-alt {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    color: var(--slate-mid);
+}
+.howto-alt a {
+    font-weight: 700;
+    color: var(--blue-btn);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+}
+.howto-alt a:hover {
+    color: var(--red);
+    border-bottom-color: var(--red);
+}
+.howto-nomap {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    color: var(--slate-light);
+    border: 2px dashed var(--border-mid);
+    padding: 0.7rem 0.9rem;
+}
+
+/* ── Responsive de la ficha v5 ── */
+@media (max-width: 860px) {
+    .detail-cover-col {
+        margin: 0 auto;
+    }
+}
+@media (max-width: 576px) {
+    .detail-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+    }
+    .detail-year {
+        font-size: 1.2rem;
+    }
+    .detail-howto {
+        padding: 1.4rem;
+    }
+    .detail-cover-labels {
+        font-size: 0.34rem;
+        gap: 0.5rem;
+        padding: 0.35rem 0.5rem;
     }
 }

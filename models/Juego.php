@@ -394,4 +394,32 @@ class Juego extends Model {
         return $stmt->fetchAll();
     }
 
+    /**
+     * Estadísticas contextuales de la colección para la ficha de detalle.
+     * Devuelve la posición del juego por descargas/jugadas y los totales
+     * de la consola y del género, para reforzar el contexto de coleccionista.
+     */
+    public function getCatalogStats(int $juegoId, int $consolaId, int $categoriaId, int $downloadsCount, int $playsCount): array {
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                (SELECT COUNT(*) FROM juegos j1 WHERE j1.activo = true AND j1.downloads_count > :dl) + 1 AS rank_descargas,
+                (SELECT COUNT(*) FROM juegos j2 WHERE j2.activo = true AND j2.plays_count    > :pl) + 1 AS rank_jugadas,
+                (SELECT COUNT(*) FROM juegos j3 WHERE j3.activo = true AND j3.consola_id    = :consola)   AS total_consola,
+                (SELECT COUNT(*) FROM juegos j4 WHERE j4.activo = true AND j4.categoria_id  = :categoria) AS total_genero"
+        );
+        $stmt->execute([
+            ':dl'        => $downloadsCount,
+            ':pl'        => $playsCount,
+            ':consola'   => $consolaId,
+            ':categoria' => $categoriaId,
+        ]);
+        $row = $stmt->fetch();
+        return [
+            'rank_descargas' => (int) $row['rank_descargas'],
+            'rank_jugadas'   => (int) $row['rank_jugadas'],
+            'total_consola'  => (int) $row['total_consola'],
+            'total_genero'   => (int) $row['total_genero'],
+        ];
+    }
+
 }

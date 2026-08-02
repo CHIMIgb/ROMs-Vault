@@ -3,6 +3,7 @@
 require_once 'models/Juego.php';
 require_once 'models/Consola.php';
 require_once 'models/Categoria.php';
+require_once 'models/Emulador.php';
 
 class HomeController {
     
@@ -74,6 +75,46 @@ class HomeController {
             require_once 'views/layout/footer.php';
             return;
         }
+
+        // ── Contexto de colección: ranking, totales por consola/género ──
+        $stats = $juegoModel->getCatalogStats(
+            (int) $juego['id'],
+            (int) ($juego['consola_id'] ?? 0),
+            (int) ($juego['categoria_id'] ?? 0),
+            (int) ($juego['downloads_count'] ?? 0),
+            (int) ($juego['plays_count'] ?? 0)
+        );
+
+        // ── Emulador local recomendado (PC / Android) para esta consola ──
+        $emuladorLocal = $this->emuladorRecomendado((int) ($juego['consola_id'] ?? 0));
+
+        // ── Tipo de ROM: streaming (ISO grande) vs precarga (ROM pequeña) ──
+        $formato = strtoupper(trim($juego['formato_imagen'] ?? ''));
+        $esIsoGrande = in_array($formato, ['ISO', 'BIN/CUE', 'ISP'], true)
+            || (int) ($juego['size_bytes'] ?? 0) > 64 * 1024 * 1024;
+        $tipoRom = $esIsoGrande ? 'streaming' : 'precarga';
+
+        // ── SEO dinámico para la ficha (title, meta, Open Graph, JSON-LD) ──
+        $pageTitle       = $juego['titulo'] . ' — ROMs Vault';
+        $pageDescription = !empty($juego['descripcion'])
+            ? mb_substr(strip_tags($juego['descripcion']), 0, 155)
+            : 'Ficha de ' . $juego['titulo'] . ' para ' . ($juego['consola_nombre'] ?? 'consola retro') . '.';
+        $pageImage       = !empty($juego['imagen']) && file_exists(ltrim($juego['imagen'], '/'))
+            ? $juego['imagen']
+            : 'public/uploads/icon.png';
+        $pageUrl         = 'index.php?controller=home&action=show&id=' . (int) $juego['id'];
+        $pageType        = 'video.game';
+        $pageJsonLd      = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'VideoGame',
+            'name'        => $juego['titulo'],
+            'description' => $pageDescription,
+            'image'       => $pageImage,
+            'gamePlatform' => $juego['consola_nombre'] ?? null,
+            'genre'       => $juego['categoria_nombre'] ?? null,
+            'datePublished' => $juego['fecha_lanzamiento'] ?? null,
+            'inLanguage'  => $juego['idiomas'] ?? null,
+        ];
 
         require_once 'views/layout/header.php';
         require_once 'views/home/show.php';
@@ -345,5 +386,51 @@ class HomeController {
         return 'rom_proxy.php?file_id=' . urlencode($fileId)
              . '&t=' . $t
              . '&sig=' . $sig;
+    }
+
+    /**
+     * Emulador local recomendado para una consola registrada en la BD.
+     * Lee la tabla `emuladores` (ver data/emuladores.sql) y devuelve el mismo
+     * formato que consumía la vista: ['nombre', 'plataformas', 'url', 'alterno' => [...]]
+     * o null si la consola no tiene un emulador principal activo.
+     */
+    private function emuladorRecomendado(int $consolaId): ?array {
+        if ($consolaId <= 0) {
+            return null;
+        }
+
+        $emuladorModel = new Emulador();
+        $registros     = $emuladorModel->getByConsola($consolaId);
+
+        if (!$registros) {
+            return null;
+        }
+
+        $principal = null;
+        $alterno   = null;
+
+        foreach ($registros as $registro) {
+            $emulador = [
+                'nombre'      => $registro['nombre'],
+                'plataformas' => array_values(array_filter(array_map('trim', explode(',', (string) $registro['plataformas'])))),
+                'url'         => $registro['url'],
+            ];
+
+            if (!empty($registro['es_alterno'])) {
+                $alterno = $emulador;
+            } else {
+                $principal = $emulador;
+            }
+        }
+
+        if (!$principal) {
+            return null;
+        }
+
+        if ($alterno) {
+            $principal['alterno'] = $alterno;
+        }
+
+        return $principal;
     }
 }
