@@ -22,6 +22,21 @@ CREATE TABLE IF NOT EXISTS public.consolas (
 );
 
 -- =====================================================
+-- Tabla: emuladores  (recomendados por consola)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.emuladores (
+    id SERIAL PRIMARY KEY,
+    consola_id INTEGER NOT NULL REFERENCES public.consolas(id) ON DELETE CASCADE,
+    nombre VARCHAR(100) NOT NULL,
+    plataformas VARCHAR(100) NOT NULL DEFAULT 'PC',
+    url VARCHAR(300) NOT NULL,
+    es_alterno BOOLEAN NOT NULL DEFAULT FALSE,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_emulador_por_consola UNIQUE (consola_id, es_alterno)
+);
+
+-- =====================================================
 -- Tabla: roles
 -- =====================================================
 CREATE TABLE IF NOT EXISTS public.roles (
@@ -102,6 +117,7 @@ CREATE TABLE IF NOT EXISTS public.descargas (
 CREATE INDEX IF NOT EXISTS idx_juegos_consola ON public.juegos(consola_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_categoria ON public.juegos(categoria_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_activo ON public.juegos(activo);
+CREATE INDEX IF NOT EXISTS idx_emuladores_consola ON public.emuladores(consola_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_juego ON public.descargas(juego_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_cookie ON public.descargas(cookie_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_fecha ON public.descargas(downloaded_at);

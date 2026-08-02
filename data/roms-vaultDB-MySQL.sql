@@ -24,6 +24,24 @@ CREATE TABLE `consolas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- Tabla: emuladores  (recomendados por consola)
+-- =====================================================
+CREATE TABLE `emuladores` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `consola_id` INT NOT NULL,
+    `nombre` VARCHAR(100) NOT NULL,
+    `plataformas` VARCHAR(100) NOT NULL DEFAULT 'PC',
+    `url` VARCHAR(300) NOT NULL,
+    `es_alterno` BOOLEAN NOT NULL DEFAULT FALSE,
+    `activo` BOOLEAN NOT NULL DEFAULT TRUE,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_emulador_por_consola` (`consola_id`, `es_alterno`),
+    KEY `idx_emuladores_consola` (`consola_id`),
+    CONSTRAINT `fk_emuladores_consola` FOREIGN KEY (`consola_id`) REFERENCES `consolas` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- Tabla: roles
 -- =====================================================
 CREATE TABLE `roles` (

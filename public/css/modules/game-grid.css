@@ -317,7 +317,7 @@
 
 
 /* ===================================================
-   JUEGOS RELACIONADOS
+   JUEGOS RELACIONADOS — "Estante de cartuchos"
    =================================================== */
 
 .related-section {
@@ -328,7 +328,7 @@
 
 .related-title {
     font-family: 'Press Start 2P', monospace;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--slate);
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
@@ -338,16 +338,42 @@
     gap: 0.6rem;
     flex-wrap: wrap;
 }
-.related-title-icon { font-size: 1rem; }
-.related-title-sub  { color: var(--slate-light); font-size: 0.55rem; }
+
+/* Icono del título en recuadro pixel */
+.related-title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--blue-btn);
+    border: 2px solid var(--border-dark);
+    box-shadow: 3px 3px 0 #8a7a58;
+}
+.related-title-icon svg.pxi {
+    width: 18px;
+    height: 18px;
+    color: var(--cream-light);
+    vertical-align: middle;
+}
+
+.related-title-text {
+    min-width: 0;
+}
+
+/* Variantes de sección: misma consola (azul) vs mismo género (slate) */
+.related-section--genero .related-title-icon { background: var(--slate); }
 
 .related-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
 }
 
+/* ── Tarjeta: cartucho físico ── */
 .related-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     background: var(--card-bg);
@@ -358,12 +384,88 @@
     transition: transform 0.15s, box-shadow 0.15s;
     overflow: hidden;
 }
+/* Brillo superior: reflejo del plástico del cartucho */
+.related-card::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+    z-index: 2;
+}
 .related-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--raise-shadow-lg);
+    transform: translate(-3px, -3px);
+    box-shadow:
+        8px 8px 0 #8a7a58,
+        9px 9px 0 #6a5a38,
+        0 0 18px rgba(192, 57, 43, 0.45),
+        0 0 32px rgba(192, 57, 43, 0.22);
+}
+/* ── Hover retro "cartucho encendido" ──
+   La portada se enciende como una pantalla CRT: brillo y contraste,
+   scanlines más visibles y un barrido de power-on de una sola pasada. */
+.related-card:hover .related-cover {
+    filter: brightness(1.12) contrast(1.1) saturate(1.12);
+}
+.related-card:hover .related-cover::after {
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.22) 0px,
+            rgba(0, 0, 0, 0.22) 1px,
+            transparent 1px,
+            transparent 2px
+        ),
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            transparent 45%,
+            rgba(0, 0, 0, 0.18) 100%
+        );
+}
+/* Barrido de brillo: banda que cruza la portada al entrar el cursor */
+.related-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.22) 50%,
+        transparent 100%
+    );
+    transform: translateY(-110%);
+    opacity: 0;
+}
+.related-card:hover .related-cover::before {
+    animation: relatedPowerOn 0.55s ease-out 1;
+}
+@keyframes relatedPowerOn {
+    0%   { transform: translateY(-110%); opacity: 0; }
+    15%  { opacity: 1; }
+    100% { transform: translateY(110%); opacity: 0; }
+}
+/* Título: señal de "seleccionado" en el acento de la app */
+.related-card:hover .related-game-title {
+    color: var(--red);
+    text-shadow: 1px 1px 0 var(--border-light);
+}
+/* Sin movimiento si el usuario lo prefiere: solo efectos estáticos */
+@media (prefers-reduced-motion: reduce) {
+    .related-card:hover .related-cover::before {
+        animation: none;
+        opacity: 0;
+    }
 }
 
+/* ── Portada: marco + scanline CRT ── */
 .related-cover {
+    position: relative;
     width: 100%;
     aspect-ratio: 3 / 4;
     background: var(--cream-dark);
@@ -373,32 +475,95 @@
     font-size: 2.5rem;
     overflow: hidden;
     border-bottom: 2px solid var(--border-mid);
+    transition: filter 0.15s;
 }
-.related-cover.no-image { background: var(--cream-dark); }
+.related-cover.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.related-cover.no-image i[data-i],
+.related-cover.no-image svg.pxi {
+    width: 50%;
+    height: 50%;
+    opacity: 0.4;
+}
 .related-cover img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
+/* Scanline sutil estilo CRT */
+.related-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 45%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+    transition: background 0.2s;
+}
 
+/* ── Info: título + tags tipo sello ── */
 .related-info {
-    padding: 0.5rem 0.6rem;
+    padding: 0.65rem 0.7rem 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.45rem;
 }
 .related-game-title {
     font-family: 'Courier Prime', monospace;
     font-weight: 700;
-    font-size: 0.72rem;
-    line-height: 1.3;
+    font-size: 0.74rem;
+    line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    min-height: calc(0.74rem * 1.35 * 2);
+    transition: color 0.15s;
 }
 .related-game-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3rem;
+}
+.related-tag {
+    display: inline-block;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.55rem;
+    padding: 0.12rem 0.42rem;
+    white-space: nowrap;
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+.related-tag--platform {
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    border-color: #1e4266;
+}
+.related-tag--language {
+    background: var(--slate);
+    color: var(--cream-light);
+    border-color: #1a1a1a;
+}
+
+/* ── Subsecciones: espaciado entre las dos secciones curadas ── */
+.related-subsection {
+    margin-top: 0;
+    margin-bottom: 2.5rem;
+}
+.related-subsection:first-of-type {
+    margin-top: 3rem;
+}
+.related-subsection:last-of-type {
+    margin-bottom: 2rem;
 }

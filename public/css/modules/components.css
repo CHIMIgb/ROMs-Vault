@@ -692,10 +692,6 @@
 }
 
 @media (max-width: 600px) {
-    .related-grid {
-        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    }
-    .related-title { font-size: 0.6rem; }
     .btn-share { font-size: 0.5rem; padding: 0.45rem 0.8rem; }
 }
 
@@ -754,19 +750,6 @@
     height: 42%;
     opacity: 0.4;
     display: block;
-}
-
-/* ── related cover placeholder ───────────────────── */
-.related-cover.no-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.related-cover.no-image i[data-i],
-.related-cover.no-image svg.pxi {
-    width: 50%;
-    height: 50%;
-    opacity: 0.4;
 }
 
 /* ── emulator cover placeholder ──────────────────── */
@@ -842,13 +825,6 @@ nav a svg.pxi {
     height: 14px;
     vertical-align: middle;
     margin-right: 0.3em;
-}
-
-/* ── related section title icon ──────────────────── */
-.related-title-icon svg.pxi {
-    width: 18px;
-    height: 18px;
-    vertical-align: middle;
 }
 
 /* ── emulator meta icons ─────────────────────────── */
