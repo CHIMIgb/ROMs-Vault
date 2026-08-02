@@ -29,3 +29,9 @@ Las tarjetas de juegos relacionados mostraban la región y la consola **tres vec
 - Se reemplazó `repeat(auto-fill, minmax(150px, 1fr))` por `repeat(5, 1fr)` en `.related-grid`
 - Con `auto-fill` y el ancho del contenedor el navegador cabía 6 columnas; ahora el grid de escritorio muestra exactamente 5 por fila (los 8 relacionados quedan en 5 + 3)
 - El breakpoint móvil (≤576px → 2 columnas) en `responsive.css` no se tocó
+
+## Ajuste posterior: hover coherente con la app
+- Se eliminó el `border-color: var(--red)` del hover de `.related-card` — el rojo en la app se reserva para CTAs, errores y focus, no para tarjetas
+- El hover ahora es idéntico al de `.game-card` del catálogo: elevación con `translate(-2px, -2px)` + sombra 3D más profunda
+- Se eliminó el zoom `scale(1.05)` de la portada, que solo existía en las relacionadas
+- Se quitó `border-color` de la lista de propiedades en `transition` (ya no se anima)
