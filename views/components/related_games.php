@@ -5,6 +5,7 @@
 // getRelated() devuelve cada juego con una columna 'relevancia':
 //   2 = misma consola, 1 = misma categoría (género)
 // Separamos en dos secciones curadas para una navegación más útil.
+// 10 totales → 5 de la misma consola + 5 del mismo género.
 
 $relacionados = [];
 if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categoria_id'])) {
@@ -13,7 +14,7 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
         (int) $juego['id'],
         (int) $juego['consola_id'],
         (int) $juego['categoria_id'],
-        8
+        10
     );
 }
 

@@ -3,6 +3,7 @@
 **Fecha:** 2026-08-02
 **Archivos modificados:**
 - `models/Juego.php` — Nueva lógica de `getRelated()` con respaldos de género
+- `views/components/related_games.php` — Límite de juegos de 8 a 10
 
 ## Qué se hizo
 
@@ -31,3 +32,7 @@ Las recomendaciones de juegos relacionados se dividen en dos secciones: "Más de
 ## Verificación
 - Sin PHP CLI en el entorno de desarrollo: revisión estática del código y compatibilidad con el patrón PDO existente (`LIMIT :lim` con `PARAM_INT` ya se usaba)
 - En producción: abrir la ficha de un juego y confirmar que "Géneros similares" siempre aparece con contenido, incluso en categorías escasas o consolas muy pobladas
+
+## Ajuste posterior: 5 y 5
+- La llamada a `getRelated()` en `views/components/related_games.php` pasó de `8` a `10` juegos
+- Con la división 50/50 del modelo, cada sección recibe 5: 5 de la misma consola + 5 del mismo género, una fila completa del grid de 5 columnas
