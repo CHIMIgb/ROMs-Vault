@@ -2,7 +2,7 @@
         </main>
         <footer>
             <div class="footer-content">
-                <p>© <?= date('Y') ?> ROMs Vault - Catálogo profesional de videojuegos retro</p>
+                <p>© <?= date('Y') ?> ROMs Vault</p>
             </div>
         </footer>
     </div>

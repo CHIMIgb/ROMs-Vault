@@ -1447,45 +1447,6 @@
     height: 12px;
 }
 
-/* ── Relacionados: tags y hover mejorados ── */
-.related-tag {
-    display: inline-block;
-    font-family: 'Courier Prime', monospace;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.55rem;
-    padding: 0.1rem 0.4rem;
-    white-space: nowrap;
-    border: 1px solid var(--border-mid);
-}
-.related-tag--platform {
-    background: var(--blue-btn);
-    color: var(--cream-light);
-    border-color: #1e4266;
-}
-.related-tag--language {
-    background: var(--slate);
-    color: var(--cream-light);
-    border-color: #1a1a1a;
-}
-
-.related-card {
-    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-}
-.related-card:hover {
-    border-color: var(--red);
-}
-.related-cover {
-    overflow: hidden;
-}
-.related-cover img {
-    transition: transform 0.2s ease;
-}
-.related-card:hover .related-cover img {
-    transform: scale(1.05);
-}
-
 /* ── Focus visible accesible ── */
 .game-detail-page a:focus-visible,
 .game-detail-page button:focus-visible {
@@ -1565,18 +1526,6 @@
     box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
     filter: brightness(1.08);
 }
-
-/* ── Relacionados: dos subsecciones curadas ── */
-.related-subsection {
-    margin-top: 0;
-    margin-bottom: 2.5rem;
-}
-.related-subsection:first-of-type {
-    margin-top: 3rem;
-}
-.related-subsection:last-of-type {
-    margin-bottom: 2rem;
-}
 /* =====================================================
    GAME DETAIL ENHANCEMENTS v5 — Ficha de producto en 3 actos
    ===================================================== */
@@ -1596,6 +1545,8 @@
     justify-content: space-between;
     gap: 1rem;
     width: 100%;
+    max-width: 400px;
+    align-self: flex-start;
     font-family: 'Press Start 2P', monospace;
     font-size: 0.4rem;
     letter-spacing: 0.06em;
@@ -1623,31 +1574,6 @@
     color: var(--red);
     text-shadow: 2px 2px 0 var(--border-light);
     flex-shrink: 0;
-}
-
-/* ── Contexto de colección (código, ranking, 1 de X) ── */
-.detail-collection {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-.collection-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.76rem;
-    font-weight: 700;
-    color: var(--slate-mid);
-    background: var(--cream-dark);
-    border: 2px solid var(--border-light);
-    padding: 0.3rem 0.6rem;
-}
-.collection-chip svg.pxi {
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-    color: var(--slate-light);
 }
 
 /* ── Cómo jugar (Acto 3) ── */

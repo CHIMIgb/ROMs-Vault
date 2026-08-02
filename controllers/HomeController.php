@@ -76,15 +76,6 @@ class HomeController {
             return;
         }
 
-        // ── Contexto de colección: ranking, totales por consola/género ──
-        $stats = $juegoModel->getCatalogStats(
-            (int) $juego['id'],
-            (int) ($juego['consola_id'] ?? 0),
-            (int) ($juego['categoria_id'] ?? 0),
-            (int) ($juego['downloads_count'] ?? 0),
-            (int) ($juego['plays_count'] ?? 0)
-        );
-
         // ── Emulador local recomendado (PC / Android) para esta consola ──
         $emuladorLocal = $this->emuladorRecomendado((int) ($juego['consola_id'] ?? 0));
 

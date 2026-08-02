@@ -57,13 +57,6 @@ if ($emuladorLocal) {
                     <span class="detail-new-badge"><i data-i="zap" aria-hidden="true"></i> NUEVO</span>
                 <?php endif; ?>
             </div>
-            <?php if (!empty($juego['consola_nombre'])): ?>
-                <div class="detail-cover-labels" aria-hidden="true">
-                    <span><?= htmlspecialchars($juego['consola_nombre']) ?></span>
-                    <span><?= htmlspecialchars($juego['region'] ?? 'ALL') ?></span>
-                    <span><?= htmlspecialchars($juego['formato_imagen'] ?? 'ROM') ?></span>
-                </div>
-            <?php endif; ?>
         </div>
 
         <!-- Info panel -->
@@ -91,22 +84,6 @@ if ($emuladorLocal) {
                 </div>
             </div>
 
-            <!-- Contexto de colección: ranking, 1 de X -->
-            <div class="detail-collection">
-                <?php if (!empty($stats['rank_descargas']) && $stats['rank_descargas'] > 1): ?>
-                    <span class="collection-chip" title="Posición por número de descargas">
-                        <i data-i="trophy" aria-hidden="true"></i>
-                        #<?= number_format($stats['rank_descargas']) ?> en descargas
-                    </span>
-                <?php endif; ?>
-                <?php if (!empty($stats['total_consola'])): ?>
-                    <span class="collection-chip" title="Juegos de esta consola en el catálogo">
-                        <i data-i="gamepad" aria-hidden="true"></i>
-                        1 de <?= number_format($stats['total_consola']) ?> de <?= htmlspecialchars($juego['consola_nombre'] ?? 'la consola') ?>
-                    </span>
-                <?php endif; ?>
-            </div>
-
             <!-- Stats bar -->
             <div class="detail-stats-bar">
                 <span class="stat-chip" title="Descargas">
@@ -124,6 +101,15 @@ if ($emuladorLocal) {
                     Compartir
                 </button>
             </div>
+
+            <!-- Etiquetas de la caja: consola / región / formato -->
+            <?php if (!empty($juego['consola_nombre'])): ?>
+                <div class="detail-cover-labels" aria-hidden="true">
+                    <span><?= htmlspecialchars($juego['consola_nombre']) ?></span>
+                    <span><?= htmlspecialchars($juego['region'] ?? 'ALL') ?></span>
+                    <span><?= htmlspecialchars($juego['formato_imagen'] ?? 'ROM') ?></span>
+                </div>
+            <?php endif; ?>
 
             <!-- Action buttons -->
             <?php $detailContext = true; require __DIR__ . '/../components/game_actions.php'; ?>
