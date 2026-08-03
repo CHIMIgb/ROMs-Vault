@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php if (class_exists('CsrfService')): ?>
+        <?= CsrfService::metaTag() ?>
+    <?php endif; ?>
     <title><?= htmlspecialchars($pageTitle ?? 'ROMs Vault - Catálogo de videojuegos') ?></title>
     <?php if (!empty($pageDescription)): ?>
         <meta name="description" content="<?= htmlspecialchars($pageDescription) ?>">

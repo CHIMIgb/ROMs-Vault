@@ -156,6 +156,8 @@ endif;
 (function () {
     'use strict';
 
+    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+
     const busquedaEl = document.getElementById('cs-busqueda');
     const activoEl   = document.getElementById('cs-activo');
     const btnLimpiar = document.getElementById('cs-limpiar');
@@ -267,7 +269,7 @@ endif;
                 try {
                     const res  = await fetch(
                         `index.php?controller=consola&action=toggleActiveAjax&id=${id}`,
-                        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+                        { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
                     );
                     const data = await res.json();
 

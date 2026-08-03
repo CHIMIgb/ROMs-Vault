@@ -14,6 +14,7 @@
     <?php endif; ?>
 
     <form method="POST" autocomplete="off">
+        <?= CsrfService::field() ?>
 
         <!-- Nombre -->
         <div class="form-group">
@@ -53,14 +54,30 @@
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
                 <i data-i="close"></i> Cancelar
             </a>
+            <button type="button"
+                    id="btn-eliminar-consola"
+                    class="btn-primary"
+                    style="background:var(--danger, #b00020);color:#fff;box-shadow:3px 3px 0 var(--border-dark);border-color:var(--border-dark);"
+                    data-id="<?= (int) $consola['id'] ?>"
+                    data-nombre="<?= htmlspecialchars($consola['nombre'], ENT_QUOTES) ?>">
+                <i data-i="trash"></i> Eliminar
+            </button>
         </div>
+    </form>
+
+    <!-- Formulario oculto de eliminación (POST con token CSRF) -->
+    <form id="form-eliminar-consola" method="POST" action="index.php?controller=consola&action=delete">
+        <?= CsrfService::field() ?>
+        <input type="hidden" name="id" value="<?= (int) $consola['id'] ?>">
     </form>
 </div>
 
 <script>
 (function () {
     'use strict';
-    document.getElementById('btn-eliminar-consola').addEventListener('click', function () {
+    const btn = document.getElementById('btn-eliminar-consola');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
         const id     = this.dataset.id;
         const nombre = this.dataset.nombre;
         RVAlerts.confirm({
@@ -71,7 +88,7 @@
             btnOk:     'Sí, eliminar',
             btnCancel: 'Cancelar',
             onOk: () => {
-                window.location.href = `index.php?controller=consola&action=delete&id=${id}`;
+                document.getElementById('form-eliminar-consola').submit();
             }
         });
     });

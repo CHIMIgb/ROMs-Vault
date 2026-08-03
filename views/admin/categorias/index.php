@@ -154,6 +154,8 @@ endif;
 (function () {
     'use strict';
 
+    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+
     const busquedaEl = document.getElementById('cat-busqueda');
     const activoEl   = document.getElementById('cat-activo');
     const btnLimpiar = document.getElementById('cat-limpiar');
@@ -265,7 +267,7 @@ endif;
                 try {
                     const res  = await fetch(
                         `index.php?controller=categoria&action=toggleActiveAjax&id=${id}`,
-                        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+                        { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
                     );
                     const data = await res.json();
 

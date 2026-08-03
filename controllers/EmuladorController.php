@@ -3,6 +3,7 @@
 require_once 'models/Emulador.php';
 require_once 'models/Consola.php';
 require_once __DIR__ . '/../config/AuthMiddleware.php';
+require_once __DIR__ . '/../config/CsrfService.php';
 
 class EmuladorController {
 
@@ -129,6 +130,11 @@ class EmuladorController {
     // ── Toggle activo (AJAX) — igual que consolas/categorías ──────────────
     public function toggleActiveAjax($id = null) {
         header('Content-Type: application/json; charset=utf-8');
+
+        // AJAX mutador — exigir token CSRF por header
+        if (!CsrfService::verifyAjax()) {
+            CsrfService::deny();
+        }
 
         if (!$id) {
             http_response_code(400);

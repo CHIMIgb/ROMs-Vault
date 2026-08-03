@@ -10,6 +10,7 @@
     <?php endif; ?>
     
     <form method="POST" action="index.php?controller=auth&action=login" autocomplete="off">
+        <?= CsrfService::field() ?>
         <div class="form-group">
             <label for="username">Usuario</label>
             <input type="text" 

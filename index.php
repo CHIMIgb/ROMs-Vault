@@ -1,9 +1,13 @@
 <?php
 // index.php — Router principal
 require_once __DIR__ . '/config/AuthMiddleware.php';
+require_once __DIR__ . '/config/CsrfService.php';
 
 // Cargar usuario actual desde JWT (disponible como $currentUser en las vistas)
 $currentUser = AuthMiddleware::getUser();
+
+// Protección CSRF: garantizar token del navegador antes de cualquier salida HTML
+CsrfService::ensureToken();
 
 $controller = $_GET['controller'] ?? 'home';
 $action     = $_GET['action']     ?? 'index';
@@ -31,6 +35,12 @@ if (!file_exists($controllerFile)) {
 }
 
 require_once $controllerFile;
+
+// Protección CSRF global: todo POST debe traer token válido
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !CsrfService::verify()) {
+    CsrfService::deny();
+}
+
 $controllerInstance = new $controllerClass();
 
 if (!is_callable([$controllerInstance, $action])) {

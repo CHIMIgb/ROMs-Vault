@@ -3,6 +3,7 @@ require_once 'models/Juego.php';
 require_once 'models/Consola.php';
 require_once 'models/Categoria.php';
 require_once __DIR__ . '/../config/AuthMiddleware.php';
+require_once __DIR__ . '/../config/CsrfService.php';
 
 class AdminController {
     public function __construct() {
@@ -156,6 +157,11 @@ class AdminController {
     }
 
     public function toggleActive($id) {
+        // Mutador vía GET — exigir token CSRF
+        if (!CsrfService::verify()) {
+            CsrfService::deny();
+        }
+
         if (!$id) {
             header('Location: index.php?controller=admin&action=dashboard');
             exit;
@@ -177,6 +183,11 @@ class AdminController {
     // Versión AJAX — devuelve JSON, no recarga la página
     public function toggleActiveAjax($id) {
         header('Content-Type: application/json; charset=utf-8');
+
+        // AJAX mutador — exigir token CSRF por header
+        if (!CsrfService::verifyAjax()) {
+            CsrfService::deny();
+        }
 
         if (!$id) {
             http_response_code(400);
@@ -266,6 +277,11 @@ class AdminController {
     }
 
     public function delete($id) {
+        // Mutador vía GET — exigir token CSRF
+        if (!CsrfService::verify()) {
+            CsrfService::deny();
+        }
+
         $juegoModel = new Juego();
         $juego = $juegoModel->find($id);
         if ($juego && $juego['imagen'] && file_exists($juego['imagen'])) {
