@@ -14,7 +14,10 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
         (int) $juego['id'],
         (int) $juego['consola_id'],
         (int) $juego['categoria_id'],
-        10
+        10,
+        // Seed de visita: recomendados aleatorios pero ESTABLES por navegador
+        // para que sus imágenes se cacheen (misma técnica que el catálogo).
+        Juego::getCatalogSeed()
     );
 }
 

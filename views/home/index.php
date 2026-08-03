@@ -177,6 +177,17 @@
     let debounceTimer  = null;
     let currentRequest = null;
 
+    // ── Precarga en segundo plano de la página siguiente ─────────────────
+    // El HTML de la página siguiente se descarga con prioridad baja cuando el
+    // usuario se acerca al final (o el navegador queda inactivo); sus imágenes
+    // se precargan en segundo plano para que, al navegar, todo esté en caché
+    // y la transición sea instantánea (sin ráfagas de descarga al pintar).
+    let prefetchedHtml    = null;
+    let prefetchedParams  = null;
+    let prefetchScheduled = false;
+    let prefetchVersion   = 0;
+    let prefetchObserver  = null;
+
     function getAjaxParams(page) {
         const p = new URLSearchParams();
         p.set('page', page || 1);
@@ -212,12 +223,25 @@
         history.replaceState(null, '', '?' + getUiParams(page).toString());
 
         try {
-            const res = await fetch('ajax_catalog.php?' + getAjaxParams(page).toString(), {
-                signal: currentRequest.signal
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            resultsEl.innerHTML = await res.text();
+            const paramsStr = getAjaxParams(page).toString();
+            let html = null;
+
+            // Si esta página ya se precargó en segundo plano, pintarla sin descargar
+            if (prefetchedParams === paramsStr && prefetchedHtml !== null) {
+                html = prefetchedHtml;
+                prefetchedHtml   = null;
+                prefetchedParams = null;
+            } else {
+                const res = await fetch('ajax_catalog.php?' + paramsStr, {
+                    signal: currentRequest.signal
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                html = await res.text();
+            }
+
+            resultsEl.innerHTML = html;
             bindPagination();
+            setupPrefetch(page);
 
             const top = resultsEl.getBoundingClientRect().top + window.scrollY - 80;
             if (window.scrollY > top) window.scrollTo({ top, behavior: 'smooth' });
@@ -229,6 +253,99 @@
             loadingEl.style.display = 'none';
             resultsEl.style.opacity = '';
             resultsEl.style.pointerEvents = '';
+        }
+    }
+
+    // ── PRECARGA EN SEGUNDO PLANO DE LA PÁGINA SIGUIENTE ─────────────────
+    // Objetivo: el usuario navega páginas sin notar cargas. La página N+1 se
+    // descarga con prioridad baja y sus imágenes se precargan en background
+    // (en batches para no saturar la conexión). Al pasar a esa página, el
+    // HTML ya está listo y las imágenes en caché → transición instantánea.
+
+    function extractImageUrls(html) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const urls = [];
+        doc.querySelectorAll('img').forEach(img => {
+            const src = img.getAttribute('src');
+            if (src) urls.push(src);
+        });
+        return urls;
+    }
+
+    function preloadImagesInBackground(urls) {
+        // Batches de 4 con pausa: carga progresiva, sin ráfagas
+        const batch = 4;
+        const delay = 150;
+        const apply = from => {
+            urls.slice(from, from + batch).forEach(url => {
+                const img = new Image();
+                if ('fetchPriority' in img) img.fetchPriority = 'low';
+                img.src = url;
+            });
+            if (from + batch < urls.length) {
+                setTimeout(() => apply(from + batch), delay);
+            }
+        };
+        apply(0);
+    }
+
+    function prefetchNextPage(page) {
+        if (prefetchScheduled) return;
+        // Solo precargar si existe la página solicitada en la paginación actual
+        if (!resultsEl.querySelector('.pagination-link[data-page="' + page + '"]')) return;
+
+        prefetchScheduled = true;
+        const v = prefetchVersion;
+        const params = getAjaxParams(page);
+
+        fetch('ajax_catalog.php?' + params.toString(), { priority: 'low' })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.text();
+            })
+            .then(html => {
+                // Descartar respuestas obsoletas si el usuario cambió de filtros
+                if (v !== prefetchVersion) return;
+                prefetchedHtml   = html;
+                prefetchedParams = params.toString();
+                preloadImagesInBackground(extractImageUrls(html));
+            })
+            .catch(() => {
+                prefetchScheduled = false; // reintentar en la siguiente pasada
+            });
+    }
+
+    function setupPrefetch(page) {
+        prefetchVersion++;      // invalida prefetches en vuelo de filtros viejos
+        prefetchScheduled = false;
+        const next = page + 1;
+
+        // No hay página siguiente → no hacer nada
+        if (!resultsEl.querySelector('.pagination-link[data-page="' + next + '"]')) return;
+
+        // 1) Progresivo: cuando la última tarjeta se acerca al viewport
+        const cards = resultsEl.querySelectorAll('.game-card');
+        if (cards.length) {
+            const last = cards[cards.length - 1];
+            if (prefetchObserver) prefetchObserver.disconnect();
+            prefetchObserver = new IntersectionObserver(entries => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        prefetchNextPage(next);
+                        prefetchObserver.disconnect();
+                    }
+                });
+            }, { rootMargin: '800px 0px' });
+            prefetchObserver.observe(last);
+        }
+
+        // 2) Refuerzo: si el navegador queda inactivo, precargar igualmente
+        //    (segundo plano, prioridad baja — el usuario no nota la carga)
+        const startPrefetch = () => prefetchNextPage(next);
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(startPrefetch, { timeout: 4000 });
+        } else {
+            setTimeout(startPrefetch, 1500);
         }
     }
 
@@ -270,6 +387,9 @@
 
     bindPagination();
     updateLimpiar();
+
+    // Precargar en segundo plano la página 2 desde la carga inicial
+    setupPrefetch(1);
 
     // ── AUTOCOMPLETADO ────────────────────────────────────────────────────
     const acList        = document.getElementById('autocomplete-list');
