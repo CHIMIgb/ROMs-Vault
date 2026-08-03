@@ -3,6 +3,24 @@
 require_once __DIR__ . '/config/AuthMiddleware.php';
 require_once __DIR__ . '/config/CsrfService.php';
 
+// ── Cabeceras de seguridad globales (todas las páginas HTML) ────────────────
+// CSP equilibrada: permite el CDN de EmulatorJS, blob: (Object URLs del emulador)
+// y scripts/estilos inline que ya usa el sitio. object-src 'none' y frame-ancestors
+// 'self' cierran clickjacking y plugin-based XSS.
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()');
+header("Content-Security-Policy: default-src 'self'; "
+     . "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.emulatorjs.org; "
+     . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+     . "font-src 'self' https://fonts.gstatic.com data:; "
+     . "img-src 'self' data: blob:; "
+     . "media-src 'self' blob: https://cdn.emulatorjs.org; "
+     . "connect-src 'self' https://cdn.emulatorjs.org; "
+     . "worker-src 'self' blob: https://cdn.emulatorjs.org; "
+     . "frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'");
+
 // Cargar usuario actual desde JWT (disponible como $currentUser en las vistas)
 $currentUser = AuthMiddleware::getUser();
 

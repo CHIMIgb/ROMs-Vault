@@ -54,15 +54,43 @@ class RateLimiter {
     }
 
     /**
-     * IP del cliente respetando proxies (X-Forwarded-For / X-Real-IP).
+     * IP real del cliente.
+     *
+     * Se confía en REMOTE_ADDR (la IP del peer TCP que Apache/nginx ve).
+     * X-Forwarded-For / X-Real-IP SOLO se tienen en cuenta cuando REMOTE_ADDR
+     * es una IP de red local (típico de un reverse proxy o XAMPP), porque de
+     * lo contrario cualquier cliente podría falsear esas cabeceras y eludir
+     * el rate limiting (y además permitiría llenar el disco de archivos).
      */
     public static function clientIp(): string {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR']
-            ?? $_SERVER['HTTP_X_REAL_IP']
-            ?? $_SERVER['REMOTE_ADDR']
-            ?? '0.0.0.0';
-        // Tomar solo la primera IP si hay varias (X-Forwarded-For: ip1, ip2)
-        return trim((string) explode(',', (string) $ip)[0]);
+        $remote = trim((string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'));
+
+        // Si la conexión viene de un proxy de confianza, leer la cabecera real
+        if (self::esIpProxyConfiable($remote)) {
+            $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? '';
+            // Tomar solo la primera IP si hay varias (X-Forwarded-For: ip1, ip2)
+            $forwarded = trim((string) explode(',', (string) $forwarded)[0]);
+
+            if (filter_var($forwarded, FILTER_VALIDATE_IP)) {
+                return $forwarded;
+            }
+        }
+
+        // IP del peer TCP validada; si es inválida, fallback compartido
+        return filter_var($remote, FILTER_VALIDATE_IP) ? $remote : '0.0.0.0';
+    }
+
+    /**
+     * ¿La IP del peer corresponde a un proxy/reverse-proxy típico?
+     * Rango local: 127.0.0.0/8, ::1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+     */
+    private static function esIpProxyConfiable(string $ip): bool {
+        if (in_array($ip, ['127.0.0.1', '::1', 'localhost'], true)) return true;
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            if (str_starts_with($ip, '10.') || str_starts_with($ip, '192.168.')) return true;
+            if (preg_match('/^172\.(1[6-9]|2\d|3[01])\./', $ip)) return true;
+        }
+        return false;
     }
 
     /**

@@ -75,6 +75,7 @@ define('GDRIVE_BASE',  'https://drive.google.com/uc?export=download&confirm=t&id
 // ── Cargar base de datos ─────────────────────────────────────────────────────
 
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/RateLimiter.php';
 require_once __DIR__ . '/models/Model.php';
 require_once __DIR__ . '/models/Juego.php';
 
@@ -119,46 +120,11 @@ if ((time() - $timestamp) > SIGNED_URL_TTL) {
 }
 
 // ── Rate limiting por IP ─────────────────────────────────────────────────────
-function checkRateLimit(string $ip, int $max = 30, int $window = 60): bool {
-    $dir = sys_get_temp_dir() . '/romproxy_rl';
-    if (!is_dir($dir)) @mkdir($dir, 0700, true);
-
-    $file = $dir . '/' . md5($ip) . '.json';
-
-    // Limpiar archivos viejos cada ~100 peticiones (probabilístico)
-    if (random_int(1, 100) === 1) {
-        foreach (glob($dir . '/*.json') as $f) {
-            if (filemtime($f) < time() - $window * 2) @unlink($f);
-        }
-    }
-
-    $data = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
-
-    if (!$data || $data['window_start'] < time() - $window) {
-        file_put_contents($file, json_encode([
-            'window_start' => time(), 'count' => 1
-        ]), LOCK_EX);
-        return true;
-    }
-
-    if ($data['count'] >= $max) return false;
-
-    $data['count']++;
-    file_put_contents($file, json_encode($data), LOCK_EX);
-    return true;
-}
-
-$clientIp = $_SERVER['HTTP_X_FORWARDED_FOR']
-    ?? $_SERVER['HTTP_X_REAL_IP']
-    ?? $_SERVER['REMOTE_ADDR']
-    ?? '0.0.0.0';
-// Tomar solo la primera IP si hay varias (X-Forwarded-For: ip1, ip2)
-$clientIp = trim(explode(',', $clientIp)[0]);
-
+// (se delega en config/RateLimiter.php, la misma clase que protege el login)
 $rlMax    = (int)($_ENV['RATE_LIMIT_MAX']    ?? 30);
 $rlWindow = (int)($_ENV['RATE_LIMIT_WINDOW'] ?? 60);
 
-if (!checkRateLimit($clientIp, $rlMax, $rlWindow)) {
+if (!RateLimiter::check(RateLimiter::clientIp(), $rlMax, $rlWindow, 'proxy')) {
     http_response_code(429);
     header('Content-Type: application/json');
     header('Retry-After: ' . $rlWindow);

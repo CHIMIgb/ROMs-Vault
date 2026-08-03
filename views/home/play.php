@@ -46,7 +46,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
         <!-- Acciones disponibles -->
         <div class="proxy-error-actions">
             <?php if ($errorType !== 'quota'): ?>
-                <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>"
+                <a href="<?= htmlspecialchars($downloadUrl) ?>"
                     class="btn-download-big" target="_blank">
                     <i data-i="download"></i> Descargar ROM
                 </a>
@@ -155,7 +155,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                     </div>
 
                     <div class="emulator-actions">
-                        <a href="index.php?controller=home&action=download&file_id=<?= urlencode($juego['google_drive_file_id']) ?>"
+                        <a href="<?= htmlspecialchars($downloadUrl) ?>"
                             class="btn-dl-small" target="_blank"><i data-i="download"></i> Descargar ROM</a>
                         <button class="btn-fullscreen"
                             onclick="document.getElementById('emulator-container').requestFullscreen()">
@@ -430,7 +430,8 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                     };
                     const [icon, titulo] = iconMap[errorType] || ['<i data-i="warning"></i>', 'Error al cargar la ROM'];
                     const consejo = tipMap[errorType] || 'Inténtalo de nuevo o descarga la ROM.';
-                    const fileId = romUrl.split('file_id=')[1] || '';
+                    // URL de descarga firmada por el servidor (inyectada desde PHP)
+                    const signedDownloadUrl = '<?= addslashes($downloadUrl) ?>';
 
                     document.querySelector('.emulator-wrapper').innerHTML = `
                 <div class="proxy-error-page">
@@ -443,7 +444,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                     </div>
                     <div class="proxy-error-actions">
                         ${errorType !== 'quota'
-                        ? `<a href="index.php?controller=home&action=download&file_id=${encodeURIComponent(fileId)}"
+                        ? `<a href="${signedDownloadUrl}"
                                   class="btn-download-big" target="_blank"><i data-i="download"></i> Descargar ROM</a>`
                         : `<a href="javascript:location.reload()" class="btn-retry"><i data-i="reload"></i> Reintentar</a>`
                     }

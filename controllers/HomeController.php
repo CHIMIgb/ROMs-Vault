@@ -4,6 +4,8 @@ require_once 'models/Juego.php';
 require_once 'models/Consola.php';
 require_once 'models/Categoria.php';
 require_once 'models/Emulador.php';
+require_once 'config/UrlSigner.php';
+require_once 'config/RateLimiter.php';
 
 class HomeController {
     
@@ -265,6 +267,7 @@ class HomeController {
 
         $core    = $this->getEmulatorCore($juego['consola_nombre']);
         $romUrl  = $this->signProxyUrl($fileId);
+        $downloadUrl = UrlSigner::downloadUrl($fileId);
         $biosUrl = null;
         $error   = null;
 
@@ -346,21 +349,52 @@ class HomeController {
 
     public function download() {
         $fileId = $_GET['file_id'] ?? null;
-        
-        if (!$fileId) {
-            die("Error: No se especificó el archivo a descargar");
+        $t      = (int) ($_GET['t'] ?? 0);
+        $sig    = $_GET['sig'] ?? '';
+
+        // URL firmada obligatoria (anti-abuso: evita descargar sin pasar por el sitio)
+        if (!$fileId || !UrlSigner::verify((string) $fileId, $t, (string) $sig)) {
+            http_response_code(403);
+            $errorCode  = 403;
+            $errorTitle = 'Enlace no válido';
+            $errorMsg   = 'Este enlace de descarga no es válido o ha caducado. Vuelve al catálogo y pulsa de nuevo en Descargar.';
+            require_once 'views/layout/header.php';
+            require_once 'views/errors/generic.php';
+            require_once 'views/layout/footer.php';
+            exit;
         }
-        
+
+        // Rate limit por IP para no inflar el contador ni abusar de Drive
+        $rlMax    = (int) ($_ENV['DOWNLOAD_RATE_LIMIT_MAX']    ?? 30);
+        $rlWindow = (int) ($_ENV['DOWNLOAD_RATE_LIMIT_WINDOW'] ?? 60);
+        if (!RateLimiter::check(RateLimiter::clientIp(), $rlMax, $rlWindow, 'download')) {
+            http_response_code(429);
+            $errorCode  = 429;
+            $errorTitle = 'Demasiadas descargas';
+            $errorMsg   = 'Has superado el número máximo de descargas. Espera unos minutos e inténtalo de nuevo.';
+            require_once 'views/layout/header.php';
+            require_once 'views/errors/generic.php';
+            require_once 'views/layout/footer.php';
+            exit;
+        }
+
         $juegoModel = new Juego();
         $juego = $juegoModel->findByFileId($fileId);
-        
+
         if (!$juego) {
-            die("Error: El archivo solicitado no existe en nuestra base de datos");
+            http_response_code(404);
+            $errorCode  = 404;
+            $errorTitle = 'Archivo no encontrado';
+            $errorMsg   = 'El archivo solicitado no existe en nuestra base de datos.';
+            require_once 'views/layout/header.php';
+            require_once 'views/errors/generic.php';
+            require_once 'views/layout/footer.php';
+            exit;
         }
-        
+
         // Incrementar contador de descargas
         $juegoModel->incrementDownloads($juego['id']);
-        
+
         $downloadLink = "https://drive.google.com/uc?export=download&id={$fileId}&confirm=t";
         header("Location: " . $downloadLink);
         exit;
@@ -371,11 +405,7 @@ class HomeController {
      * La firma incluye el file_id y un timestamp, válida por 2 horas.
      */
     private function signProxyUrl(string $fileId): string {
-        $t   = time();
-        $sig = hash_hmac('sha256', $fileId . '|' . $t, $_ENV['JWT_SECRET']);
-        return 'rom_proxy.php?file_id=' . urlencode($fileId)
-             . '&t=' . $t
-             . '&sig=' . $sig;
+        return UrlSigner::proxyUrl($fileId);
     }
 
     /**

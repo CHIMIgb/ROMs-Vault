@@ -430,10 +430,10 @@
                 </div>
                 <div class="ac-actions">
                     ${item.consola.toUpperCase() !== 'PSP'
-                        ? `<a href="${item.play_url}" class="ac-btn-play" title="Jugar online"><i data-i="play"></i></a>`
+                        ? `<a href="${escHtml(item.play_url)}" class="ac-btn-play" title="Jugar online"><i data-i="play"></i></a>`
                         : ''
                     }
-                    <a href="${item.download_url}" class="ac-btn-dl" title="Descargar" target="_blank"><i data-i="download"></i></a>
+                    <a href="${escHtml(item.download_url)}" class="ac-btn-dl" title="Descargar" target="_blank"><i data-i="download"></i></a>
                 </div>`;
 
             li.addEventListener('mousedown', e => {
