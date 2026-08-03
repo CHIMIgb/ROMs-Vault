@@ -30,7 +30,7 @@ $itemsPerPage = 20;
 $currentPage  = max(1, (int)($_GET['page'] ?? 1));
 $offset       = ($currentPage - 1) * $itemsPerPage;
 
-$juegos      = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsPerPage);
+$juegos      = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsPerPage, Juego::getCatalogSeed());
 $totalJuegos = $juegoModel->countWithFilters($filters);
 $totalPages  = (int)ceil($totalJuegos / $itemsPerPage);
 
@@ -48,13 +48,13 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
         Alert::render('info', 'No hay juegos disponibles que coincidan con los filtros.', 'info', 'grid-column:1/-1;text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
-        <?php foreach ($juegos as $juego): ?>
+        <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
             <div class="game-card">
                 <div class="game-card-inner">
                     <a href="index.php?controller=home&action=show&id=<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
                         <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
                             <?php if (!empty($juego['imagen'])): ?>
-                                <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async">
+                                <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async"<?= $i === 1 ? ' fetchpriority="high"' : '' ?>>
                             <?php else: ?>
                                 <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                             <?php endif; ?>

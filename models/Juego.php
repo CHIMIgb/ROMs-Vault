@@ -124,8 +124,13 @@ class Juego extends Model {
     /**
      * Whitelist de ordenamientos permitidos para el catálogo público.
      * Previene inyección SQL al construir el ORDER BY dinámicamente.
+     *
+     * El orden aleatorio usa una semilla por visitante: md5(id + seed) da un
+     * orden pseudoaleatorio pero ESTABLE mientras la seed no cambie. Así el
+     * navegador aprovecha la caché de imágenes y la paginación no repite
+     * juegos (a diferencia de RANDOM(), que reordena en cada request).
      */
-    private function resolveOrder(string $orden): string {
+    private function resolveOrder(string $orden, string $seed = ''): string {
         $map = [
             'titulo'    => 'j.titulo ASC',
             'recientes' => 'j.created_at DESC',
@@ -133,15 +138,32 @@ class Juego extends Model {
             'jugados'   => 'j.plays_count DESC',
             'año_asc'   => 'j.fecha_lanzamiento ASC NULLS LAST',
             'año_desc'  => 'j.fecha_lanzamiento DESC NULLS LAST',
-            'random'    => 'RANDOM()',
         ];
-        // Fallback seguro: más recientes. Nunca RANDOM() por defecto
-        // (fuerza un orden aleatorio de toda la tabla en cada página).
+        if ($orden === 'random') {
+            // Fallback conservador si no hay seed: RANDOM() (comportamiento previo)
+            return $seed !== '' ? 'md5(j.id::text || :seed)' : 'RANDOM()';
+        }
+        // Fallback seguro: más recientes.
         return $map[$orden] ?? 'j.created_at DESC';
     }
 
+    /**
+     * Seed aleatoria del catálogo, estable por navegador (cookie).
+     * Cada visitante obtiene un orden aleatorio distinto, pero constante
+     * mientras la cookie viva → caché de imágenes efectiva y paginación
+     * coherente en el orden aleatorio.
+     */
+    public static function getCatalogSeed(): string {
+        $seed = $_COOKIE['rv_cat_seed'] ?? '';
+        if ($seed === '' || !preg_match('/^[a-f0-9]{32}$/', $seed)) {
+            $seed = bin2hex(random_bytes(16));
+            setcookie('rv_cat_seed', $seed, time() + 86400 * 30, '/');
+        }
+        return $seed;
+    }
+
     // Método con paginación, búsqueda y ordenamiento (catálogo público)
-    public function getWithRelationsPaginated($filters = [], $offset = 0, $limit = 20) {
+    public function getWithRelationsPaginated($filters = [], $offset = 0, $limit = 20, $seed = '') {
         $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
                 FROM juegos j
                 LEFT JOIN consolas c ON j.consola_id = c.id
@@ -161,8 +183,8 @@ class Juego extends Model {
             $sql .= " AND j.region = :region";
         }
 
-        // Ordenamiento seguro mediante whitelist
-        $orden = $this->resolveOrder($filters['orden'] ?? '');
+        // Ordenamiento seguro mediante whitelist (random estable usa :seed)
+        $orden = $this->resolveOrder($filters['orden'] ?? '', $seed);
         $sql .= " ORDER BY {$orden} LIMIT :limit OFFSET :offset";
         
         $stmt = $this->pdo->prepare($sql);
@@ -178,6 +200,9 @@ class Juego extends Model {
         }
         if (!empty($filters['region'])) {
             $stmt->bindValue(':region', $filters['region'], PDO::PARAM_STR);
+        }
+        if (strpos($orden, ':seed') !== false) {
+            $stmt->bindValue(':seed', $seed, PDO::PARAM_STR);
         }
         
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);

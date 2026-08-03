@@ -39,8 +39,8 @@ class HomeController {
         
         $offset = ($currentPage - 1) * $itemsPerPage;
         
-        // Obtener juegos paginados
-        $juegos = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsPerPage);
+        // Obtener juegos paginados (la seed hace estable el orden aleatorio)
+        $juegos = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsPerPage, Juego::getCatalogSeed());
         
         // Obtener total de juegos para la paginación
         $totalJuegos = $juegoModel->countWithFilters($filters);
