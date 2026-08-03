@@ -43,9 +43,10 @@ class Database {
         } catch (PDOException $e) {
             // Log del error para depuración
             error_log("Error de conexión PostgreSQL: " . $e->getMessage());
-            
-            // Mensaje amigable para el usuario
-            die("Error de conexión a la base de datos. Detalle técnico: " . $e->getMessage());
+
+            // Mensaje genérico al usuario — nunca exponer detalles técnicos
+            http_response_code(503);
+            die("No se pudo conectar con la base de datos. Inténtalo de nuevo en unos minutos.");
         }
     }
 
