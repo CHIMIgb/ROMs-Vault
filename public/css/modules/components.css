@@ -752,18 +752,6 @@
     display: block;
 }
 
-/* ── emulator cover placeholder ──────────────────── */
-.emulator-cover--placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.emulator-cover--placeholder svg.pxi {
-    width: 60%;
-    height: 60%;
-    opacity: 0.4;
-}
-
 /* ── search button icon ──────────────────────────── */
 .search-button svg.pxi,
 .search-button i[data-i] {
