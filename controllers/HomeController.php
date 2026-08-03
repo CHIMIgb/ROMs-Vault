@@ -216,7 +216,6 @@ class HomeController {
         $biosPath  = $biosMap[$core][$regionKey];
 
         $exists = file_exists($biosPath);
-        file_put_contents(__DIR__ . '/../bios_debug.log', "BIOS Debug: Core=$core, Region=$region, Key=$regionKey, Path=$biosPath, Exists=" . ($exists ? "YES" : "NO") . ", CWD=" . getcwd() . "\n", FILE_APPEND);
 
         // Solo devolver la URL si el archivo existe en disco
         return $exists ? $biosPath : null;
@@ -316,7 +315,7 @@ class HomeController {
             CURLOPT_TIMEOUT        => 12,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS      => 5,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_USERAGENT      => 'ROMs-Vault/Preflight',
         ]);
         curl_exec($ch);
