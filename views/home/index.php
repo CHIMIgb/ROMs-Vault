@@ -52,7 +52,7 @@
 
         <select id="f-orden">
             <option value="titulo"    <?= (($_GET['orden'] ?? '') === 'titulo')    ? 'selected' : '' ?>>A - Z</option>
-            <option value="recientes" <?= (($_GET['orden'] ?? '') === 'recientes') ? 'selected' : '' ?>>Mas recientes</option>
+            <option value="recientes" <?= (($_GET['orden'] ?? '') === 'recientes' || !isset($_GET['orden'])) ? 'selected' : '' ?>>Mas recientes</option>
             <option value="descargas" <?= (($_GET['orden'] ?? '') === 'descargas') ? 'selected' : '' ?>>Mas descargados</option>
             <option value="jugados"   <?= (($_GET['orden'] ?? '') === 'jugados')   ? 'selected' : '' ?>>Mas jugados</option>
             <option value="año_desc"  <?= (($_GET['orden'] ?? '') === 'año_desc')  ? 'selected' : '' ?>>Año nuevos primero</option>
@@ -85,7 +85,7 @@
                         <a href="index.php?controller=home&action=show&id=<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
                             <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
                                 <?php if (!empty($juego['imagen'])): ?>
-                                    <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>">
+                                    <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async">
                                 <?php else: ?>
                                     <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                                 <?php endif; ?>
@@ -256,7 +256,7 @@
         consolaEl.value   = '';
         categoriaEl.value = '';
         regionEl.value    = '';
-        ordenEl.value     = 'titulo';
+        ordenEl.value     = 'recientes';
         updateLimpiar();
         fetchResults(1);
     });

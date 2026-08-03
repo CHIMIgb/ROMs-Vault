@@ -135,7 +135,9 @@ class Juego extends Model {
             'año_desc'  => 'j.fecha_lanzamiento DESC NULLS LAST',
             'random'    => 'RANDOM()',
         ];
-        return $map[$orden] ?? 'RANDOM()';
+        // Fallback seguro: más recientes. Nunca RANDOM() por defecto
+        // (fuerza un orden aleatorio de toda la tabla en cada página).
+        return $map[$orden] ?? 'j.created_at DESC';
     }
 
     // Método con paginación, búsqueda y ordenamiento (catálogo público)

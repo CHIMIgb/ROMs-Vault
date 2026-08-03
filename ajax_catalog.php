@@ -23,6 +23,8 @@ if (isset($_GET['consola'])   && $_GET['consola']   !== '') $filters['consola'] 
 if (isset($_GET['categoria']) && $_GET['categoria'] !== '') $filters['categoria'] = $_GET['categoria'];
 if (isset($_GET['region'])    && $_GET['region']    !== '') $filters['region']    = $_GET['region'];
 if (isset($_GET['orden'])     && $_GET['orden']     !== '') $filters['orden']     = $_GET['orden'];
+// Orden por defecto: más recientes (evita RANDOM() que fuerza un sort completo)
+if (empty($filters['orden'])) $filters['orden'] = 'recientes';
 
 $itemsPerPage = 20;
 $currentPage  = max(1, (int)($_GET['page'] ?? 1));
@@ -52,7 +54,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                     <a href="index.php?controller=home&action=show&id=<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
                         <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
                             <?php if (!empty($juego['imagen'])): ?>
-                                <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>">
+                                <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async">
                             <?php else: ?>
                                 <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                             <?php endif; ?>
