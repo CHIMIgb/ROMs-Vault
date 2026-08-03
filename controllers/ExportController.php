@@ -12,7 +12,7 @@ use Shuchkin\SimpleXLSXGen;
 class ExportController {
 
     public function __construct() {
-        AuthMiddleware::requireAuth(); // Solo administradores pueden exportar
+        AuthMiddleware::requireAdmin(); // Solo administradores pueden exportar
     }
 
     public function download() {

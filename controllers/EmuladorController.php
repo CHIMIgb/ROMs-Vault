@@ -8,7 +8,7 @@ require_once __DIR__ . '/../config/CsrfService.php';
 class EmuladorController {
 
     public function __construct() {
-        AuthMiddleware::requireAuth();
+        AuthMiddleware::requireAdmin();
     }
 
     // ── Listado (con búsqueda y filtro por estado, igual que consolas) ────

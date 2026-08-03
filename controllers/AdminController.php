@@ -7,7 +7,7 @@ require_once __DIR__ . '/../config/CsrfService.php';
 
 class AdminController {
     public function __construct() {
-        AuthMiddleware::requireAuth();
+        AuthMiddleware::requireAdmin();
     }
 
     public function dashboard() {

@@ -8,7 +8,7 @@ require_once __DIR__ . '/../config/CsrfService.php';
 class CategoriaController {
 
     public function __construct() {
-        AuthMiddleware::requireAuth();
+        AuthMiddleware::requireAdmin();
     }
 
     // ── Listado ───────────────────────────────────────────────────────────

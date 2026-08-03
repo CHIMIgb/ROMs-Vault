@@ -6,7 +6,7 @@
  */
 
 require_once __DIR__ . '/config/AuthMiddleware.php';
-AuthMiddleware::requireAuthAjax();
+AuthMiddleware::requireAdminAjax();
 
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/models/Model.php';
