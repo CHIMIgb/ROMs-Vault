@@ -400,9 +400,7 @@
     transform: translate(-3px, -3px);
     box-shadow:
         8px 8px 0 #8a7a58,
-        9px 9px 0 #6a5a38,
-        0 0 18px rgba(192, 57, 43, 0.45),
-        0 0 32px rgba(192, 57, 43, 0.22);
+        9px 9px 0 #6a5a38;
 }
 /* ── Hover retro "cartucho encendido" ──
    La portada se enciende como una pantalla CRT: brillo y contraste,

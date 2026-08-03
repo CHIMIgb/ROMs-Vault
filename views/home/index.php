@@ -51,8 +51,9 @@
         </select>
 
         <select id="f-orden">
+            <option value="random"    <?= (($_GET['orden'] ?? 'random') === 'random') ? 'selected' : '' ?>>Aleatorio</option>
             <option value="titulo"    <?= (($_GET['orden'] ?? '') === 'titulo')    ? 'selected' : '' ?>>A - Z</option>
-            <option value="recientes" <?= (($_GET['orden'] ?? '') === 'recientes' || !isset($_GET['orden'])) ? 'selected' : '' ?>>Mas recientes</option>
+            <option value="recientes" <?= (($_GET['orden'] ?? '') === 'recientes') ? 'selected' : '' ?>>Mas recientes</option>
             <option value="descargas" <?= (($_GET['orden'] ?? '') === 'descargas') ? 'selected' : '' ?>>Mas descargados</option>
             <option value="jugados"   <?= (($_GET['orden'] ?? '') === 'jugados')   ? 'selected' : '' ?>>Mas jugados</option>
             <option value="año_desc"  <?= (($_GET['orden'] ?? '') === 'año_desc')  ? 'selected' : '' ?>>Año nuevos primero</option>

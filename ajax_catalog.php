@@ -23,8 +23,8 @@ if (isset($_GET['consola'])   && $_GET['consola']   !== '') $filters['consola'] 
 if (isset($_GET['categoria']) && $_GET['categoria'] !== '') $filters['categoria'] = $_GET['categoria'];
 if (isset($_GET['region'])    && $_GET['region']    !== '') $filters['region']    = $_GET['region'];
 if (isset($_GET['orden'])     && $_GET['orden']     !== '') $filters['orden']     = $_GET['orden'];
-// Orden por defecto: más recientes (evita RANDOM() que fuerza un sort completo)
-if (empty($filters['orden'])) $filters['orden'] = 'recientes';
+// Orden por defecto: aleatorio (como el usuario prefiere para la carga del catálogo)
+if (empty($filters['orden'])) $filters['orden'] = 'random';
 
 $itemsPerPage = 20;
 $currentPage  = max(1, (int)($_GET['page'] ?? 1));

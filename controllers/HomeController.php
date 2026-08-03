@@ -30,7 +30,7 @@ class HomeController {
         }
         $filters['orden'] = (isset($_GET['orden']) && $_GET['orden'] !== '')
             ? $_GET['orden']
-            : 'recientes';
+            : 'random';
 
         // Configuración de paginación
         $itemsPerPage = 20; // 4 columnas × 5 filas
