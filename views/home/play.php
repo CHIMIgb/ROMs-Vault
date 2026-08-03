@@ -113,13 +113,16 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
         <!-- Info panel -->
         <div class="emulator-info">
             <div class="emulator-game-meta">
-                <?php if (!empty($juego['imagen'])): ?>
-                    <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>"
-                        class="emulator-cover">
-                <?php else: ?>
-                    <div class="emulator-cover emulator-cover--placeholder"><i data-i="disc"
-                            data-cls="pxi-cover-placeholder"></i></div>
-                <?php endif; ?>
+                <!-- Contenedor de portada: tamaño variable, se adapta a cada imagen -->
+                <div class="emulator-cover-frame">
+                    <?php if (!empty($juego['imagen'])): ?>
+                        <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>"
+                            class="emulator-cover-img">
+                    <?php else: ?>
+                        <div class="emulator-cover-placeholder"><i data-i="disc"
+                                data-cls="pxi-cover-placeholder"></i></div>
+                    <?php endif; ?>
+                </div>
 
                 <div class="emulator-game-details">
                     <h2 class="emulator-game-title"><?= htmlspecialchars($juego['titulo']) ?></h2>

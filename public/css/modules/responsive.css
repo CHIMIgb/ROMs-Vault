@@ -238,7 +238,8 @@
 
     /* ─── Emulador ─── */
     .emulator-game-meta { flex-direction: column; }
-    .emulator-cover { width: 100%; height: 150px; }
+    /* Portada completa y nítida en móviles pequeños, sin recortes */
+    .emulator-cover-img { max-width: 140px; max-height: 185px; }
     .emulator-actions { flex-direction: column; }
     .btn-dl-small, .btn-fullscreen { width: 100%; text-align: center; }
     #emulator-container { aspect-ratio: 3 / 2; }
