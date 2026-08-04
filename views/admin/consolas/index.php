@@ -96,6 +96,7 @@ endif;
                     <th>Descripción</th>
                     <th>Creada</th>
                     <th>Estado</th>
+                    <th>Emulación</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -116,6 +117,15 @@ endif;
                                 data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
                                 data-accion="<?= $c['activo'] ? 'desactivar' : 'activar' ?>">
                             <?= $c['activo'] ? 'Desactivar' : 'Activar' ?>
+                        </button>
+                    </td>
+                    <td>
+                        <!-- Emulación online (EmulatorJS) — toggle independiente del estado activo -->
+                        <button class="btn-toggle-active btn-toggle-emulacion <?= $c['emulacion_online'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
+                                data-id="<?= $c['id'] ?>"
+                                data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
+                                data-accion="<?= $c['emulacion_online'] ? 'desactivar' : 'activar' ?>">
+                            <?= $c['emulacion_online'] ? 'Desactivar' : 'Activar' ?>
                         </button>
                     </td>
                     <td>
@@ -247,7 +257,8 @@ endif;
     // ── Delegación de clics en botones toggle — idéntica al dashboard ─────
     document.getElementById('consolas-results').addEventListener('click', e => {
         const btn = e.target.closest('.btn-toggle-active');
-        if (!btn) return;
+        // El toggle de emulación online se gestiona en su propia delegación
+        if (!btn || btn.classList.contains('btn-toggle-emulacion')) return;
         e.preventDefault();
 
         const accion = btn.dataset.accion;
@@ -283,6 +294,58 @@ endif;
                     RVAlerts.toast(
                         `"${data.nombre}" ${estaActivo ? 'activada' : 'desactivada'} correctamente`,
                         estaActivo ? 'success' : 'warning'
+                    );
+
+                } catch (err) {
+                    RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
+                    btn.disabled    = false;
+                    btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
+                }
+
+                btn.disabled = false;
+            }
+        });
+    });
+
+    // ── Toggle de emulación online (botón .btn-toggle-emulacion) ──────────
+    document.getElementById('consolas-results').addEventListener('click', e => {
+        const btn = e.target.closest('.btn-toggle-emulacion');
+        if (!btn) return;
+        e.preventDefault();
+
+        const accion = btn.dataset.accion;   // 'activar' | 'desactivar'
+        const titulo = btn.dataset.titulo;
+        const id     = btn.dataset.id;
+
+        RVAlerts.confirm({
+            tipo:    accion === 'desactivar' ? 'warning' : 'success',
+            titulo:  accion === 'desactivar' ? '¿Desactivar emulación online?' : '¿Activar emulación online?',
+            mensaje: `<strong>${titulo}</strong> ${accion === 'desactivar'
+                        ? 'dejará de mostrar el botón «Jugar Online» en el catálogo y la ficha.'
+                        : 'volverá a mostrar el botón «Jugar Online» en el catálogo y la ficha.'}`,
+            btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
+            btnCancel: 'Cancelar',
+            onOk: async () => {
+                btn.disabled    = true;
+                btn.textContent = '...';
+
+                try {
+                    const res  = await fetch(
+                        `index.php?controller=consola&action=toggleEmulacionAjax&id=${id}`,
+                        { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
+                    );
+                    const data = await res.json();
+
+                    if (!data.ok) throw new Error(data.error || 'Error desconocido');
+
+                    const activada = data.emulacion_online === 1;
+                    btn.textContent    = activada ? 'Desactivar' : 'Activar';
+                    btn.dataset.accion = activada ? 'desactivar' : 'activar';
+                    btn.className      = 'btn-toggle-active btn-toggle-emulacion ' + (activada ? 'btn-toggle--on' : 'btn-toggle--off');
+
+                    RVAlerts.toast(
+                        `Emulación online de "${data.nombre}" ${activada ? 'activada' : 'desactivada'} correctamente`,
+                        activada ? 'success' : 'warning'
                     );
 
                 } catch (err) {

@@ -46,6 +46,20 @@
                       placeholder="Breve descripción de la consola..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
         </div>
 
+        <!-- Emulación online -->
+        <div class="form-group" style="display:flex;align-items:center;gap:.75rem;padding:.9rem 1rem;background:var(--cream);border:1px solid var(--border-mid);border-radius:12px;">
+            <input type="checkbox"
+                   id="emulacion_online"
+                   name="emulacion_online"
+                   value="1"
+                   <?= empty($_POST['emulacion_online']) ? 'checked' : '' ?>
+                   style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;">
+            <div>
+                <label for="emulacion_online" style="margin:0;font-weight:600;cursor:pointer;">Emulación online</label>
+                <small style="display:block;color:var(--slate-mid);">Permite jugar los juegos de esta consola en el navegador (EmulatorJS). La descarga siempre sigue disponible.</small>
+            </div>
+        </div>
+
         <!-- Botones — mismo .form-actions que add.php de juegos -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">

@@ -18,14 +18,22 @@ class Juego extends Model {
 
     // Buscar juego por google_drive_file_id
     public function findByFileId($fileId) {
-        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE google_drive_file_id = ?");
+        $stmt = $this->pdo->prepare(
+            "SELECT j.*, c.nombre AS consola_nombre,
+                    c.emulacion_online AS consola_emulacion_online
+             FROM {$this->table} j
+             LEFT JOIN consolas c ON j.consola_id = c.id
+             WHERE j.google_drive_file_id = ?"
+        );
         $stmt->execute([$fileId]);
         return $stmt->fetch();
     }
     
     // Obtener un juego por ID con detalles de relaciones
     public function findWithDetails($id) {
-        $stmt = $this->pdo->prepare("SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
+        $stmt = $this->pdo->prepare("SELECT j.*, c.nombre as consola_nombre,
+                   c.emulacion_online AS consola_emulacion_online,
+                   cat.nombre as categoria_nombre 
                 FROM juegos j
                 LEFT JOIN consolas c ON j.consola_id = c.id
                 LEFT JOIN categorias cat ON j.categoria_id = cat.id
@@ -164,7 +172,9 @@ class Juego extends Model {
 
     // Método con paginación, búsqueda y ordenamiento (catálogo público)
     public function getWithRelationsPaginated($filters = [], $offset = 0, $limit = 20, $seed = '') {
-        $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
+        $sql = "SELECT j.*, c.nombre as consola_nombre,
+                   c.emulacion_online AS consola_emulacion_online,
+                   cat.nombre as categoria_nombre 
                 FROM juegos j
                 LEFT JOIN consolas c ON j.consola_id = c.id
                 LEFT JOIN categorias cat ON j.categoria_id = cat.id

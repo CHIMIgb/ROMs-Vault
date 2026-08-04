@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.consolas (
     descripcion TEXT,
     fabricante VARCHAR(100),
     activo BOOLEAN DEFAULT TRUE,
+    emulacion_online BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

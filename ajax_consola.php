@@ -49,6 +49,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                 <th>Fabricante</th>
                 <th>Descripción</th>
                 <th>Estado</th>
+                <th>Emulación</th>
                 <th>Creada</th>
                 <th>Acciones</th>
             </tr>
@@ -68,6 +69,14 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                             data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
                             data-accion="<?= $c['activo'] ? 'desactivar' : 'activar' ?>">
                         <?= $c['activo'] ? 'Desactivar' : 'Activar' ?>
+                    </button>
+                </td>
+                <td>
+                    <button class="btn-toggle-active btn-toggle-emulacion <?= $c['emulacion_online'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
+                            data-id="<?= $c['id'] ?>"
+                            data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
+                            data-accion="<?= $c['emulacion_online'] ? 'desactivar' : 'activar' ?>">
+                        <?= $c['emulacion_online'] ? 'Desactivar' : 'Activar' ?>
                     </button>
                 </td>
                 <td><?= date('d/m/Y', strtotime($c['created_at'])) ?></td>

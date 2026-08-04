@@ -42,16 +42,18 @@ class ConsolaController {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             $fabricante  = trim($_POST['fabricante']  ?? '');
+            $emulacionOnline = isset($_POST['emulacion_online']) ? 1 : 0;
 
             if ($nombre === '') {
                 $error = 'El nombre de la consola es obligatorio.';
             } else {
                 $consolaModel = new Consola();
                 $ok = $consolaModel->create([
-                    'nombre'      => $nombre,
-                    'descripcion' => $descripcion ?: null,
-                    'fabricante'  => $fabricante  ?: null,
-                    'activo'      => 1,
+                    'nombre'           => $nombre,
+                    'descripcion'      => $descripcion ?: null,
+                    'fabricante'       => $fabricante  ?: null,
+                    'activo'           => 1,
+                    'emulacion_online' => $emulacionOnline,
                 ]);
 
                 if ($ok) {
@@ -89,15 +91,17 @@ class ConsolaController {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             $fabricante  = trim($_POST['fabricante']  ?? '');
+            $emulacionOnline = isset($_POST['emulacion_online']) ? 1 : 0;
 
             if ($nombre === '') {
                 $error = 'El nombre de la consola es obligatorio.';
             } else {
                 $ok = $consolaModel->update($id, [
-                    'nombre'      => $nombre,
-                    'descripcion' => $descripcion ?: null,
-                    'fabricante'  => $fabricante  ?: null,
-                    'activo'      => 1,
+                    'nombre'           => $nombre,
+                    'descripcion'      => $descripcion ?: null,
+                    'fabricante'       => $fabricante  ?: null,
+                    'activo'           => 1,
+                    'emulacion_online' => $emulacionOnline,
                 ]);
 
                 if ($ok) {
@@ -179,6 +183,41 @@ class ConsolaController {
             'ok'     => (bool)$ok,
             'activo' => $nuevoEstado,
             'nombre' => $consola['nombre'],
+        ]);
+        exit;
+    }
+
+    // ── Toggle emulación online (AJAX) ────────────────────────────────────
+    public function toggleEmulacionAjax($id = null) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        // AJAX mutador — exigir token CSRF por header
+        if (!CsrfService::verifyAjax()) {
+            CsrfService::deny();
+        }
+
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            exit;
+        }
+
+        $consolaModel = new Consola();
+        $consola      = $consolaModel->find($id);
+
+        if (!$consola) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'error' => 'Consola no encontrada']);
+            exit;
+        }
+
+        $nuevoEstado = $consola['emulacion_online'] ? 0 : 1;
+        $ok          = $consolaModel->update($id, ['emulacion_online' => $nuevoEstado]);
+
+        echo json_encode([
+            'ok'              => (bool)$ok,
+            'emulacion_online' => $nuevoEstado,
+            'nombre'          => $consola['nombre'],
         ]);
         exit;
     }
