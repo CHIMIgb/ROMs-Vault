@@ -268,7 +268,10 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
             <?php endif; ?>
 
             <?php if ($needsThreads): ?>
-                // Threads requeridos (PSP, DOSBox) — necesita COOP/COEP headers en el servidor
+                // Threads habilitados por los headers COOP/COEP que emite el
+                // controlador (ahora: N64, PSP, DOSBox — se añaden cores de uno
+                // en uno tras probar). Si el navegador no expone SharedArrayBuffer,
+                // EmulatorJS usa single-thread sin romper.
                 window.EJS_threads = true;
             <?php endif; ?>
 

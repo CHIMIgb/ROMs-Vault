@@ -226,8 +226,14 @@ class HomeController {
     /**
      * Cores que necesitan EJS_threads = true (requieren COOP/COEP headers).
      */
+    /**
+     * Cores que aprovechan threads (SharedArrayBuffer). Se activa UN core a la
+     * vez (incremental): ahora solo N64. Requiere los headers COOP/COEP que
+     * play() emite cuando este método devuelve true (toggle ENABLE_EMULATOR_THREADS).
+     * Si el navegador no expone SharedArrayBuffer, EmulatorJS cae a single-thread.
+     */
     private function requiresThreads(string $core): bool {
-        return in_array($core, ['psp', 'dosbox_pure']);
+        return in_array($core, ['psp', 'dosbox_pure', 'n64']);
     }
 
     /**
@@ -307,6 +313,16 @@ class HomeController {
         $proxyError = null;
         if (!$error && $core) {
             $proxyError = $this->checkProxyAccess($fileId);
+        }
+
+        // ── Headers para threads de EmulatorJS (COOP/COEP) ─────────────────────
+        // Se emiten SOLO cuando el core de este juego usa threads (ahora: N64,
+        // PSP, DOSBox). COEP en 'credentialless' (bajo riesgo: carga los recursos
+        // cross-origin sin cookies, no exige CORS en todos). Habilita
+        // SharedArrayBuffer → EJS_threads. Toggle: ENABLE_EMULATOR_THREADS en .env.
+        if ($needsThreads && ((int)($_ENV['ENABLE_EMULATOR_THREADS'] ?? 1)) === 1) {
+            header('Cross-Origin-Opener-Policy: same-origin');
+            header('Cross-Origin-Embedder-Policy: credentialless');
         }
 
         require_once 'views/layout/header.php';
