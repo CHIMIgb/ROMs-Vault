@@ -66,7 +66,7 @@ set_time_limit(0);          // Sin timeout — necesario para ROMs grandes (ISOs
 ignore_user_abort(false);   // Detener si el cliente cierra la conexión (ahorra recursos)
 
 // ── Configuración ────────────────────────────────────────────────────────────
-define('CHUNK_SIZE',   1024 * 256);   // 256 KB por chunk de streaming
+define('CHUNK_SIZE',   1024 * 1024);  // 1 MB por chunk de streaming (antes 256 KB)
 define('MAX_REDIRECTS', 8);           // Máximo de redirecciones a seguir
 define('CONNECT_TIMEOUT', 15);        // Segundos para establecer conexión
 define('READ_TIMEOUT',    0);         // Sin límite de tiempo de lectura (streaming)
@@ -121,15 +121,23 @@ if ((time() - $timestamp) > SIGNED_URL_TTL) {
 
 // ── Rate limiting por IP ─────────────────────────────────────────────────────
 // (se delega en config/RateLimiter.php, la misma clase que protege el login)
-$rlMax    = (int)($_ENV['RATE_LIMIT_MAX']    ?? 30);
-$rlWindow = (int)($_ENV['RATE_LIMIT_WINDOW'] ?? 60);
+//
+// EXENCIÓN: los Range Requests del emulador (streaming de ROMs grandes) NO se
+// limitan. EmulatorJS hace decenas de peticiones de rango por minuto mientras
+// el juego lee texturas/audio/geometría; el límite de 30/60 s los estrangulaba
+// (429) y los juegos 3D iban lentos o se congelaban. El abuso por esa vía ya
+// está bloqueado por la firma HMAC + TTL de 2 h exigida más arriba.
+if (empty($_SERVER['HTTP_RANGE'])) {
+    $rlMax    = (int)($_ENV['RATE_LIMIT_MAX']    ?? 30);
+    $rlWindow = (int)($_ENV['RATE_LIMIT_WINDOW'] ?? 60);
 
-if (!RateLimiter::check(RateLimiter::clientIp(), $rlMax, $rlWindow, 'proxy')) {
-    http_response_code(429);
-    header('Content-Type: application/json');
-    header('Retry-After: ' . $rlWindow);
-    echo json_encode(['error' => 'Demasiadas peticiones. Intenta en ' . $rlWindow . ' segundos.', 'error_type' => 'rate_limit']);
-    exit;
+    if (!RateLimiter::check(RateLimiter::clientIp(), $rlMax, $rlWindow, 'proxy')) {
+        http_response_code(429);
+        header('Content-Type: application/json');
+        header('Retry-After: ' . $rlWindow);
+        echo json_encode(['error' => 'Demasiadas peticiones. Intenta en ' . $rlWindow . ' segundos.', 'error_type' => 'rate_limit']);
+        exit;
+    }
 }
 
 // ── Verificar que el file_id existe en la BD (seguridad anti-abuso) ──────────
@@ -465,7 +473,12 @@ curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (
             : 'application/octet-stream';
         header('Content-Type: ' . $mimeType);
         header('Accept-Ranges: bytes');
-        header('Cache-Control: no-store');
+        // Range Requests (streaming del emulador): permitir caché en el
+        // navegador para reutilizar bloques ya leídos (seek hacia atrás).
+        // Descargas completas sin Range: no-store (anti-abuso, siempre frescas).
+        header($rangeHeader
+            ? 'Cache-Control: private, max-age=3600'
+            : 'Cache-Control: no-store');
         header('Content-Disposition: inline; filename="' . $cleanTitle . '"');
 
         // Tamaño del contenido
