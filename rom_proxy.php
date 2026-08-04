@@ -289,10 +289,11 @@ function resolveGDriveUrl(string $initialUrl): array {
             }
         }
 
-        if ($isHtml && preg_match("/(?:name=[\"']confirm[\"']\s+value=[\"']|confirm=)([A-Za-z0-9_-]+)/", $bodySnippet, $m)) {
+        $confirmToken = $isHtml ? extractDriveConfirmToken($bodySnippet) : null;
+        if ($confirmToken) {
             $parsed = parse_url($currentUrl);
             parse_str($parsed['query'] ?? '', $query);
-            $query['confirm'] = $m[1];
+            $query['confirm'] = $confirmToken;
             $currentUrl = $parsed['scheme'] . '://' . $parsed['host'] . ($parsed['path'] ?? '/') . '?' . http_build_query($query);
             continue; // Re-resolver con el token de confirmación válido
         }
@@ -302,6 +303,43 @@ function resolveGDriveUrl(string $initialUrl): array {
     }
 
     return ['url' => null, 'cookies' => [], 'error' => 'Demasiadas redirecciones al resolver Google Drive'];
+}
+
+/**
+ * Extrae el token de confirmación de la página HTML de archivo grande de
+ * Google Drive. Google usa varios formatos según la versión:
+ *   <input type="hidden" name="confirm" value="TOKEN">
+ *   <input type="hidden" value="TOKEN" name="confirm">
+ *   href="...?confirm=TOKEN"  (enlace "Download anyway")
+ *
+ * Devuelve el token, o null si no hay ninguno (el HTML podría ser una página
+ * de error real, no la confirmación de descarga).
+ */
+function extractDriveConfirmToken(string $html): ?string {
+    $candidates = [];
+
+    // Formato 1: name="confirm" value="TOKEN"
+    if (preg_match('/name=["\']confirm["\']\s+value=["\']([^"\']+)["\']/', $html, $m)) {
+        $candidates[] = $m[1];
+    }
+    // Formato 2: value="TOKEN" name="confirm"
+    if (preg_match('/value=["\']([^"\']+)["\']\s+name=["\']confirm["\']/', $html, $m)) {
+        $candidates[] = $m[1];
+    }
+    // Formato 3: confirm=TOKEN en un enlace o parámetro de URL
+    if (preg_match('/(?:[?&]|href=["\'])[^"\']*confirm=([A-Za-z0-9_.-]+)/', $html, $m)) {
+        $candidates[] = $m[1];
+    }
+
+    foreach ($candidates as $token) {
+        $token = trim($token);
+        // Descartar el 't' inicial (confirm=t) y valores triviales
+        if ($token !== '' && $token !== 't' && strlen($token) > 3) {
+            return $token;
+        }
+    }
+
+    return null;
 }
 
 /**
