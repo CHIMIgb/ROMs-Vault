@@ -9,8 +9,9 @@ require_once __DIR__ . '/config/CsrfService.php';
 // inline que ya usa el sitio. Se requiere 'unsafe-eval' porque el runtime de
 // Emscripten (cores de EmulatorJS) usa eval()/new Function() internamente
 // (cwrap/createNamedFunction) y 'blob:' en script-src porque el core
-// descomprimido se inyecta como un Object URL (blob). Sin ello el emulador no
-// arranca. object-src 'none' y frame-ancestors 'self' cierran clickjacking y
+// descomprimido se inyecta como un Object URL (blob) y el WASM se instancia
+// vía fetch desde ese blob (connect-src). Sin ello el emulador no arranca.
+// object-src 'none' y frame-ancestors 'self' cierran clickjacking y
 // plugin-based XSS.
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
@@ -22,7 +23,7 @@ header("Content-Security-Policy: default-src 'self'; "
      . "font-src 'self' https://fonts.gstatic.com data: https://cdn.emulatorjs.org; "
      . "img-src 'self' data: blob: https://cdn.emulatorjs.org; "
      . "media-src 'self' blob: https://cdn.emulatorjs.org; "
-     . "connect-src 'self' https://cdn.emulatorjs.org; "
+     . "connect-src 'self' blob: https://cdn.emulatorjs.org; "
      . "worker-src 'self' blob: https://cdn.emulatorjs.org; "
      . "frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'");
 
