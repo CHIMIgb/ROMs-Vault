@@ -232,9 +232,22 @@ class HomeController {
 
     /**
      * Cores con ISOs grandes: van directo en streaming sin precarga en memoria.
+     *
+     * EXCEPCIÓN: si la ROM cabe en memoria del navegador (≤ PRELOAD_MAX_BYTES),
+     * se precarga igualmente para eliminar la latencia de red.  Esto beneficia
+     * a N64 (4-64 MB), DS (32-256 MB) y PS1 pequeños (4-128 MB).
      */
-    private function usarStreaming(string $core): bool {
-        return in_array($core, ['psp', 'psx', 'saturn', 'segaCD', 'sega32x', '3do', 'n64', 'nds']);
+    private function usarStreaming(string $core, int $sizeBytes = 0): bool {
+        $STREAMING_CORES = ['psp', 'psx', 'saturn', 'segaCD', 'sega32x', '3do', 'n64', 'nds'];
+
+        if (!in_array($core, $STREAMING_CORES)) {
+            return false;
+        }
+
+        // Umbral configurable (128 MB por defecto).  Por debajo: precarga.
+        $maxBytes = (int)($_ENV['PRELOAD_MAX_BYTES'] ?? (128 * 1024 * 1024));
+
+        return $sizeBytes > $maxBytes;
     }
 
     /**
@@ -285,8 +298,9 @@ class HomeController {
         }
 
         // Pasar flags a la vista
-        $needsThreads  = $core ? $this->requiresThreads($core) : false;
-        $modoStreaming  = $core ? $this->usarStreaming($core)   : false;
+        $sizeBytes  = (int)($juego['size_bytes'] ?? 0);
+        $needsThreads  = $core ? $this->requiresThreads($core)        : false;
+        $modoStreaming  = $core ? $this->usarStreaming($core, $sizeBytes) : false;
 
         // Verificar accesibilidad del archivo en Google Drive (solo si hay core)
         // HEAD ligero al proxy para detectar errores antes de cargar el emulador.
