@@ -8,14 +8,16 @@ require_once __DIR__ . '/config/CsrfService.php';
 // imágenes, workers y fetch), blob: (Object URLs del emulador) y scripts/estilos
 // inline que ya usa el sitio. Se requiere 'unsafe-eval' porque el runtime de
 // Emscripten (cores de EmulatorJS) usa eval()/new Function() internamente
-// (cwrap/createNamedFunction) — sin ello el emulador no arranca. object-src
-// 'none' y frame-ancestors 'self' cierran clickjacking y plugin-based XSS.
+// (cwrap/createNamedFunction) y 'blob:' en script-src porque el core
+// descomprimido se inyecta como un Object URL (blob). Sin ello el emulador no
+// arranca. object-src 'none' y frame-ancestors 'self' cierran clickjacking y
+// plugin-based XSS.
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 header("Content-Security-Policy: default-src 'self'; "
-     . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.emulatorjs.org; "
+     . "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.emulatorjs.org; "
      . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.emulatorjs.org; "
      . "font-src 'self' https://fonts.gstatic.com data: https://cdn.emulatorjs.org; "
      . "img-src 'self' data: blob: https://cdn.emulatorjs.org; "
