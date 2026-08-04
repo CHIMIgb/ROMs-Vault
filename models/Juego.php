@@ -750,7 +750,8 @@ class Juego extends Model {
     public function autocomplete(string $term, int $limit = 8): array {
         $stmt = $this->pdo->prepare(
             "SELECT j.id, j.titulo, j.google_drive_file_id, j.imagen,
-                    c.nombre as consola_nombre
+                    c.nombre as consola_nombre,
+                    c.emulacion_online AS consola_emulacion_online
              FROM juegos j
              LEFT JOIN consolas c ON j.consola_id = c.id
              WHERE j.activo = true AND j.titulo ILIKE :term

@@ -35,6 +35,7 @@ try {
             'consola'       => $j['consola_nombre'] ?? '',
             'imagen'        => $j['imagen'] ?? null,
             'file_id'       => $j['google_drive_file_id'],
+            'emulacion_online' => (bool)($j['consola_emulacion_online'] ?? true),
             'play_url'      => 'index.php?controller=home&action=play&file_id='     . urlencode($j['google_drive_file_id']),
             'download_url'  => UrlSigner::downloadUrl($j['google_drive_file_id']),
         ];

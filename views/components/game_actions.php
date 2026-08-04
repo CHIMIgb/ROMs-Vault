@@ -12,11 +12,10 @@ $downloadUrl  = UrlSigner::downloadUrl($juego['google_drive_file_id'] ?? '');
 ?>
 <div class="<?= $actionsClass ?>">
     <?php 
-    $consola = strtolower(trim($juego['consola_nombre'] ?? ''));
-    // El admin puede desactivar la emulación online por consola (CRUD consolas).
+    // El admin controla la emulación online por consola (CRUD consolas).
     // Fallback true: si el flag no viene (p. ej. otros contextos), se muestra.
     $emulacionOnline = (bool)($juego['consola_emulacion_online'] ?? true);
-    if ($emulacionOnline && $consola !== 'psp' && $consola !== 'playstation portable'): 
+    if ($emulacionOnline): 
     ?>
         <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="<?= $playClass ?>">
             <i data-i="play" aria-hidden="true"></i> Jugar Online

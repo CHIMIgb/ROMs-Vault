@@ -429,7 +429,7 @@
                     <span class="ac-consola">${escHtml(item.consola)}</span>
                 </div>
                 <div class="ac-actions">
-                    ${item.consola.toUpperCase() !== 'PSP'
+                    ${item.emulacion_online
                         ? `<a href="${escHtml(item.play_url)}" class="ac-btn-play" title="Jugar online"><i data-i="play"></i></a>`
                         : ''
                     }
