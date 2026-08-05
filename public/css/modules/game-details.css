@@ -1794,6 +1794,7 @@
     border: 3px solid var(--border-dark);
     box-shadow: var(--card-raise);
     padding: 2rem;
+    margin-top: 3rem;
     margin-bottom: 2rem;
     position: relative;
 }
