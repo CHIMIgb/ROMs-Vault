@@ -1181,6 +1181,169 @@
     column-count: 1;
 }
 
+/* ══════════════════════════════════════════════════════
+   CAPTURAS — carrusel tipo pantalla CRT
+   ══════════════════════════════════════════════════════ */
+.detail-screenshots {
+    margin-top: 2.5rem;
+}
+
+/* Marco tipo TV retro */
+.screenshot-carousel {
+    position: relative;
+    max-width: 680px;
+    margin: 1.75rem auto 0;
+}
+
+.screenshot-viewport {
+    position: relative;
+    background: #0a0a0a;
+    border: 3px solid var(--border-dark);
+    border-radius: 8px;
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.6),
+        0 0 0 2px var(--border-mid),
+        var(--raise-shadow);
+    padding: 12px;
+    overflow: hidden;
+}
+
+/* Scanlines estilo CRT sobre la imagen */
+.screenshot-viewport::after {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.12) 2px,
+        rgba(0,0,0,0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+.screenshot-track {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.screenshot-slide {
+    flex: 0 0 100%;
+    min-width: 0;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.screenshot-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Flechas prev / next */
+.screenshot-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+    color: var(--slate);
+    border: 2px solid var(--border-dark);
+    border-radius: 6px;
+    box-shadow: var(--card-raise);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.screenshot-nav svg.pxi {
+    width: 18px;
+    height: 18px;
+}
+.screenshot-nav:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: var(--raise-shadow);
+}
+.screenshot-nav:active {
+    transform: translateY(-50%) scale(0.95);
+    box-shadow: none;
+}
+.screenshot-nav:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 2px;
+}
+.screenshot-nav--prev { left: -16px; }
+.screenshot-nav--next { right: -16px; }
+
+/* Contador estilo etiqueta de caja */
+.screenshot-counter {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 3;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    color: var(--cream);
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 6px 9px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* Miniaturas navegables */
+.screenshot-thumbs {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+    flex-wrap: wrap;
+}
+
+.screenshot-thumb {
+    width: 76px;
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    border: 2px solid var(--border-mid);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #000;
+    opacity: 0.55;
+    transition: opacity 0.15s, border-color 0.15s, transform 0.15s;
+}
+.screenshot-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.screenshot-thumb:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+.screenshot-thumb.is-active {
+    opacity: 1;
+    border-color: var(--red);
+    box-shadow: var(--card-raise);
+}
+.screenshot-thumb:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .screenshot-track { transition: none; }
+}
+
 /* ── Responsive ── */
 @media (max-width: 860px) {
     .game-detail-hero {
@@ -1791,4 +1954,11 @@
         gap: 0.5rem;
         padding: 0.35rem 0.5rem;
     }
+    /* Carrusel de capturas en móvil: flechas dentro del marco */
+    .screenshot-viewport { padding: 8px; }
+    .screenshot-nav { width: 34px; height: 34px; }
+    .screenshot-nav--prev { left: 6px; }
+    .screenshot-nav--next { right: 6px; }
+    .screenshot-counter { top: 14px; right: 14px; font-size: 0.5rem; }
+    .screenshot-thumb { width: 60px; }
 }

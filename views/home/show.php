@@ -34,6 +34,20 @@ if (!empty($juego['idiomas'])) {
     }
 }
 
+// ── Capturas (carrusel) ──
+// De momento se muestra la portada repetida 4 veces (placeholder).
+// Cuando exista el campo `capturas` en la BD (JSON de URLs) se usará.
+$capturas = [];
+if (!empty($juego['capturas'])) {
+    $tmp = json_decode($juego['capturas'], true);
+    if (is_array($tmp)) {
+        $capturas = array_values(array_filter($tmp, 'is_string'));
+    }
+}
+if (!$capturas && !empty($juego['imagen'])) {
+    $capturas = array_fill(0, 4, $juego['imagen']);
+}
+
 // Pasos de instalación del emulador recomendado
 $pasosLocales = [];
 if ($emuladorLocal) {
@@ -164,6 +178,52 @@ if ($emuladorLocal) {
     <?php endif; ?>
 
     <!-- ══════════════════════════════════════════════════════
+         CAPTURAS — carrusel tipo pantalla CRT
+         ══════════════════════════════════════════════════════ -->
+    <?php if (!empty($capturas)): ?>
+    <section class="detail-screenshots" aria-labelledby="capturas-title">
+        <h2 class="detail-section-title" id="capturas-title"><i data-i="image" aria-hidden="true"></i> Capturas</h2>
+
+        <div class="screenshot-carousel" data-carousel>
+            <!-- Viewport con marco CRT + scanlines -->
+            <div class="screenshot-viewport">
+                <div class="screenshot-track" data-carousel-track>
+                    <?php foreach ($capturas as $i => $cap): ?>
+                        <div class="screenshot-slide" role="group" aria-label="Captura <?= $i + 1 ?> de <?= count($capturas) ?>">
+                            <img src="<?= htmlspecialchars($cap) ?>" alt="Captura <?= $i + 1 ?> de <?= htmlspecialchars($juego['titulo']) ?>"
+                                loading="lazy" decoding="async">
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Flechas prev / next -->
+            <button type="button" class="screenshot-nav screenshot-nav--prev" data-carousel-prev aria-label="Captura anterior">
+                <i data-i="chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="screenshot-nav screenshot-nav--next" data-carousel-next aria-label="Siguiente captura">
+                <i data-i="chevron-right" aria-hidden="true"></i>
+            </button>
+
+            <!-- Contador estilo etiqueta de caja -->
+            <span class="screenshot-counter" data-carousel-counter aria-live="polite">1 / <?= count($capturas) ?></span>
+        </div>
+
+        <!-- Miniaturas navegables -->
+        <div class="screenshot-thumbs" data-carousel-thumbs>
+            <?php foreach ($capturas as $i => $cap): ?>
+                <button type="button" class="screenshot-thumb<?= $i === 0 ? ' is-active' : '' ?>"
+                    data-carousel-thumb="<?= $i ?>"
+                    aria-label="Ir a captura <?= $i + 1 ?>"
+                    aria-current="<?= $i === 0 ? 'true' : 'false' ?>">
+                    <img src="<?= htmlspecialchars($cap) ?>" alt="" loading="lazy" decoding="async">
+                </button>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <!-- ══════════════════════════════════════════════════════
          CÓMO JUGAR — Instrucciones con el emulador recomendado
          ══════════════════════════════════════════════════════ -->
     <section class="detail-howto" aria-labelledby="howto-title">
@@ -256,5 +316,67 @@ if ($emuladorLocal) {
             showToast();
         }
     });
+})();
+</script>
+
+<script>
+(function () {
+    'use strict';
+    // ── Carrusel de capturas ──
+    var carousel = document.querySelector('[data-carousel]');
+    if (!carousel) return;
+
+    var track   = carousel.querySelector('[data-carousel-track]');
+    var slides  = track.children;
+    var prev    = carousel.querySelector('[data-carousel-prev]');
+    var next    = carousel.querySelector('[data-carousel-next]');
+    var counter = carousel.querySelector('[data-carousel-counter]');
+    var thumbs  = Array.prototype.slice.call(document.querySelectorAll('[data-carousel-thumb]'));
+    var index   = 0;
+    var total   = slides.length;
+    if (!total) return;
+
+    function goTo(i) {
+        if (i < 0) i = total - 1;
+        if (i >= total) i = 0;
+        index = i;
+        track.style.transform = 'translateX(-' + (index * 100) + '%)';
+        if (counter) counter.textContent = (index + 1) + ' / ' + total;
+        thumbs.forEach(function (t, ti) {
+            var active = ti === index;
+            t.classList.toggle('is-active', active);
+            t.setAttribute('aria-current', active ? 'true' : 'false');
+        });
+    }
+
+    if (prev) prev.addEventListener('click', function () { goTo(index - 1); });
+    if (next) next.addEventListener('click', function () { goTo(index + 1); });
+
+    thumbs.forEach(function (t) {
+        t.addEventListener('click', function () {
+            goTo(parseInt(t.getAttribute('data-carousel-thumb'), 10));
+        });
+    });
+
+    // Flechas del teclado solo cuando el foco está dentro del carrusel
+    document.addEventListener('keydown', function (e) {
+        if (!carousel.contains(document.activeElement)) return;
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(index - 1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); }
+    });
+
+    // Swipe táctil
+    var startX = null;
+    carousel.addEventListener('touchstart', function (e) {
+        startX = e.touches[0].clientX;
+    }, { passive: true });
+    carousel.addEventListener('touchend', function (e) {
+        if (startX === null) return;
+        var dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 40) {
+            goTo(index + (dx < 0 ? 1 : -1));
+        }
+        startX = null;
+    }, { passive: true });
 })();
 </script>
