@@ -185,6 +185,10 @@ if ($emuladorLocal) {
                         <div class="screenshot-slide" role="group" aria-label="Captura <?= $i + 1 ?> de <?= count($capturas) ?>">
                             <img src="<?= htmlspecialchars($cap) ?>" alt="Captura <?= $i + 1 ?> de <?= htmlspecialchars($juego['titulo']) ?>"
                                 loading="lazy" decoding="async">
+                            <button type="button" class="screenshot-open" data-carousel-open="<?= $i ?>"
+                                aria-label="Ver captura <?= $i + 1 ?> a pantalla completa">
+                                <i data-i="expand" aria-hidden="true"></i>
+                            </button>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -212,6 +216,35 @@ if ($emuladorLocal) {
                     <img src="<?= htmlspecialchars($cap) ?>" alt="" loading="lazy" decoding="async">
                 </button>
             <?php endforeach; ?>
+        </div>
+
+        <!-- Visor a pantalla completa (lightbox): misma imagen, sin recorte,
+             carrusel completo con flechas, contador y miniaturas -->
+        <div class="screenshot-lightbox" data-lightbox hidden role="dialog" aria-modal="true" aria-label="Visor de capturas">
+            <div class="screenshot-lightbox-backdrop" data-lightbox-close></div>
+
+            <div class="screenshot-lightbox-content">
+                <button type="button" class="screenshot-lightbox-close" data-lightbox-close aria-label="Cerrar visor de capturas">
+                    <i data-i="close" aria-hidden="true"></i>
+                </button>
+
+                <div class="screenshot-carousel screenshot-carousel--lightbox">
+                    <div class="screenshot-viewport screenshot-viewport--lightbox">
+                        <div class="screenshot-track screenshot-track--lightbox" data-lightbox-track></div>
+                    </div>
+
+                    <button type="button" class="screenshot-nav screenshot-nav--prev" data-lightbox-prev aria-label="Captura anterior">
+                        <i data-i="chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="screenshot-nav screenshot-nav--next" data-lightbox-next aria-label="Siguiente captura">
+                        <i data-i="chevron-right" aria-hidden="true"></i>
+                    </button>
+
+                    <span class="screenshot-counter" data-lightbox-counter aria-live="polite">1 / <?= count($capturas) ?></span>
+                </div>
+
+                <div class="screenshot-thumbs screenshot-thumbs--lightbox" data-lightbox-thumbs></div>
+            </div>
         </div>
     </section>
     <?php endif; ?>
@@ -370,6 +403,110 @@ if ($emuladorLocal) {
             goTo(index + (dx < 0 ? 1 : -1));
         }
         startX = null;
+    }, { passive: true });
+
+    // ── Visor a pantalla completa (lightbox) ──────────────────────────────
+    var lightbox = document.querySelector('[data-lightbox]');
+    if (!lightbox) return;
+
+    var lbTrack     = lightbox.querySelector('[data-lightbox-track]');
+    var lbPrev      = lightbox.querySelector('[data-lightbox-prev]');
+    var lbNext      = lightbox.querySelector('[data-lightbox-next]');
+    var lbCounter   = lightbox.querySelector('[data-lightbox-counter]');
+    var lbThumbsBox = lightbox.querySelector('[data-lightbox-thumbs]');
+    var lbCloseBtns = Array.prototype.slice.call(lightbox.querySelectorAll('[data-lightbox-close]'));
+    var lastFocused = null;
+    var lbIndex     = 0;
+
+    // Slides y miniaturas del visor: clonadas del carrusel (mismos src → caché)
+    var lbSlides = [];
+    Array.prototype.forEach.call(slides, function (slide) {
+        var clone = slide.cloneNode(true);
+        clone.classList.add('screenshot-slide--lightbox');
+        var openBtn = clone.querySelector('.screenshot-open');
+        if (openBtn) openBtn.remove();
+        lbSlides.push(clone);
+        lbTrack.appendChild(clone);
+    });
+
+    var lbThumbs = [];
+    Array.prototype.forEach.call(thumbs, function (thumb) {
+        var clone = thumb.cloneNode(true);
+        clone.setAttribute('data-lightbox-thumb', thumb.getAttribute('data-carousel-thumb'));
+        clone.removeAttribute('data-carousel-thumb');
+        lbThumbs.push(clone);
+        lbThumbsBox.appendChild(clone);
+    });
+
+    function goToLb(i) {
+        if (i < 0) i = total - 1;
+        if (i >= total) i = 0;
+        lbIndex = i;
+        lbTrack.style.transform = 'translateX(-' + (lbIndex * 100) + '%)';
+        if (lbCounter) lbCounter.textContent = (lbIndex + 1) + ' / ' + total;
+        lbThumbs.forEach(function (t, ti) {
+            var active = ti === lbIndex;
+            t.classList.toggle('is-active', active);
+            t.setAttribute('aria-current', active ? 'true' : 'false');
+        });
+    }
+
+    function lbKeyHandler(e) {
+        if (e.key === 'Escape') { e.preventDefault(); closeLb(); return; }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); goToLb(lbIndex - 1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); goToLb(lbIndex + 1); }
+    }
+
+    function openLb(i) {
+        lastFocused = document.activeElement;
+        goToLb(i);
+        lightbox.hidden = false;
+        document.body.style.overflow = 'hidden';
+        var closeBtn = lightbox.querySelector('.screenshot-lightbox-close');
+        if (closeBtn) closeBtn.focus();
+        document.addEventListener('keydown', lbKeyHandler);
+    }
+
+    function closeLb() {
+        lightbox.hidden = true;
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', lbKeyHandler);
+        if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    // Abrir desde cada captura del carrusel
+    var openBtns = carousel.querySelectorAll('[data-carousel-open]');
+    Array.prototype.forEach.call(openBtns, function (b) {
+        b.addEventListener('click', function () {
+            openLb(parseInt(b.getAttribute('data-carousel-open'), 10));
+        });
+    });
+
+    if (lbPrev) lbPrev.addEventListener('click', function () { goToLb(lbIndex - 1); });
+    if (lbNext) lbNext.addEventListener('click', function () { goToLb(lbIndex + 1); });
+
+    lbThumbs.forEach(function (t) {
+        t.addEventListener('click', function () {
+            goToLb(parseInt(t.getAttribute('data-lightbox-thumb'), 10));
+        });
+    });
+
+    lbCloseBtns.forEach(function (b) {
+        b.addEventListener('click', closeLb);
+    });
+
+    // Swipe táctil dentro del visor
+    var lbStartX = null;
+    lightbox.addEventListener('touchstart', function (e) {
+        lbStartX = e.touches[0].clientX;
+    }, { passive: true });
+    lightbox.addEventListener('touchend', function (e) {
+        if (lbStartX === null) return;
+        var dx = e.changedTouches[0].clientX - lbStartX;
+        if (Math.abs(dx) > 40) {
+            goToLb(lbIndex + (dx < 0 ? 1 : -1));
+        }
+        lbStartX = null;
     }, { passive: true });
 })();
 </script>
