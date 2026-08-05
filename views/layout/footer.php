@@ -6,8 +6,7 @@
             </div>
         </footer>
     </div>
-    <script src="public/js/pixelicons.js"></script>
-    <script src="public/js/rv-alerts.js"></script>
-    <script src="public/js/script.js"></script>
+    <script src="public/js/pixelicons.js" defer></script>
+    <script src="public/js/rv-alerts.js" defer></script>
 </body>
 </html>

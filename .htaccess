@@ -14,9 +14,9 @@ ErrorDocument 500 /index.php?controller=errors&action=serverError
 
 # ── Seguridad básica ────────────────────────────────────────────────────────
 # Bloquear acceso directo a archivos sensibles
+# (Apache 2.4: usar Require, no Order/Deny)
 <FilesMatch "\.(env|log|sql|sh|bak)$">
-    Order Allow,Deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # Bloquear listado de directorios

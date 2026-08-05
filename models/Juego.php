@@ -18,14 +18,22 @@ class Juego extends Model {
 
     // Buscar juego por google_drive_file_id
     public function findByFileId($fileId) {
-        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE google_drive_file_id = ?");
+        $stmt = $this->pdo->prepare(
+            "SELECT j.*, c.nombre AS consola_nombre,
+                    c.emulacion_online AS consola_emulacion_online
+             FROM {$this->table} j
+             LEFT JOIN consolas c ON j.consola_id = c.id
+             WHERE j.google_drive_file_id = ?"
+        );
         $stmt->execute([$fileId]);
         return $stmt->fetch();
     }
     
     // Obtener un juego por ID con detalles de relaciones
     public function findWithDetails($id) {
-        $stmt = $this->pdo->prepare("SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
+        $stmt = $this->pdo->prepare("SELECT j.*, c.nombre as consola_nombre,
+                   c.emulacion_online AS consola_emulacion_online,
+                   cat.nombre as categoria_nombre 
                 FROM juegos j
                 LEFT JOIN consolas c ON j.consola_id = c.id
                 LEFT JOIN categorias cat ON j.categoria_id = cat.id
@@ -124,8 +132,13 @@ class Juego extends Model {
     /**
      * Whitelist de ordenamientos permitidos para el catálogo público.
      * Previene inyección SQL al construir el ORDER BY dinámicamente.
+     *
+     * El orden aleatorio usa una semilla por visitante: md5(id + seed) da un
+     * orden pseudoaleatorio pero ESTABLE mientras la seed no cambie. Así el
+     * navegador aprovecha la caché de imágenes y la paginación no repite
+     * juegos (a diferencia de RANDOM(), que reordena en cada request).
      */
-    private function resolveOrder(string $orden): string {
+    private function resolveOrder(string $orden, string $seed = ''): string {
         $map = [
             'titulo'    => 'j.titulo ASC',
             'recientes' => 'j.created_at DESC',
@@ -133,14 +146,35 @@ class Juego extends Model {
             'jugados'   => 'j.plays_count DESC',
             'año_asc'   => 'j.fecha_lanzamiento ASC NULLS LAST',
             'año_desc'  => 'j.fecha_lanzamiento DESC NULLS LAST',
-            'random'    => 'RANDOM()',
         ];
-        return $map[$orden] ?? 'RANDOM()';
+        if ($orden === 'random') {
+            // Fallback conservador si no hay seed: RANDOM() (comportamiento previo)
+            return $seed !== '' ? 'md5(j.id::text || :seed)' : 'RANDOM()';
+        }
+        // Fallback seguro: más recientes.
+        return $map[$orden] ?? 'j.created_at DESC';
+    }
+
+    /**
+     * Seed aleatoria del catálogo, estable por navegador (cookie).
+     * Cada visitante obtiene un orden aleatorio distinto, pero constante
+     * mientras la cookie viva → caché de imágenes efectiva y paginación
+     * coherente en el orden aleatorio.
+     */
+    public static function getCatalogSeed(): string {
+        $seed = $_COOKIE['rv_cat_seed'] ?? '';
+        if ($seed === '' || !preg_match('/^[a-f0-9]{32}$/', $seed)) {
+            $seed = bin2hex(random_bytes(16));
+            setcookie('rv_cat_seed', $seed, time() + 86400 * 30, '/');
+        }
+        return $seed;
     }
 
     // Método con paginación, búsqueda y ordenamiento (catálogo público)
-    public function getWithRelationsPaginated($filters = [], $offset = 0, $limit = 20) {
-        $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
+    public function getWithRelationsPaginated($filters = [], $offset = 0, $limit = 20, $seed = '') {
+        $sql = "SELECT j.*, c.nombre as consola_nombre,
+                   c.emulacion_online AS consola_emulacion_online,
+                   cat.nombre as categoria_nombre 
                 FROM juegos j
                 LEFT JOIN consolas c ON j.consola_id = c.id
                 LEFT JOIN categorias cat ON j.categoria_id = cat.id
@@ -159,8 +193,8 @@ class Juego extends Model {
             $sql .= " AND j.region = :region";
         }
 
-        // Ordenamiento seguro mediante whitelist
-        $orden = $this->resolveOrder($filters['orden'] ?? '');
+        // Ordenamiento seguro mediante whitelist (random estable usa :seed)
+        $orden = $this->resolveOrder($filters['orden'] ?? '', $seed);
         $sql .= " ORDER BY {$orden} LIMIT :limit OFFSET :offset";
         
         $stmt = $this->pdo->prepare($sql);
@@ -176,6 +210,9 @@ class Juego extends Model {
         }
         if (!empty($filters['region'])) {
             $stmt->bindValue(':region', $filters['region'], PDO::PARAM_STR);
+        }
+        if (strpos($orden, ':seed') !== false) {
+            $stmt->bindValue(':seed', $seed, PDO::PARAM_STR);
         }
         
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -389,25 +426,35 @@ class Juego extends Model {
      * @return array Juegos con las columnas de `juegos`, `consola_nombre`,
      *               `categoria_nombre` y `relevancia` (2 = consola, 1 = género).
      */
-    public function getRelated(int $juegoId, int $consolaId, int $categoriaId, int $limit = 8): array {
+    public function getRelated(int $juegoId, int $consolaId, int $categoriaId, int $limit = 8, string $seed = ''): array {
         $porSeccion = max(1, (int) floor($limit / 2));
 
-        $mismaConsola = $this->relacionadosPorConsola($juegoId, $consolaId, $porSeccion);
+        $mismaConsola = $this->relacionadosPorConsola($juegoId, $consolaId, $porSeccion, $seed);
 
         // Evitamos duplicados: la sección de género nunca repite juegos de la de consola
         $idsExcluidos = array_map('intval', array_column($mismaConsola, 'id'));
         $idsExcluidos[] = $juegoId;
 
-        $mismoGenero = $this->relacionadosPorGenero($juegoId, $consolaId, $categoriaId, $porSeccion, $idsExcluidos);
+        $mismoGenero = $this->relacionadosPorGenero($juegoId, $consolaId, $categoriaId, $porSeccion, $idsExcluidos, $seed);
 
         return array_merge($mismaConsola, $mismoGenero);
     }
 
     /**
      * Sección 1: juegos de la misma consola (relevancia 2).
-     * Orden aleatorio con sesgo de popularidad (comportamiento original).
+     * Orden aleatorio ESTABLE con sesgo de popularidad: con seed se usa un hash
+     * determinista de (id + seed) en lugar de RANDOM(), de modo que cada
+     * visitante ve un orden aleatorio distinto pero constante mientras su seed
+     * viva → el navegador reutiliza la caché de imágenes.
      */
-    private function relacionadosPorConsola(int $juegoId, int $consolaId, int $limit): array {
+    private function relacionadosPorConsola(int $juegoId, int $consolaId, int $limit, string $seed = ''): array {
+        // (j.downloads_count * RANDOM()) DESC se aproxima de forma determinista
+        // convirtiendo los 8 primeros hex del md5(id+seed) en un número 0..1.
+        // Se usa ::bigint (no ::int) para que el hash de 32 bits nunca sea negativo.
+        $orderBy = $seed !== ''
+            ? "(j.downloads_count * (('x' || left(md5(j.id::text || :seed), 8)))::bit(32)::bigint / 4294967295.0) DESC"
+            : '(j.downloads_count * RANDOM()) DESC';
+
         $stmt = $this->pdo->prepare(
             "SELECT j.*, c.nombre AS consola_nombre, cat.nombre AS categoria_nombre,
                     2 AS relevancia
@@ -417,11 +464,14 @@ class Juego extends Model {
              WHERE j.activo = true
                AND j.id != :juego_id
                AND j.consola_id = :consola_id
-             ORDER BY (j.downloads_count * RANDOM()) DESC
+             ORDER BY {$orderBy}
              LIMIT :lim"
         );
         $stmt->bindValue(':juego_id',   $juegoId,   PDO::PARAM_INT);
         $stmt->bindValue(':consola_id', $consolaId, PDO::PARAM_INT);
+        if ($seed !== '') {
+            $stmt->bindValue(':seed', $seed, PDO::PARAM_STR);
+        }
         $stmt->bindValue(':lim',        $limit,     PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
@@ -436,8 +486,9 @@ class Juego extends Model {
      * @param int   $categoriaId Categoría del juego actual
      * @param int   $limit      Cuántos juegos de género se quieren
      * @param array $excluirIds Ids que no se deben repetir (incluye al actual)
+     * @param string $seed      Semilla de visita para orden aleatorio estable
      */
-    private function relacionadosPorGenero(int $juegoId, int $consolaId, int $categoriaId, int $limit, array $excluirIds): array {
+    private function relacionadosPorGenero(int $juegoId, int $consolaId, int $categoriaId, int $limit, array $excluirIds, string $seed = ''): array {
         $resultado = [];
         $excluir   = array_values(array_unique(array_merge([$juegoId], array_map('intval', $excluirIds))));
         $faltan    = $limit;
@@ -449,7 +500,8 @@ class Juego extends Model {
                 'AND j.categoria_id = :categoria_id AND j.consola_id != :consola_id',
                 ['categoria_id' => $categoriaId, 'consola_id' => $consolaId],
                 $faltan,
-                $excluir
+                $excluir,
+                $seed
             );
             $resultado = array_merge($resultado, $fila);
             foreach ($fila as $j) { $excluir[] = (int) $j['id']; }
@@ -472,7 +524,8 @@ class Juego extends Model {
                     'AND j.categoria_id IN (' . implode(',', $in) . ')',
                     $params,
                     $faltan,
-                    $excluir
+                    $excluir,
+                    $seed
                 );
                 $resultado = array_merge($resultado, $fila);
                 foreach ($fila as $j) { $excluir[] = (int) $j['id']; }
@@ -497,7 +550,8 @@ class Juego extends Model {
                     'AND (' . implode(' OR ', $ors) . ')',
                     $params,
                     $faltan,
-                    $excluir
+                    $excluir,
+                    $seed
                 );
                 $resultado = array_merge($resultado, $fila);
                 foreach ($fila as $j) { $excluir[] = (int) $j['id']; }
@@ -507,7 +561,7 @@ class Juego extends Model {
 
         // Nivel 4: último recurso — variedad general para no dejar la sección vacía
         if ($faltan > 0) {
-            $fila = $this->queryGenero($juegoId, '', [], $faltan, $excluir);
+            $fila = $this->queryGenero($juegoId, '', [], $faltan, $excluir, $seed);
             $resultado = array_merge($resultado, $fila);
         }
 
@@ -523,8 +577,9 @@ class Juego extends Model {
      * @param array  $params     Valores para los placeholders de $whereExtra
      * @param int    $limit      Límite de resultados
      * @param array  $excluir    Ids a excluir (además del juego actual)
+     * @param string $seed       Semilla de visita para orden aleatorio estable
      */
-    private function queryGenero(int $juegoId, string $whereExtra, array $params, int $limit, array $excluir): array {
+    private function queryGenero(int $juegoId, string $whereExtra, array $params, int $limit, array $excluir, string $seed = ''): array {
         $bind   = [];
         $excluir = array_values(array_unique(array_map('intval', $excluir)));
 
@@ -532,6 +587,15 @@ class Juego extends Model {
         $bind[':lim']      = [$limit,   PDO::PARAM_INT];
         foreach ($params as $k => $v) {
             $bind[$k] = [$v, is_int($v) ? PDO::PARAM_INT : PDO::PARAM_STR];
+        }
+
+        // Orden aleatorio estable: md5(id + seed) por visitante (igual que el catálogo).
+        // Sin seed se mantiene RANDOM() como comportamiento original.
+        $orderBy = $seed !== ''
+            ? 'md5(j.id::text || :seed)'
+            : 'RANDOM()';
+        if ($seed !== '') {
+            $bind[':seed'] = [$seed, PDO::PARAM_STR];
         }
 
         $notIn = '';
@@ -554,7 +618,7 @@ class Juego extends Model {
                   AND j.id != :juego_id
                   {$whereExtra}
                   {$notIn}
-                ORDER BY RANDOM()
+                ORDER BY {$orderBy}
                 LIMIT :lim";
 
         $stmt = $this->pdo->prepare($sql);
@@ -686,7 +750,8 @@ class Juego extends Model {
     public function autocomplete(string $term, int $limit = 8): array {
         $stmt = $this->pdo->prepare(
             "SELECT j.id, j.titulo, j.google_drive_file_id, j.imagen,
-                    c.nombre as consola_nombre
+                    c.nombre as consola_nombre,
+                    c.emulacion_online AS consola_emulacion_online
              FROM juegos j
              LEFT JOIN consolas c ON j.consola_id = c.id
              WHERE j.activo = true AND j.titulo ILIKE :term

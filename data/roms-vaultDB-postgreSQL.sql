@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.consolas (
     descripcion TEXT,
     fabricante VARCHAR(100),
     activo BOOLEAN DEFAULT TRUE,
+    emulacion_online BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -117,6 +118,13 @@ CREATE TABLE IF NOT EXISTS public.descargas (
 CREATE INDEX IF NOT EXISTS idx_juegos_consola ON public.juegos(consola_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_categoria ON public.juegos(categoria_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_activo ON public.juegos(activo);
+CREATE INDEX IF NOT EXISTS idx_juegos_drive_file_id ON public.juegos(google_drive_file_id);
+CREATE INDEX IF NOT EXISTS idx_juegos_activo_consola   ON public.juegos(activo, consola_id);
+CREATE INDEX IF NOT EXISTS idx_juegos_activo_categoria ON public.juegos(activo, categoria_id);
+CREATE INDEX IF NOT EXISTS idx_juegos_activo_region    ON public.juegos(activo, region);
+CREATE INDEX IF NOT EXISTS idx_juegos_activo_creado    ON public.juegos(activo, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_juegos_activo_descargas ON public.juegos(activo, downloads_count DESC);
+CREATE INDEX IF NOT EXISTS idx_juegos_activo_jugadas   ON public.juegos(activo, plays_count DESC);
 CREATE INDEX IF NOT EXISTS idx_emuladores_consola ON public.emuladores(consola_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_juego ON public.descargas(juego_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_cookie ON public.descargas(cookie_id);

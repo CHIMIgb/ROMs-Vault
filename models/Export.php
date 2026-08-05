@@ -140,7 +140,6 @@ class Export extends Model {
                 p.apellido AS persona_apellido, 
                 p.email AS persona_email, 
                 u.username, 
-                u.password_hash,
                 u.rol_id,
                 r.nombre AS rol_nombre, 
                 u.activo, 
@@ -156,13 +155,15 @@ class Export extends Model {
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($data as &$row) {
-            $row['activo'] = $row['activo'] ? 'Sí' : 'No';
+            $row['activo']       = $row['activo'] ? 'Sí' : 'No';
+            // PII: enmascarar el email antes de exportarlo
+            $row['persona_email'] = self::maskEmail($row['persona_email']);
         }
 
         return [
             'headers' => [
                 'ID', 'ID Persona', 'Nombre Persona', 'Apellido Persona', 'Email Persona', 
-                'Username', 'Password Hash', 'ID Rol', 'Nombre Rol', 'Activo', 
+                'Username', 'ID Rol', 'Nombre Rol', 'Activo', 
                 'Último Login', 'Creado el', 'Actualizado el'
             ],
             'data'    => $data
@@ -174,10 +175,33 @@ class Export extends Model {
         $stmt = $this->pdo->query($query);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        foreach ($data as &$row) {
+            // PII: enmascarar el email antes de exportarlo
+            $row['email'] = self::maskEmail($row['email']);
+        }
+
         return [
             'headers' => ['ID', 'Nombre', 'Apellido', 'Email', 'Teléfono', 'Fecha Creación'],
             'data'    => $data
         ];
+    }
+
+    /**
+     * Enmascara un email mostrando solo la primera letra y el dominio:
+     * j***@example.com. Devuelve el valor original si no parece un email.
+     */
+    private static function maskEmail(?string $email): string {
+        if (empty($email)) {
+            return '';
+        }
+        $pos = strpos($email, '@');
+        if ($pos === false) {
+            return $email;
+        }
+        $local  = substr($email, 0, $pos);
+        $domain = substr($email, $pos);
+        $first  = $local !== '' ? $local[0] : '*';
+        return $first . str_repeat('*', max(2, strlen($local) - 1)) . $domain;
     }
 
     private function getRolesData(): array {

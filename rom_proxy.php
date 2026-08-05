@@ -66,7 +66,7 @@ set_time_limit(0);          // Sin timeout — necesario para ROMs grandes (ISOs
 ignore_user_abort(false);   // Detener si el cliente cierra la conexión (ahorra recursos)
 
 // ── Configuración ────────────────────────────────────────────────────────────
-define('CHUNK_SIZE',   1024 * 256);   // 256 KB por chunk de streaming
+define('CHUNK_SIZE',   1024 * 1024);  // 1 MB por chunk de streaming (antes 256 KB)
 define('MAX_REDIRECTS', 8);           // Máximo de redirecciones a seguir
 define('CONNECT_TIMEOUT', 15);        // Segundos para establecer conexión
 define('READ_TIMEOUT',    0);         // Sin límite de tiempo de lectura (streaming)
@@ -75,6 +75,7 @@ define('GDRIVE_BASE',  'https://drive.google.com/uc?export=download&confirm=t&id
 // ── Cargar base de datos ─────────────────────────────────────────────────────
 
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/RateLimiter.php';
 require_once __DIR__ . '/models/Model.php';
 require_once __DIR__ . '/models/Juego.php';
 
@@ -119,51 +120,24 @@ if ((time() - $timestamp) > SIGNED_URL_TTL) {
 }
 
 // ── Rate limiting por IP ─────────────────────────────────────────────────────
-function checkRateLimit(string $ip, int $max = 30, int $window = 60): bool {
-    $dir = sys_get_temp_dir() . '/romproxy_rl';
-    if (!is_dir($dir)) @mkdir($dir, 0700, true);
+// (se delega en config/RateLimiter.php, la misma clase que protege el login)
+//
+// EXENCIÓN: los Range Requests del emulador (streaming de ROMs grandes) NO se
+// limitan. EmulatorJS hace decenas de peticiones de rango por minuto mientras
+// el juego lee texturas/audio/geometría; el límite de 30/60 s los estrangulaba
+// (429) y los juegos 3D iban lentos o se congelaban. El abuso por esa vía ya
+// está bloqueado por la firma HMAC + TTL de 2 h exigida más arriba.
+if (empty($_SERVER['HTTP_RANGE'])) {
+    $rlMax    = (int)($_ENV['RATE_LIMIT_MAX']    ?? 30);
+    $rlWindow = (int)($_ENV['RATE_LIMIT_WINDOW'] ?? 60);
 
-    $file = $dir . '/' . md5($ip) . '.json';
-
-    // Limpiar archivos viejos cada ~100 peticiones (probabilístico)
-    if (random_int(1, 100) === 1) {
-        foreach (glob($dir . '/*.json') as $f) {
-            if (filemtime($f) < time() - $window * 2) @unlink($f);
-        }
+    if (!RateLimiter::check(RateLimiter::clientIp(), $rlMax, $rlWindow, 'proxy')) {
+        http_response_code(429);
+        header('Content-Type: application/json');
+        header('Retry-After: ' . $rlWindow);
+        echo json_encode(['error' => 'Demasiadas peticiones. Intenta en ' . $rlWindow . ' segundos.', 'error_type' => 'rate_limit']);
+        exit;
     }
-
-    $data = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
-
-    if (!$data || $data['window_start'] < time() - $window) {
-        file_put_contents($file, json_encode([
-            'window_start' => time(), 'count' => 1
-        ]), LOCK_EX);
-        return true;
-    }
-
-    if ($data['count'] >= $max) return false;
-
-    $data['count']++;
-    file_put_contents($file, json_encode($data), LOCK_EX);
-    return true;
-}
-
-$clientIp = $_SERVER['HTTP_X_FORWARDED_FOR']
-    ?? $_SERVER['HTTP_X_REAL_IP']
-    ?? $_SERVER['REMOTE_ADDR']
-    ?? '0.0.0.0';
-// Tomar solo la primera IP si hay varias (X-Forwarded-For: ip1, ip2)
-$clientIp = trim(explode(',', $clientIp)[0]);
-
-$rlMax    = (int)($_ENV['RATE_LIMIT_MAX']    ?? 30);
-$rlWindow = (int)($_ENV['RATE_LIMIT_WINDOW'] ?? 60);
-
-if (!checkRateLimit($clientIp, $rlMax, $rlWindow)) {
-    http_response_code(429);
-    header('Content-Type: application/json');
-    header('Retry-After: ' . $rlWindow);
-    echo json_encode(['error' => 'Demasiadas peticiones. Intenta en ' . $rlWindow . ' segundos.', 'error_type' => 'rate_limit']);
-    exit;
 }
 
 // ── Verificar que el file_id existe en la BD (seguridad anti-abuso) ──────────
@@ -203,17 +177,47 @@ $gdriveUrl = GDRIVE_BASE . urlencode($fileId);
  * Google Drive redirige archivos grandes a una URL temporal que incluye
  * un token de confirmación. Hay que capturar las cookies y reenviarlas
  * en la petición final para obtener el contenido real.
+ *
+ * Archivos >~100 MB (límite del análisis de virus de Google): en lugar de
+ * redirigir, Google devuelve una página HTML de confirmación con un token
+ * `confirm=TOKEN`. Aquí se captura un fragmento del body, se extrae ese token
+ * y se vuelve a resolver la URL con él para llegar al binario real.
  */
 function resolveGDriveUrl(string $initialUrl): array {
-    $cookieJar = [];
-    $currentUrl = $initialUrl;
+    $cookieJar   = [];
+    $currentUrl  = $initialUrl;
+    $maxBodyBytes = 65536; // Solo necesitamos el HTML de confirmación (pocos KB)
 
     for ($i = 0; $i < MAX_REDIRECTS; $i++) {
         $ch = curl_init($currentUrl);
+
+        $responseHeaders = [];
+        $bodySnippet     = '';
+        $captureDone     = false;
+
         curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER         => true,
-            CURLOPT_NOBODY         => true,       // Solo cabeceras, sin body
+            CURLOPT_RETURNTRANSFER => false,
+            CURLOPT_HEADER         => false,
+            CURLOPT_HEADERFUNCTION => function($ch, $headerLine) use (&$responseHeaders) {
+                $trimmed = rtrim($headerLine);
+                if ($trimmed !== '') {
+                    $responseHeaders[] = $trimmed;
+                }
+                return strlen($headerLine);
+            },
+            CURLOPT_WRITEFUNCTION => function($ch, $data) use (&$bodySnippet, &$captureDone, $maxBodyBytes) {
+                $remaining = $maxBodyBytes - strlen($bodySnippet);
+                if ($remaining > 0) {
+                    $bodySnippet .= substr($data, 0, $remaining);
+                }
+                if (strlen($bodySnippet) >= $maxBodyBytes) {
+                    $captureDone = true;
+                    return 0; // Suficiente para detectar el token; abortar la descarga
+                }
+                return strlen($data);
+            },
+            // Range de 64 KB como red de seguridad: nunca se descarga más de eso
+            CURLOPT_RANGE          => '0-' . ($maxBodyBytes - 1),
             CURLOPT_FOLLOWLOCATION => false,       // Seguimos redirecciones manualmente
             CURLOPT_TIMEOUT        => CONNECT_TIMEOUT,
             CURLOPT_USERAGENT      => 'Mozilla/5.0 (compatible; ROMs-Vault/1.0)',
@@ -230,19 +234,18 @@ function resolveGDriveUrl(string $initialUrl): array {
             curl_setopt($ch, CURLOPT_COOKIE, $cookieStr);
         }
 
-        $response = curl_exec($ch);
+        $ok       = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($response === false) {
+        // El único fallo real es no haber capturado ni headers ni body.
+        // (Devolver 0 en WRITEFUNCTION aborta con CURLE_WRITE_ERROR: esperado)
+        if ($ok === false && !$captureDone && empty($bodySnippet) && empty($responseHeaders)) {
             return ['url' => null, 'cookies' => [], 'error' => 'cURL falló al resolver redirecciones'];
         }
 
-        // Extraer cabeceras de la respuesta
-        $headers = parseHeaders($response);
-
         // Capturar cookies Set-Cookie
-        foreach ($headers as $header) {
+        foreach ($responseHeaders as $header) {
             if (stripos($header, 'Set-Cookie:') === 0) {
                 $cookiePart = trim(substr($header, strlen('Set-Cookie:')));
                 $cookiePart = explode(';', $cookiePart)[0]; // Solo nombre=valor
@@ -254,7 +257,7 @@ function resolveGDriveUrl(string $initialUrl): array {
         // Si es una redirección, seguirla
         if (in_array($httpCode, [301, 302, 303, 307, 308])) {
             $location = '';
-            foreach ($headers as $header) {
+            foreach ($responseHeaders as $header) {
                 if (stripos($header, 'Location:') === 0) {
                     $location = trim(substr($header, strlen('Location:')));
                     break;
@@ -275,20 +278,68 @@ function resolveGDriveUrl(string $initialUrl): array {
             continue;
         }
 
-        // Llegamos a la URL final (200 u otro código que no sea redirección)
-        break;
+        // Página de confirmación de archivo grande de Google Drive
+        // ("Google Drive can't scan this file for viruses"): HTML que contiene
+        // un token confirm=TOKEN que hay que añadir a la URL para el binario.
+        $isHtml = false;
+        foreach ($responseHeaders as $header) {
+            if (stripos($header, 'Content-Type:') === 0 && stripos($header, 'text/html') !== false) {
+                $isHtml = true;
+                break;
+            }
+        }
+
+        $confirmToken = $isHtml ? extractDriveConfirmToken($bodySnippet) : null;
+        if ($confirmToken) {
+            $parsed = parse_url($currentUrl);
+            parse_str($parsed['query'] ?? '', $query);
+            $query['confirm'] = $confirmToken;
+            $currentUrl = $parsed['scheme'] . '://' . $parsed['host'] . ($parsed['path'] ?? '/') . '?' . http_build_query($query);
+            continue; // Re-resolver con el token de confirmación válido
+        }
+
+        // Llegamos a la URL final (binario u otro contenido sin confirmación)
+        return ['url' => $currentUrl, 'cookies' => $cookieJar, 'error' => null];
     }
 
-    return ['url' => $currentUrl, 'cookies' => $cookieJar, 'error' => null];
+    return ['url' => null, 'cookies' => [], 'error' => 'Demasiadas redirecciones al resolver Google Drive'];
 }
 
 /**
- * Parsea las líneas de cabeceras HTTP de una respuesta cURL
+ * Extrae el token de confirmación de la página HTML de archivo grande de
+ * Google Drive. Google usa varios formatos según la versión:
+ *   <input type="hidden" name="confirm" value="TOKEN">
+ *   <input type="hidden" value="TOKEN" name="confirm">
+ *   href="...?confirm=TOKEN"  (enlace "Download anyway")
+ *
+ * Devuelve el token, o null si no hay ninguno (el HTML podría ser una página
+ * de error real, no la confirmación de descarga).
  */
-function parseHeaders(string $rawResponse): array {
-    // Las cabeceras van hasta el primer \r\n\r\n
-    $headerSection = explode("\r\n\r\n", $rawResponse)[0] ?? '';
-    return array_filter(explode("\r\n", $headerSection));
+function extractDriveConfirmToken(string $html): ?string {
+    $candidates = [];
+
+    // Formato 1: name="confirm" value="TOKEN"
+    if (preg_match('/name=["\']confirm["\']\s+value=["\']([^"\']+)["\']/', $html, $m)) {
+        $candidates[] = $m[1];
+    }
+    // Formato 2: value="TOKEN" name="confirm"
+    if (preg_match('/value=["\']([^"\']+)["\']\s+name=["\']confirm["\']/', $html, $m)) {
+        $candidates[] = $m[1];
+    }
+    // Formato 3: confirm=TOKEN en un enlace o parámetro de URL
+    if (preg_match('/(?:[?&]|href=["\'])[^"\']*confirm=([A-Za-z0-9_.-]+)/', $html, $m)) {
+        $candidates[] = $m[1];
+    }
+
+    foreach ($candidates as $token) {
+        $token = trim($token);
+        // Descartar el 't' inicial (confirm=t) y valores triviales
+        if ($token !== '' && $token !== 't' && strlen($token) > 3) {
+            return $token;
+        }
+    }
+
+    return null;
 }
 
 /**
@@ -499,7 +550,12 @@ curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (
             : 'application/octet-stream';
         header('Content-Type: ' . $mimeType);
         header('Accept-Ranges: bytes');
-        header('Cache-Control: no-store');
+        // Range Requests (streaming del emulador): permitir caché en el
+        // navegador para reutilizar bloques ya leídos (seek hacia atrás).
+        // Descargas completas sin Range: no-store (anti-abuso, siempre frescas).
+        header($rangeHeader
+            ? 'Cache-Control: private, max-age=3600'
+            : 'Cache-Control: no-store');
         header('Content-Disposition: inline; filename="' . $cleanTitle . '"');
 
         // Tamaño del contenido

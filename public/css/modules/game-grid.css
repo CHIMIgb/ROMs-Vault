@@ -113,6 +113,8 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    position: relative;
+    z-index: 1;
 }
 
 .game-cover.no-image { background: var(--slate); }
@@ -400,9 +402,7 @@
     transform: translate(-3px, -3px);
     box-shadow:
         8px 8px 0 #8a7a58,
-        9px 9px 0 #6a5a38,
-        0 0 18px rgba(192, 57, 43, 0.45),
-        0 0 32px rgba(192, 57, 43, 0.22);
+        9px 9px 0 #6a5a38;
 }
 /* ── Hover retro "cartucho encendido" ──
    La portada se enciende como una pantalla CRT: brillo y contraste,
@@ -450,11 +450,6 @@
     15%  { opacity: 1; }
     100% { transform: translateY(110%); opacity: 0; }
 }
-/* Título: señal de "seleccionado" en el acento de la app */
-.related-card:hover .related-game-title {
-    color: var(--red);
-    text-shadow: 1px 1px 0 var(--border-light);
-}
 /* Sin movimiento si el usuario lo prefiere: solo efectos estáticos */
 @media (prefers-reduced-motion: reduce) {
     .related-card:hover .related-cover::before {
@@ -482,16 +477,24 @@
     align-items: center;
     justify-content: center;
 }
-.related-cover.no-image i[data-i],
-.related-cover.no-image svg.pxi {
-    width: 50%;
-    height: 50%;
-    opacity: 0.4;
+/* Placeholder: icono disco SIEMPRE presente detrás de la imagen (z-index 0).
+   Se ve cuando no hay carátula o cuando la imagen falla (onerror la oculta). */
+.related-cover i[data-i],
+.related-cover svg.pxi {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 55%;
+    height: 55%;
+    opacity: 0.75;
+    z-index: 0;
 }
 .related-cover img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    position: relative;
+    z-index: 1;
 }
 /* Scanline sutil estilo CRT */
 .related-cover::after {
