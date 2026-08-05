@@ -83,7 +83,7 @@ $renderRel(
 );
 $renderRel(
     $mismoGenero,
-    'Juegos relacionados',
+    'Juegos recomendados',
     'disc',
     'genero'
 );
