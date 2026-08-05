@@ -480,9 +480,9 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
 
 <!-- ====== JUEGOS RELACIONADOS ============================================= -->
 <?php
-// En la página del emulador pedimos las imágenes de recomendados en paralelo
-// desde el inicio, pero con prioridad BAJA (fetchpriority="low") para que el
-// streaming de la ROM conserve el ancho de banda crítico. En el resto de
+// En la página del emulador las imágenes de recomendados se cargan primero,
+// con prioridad ALTA (fetchpriority="high") y eager: se piden en paralelo nada
+// más parsear el HTML, antes incluso del streaming de la ROM. En el resto de
 // vistas ($relatedEager sin definir) siguen con loading="lazy".
 $relatedEager = true;
 require_once 'views/components/related_games.php';
