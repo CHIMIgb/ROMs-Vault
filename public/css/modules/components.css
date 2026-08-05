@@ -739,17 +739,18 @@
 }
 
 /* ── game-cover placeholder centrado ─────────────── */
-.game-cover.no-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.game-cover.no-image i[data-i],
-.game-cover.no-image svg.pxi {
-    width: 42%;
-    height: 42%;
-    opacity: 0.4;
+/* El icono disco está SIEMPRE en el DOM (detrás de la imagen, z-index 0);
+   se ve cuando no hay carátula o cuando falla la imagen (onerror la oculta). */
+.game-cover i[data-i],
+.game-cover svg.pxi {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 55%;
+    height: 55%;
+    opacity: 0.75;
     display: block;
+    z-index: 0;
 }
 
 /* ── search button icon ──────────────────────────── */

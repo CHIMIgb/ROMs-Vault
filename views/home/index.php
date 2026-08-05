@@ -85,10 +85,11 @@
                     <div class="game-card-inner">
                         <a href="index.php?controller=home&action=show&id=<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
                             <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
+                                <!-- Disco placeholder siempre presente: se ve cuando no hay
+                                     imagen o cuando la imagen falla al cargar (onerror) -->
+                                <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                                 <?php if (!empty($juego['imagen'])): ?>
-                                    <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async"<?= $i === 1 ? ' fetchpriority="high"' : '' ?>>
-                                <?php else: ?>
-                                    <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
+                                    <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async"<?= $i === 1 ? ' fetchpriority="high"' : '' ?> onerror="this.style.display='none';">
                                 <?php endif; ?>
                             </div>
                             <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>

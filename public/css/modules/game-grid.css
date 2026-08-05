@@ -113,6 +113,8 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    position: relative;
+    z-index: 1;
 }
 
 .game-cover.no-image { background: var(--slate); }
@@ -475,16 +477,16 @@
     align-items: center;
     justify-content: center;
 }
-/* Placeholder: icono centrado que queda DETRÁS de la imagen. Se ve cuando no
-   hay imagen o cuando la imagen falla al cargar (onerror añade .no-image). */
+/* Placeholder: icono disco SIEMPRE presente detrás de la imagen (z-index 0).
+   Se ve cuando no hay carátula o cuando la imagen falla (onerror la oculta). */
 .related-cover i[data-i],
 .related-cover svg.pxi {
     position: absolute;
     inset: 0;
     margin: auto;
-    width: 50%;
-    height: 50%;
-    opacity: 0.4;
+    width: 55%;
+    height: 55%;
+    opacity: 0.75;
     z-index: 0;
 }
 .related-cover img {
