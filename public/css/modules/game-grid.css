@@ -448,11 +448,6 @@
     15%  { opacity: 1; }
     100% { transform: translateY(110%); opacity: 0; }
 }
-/* Título: señal de "seleccionado" en el acento de la app */
-.related-card:hover .related-game-title {
-    color: var(--red);
-    text-shadow: 1px 1px 0 var(--border-light);
-}
 /* Sin movimiento si el usuario lo prefiere: solo efectos estáticos */
 @media (prefers-reduced-motion: reduce) {
     .related-card:hover .related-cover::before {
