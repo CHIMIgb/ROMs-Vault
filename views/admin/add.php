@@ -160,26 +160,23 @@
                     <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
                 </div>
             </div>
+            <div class="image-preview-grid" id="imagen-preview-grid" hidden></div>
             <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB.<br>
             <i>Las imágenes se optimizarán y convertirán automáticamente a formato WebP.</i></small>
         </div>
 
         <!-- Capturas -->
         <div class="form-group">
-            <label for="capturas">Capturas del juego</label>
-            <div class="file-input-wrapper">
-                <input type="file"
-                       id="capturas"
-                       name="capturas[]"
-                       accept="image/jpeg,image/png,image/gif,image/webp"
-                       multiple>
-                <div class="file-input-display" onclick="document.getElementById('capturas').click()">
-                    <div class="file-input-btn"><i data-i="upload-2"></i> Elegir capturas
-                    </div>
-                    <div class="file-input-name" id="capturas-name">Sin archivos seleccionados</div>
-                </div>
-            </div>
+            <label>Capturas del juego</label>
+            <input type="file"
+                   id="capturas"
+                   name="capturas[]"
+                   accept="image/jpeg,image/png,image/gif,image/webp"
+                   multiple
+                   hidden>
+            <div class="image-preview-grid" id="capturas-preview-grid"></div>
             <small>Opcional. Formatos: JPG, PNG, GIF, WEBP. Máx. 2MB por archivo y 7 capturas.<br>
+            <i>Puedes ir añadiendo imágenes de a varias: las selecciones se acumulan y cada una se puede quitar.</i><br>
             <i>Se mostrarán en el carrusel de la ficha del juego.</i></small>
         </div>
 
@@ -197,28 +194,125 @@
 </div>
 
 <script>
-document.getElementById('imagen').addEventListener('change', function() {
-    const nameEl = document.getElementById('imagen-name');
-    if (this.files && this.files[0]) {
-        nameEl.textContent = this.files[0].name;
-        nameEl.classList.add('has-file');
-    } else {
-        nameEl.textContent = 'Sin archivo seleccionado';
-        nameEl.classList.remove('has-file');
+(function() {
+    'use strict';
+
+    // ── Portada: preview de un solo archivo + botón quitar ──
+    var portadaInput = document.getElementById('imagen');
+    var portadaGrid  = document.getElementById('imagen-preview-grid');
+
+    function renderPortada() {
+        var f = portadaInput.files && portadaInput.files[0];
+        portadaGrid.innerHTML = '';
+        if (!f) {
+            portadaGrid.hidden = true;
+            return;
+        }
+
+        var item = document.createElement('div');
+        item.className = 'image-preview-item';
+
+        var img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        img.alt = 'Preview de la portada';
+
+        var remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'image-preview-remove';
+        remove.setAttribute('aria-label', 'Quitar portada seleccionada');
+        remove.textContent = '\u2715';
+        remove.addEventListener('click', function() {
+            portadaInput.value = '';
+            renderPortada();
+        });
+
+        item.appendChild(img);
+        item.appendChild(remove);
+        portadaGrid.appendChild(item);
+        portadaGrid.hidden = false;
     }
-});
-document.getElementById('capturas').addEventListener('change', function() {
-    const nameEl = document.getElementById('capturas-name');
-    if (this.files && this.files.length) {
-        const total = this.files.length;
-        const limite = 7;
-        nameEl.textContent = total > limite
-            ? total + ' archivos (máx. 7, se guardarán los primeros ' + limite + ')'
-            : total + (total === 1 ? ' archivo' : ' archivos');
-        nameEl.classList.add('has-file');
-    } else {
-        nameEl.textContent = 'Sin archivos seleccionados';
-        nameEl.classList.remove('has-file');
+
+    portadaInput.addEventListener('change', renderPortada);
+
+    // ── Capturas: selección acumulada con previews ──
+    var capturasInput = document.getElementById('capturas');
+    var capturasGrid  = document.getElementById('capturas-preview-grid');
+    var capturasFiles = [];
+    var MAX_CAPTURAS  = 7;
+
+    capturasInput.addEventListener('change', function() {
+        // Acumular los archivos recién elegidos sin perder los anteriores
+        for (var i = 0; i < capturasInput.files.length; i++) {
+            if (capturasFiles.length >= MAX_CAPTURAS) break;
+            capturasFiles.push(capturasInput.files[i]);
+        }
+        capturasInput.value = ''; // permite elegir más en la próxima selección
+        renderCapturas();
+    });
+
+    function renderCapturas() {
+        capturasGrid.innerHTML = '';
+
+        capturasFiles.forEach(function(file, index) {
+            var item = document.createElement('div');
+            item.className = 'image-preview-item';
+
+            var img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = 'Captura ' + (index + 1);
+
+            var badge = document.createElement('span');
+            badge.className = 'image-preview-badge';
+            badge.textContent = (index + 1) + '/' + capturasFiles.length;
+
+            var remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'image-preview-remove';
+            remove.setAttribute('aria-label', 'Quitar captura ' + (index + 1));
+            remove.textContent = '\u2715';
+            remove.addEventListener('click', function(i) {
+                return function() {
+                    capturasFiles.splice(i, 1);
+                    renderCapturas();
+                };
+            }(index));
+
+            item.appendChild(img);
+            item.appendChild(badge);
+            item.appendChild(remove);
+            capturasGrid.appendChild(item);
+        });
+
+        // Tile para añadir más capturas (acumula)
+        var addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'image-preview-add' + (capturasFiles.length >= MAX_CAPTURAS ? ' is-disabled' : '');
+        addBtn.textContent = '+';
+        addBtn.setAttribute('aria-label', 'Añadir capturas');
+        addBtn.addEventListener('click', function() {
+            if (capturasFiles.length < MAX_CAPTURAS) {
+                capturasInput.click();
+            }
+        });
+        capturasGrid.appendChild(addBtn);
+
+        if (capturasFiles.length >= MAX_CAPTURAS) {
+            var limit = document.createElement('span');
+            limit.className = 'image-preview-limit';
+            limit.textContent = 'Límite alcanzado: ' + MAX_CAPTURAS + ' capturas. Quita alguna para añadir más.';
+            capturasGrid.appendChild(limit);
+        }
     }
-});
+
+    // Al enviar: reconstruir el FileList completo en el input de capturas
+    capturasInput.closest('form').addEventListener('submit', function() {
+        if (typeof DataTransfer !== 'undefined') {
+            var dt = new DataTransfer();
+            capturasFiles.forEach(function(f) { dt.items.add(f); });
+            capturasInput.files = dt.files;
+        }
+    });
+
+    renderCapturas();
+})();
 </script>

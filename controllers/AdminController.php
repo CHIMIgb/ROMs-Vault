@@ -196,6 +196,12 @@ class AdminController {
                         }
                         $juego['capturas'] = json_encode($nuevasRutas);
                     }
+                    // Traducir también las rutas marcadas para eliminar (el formulario envió las viejas)
+                    if (!empty($_POST['eliminar_capturas']) && is_array($_POST['eliminar_capturas'])) {
+                        $_POST['eliminar_capturas'] = array_map(function ($r) use ($baseVieja, $baseNueva) {
+                            return str_replace($baseVieja, $baseNueva, (string)$r);
+                        }, $_POST['eliminar_capturas']);
+                    }
                 }
             } elseif (!$carpetaDestino || !is_dir($carpetaDestino)) {
                 // Estructura antigua (portada en la raíz de uploads): crear carpeta nueva
@@ -218,14 +224,35 @@ class AdminController {
                 $data['imagen'] = $juego['imagen'] ?? null;
             }
 
-            // ── Capturas (múltiples archivos) ──
+            // ── Capturas: conservar las actuales, eliminar las marcadas y añadir las nuevas ──
+            $capturasActuales = Juego::parseCapturas($juego['capturas'] ?? null);
+
+            // Rutas marcadas explícitamente para eliminar (botones ✕ del formulario)
+            $aEliminar = [];
+            if (!empty($_POST['eliminar_capturas']) && is_array($_POST['eliminar_capturas'])) {
+                $aEliminar = array_values(array_filter($_POST['eliminar_capturas'], 'is_string'));
+            }
+
+            // Filtro las actuales que NO se marcaron; borro los archivos de las marcadas
+            $restantes = [];
+            foreach ($capturasActuales as $ruta) {
+                if (in_array($ruta, $aEliminar, true)) {
+                    if (file_exists($ruta)) {
+                        @unlink($ruta);
+                    }
+                } else {
+                    $restantes[] = $ruta;
+                }
+            }
+
+            // Añado las nuevas capturas (sin perder las existentes)
+            $nuevas = [];
             if (!isset($error) && isset($_FILES['capturas'])) {
-                $rutas = [];
                 foreach ($_FILES['capturas']['name'] as $i => $nombreArchivo) {
                     if ($_FILES['capturas']['error'][$i] !== UPLOAD_ERR_OK) {
                         continue;
                     }
-                    if (count($rutas) >= self::MAX_CAPTURAS) {
+                    if (count($restantes) + count($nuevas) >= self::MAX_CAPTURAS) {
                         break;
                     }
                     $file = [
@@ -235,22 +262,17 @@ class AdminController {
                         'error'    => $_FILES['capturas']['error'][$i],
                         'size'     => $_FILES['capturas']['size'][$i],
                     ];
-                    $capResult = $this->uploadImage($file, $carpetaDestino, 'captura-' . (count($rutas) + 1));
+                    $capResult = $this->uploadImage($file, $carpetaDestino, 'captura-' . (count($restantes) + count($nuevas) + 1));
                     if (!$capResult['success']) {
                         $error = $capResult['error'];
                         break;
                     }
-                    $rutas[] = $capResult['filename'];
+                    $nuevas[] = $capResult['filename'];
                 }
-                if (!isset($error) && $rutas) {
-                    $this->eliminarCapturasViejas($juego);
-                    $data['capturas'] = json_encode($rutas);
-                } else {
-                    $data['capturas'] = $juego['capturas'] ?? null;
-                }
-            } else {
-                $data['capturas'] = $juego['capturas'] ?? null;
             }
+
+            $capturasFinales = array_merge($restantes, $nuevas);
+            $data['capturas'] = json_encode($capturasFinales);
 
             if (!isset($error)) {
                 if ($juegoModel->update($id, $data)) {

@@ -151,7 +151,7 @@
                          style="width:80px; height:80px; object-fit:cover; border:2px solid var(--border-dark); flex-shrink:0;">
                     <div style="font-family:'Courier Prime',monospace;">
                         <p style="font-size:0.78rem; font-weight:700; color:var(--slate); margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.05em;">Imagen actual</p>
-                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;"><i data-i="warning"></i> Sube una nueva imagen para reemplazarla</p>
+                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;"><i data-i="warning"></i> Si eliges una nueva, se reemplazará al guardar. Puedes quitarla con ✕ para conservar la actual.</p>
                     </div>
                 </div>
             <?php endif; ?>
@@ -166,41 +166,37 @@
                     <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
                 </div>
             </div>
+            <div class="image-preview-grid" id="imagen-preview-grid" hidden></div>
             <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB.<br>
             <i>Las imágenes se optimizarán y convertirán automáticamente a formato WebP.</i></small>
         </div>
 
         <!-- Capturas -->
         <div class="form-group">
-            <label for="capturas">Capturas del juego</label>
+            <label>Capturas del juego</label>
             <?php $capturasActuales = Juego::parseCapturas($juego['capturas'] ?? null); ?>
             <?php if ($capturasActuales): ?>
-                <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem; padding:0.75rem; background:var(--cream-dark); border:2px solid var(--border-dark); box-shadow:var(--raise-shadow);">
-                    <?php foreach ($capturasActuales as $ruta): ?>
-                        <img src="<?= htmlspecialchars($ruta) ?>"
-                             alt="Captura actual"
-                             style="width:80px; height:80px; object-fit:cover; border:2px solid var(--border-dark);">
+                <div class="image-preview-grid" id="capturas-actuales-grid">
+                    <?php foreach ($capturasActuales as $i => $ruta): ?>
+                        <div class="image-preview-item" data-ruta="<?= htmlspecialchars($ruta) ?>">
+                            <img src="<?= htmlspecialchars($ruta) ?>" alt="Captura actual <?= $i + 1 ?>">
+                            <span class="image-preview-badge">Actual <?= $i + 1 ?></span>
+                            <button type="button"
+                                    class="image-preview-remove"
+                                    aria-label="Marcar captura <?= $i + 1 ?> para eliminar">&#10005;</button>
+                        </div>
                     <?php endforeach; ?>
-                    <div style="font-family:'Courier Prime',monospace; display:flex; flex-direction:column; justify-content:center;">
-                        <p style="font-size:0.78rem; font-weight:700; color:var(--slate); text-transform:uppercase; letter-spacing:0.05em;"><?= count($capturasActuales) ?> captura(s) actuales</p>
-                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;"><i data-i="warning"></i> Al subir capturas nuevas se reemplazan todas</p>
-                    </div>
                 </div>
             <?php endif; ?>
-            <div class="file-input-wrapper">
-                <input type="file"
-                       id="capturas"
-                       name="capturas[]"
-                       accept="image/jpeg,image/png,image/gif,image/webp"
-                       multiple>
-                <div class="file-input-display" onclick="document.getElementById('capturas').click()">
-                    <div class="file-input-btn"><i data-i="upload-2"></i> Elegir capturas
-                    </div>
-                    <div class="file-input-name" id="capturas-name">Sin archivos seleccionados</div>
-                </div>
-            </div>
+            <input type="file"
+                   id="capturas"
+                   name="capturas[]"
+                   accept="image/jpeg,image/png,image/gif,image/webp"
+                   multiple
+                   hidden>
+            <div class="image-preview-grid" id="capturas-nuevas-grid"></div>
             <small>Opcional. Formatos: JPG, PNG, GIF, WEBP. Máx. 2MB por archivo y 7 capturas.<br>
-            <i>Se mostrarán en el carrusel de la ficha del juego.</i></small>
+            <i>Las capturas actuales se conservan: usa ✕ en una captura para eliminarla al guardar, y + para añadir más sin perder las existentes.</i></small>
         </div>
                 
         <!-- Botones -->
@@ -214,28 +210,165 @@
 </div>
 
 <script>
-document.getElementById('imagen').addEventListener('change', function() {
-    const nameEl = document.getElementById('imagen-name');
-    if (this.files && this.files[0]) {
-        nameEl.textContent = this.files[0].name;
-        nameEl.classList.add('has-file');
-    } else {
-        nameEl.textContent = 'Sin archivo seleccionado';
-        nameEl.classList.remove('has-file');
+(function() {
+    'use strict';
+
+    var MAX_CAPTURAS = 7;
+
+    // ── Portada: preview de la nueva seleccionada; ✕ descarta y conserva la actual ──
+    var portadaInput = document.getElementById('imagen');
+    var portadaGrid  = document.getElementById('imagen-preview-grid');
+
+    function renderPortada() {
+        var f = portadaInput.files && portadaInput.files[0];
+        portadaGrid.innerHTML = '';
+        if (!f) {
+            portadaGrid.hidden = true;
+            return;
+        }
+
+        var item = document.createElement('div');
+        item.className = 'image-preview-item';
+
+        var img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        img.alt = 'Nueva portada seleccionada';
+
+        var badge = document.createElement('span');
+        badge.className = 'image-preview-badge';
+        badge.textContent = 'Nueva';
+
+        var remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'image-preview-remove';
+        remove.setAttribute('aria-label', 'Quitar portada nueva seleccionada');
+        remove.textContent = '\u2715';
+        remove.addEventListener('click', function() {
+            portadaInput.value = '';
+            renderPortada();
+        });
+
+        item.appendChild(img);
+        item.appendChild(badge);
+        item.appendChild(remove);
+        portadaGrid.appendChild(item);
+        portadaGrid.hidden = false;
     }
-});
-document.getElementById('capturas').addEventListener('change', function() {
-    const nameEl = document.getElementById('capturas-name');
-    if (this.files && this.files.length) {
-        const total = this.files.length;
-        const limite = 7;
-        nameEl.textContent = total > limite
-            ? total + ' archivos (máx. 7, se guardarán los primeros ' + limite + ')'
-            : total + (total === 1 ? ' archivo' : ' archivos');
-        nameEl.classList.add('has-file');
-    } else {
-        nameEl.textContent = 'Sin archivos seleccionados';
-        nameEl.classList.remove('has-file');
+
+    portadaInput.addEventListener('change', renderPortada);
+
+    // ── Capturas actuales: ✕ marca para eliminar (toggle) ──
+    var gridActuales = document.getElementById('capturas-actuales-grid');
+
+    function capturasActivas() {
+        if (!gridActuales) return 0;
+        return gridActuales.querySelectorAll('.image-preview-item:not(.is-removing)').length;
     }
-});
+
+    if (gridActuales) {
+        gridActuales.querySelectorAll('.image-preview-item').forEach(function(item) {
+            var ruta = item.getAttribute('data-ruta');
+            var btn = item.querySelector('.image-preview-remove');
+            btn.addEventListener('click', function() {
+                item.classList.toggle('is-removing');
+
+                // Sincronizar hidden input que indica al backend la ruta a eliminar
+                var hidden = item.querySelector('input[type="hidden"]');
+                if (item.classList.contains('is-removing')) {
+                    if (!hidden) {
+                        hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'eliminar_capturas[]';
+                        hidden.value = ruta;
+                        item.appendChild(hidden);
+                    }
+                } else if (hidden) {
+                    hidden.parentNode.removeChild(hidden);
+                }
+
+                renderNuevas();
+            });
+        });
+    }
+
+    // ── Capturas nuevas: selección acumulada con previews ──
+    var capturasInput = document.getElementById('capturas');
+    var capturasGrid  = document.getElementById('capturas-nuevas-grid');
+    var capturasFiles = [];
+
+    capturasInput.addEventListener('change', function() {
+        for (var i = 0; i < capturasInput.files.length; i++) {
+            if (capturasFiles.length >= MAX_CAPTURAS - capturasActivas()) break;
+            capturasFiles.push(capturasInput.files[i]);
+        }
+        capturasInput.value = ''; // permite elegir más en la próxima selección
+        renderNuevas();
+    });
+
+    function renderNuevas() {
+        capturasGrid.innerHTML = '';
+
+        capturasFiles.forEach(function(file, index) {
+            var item = document.createElement('div');
+            item.className = 'image-preview-item';
+
+            var img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = 'Nueva captura ' + (index + 1);
+
+            var badge = document.createElement('span');
+            badge.className = 'image-preview-badge';
+            badge.textContent = 'Nueva';
+
+            var remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'image-preview-remove';
+            remove.setAttribute('aria-label', 'Quitar nueva captura ' + (index + 1));
+            remove.textContent = '\u2715';
+            remove.addEventListener('click', function(i) {
+                return function() {
+                    capturasFiles.splice(i, 1);
+                    renderNuevas();
+                };
+            }(index));
+
+            item.appendChild(img);
+            item.appendChild(badge);
+            item.appendChild(remove);
+            capturasGrid.appendChild(item);
+        });
+
+        var cupoLleno = (capturasActivas() + capturasFiles.length) >= MAX_CAPTURAS;
+
+        var addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'image-preview-add' + (cupoLleno ? ' is-disabled' : '');
+        addBtn.textContent = '+';
+        addBtn.setAttribute('aria-label', 'Añadir capturas');
+        addBtn.addEventListener('click', function() {
+            if (!cupoLleno) {
+                capturasInput.click();
+            }
+        });
+        capturasGrid.appendChild(addBtn);
+
+        if (cupoLleno) {
+            var limit = document.createElement('span');
+            limit.className = 'image-preview-limit';
+            limit.textContent = 'Límite alcanzado: ' + MAX_CAPTURAS + ' capturas. Quita alguna para añadir más.';
+            capturasGrid.appendChild(limit);
+        }
+    }
+
+    // Al enviar: reconstruir el FileList completo con las nuevas capturas
+    capturasInput.closest('form').addEventListener('submit', function() {
+        if (typeof DataTransfer !== 'undefined') {
+            var dt = new DataTransfer();
+            capturasFiles.forEach(function(f) { dt.items.add(f); });
+            capturasInput.files = dt.files;
+        }
+    });
+
+    renderNuevas();
+})();
 </script>

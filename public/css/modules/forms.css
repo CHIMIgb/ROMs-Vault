@@ -127,6 +127,138 @@
     font-weight: 700;
 }
 
+/* ── Previews de imágenes (admin: portada + capturas) ── */
+.image-preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.image-preview-item {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    background: var(--cream-dark);
+    flex-shrink: 0;
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-preview-remove {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--red);
+    color: var(--cream-light);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    line-height: 1;
+    border: 2px solid var(--cream-light);
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--border-dark);
+    transition: transform 0.1s;
+}
+
+.image-preview-remove:hover {
+    transform: scale(1.1);
+}
+
+.image-preview-remove:focus-visible {
+    outline: 2px solid var(--slate);
+    outline-offset: 2px;
+}
+
+/* Captura actual marcada para eliminar (edición) */
+.image-preview-item.is-removing {
+    opacity: 0.45;
+    border-style: dashed;
+    border-color: var(--red);
+}
+
+.image-preview-item.is-removing::after {
+    content: "✕";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+}
+
+.image-preview-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.2rem 0.3rem;
+    background: rgba(26, 26, 26, 0.75);
+    color: var(--cream-light);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    text-align: center;
+    letter-spacing: 0.03em;
+}
+
+/* Botón para añadir más capturas (acumula selecciones) */
+.image-preview-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    border: 2px dashed var(--border-mid);
+    background: transparent;
+    color: var(--slate-mid);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    line-height: 1.4;
+    text-align: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.image-preview-add:hover {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.image-preview-add:focus-visible {
+    outline: 2px solid var(--slate);
+    outline-offset: 2px;
+}
+
+.image-preview-add.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Aviso de límite de capturas */
+.image-preview-limit {
+    flex-basis: 100%;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--red);
+}
+
 .form-group small {
     display: block;
     margin-top: 0.3rem;
