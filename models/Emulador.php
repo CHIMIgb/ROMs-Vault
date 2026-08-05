@@ -150,4 +150,18 @@ class Emulador extends Model {
         $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE consola_id = ?");
         return $stmt->execute([$consolaId]);
     }
+
+    /**
+     * Consolas que todavía no tienen ningún emulador configurado.
+     * Se usan en el formulario "Registrar Emulador" para elegir la consola.
+     */
+    public function getConsolasSinEmulador(): array {
+        $stmt = $this->pdo->query(
+            "SELECT id, nombre
+             FROM consolas
+             WHERE id NOT IN (SELECT DISTINCT consola_id FROM {$this->table})
+             ORDER BY nombre ASC"
+        );
+        return $stmt->fetchAll();
+    }
 }

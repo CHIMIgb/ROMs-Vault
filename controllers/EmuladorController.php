@@ -66,6 +66,60 @@ class EmuladorController {
         require_once 'views/layout/footer.php';
     }
 
+    // ── Registrar emuladores para una consola sin emulador ─────────────────
+    public function add() {
+        $emuladorModel = new Emulador();
+        $consolasSin   = $emuladorModel->getConsolasSinEmulador();
+
+        $actual = ['principal' => null, 'alterno' => null];
+        $error  = null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $consolaId = (int)($_POST['consola_id'] ?? 0);
+
+            // La consola debe existir y no tener emuladores todavía
+            $consolaValida = false;
+            foreach ($consolasSin as $c) {
+                if ((int) $c['id'] === $consolaId) {
+                    $consolaValida = true;
+                    break;
+                }
+            }
+            if (!$consolaValida) {
+                $error = 'Selecciona una consola válida sin emulador configurado.';
+            }
+
+            if ($error === null) {
+                $principal = $this->parseEmuladorPost('principal');
+                $alterno   = $this->parseEmuladorPost('alterno');
+
+                if ($principal !== null) {
+                    $error = $this->validarEmulador($principal);
+                }
+                if ($error === null && $alterno !== null) {
+                    $error = $this->validarEmulador($alterno);
+                }
+
+                if ($error === null) {
+                    $ok = $emuladorModel->replaceForConsola($consolaId, $principal, $alterno);
+                    if ($ok) {
+                        header('Location: index.php?controller=emulador&action=index&created=1');
+                        exit;
+                    }
+                    $error = 'Error al guardar el emulador. Revisa los datos e inténtalo de nuevo.';
+                }
+
+                // Si hay error, mantener lo que escribió el usuario
+                if ($principal !== null) $actual['principal'] = $principal;
+                if ($alterno   !== null) $actual['alterno']   = $alterno;
+            }
+        }
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/emuladores/add.php';
+        require_once 'views/layout/footer.php';
+    }
+
     // ── Editar emuladores de una consola ──────────────────────────────────
     public function edit($id = null) {
         if (!$id) {

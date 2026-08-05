@@ -23,13 +23,18 @@
         <a href="index.php?controller=admin&action=dashboard" class="btn-primary">
             <i data-i="arrow-left"></i> Dashboard
         </a>
+        <a href="index.php?controller=emulador&action=add" class="btn-primary">
+            <i data-i="plus"></i> Nuevo Emulador
+        </a>
     </div>
 </div>
 
 <!-- Alertas de estado — mismo componente Alert que el resto del panel -->
 <?php 
 require_once 'views/components/Alert.php';
-if (isset($_GET['updated'])): 
+if (isset($_GET['created'])): 
+    Alert::render('success', 'Emulador registrado correctamente.', 'check', 'margin-bottom:1.25rem;');
+elseif (isset($_GET['updated'])): 
     Alert::render('success', 'Emuladores actualizados correctamente.', 'check', 'margin-bottom:1.25rem;');
 endif; 
 ?>
