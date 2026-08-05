@@ -475,16 +475,24 @@
     align-items: center;
     justify-content: center;
 }
-.related-cover.no-image i[data-i],
-.related-cover.no-image svg.pxi {
+/* Placeholder: icono centrado que queda DETRÁS de la imagen. Se ve cuando no
+   hay imagen o cuando la imagen falla al cargar (onerror añade .no-image). */
+.related-cover i[data-i],
+.related-cover svg.pxi {
+    position: absolute;
+    inset: 0;
+    margin: auto;
     width: 50%;
     height: 50%;
     opacity: 0.4;
+    z-index: 0;
 }
 .related-cover img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    position: relative;
+    z-index: 1;
 }
 /* Scanline sutil estilo CRT */
 .related-cover::after {

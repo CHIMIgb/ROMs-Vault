@@ -46,12 +46,14 @@ $renderRel = function (array $items, string $titulo, string $icon, string $varia
                 <a href="index.php?controller=home&action=show&id=<?= (int) $rel['id'] ?>"
                     class="related-card" title="<?= htmlspecialchars($rel['titulo']) ?>">
                     <div class="related-cover <?= empty($rel['imagen']) ? 'no-image' : '' ?>">
+                        <!-- Placeholder siempre presente: queda detrás de la imagen y
+                             se muestra automáticamente si no hay imagen o si esta falla -->
+                        <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                         <?php if (!empty($rel['imagen'])): ?>
                             <img src="<?= htmlspecialchars($rel['imagen']) ?>" alt="<?= htmlspecialchars($rel['titulo']) ?>"
                                 loading="<?= !empty($relatedEager) ? 'eager' : 'lazy' ?>"
-                                <?= !empty($relatedEager) ? 'fetchpriority="low"' : '' ?>>
-                        <?php else: ?>
-                            <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
+                                <?= !empty($relatedEager) ? 'fetchpriority="low"' : '' ?>
+                                onerror="this.closest('.related-cover').classList.add('no-image'); this.remove();">
                         <?php endif; ?>
                     </div>
                     <div class="related-info">
