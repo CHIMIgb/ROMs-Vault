@@ -48,7 +48,8 @@ $renderRel = function (array $items, string $titulo, string $icon, string $varia
                     <div class="related-cover <?= empty($rel['imagen']) ? 'no-image' : '' ?>">
                         <?php if (!empty($rel['imagen'])): ?>
                             <img src="<?= htmlspecialchars($rel['imagen']) ?>" alt="<?= htmlspecialchars($rel['titulo']) ?>"
-                                loading="lazy">
+                                loading="<?= !empty($relatedEager) ? 'eager' : 'lazy' ?>"
+                                <?= !empty($relatedEager) ? 'fetchpriority="low"' : '' ?>>
                         <?php else: ?>
                             <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                         <?php endif; ?>
