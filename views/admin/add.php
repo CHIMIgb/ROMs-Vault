@@ -146,7 +146,7 @@
             <small>Solo números enteros positivos</small>
         </div>
         
-        <!-- Imagen -->
+        <!-- Portada -->
         <div class="form-group">
             <label for="imagen">Portada del juego</label>
             <div class="file-input-wrapper">
@@ -162,6 +162,25 @@
             </div>
             <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB.<br>
             <i>Las imágenes se optimizarán y convertirán automáticamente a formato WebP.</i></small>
+        </div>
+
+        <!-- Capturas -->
+        <div class="form-group">
+            <label for="capturas">Capturas del juego</label>
+            <div class="file-input-wrapper">
+                <input type="file"
+                       id="capturas"
+                       name="capturas[]"
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       multiple>
+                <div class="file-input-display" onclick="document.getElementById('capturas').click()">
+                    <div class="file-input-btn"><i data-i="upload-2"></i> Elegir capturas
+                    </div>
+                    <div class="file-input-name" id="capturas-name">Sin archivos seleccionados</div>
+                </div>
+            </div>
+            <small>Opcional. Formatos: JPG, PNG, GIF, WEBP. Máx. 2MB por archivo y 7 capturas.<br>
+            <i>Se mostrarán en el carrusel de la ficha del juego.</i></small>
         </div>
 
         <!-- Campo oculto: activo siempre en true al crear -->
@@ -185,6 +204,20 @@ document.getElementById('imagen').addEventListener('change', function() {
         nameEl.classList.add('has-file');
     } else {
         nameEl.textContent = 'Sin archivo seleccionado';
+        nameEl.classList.remove('has-file');
+    }
+});
+document.getElementById('capturas').addEventListener('change', function() {
+    const nameEl = document.getElementById('capturas-name');
+    if (this.files && this.files.length) {
+        const total = this.files.length;
+        const limite = 7;
+        nameEl.textContent = total > limite
+            ? total + ' archivos (máx. 7, se guardarán los primeros ' + limite + ')'
+            : total + (total === 1 ? ' archivo' : ' archivos');
+        nameEl.classList.add('has-file');
+    } else {
+        nameEl.textContent = 'Sin archivos seleccionados';
         nameEl.classList.remove('has-file');
     }
 });

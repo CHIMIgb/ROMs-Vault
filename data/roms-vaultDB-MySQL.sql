@@ -75,6 +75,7 @@ CREATE TABLE `juegos` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `titulo` VARCHAR(200) NOT NULL,
     `imagen` VARCHAR(300) NOT NULL,
+    `capturas` TEXT,
     `descripcion` TEXT,
     `consola_id` INT,
     `categoria_id` INT,

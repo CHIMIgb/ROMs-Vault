@@ -35,15 +35,8 @@ if (!empty($juego['idiomas'])) {
 }
 
 // ── Capturas (carrusel) ──
-// De momento se muestra la portada repetida 4 veces (placeholder).
-// Cuando exista el campo `capturas` en la BD (JSON de URLs) se usará.
-$capturas = [];
-if (!empty($juego['capturas'])) {
-    $tmp = json_decode($juego['capturas'], true);
-    if (is_array($tmp)) {
-        $capturas = array_values(array_filter($tmp, 'is_string'));
-    }
-}
+// Usa el campo `capturas` de la BD (JSON de rutas); si no hay, replica la portada.
+$capturas = Juego::parseCapturas($juego['capturas'] ?? null);
 if (!$capturas && !empty($juego['imagen'])) {
     $capturas = array_fill(0, 4, $juego['imagen']);
 }

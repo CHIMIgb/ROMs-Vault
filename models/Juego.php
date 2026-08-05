@@ -792,4 +792,19 @@ class Juego extends Model {
         ];
     }
 
+    /**
+     * Normaliza el campo `capturas` de la BD (JSON de rutas) a un array.
+     * Devuelve un array plano de strings; si no hay datos válidos, [].
+     */
+    public static function parseCapturas($raw): array {
+        if (empty($raw)) {
+            return [];
+        }
+        $tmp = json_decode($raw, true);
+        if (!is_array($tmp)) {
+            return [];
+        }
+        return array_values(array_filter($tmp, 'is_string'));
+    }
+
 }

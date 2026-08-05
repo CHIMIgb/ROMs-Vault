@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS public.juegos (
     id SERIAL PRIMARY KEY,
     titulo VARCHAR(200) NOT NULL,
     imagen VARCHAR(300),
+    capturas TEXT,
     descripcion TEXT,
     consola_id INTEGER REFERENCES public.consolas(id) ON DELETE SET NULL,
     categoria_id INTEGER REFERENCES public.categorias(id) ON DELETE SET NULL,
