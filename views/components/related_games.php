@@ -14,7 +14,10 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
         (int) $juego['id'],
         (int) $juego['consola_id'],
         (int) $juego['categoria_id'],
-        10
+        10,
+        // Seed de visita: recomendados aleatorios pero ESTABLES por navegador
+        // para que sus imágenes se cacheen (misma técnica que el catálogo).
+        Juego::getCatalogSeed()
     );
 }
 
@@ -43,11 +46,14 @@ $renderRel = function (array $items, string $titulo, string $icon, string $varia
                 <a href="index.php?controller=home&action=show&id=<?= (int) $rel['id'] ?>"
                     class="related-card" title="<?= htmlspecialchars($rel['titulo']) ?>">
                     <div class="related-cover <?= empty($rel['imagen']) ? 'no-image' : '' ?>">
+                        <!-- Disco placeholder siempre presente: se ve cuando no hay
+                             imagen o cuando la imagen falla al cargar (onerror) -->
+                        <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                         <?php if (!empty($rel['imagen'])): ?>
                             <img src="<?= htmlspecialchars($rel['imagen']) ?>" alt="<?= htmlspecialchars($rel['titulo']) ?>"
-                                loading="lazy">
-                        <?php else: ?>
-                            <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
+                                loading="<?= !empty($relatedEager) ? 'eager' : 'lazy' ?>"
+                                <?= !empty($relatedEager) ? 'fetchpriority="high"' : '' ?>
+                                onerror="this.style.display='none';">
                         <?php endif; ?>
                     </div>
                     <div class="related-info">
@@ -80,7 +86,7 @@ $renderRel(
 );
 $renderRel(
     $mismoGenero,
-    'Juegos relacionados',
+    'Juegos recomendados',
     'disc',
     'genero'
 );

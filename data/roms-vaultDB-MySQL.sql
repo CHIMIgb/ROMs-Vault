@@ -19,6 +19,7 @@ CREATE TABLE `consolas` (
     `descripcion` TEXT,
     `fabricante` VARCHAR(100),
     `activo` BOOLEAN DEFAULT TRUE,
+    `emulacion_online` BOOLEAN NOT NULL DEFAULT TRUE,
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

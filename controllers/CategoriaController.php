@@ -3,11 +3,12 @@
 require_once 'models/Categoria.php';
 require_once 'models/Juego.php';
 require_once __DIR__ . '/../config/AuthMiddleware.php';
+require_once __DIR__ . '/../config/CsrfService.php';
 
 class CategoriaController {
 
     public function __construct() {
-        AuthMiddleware::requireAuth();
+        AuthMiddleware::requireAdmin();
     }
 
     // ── Listado ───────────────────────────────────────────────────────────
@@ -108,6 +109,16 @@ class CategoriaController {
 
     // ── Eliminar ──────────────────────────────────────────────────────────
     public function delete($id = null) {
+        // Mutador — exigir token CSRF (POST o GET con token)
+        if (!CsrfService::verify()) {
+            CsrfService::deny();
+        }
+
+        // El id puede venir del router (GET) o del body POST
+        if (!$id) {
+            $id = $_POST['id'] ?? null;
+        }
+
         if (!$id) {
             header('Location: index.php?controller=categoria&action=index');
             exit;
@@ -133,6 +144,11 @@ class CategoriaController {
     // ── Toggle activo (AJAX) ──────────────────────────────────────────────
     public function toggleActiveAjax($id = null) {
         header('Content-Type: application/json; charset=utf-8');
+
+        // AJAX mutador — exigir token CSRF por header
+        if (!CsrfService::verifyAjax()) {
+            CsrfService::deny();
+        }
 
         if (!$id) {
             http_response_code(400);

@@ -1,0 +1,17 @@
+# ROMs Vault — Defensa en profundidad para public/uploads/
+# Las imágenes subidas siempre se guardan como .webp; este archivo impide
+# que cualquier archivo con extensión de script subido por error pueda
+# ejecutarse o leerse a través del servidor.
+
+# ── Bloquear ejecución de scripts (Apache 2.4: Require, no Order/Deny) ────────
+<FilesMatch "\.(?i:php|phtml|php3|php4|php5|php7|php8|phar|cgi|pl|py|sh|asp|aspx|jsp)$">
+    Require all denied
+</FilesMatch>
+
+# ── Bloquear acceso a archivos sensibles / ocultos ───────────────────────────
+<FilesMatch "^\.(htaccess|htpasswd|env|log|sql|git)" >
+    Require all denied
+</FilesMatch>
+
+# ── Sin listado de directorios ───────────────────────────────────────────────
+Options -Indexes

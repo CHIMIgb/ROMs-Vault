@@ -23,6 +23,7 @@ if (mb_strlen($term) < 2) {
 $term = mb_substr($term, 0, 80);
 
 require_once 'models/Juego.php';
+require_once 'config/UrlSigner.php';
 
 try {
     $juegoModel  = new Juego();
@@ -34,8 +35,9 @@ try {
             'consola'       => $j['consola_nombre'] ?? '',
             'imagen'        => $j['imagen'] ?? null,
             'file_id'       => $j['google_drive_file_id'],
+            'emulacion_online' => (bool)($j['consola_emulacion_online'] ?? true),
             'play_url'      => 'index.php?controller=home&action=play&file_id='     . urlencode($j['google_drive_file_id']),
-            'download_url'  => 'index.php?controller=home&action=download&file_id=' . urlencode($j['google_drive_file_id']),
+            'download_url'  => UrlSigner::downloadUrl($j['google_drive_file_id']),
         ];
     }, $resultados);
 

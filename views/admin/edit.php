@@ -10,6 +10,7 @@
     <?php endif; ?>
     
     <form autocomplete="off" method="POST" enctype="multipart/form-data">
+        <?= CsrfService::field() ?>
         <!-- Información básica -->
         <div class="form-group">
             <label for="titulo">Título del juego *</label>

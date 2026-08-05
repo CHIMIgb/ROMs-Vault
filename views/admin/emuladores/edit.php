@@ -14,6 +14,7 @@
     <?php endif; ?>
 
     <form method="POST" autocomplete="off">
+        <?= CsrfService::field() ?>
         <p style="margin:0 0 1.5rem;color:var(--text-light);font-size:.92rem;">
             Configura el emulador que se mostrará como recomendado en la ficha de los juegos de esta consola.
             El campo alternativo es opcional.

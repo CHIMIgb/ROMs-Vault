@@ -1,7 +1,0 @@
-# Bloquear acceso directo a los archivos BIOS desde el navegador.
-# Solo el proxy PHP interno (rom_proxy.php) puede leerlos.
-Options -Indexes
-<FilesMatch "\.bin$">
-    Order Allow,Deny
-    Deny from all
-</FilesMatch>

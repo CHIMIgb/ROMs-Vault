@@ -14,6 +14,7 @@
     <?php endif; ?>
 
     <form method="POST" autocomplete="off">
+        <?= CsrfService::field() ?>
 
         <!-- Nombre -->
         <div class="form-group">

@@ -4,6 +4,8 @@ require_once 'models/Juego.php';
 require_once 'models/Consola.php';
 require_once 'models/Categoria.php';
 require_once 'models/Emulador.php';
+require_once 'config/UrlSigner.php';
+require_once 'config/RateLimiter.php';
 
 class HomeController {
     
@@ -39,8 +41,8 @@ class HomeController {
         
         $offset = ($currentPage - 1) * $itemsPerPage;
         
-        // Obtener juegos paginados
-        $juegos = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsPerPage);
+        // Obtener juegos paginados (la seed hace estable el orden aleatorio)
+        $juegos = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsPerPage, Juego::getCatalogSeed());
         
         // Obtener total de juegos para la paginación
         $totalJuegos = $juegoModel->countWithFilters($filters);
@@ -216,7 +218,6 @@ class HomeController {
         $biosPath  = $biosMap[$core][$regionKey];
 
         $exists = file_exists($biosPath);
-        file_put_contents(__DIR__ . '/../bios_debug.log', "BIOS Debug: Core=$core, Region=$region, Key=$regionKey, Path=$biosPath, Exists=" . ($exists ? "YES" : "NO") . ", CWD=" . getcwd() . "\n", FILE_APPEND);
 
         // Solo devolver la URL si el archivo existe en disco
         return $exists ? $biosPath : null;
@@ -225,15 +226,34 @@ class HomeController {
     /**
      * Cores que necesitan EJS_threads = true (requieren COOP/COEP headers).
      */
+    /**
+     * Cores que aprovechan threads (SharedArrayBuffer). Se activa UN core a la
+     * vez (incremental): ahora solo N64. Requiere los headers COOP/COEP que
+     * play() emite cuando este método devuelve true (toggle ENABLE_EMULATOR_THREADS).
+     * Si el navegador no expone SharedArrayBuffer, EmulatorJS cae a single-thread.
+     */
     private function requiresThreads(string $core): bool {
-        return in_array($core, ['psp', 'dosbox_pure']);
+        return in_array($core, ['psp', 'dosbox_pure', 'n64']);
     }
 
     /**
      * Cores con ISOs grandes: van directo en streaming sin precarga en memoria.
+     *
+     * EXCEPCIÓN: si la ROM cabe en memoria del navegador (≤ PRELOAD_MAX_BYTES),
+     * se precarga igualmente para eliminar la latencia de red.  Esto beneficia
+     * a N64 (4-64 MB), DS (32-256 MB) y PS1 pequeños (4-128 MB).
      */
-    private function usarStreaming(string $core): bool {
-        return in_array($core, ['psp', 'psx', 'saturn', 'segaCD', 'sega32x', '3do', 'n64', 'nds']);
+    private function usarStreaming(string $core, int $sizeBytes = 0): bool {
+        $STREAMING_CORES = ['psp', 'psx', 'saturn', 'segaCD', 'sega32x', '3do', 'n64', 'nds'];
+
+        if (!in_array($core, $STREAMING_CORES)) {
+            return false;
+        }
+
+        // Umbral configurable (128 MB por defecto).  Por debajo: precarga.
+        $maxBytes = (int)($_ENV['PRELOAD_MAX_BYTES'] ?? (128 * 1024 * 1024));
+
+        return $sizeBytes > $maxBytes;
     }
 
     /**
@@ -266,31 +286,51 @@ class HomeController {
 
         $core    = $this->getEmulatorCore($juego['consola_nombre']);
         $romUrl  = $this->signProxyUrl($fileId);
+        $downloadUrl = UrlSigner::downloadUrl($fileId);
         $biosUrl = null;
         $error   = null;
 
         if (!$core) {
             $error = "La consola «{$juego['consola_nombre']}» aún no está soportada por el emulador en línea.";
         } else {
-            // Buscar BIOS si este core lo requiere
-            $biosUrl = $this->getBiosUrl($core, $juego['region'] ?? '');
+            // El admin puede desactivar la emulación online por consola (CRUD consolas).
+            // Fallback true: si el flag no viene, se permite.
+            $emulacionOnline = (bool)($juego['consola_emulacion_online'] ?? true);
+            if (!$emulacionOnline) {
+                $error = "La emulación online está desactivada para «{$juego['consola_nombre']}». " .
+                         "Puedes descargar el juego, pero no está disponible jugarlo en el navegador.";
+            } else {
+                // Buscar BIOS si este core lo requiere
+                $biosUrl = $this->getBiosUrl($core, $juego['region'] ?? '');
 
-            // Si el core requiere BIOS y no está disponible, avisar
-            if ($core === 'psx' && !$biosUrl) {
-                $error = "El emulador de PlayStation requiere un archivo BIOS en el servidor. " .
-                         "Sube el BIOS a <code>public/bios/ps1/scph1001.bin</code> para habilitar la emulación.";
+                // Si el core requiere BIOS y no está disponible, avisar
+                if ($core === 'psx' && !$biosUrl) {
+                    $error = "El emulador de PlayStation requiere un archivo BIOS en el servidor. " .
+                             "Sube el BIOS a <code>public/bios/ps1/scph1001.bin</code> para habilitar la emulación.";
+                }
             }
         }
 
         // Pasar flags a la vista
-        $needsThreads  = $core ? $this->requiresThreads($core) : false;
-        $modoStreaming  = $core ? $this->usarStreaming($core)   : false;
+        $sizeBytes  = (int)($juego['size_bytes'] ?? 0);
+        $needsThreads  = $core ? $this->requiresThreads($core)        : false;
+        $modoStreaming  = $core ? $this->usarStreaming($core, $sizeBytes) : false;
 
         // Verificar accesibilidad del archivo en Google Drive (solo si hay core)
         // HEAD ligero al proxy para detectar errores antes de cargar el emulador.
         $proxyError = null;
         if (!$error && $core) {
             $proxyError = $this->checkProxyAccess($fileId);
+        }
+
+        // ── Headers para threads de EmulatorJS (COOP/COEP) ─────────────────────
+        // Se emiten SOLO cuando el core de este juego usa threads (ahora: N64,
+        // PSP, DOSBox). COEP en 'credentialless' (bajo riesgo: carga los recursos
+        // cross-origin sin cookies, no exige CORS en todos). Habilita
+        // SharedArrayBuffer → EJS_threads. Toggle: ENABLE_EMULATOR_THREADS en .env.
+        if ($needsThreads && ((int)($_ENV['ENABLE_EMULATOR_THREADS'] ?? 1)) === 1) {
+            header('Cross-Origin-Opener-Policy: same-origin');
+            header('Cross-Origin-Embedder-Policy: credentialless');
         }
 
         require_once 'views/layout/header.php';
@@ -316,7 +356,7 @@ class HomeController {
             CURLOPT_TIMEOUT        => 12,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS      => 5,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_USERAGENT      => 'ROMs-Vault/Preflight',
         ]);
         curl_exec($ch);
@@ -347,21 +387,52 @@ class HomeController {
 
     public function download() {
         $fileId = $_GET['file_id'] ?? null;
-        
-        if (!$fileId) {
-            die("Error: No se especificó el archivo a descargar");
+        $t      = (int) ($_GET['t'] ?? 0);
+        $sig    = $_GET['sig'] ?? '';
+
+        // URL firmada obligatoria (anti-abuso: evita descargar sin pasar por el sitio)
+        if (!$fileId || !UrlSigner::verify((string) $fileId, $t, (string) $sig)) {
+            http_response_code(403);
+            $errorCode  = 403;
+            $errorTitle = 'Enlace no válido';
+            $errorMsg   = 'Este enlace de descarga no es válido o ha caducado. Vuelve al catálogo y pulsa de nuevo en Descargar.';
+            require_once 'views/layout/header.php';
+            require_once 'views/errors/generic.php';
+            require_once 'views/layout/footer.php';
+            exit;
         }
-        
+
+        // Rate limit por IP para no inflar el contador ni abusar de Drive
+        $rlMax    = (int) ($_ENV['DOWNLOAD_RATE_LIMIT_MAX']    ?? 30);
+        $rlWindow = (int) ($_ENV['DOWNLOAD_RATE_LIMIT_WINDOW'] ?? 60);
+        if (!RateLimiter::check(RateLimiter::clientIp(), $rlMax, $rlWindow, 'download')) {
+            http_response_code(429);
+            $errorCode  = 429;
+            $errorTitle = 'Demasiadas descargas';
+            $errorMsg   = 'Has superado el número máximo de descargas. Espera unos minutos e inténtalo de nuevo.';
+            require_once 'views/layout/header.php';
+            require_once 'views/errors/generic.php';
+            require_once 'views/layout/footer.php';
+            exit;
+        }
+
         $juegoModel = new Juego();
         $juego = $juegoModel->findByFileId($fileId);
-        
+
         if (!$juego) {
-            die("Error: El archivo solicitado no existe en nuestra base de datos");
+            http_response_code(404);
+            $errorCode  = 404;
+            $errorTitle = 'Archivo no encontrado';
+            $errorMsg   = 'El archivo solicitado no existe en nuestra base de datos.';
+            require_once 'views/layout/header.php';
+            require_once 'views/errors/generic.php';
+            require_once 'views/layout/footer.php';
+            exit;
         }
-        
+
         // Incrementar contador de descargas
         $juegoModel->incrementDownloads($juego['id']);
-        
+
         $downloadLink = "https://drive.google.com/uc?export=download&id={$fileId}&confirm=t";
         header("Location: " . $downloadLink);
         exit;
@@ -372,11 +443,7 @@ class HomeController {
      * La firma incluye el file_id y un timestamp, válida por 2 horas.
      */
     private function signProxyUrl(string $fileId): string {
-        $t   = time();
-        $sig = hash_hmac('sha256', $fileId . '|' . $t, $_ENV['JWT_SECRET']);
-        return 'rom_proxy.php?file_id=' . urlencode($fileId)
-             . '&t=' . $t
-             . '&sig=' . $sig;
+        return UrlSigner::proxyUrl($fileId);
     }
 
     /**
