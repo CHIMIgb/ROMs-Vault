@@ -753,6 +753,34 @@
     z-index: 0;
 }
 
+/* ── disco placeholder girando (sugiere carga) ───── */
+/* Giro a pasos (estilo pixel/retro) + pulso de opacidad.
+   Solo en las tarjetas; la carátula tapa el disco (z-index 1) si carga. */
+.game-cover svg.pxi,
+.related-cover svg.pxi {
+    animation:
+        pxi-cover-spin 4s steps(12) infinite,
+        pxi-cover-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pxi-cover-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes pxi-cover-pulse {
+    0%, 100% { opacity: 0.75; }
+    50%      { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-cover svg.pxi,
+    .related-cover svg.pxi {
+        animation: none;
+        opacity: 0.75;
+    }
+}
+
 /* ── search button icon ──────────────────────────── */
 .search-button svg.pxi,
 .search-button i[data-i] {
