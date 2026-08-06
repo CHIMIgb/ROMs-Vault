@@ -141,11 +141,13 @@ La aplicación estará disponible en: `http://localhost:8080`
 ## 🧪 Ejecutar los tests
 
 El proyecto incluye tests automatizados con **PHPUnit** para la lógica de negocio
-crítica (firma HMAC de URLs, tokens JWT, rate limiting y protección CSRF).
+crítica (firma HMAC de URLs, tokens JWT, rate limiting y protección CSRF) y para
+los flujos de integración (router, autenticación y CRUD de consolas/emuladores).
 
-Los tests usan un **entorno aislado**: no tocan tu base de datos real ni tu `.env`;
-definen su propio `JWT_SECRET` de prueba. Solo necesitas tener instaladas las
-dependencias de desarrollo:
+Los tests usan un **entorno aislado**: los unit tests no tocan tu base de datos
+real ni tu `.env`; definen su propio `JWT_SECRET` de prueba. Los tests de
+integración levantan un servidor `php -S` contra una **base de datos PostgreSQL
+local de prueba** (`roms-vault-test`), nunca contra producción (Neon).
 
 ```bash
 # Desde la raíz del proyecto
@@ -153,23 +155,27 @@ composer install            # Instala dependencias incluyendo phpunit (require-d
 composer test               # Ejecuta todos los tests
 ```
 
-También puedes ejecutarlos directamente con:
+Para los tests de integración (se requiere la BD local `roms-vault-test` y la
+contraseña se pasa por entorno, nunca versionada):
 
 ```bash
-vendor/bin/phpunit          # Misma salida detallada (testdox es el formato por defecto)
+# Linux / CI (PostgreSQL de prueba en localhost)
+TEST_DB_PASSWORD=<password-postgres-local> vendor/bin/phpunit
+
+# Windows (php.exe)
+cmd.exe /c "set TEST_DB_PASSWORD=<password-postgres-local>&& C:\xampp\php\php.exe vendor\bin\phpunit"
 ```
 
 La salida usa el formato **testdox**, que muestra en pantalla el nombre y el
 propósito de cada test para saber exactamente qué se está verificando:
 
 ```
-Url Signer (Tests\Unit\UrlSigner)
- ✔ Sign and verify roundtrip
- ✔ Verify rejects tampered signature
- ✔ Verify rejects expired signature
- ✔ Verify rejects future timestamp
+Router (Tests\Integration\Router)
+ ✔ Ruta raiz devuelve 200
+ ✔ Ruta login devuelve 200
+ ✔ Ruta admin protegida redirige sin sesion
  ...
-OK (35 tests, 61 assertions)
+OK (61 tests, 136 assertions)
 ```
 
 ### Estructura de tests
@@ -177,11 +183,17 @@ OK (35 tests, 61 assertions)
 ```
 tests/
 ├── bootstrap.php           # Carga clases y define el entorno de prueba (JWT_SECRET fake)
-└── Unit/                   # Tests unitarios de clases aisladas
-    ├── UrlSignerTest.php   # Firma/verificación HMAC de URLs (2h TTL, anti-tampering)
-    ├── JWTServiceTest.php  # Generación, validación y expiración de tokens JWT
-    ├── RateLimiterTest.php # Ventana deslizante por IP y detección de IP real
-    └── CsrfServiceTest.php # Patrón "Double Submit Cookie" y verificación por POST/header/query
+├── Unit/                   # Tests unitarios de clases aisladas
+│   ├── UrlSignerTest.php   # Firma/verificación HMAC de URLs (2h TTL, anti-tampering)
+│   ├── JWTServiceTest.php  # Generación, validación y expiración de tokens JWT
+│   ├── RateLimiterTest.php # Ventana deslizante por IP y detección de IP real
+│   └── CsrfServiceTest.php # Patrón "Double Submit Cookie" y verificación por POST/header/query
+└── Integration/            # Tests de integración (HTTP real + BD PostgreSQL de prueba)
+    ├── Server.php          # Helper: levanta php -S con router.php, cookies y CSRF
+    ├── RouterTest.php      # URLs limpias y retrocompatibilidad (index.php?controller=...)
+    ├── AuthFlowTest.php    # Login fallido/exitoso, dashboard protegido, logout, rate limit
+    ├── CrudTest.php        # CRUD de consolas vía HTTP con verificación de persistencia
+    └── EmuladorModelTest.php # Consultas del modelo Emulador contra la BD real
 ```
 
 > Los tests están pensados para ejecutarse también en **CI (GitHub Actions)**,

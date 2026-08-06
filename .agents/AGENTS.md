@@ -8,10 +8,11 @@ PHP 8.1+ MVC app. No framework — custom routing via `index.php` with query str
 
 - **Dev server**: `php -S localhost:8000` (from repo root)
 - **Install deps**: `composer install`
+- **Run tests**: `composer test` (PHPUnit, testdox output). Tests are in `tests/`, isolated from the real `.env` and DB.
 - **DB import**: `psql -U postgres -d roms-vault -f data/roms-vaultDB-postgreSQL.sql`
 - **Docker**: `docker build -t roms-vault . && docker run -p 8080:80 --env-file .env roms-vault`
 
-No lint, typecheck, or test suite exists. No CI/CD.
+No lint, typecheck, or CI/CD yet (planned in the improvements roadmap).
 
 ## Architecture
 
@@ -52,6 +53,12 @@ Key vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET
 ## Task documentation
 
 - **Document every task.** After completing a task, create or update a file in the `docs/` folder describing what was done, why, and any relevant context (files changed, decisions made, side effects).
+
+## Improvements roadmap tracking
+
+- The file `docs/2026-08-05-plan-mejoras-nivel-senior.md` is the single source of truth for planned improvements.
+- **Every time an improvement from the roadmap is implemented, mark it in that document**: check the corresponding checkboxes, add a note with the commit hash that completed it, and update the "Registro de progreso" table at the top.
+- Do this in the same commit that implements the improvement, so the roadmap and the code never drift apart.
 
 ## Gotchas
 

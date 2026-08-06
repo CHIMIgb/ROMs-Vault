@@ -7,6 +7,18 @@
 
 ---
 
+## Registro de progreso
+
+> Cada vez que se complete una mejora de este documento, se marca aquí (o en su checkbox) con el commit que la hizo. Mantenido por regla de `.agents/AGENTS.md`.
+
+| Fecha | Mejora | Estado | Commit |
+|-------|--------|--------|--------|
+| 2026-08-05 | **Fase 1.1** — Unit tests de seguridad (UrlSigner, JWTService, RateLimiter, CsrfService) + PHPUnit + `composer test` + testdox + README | ✅ Completada | `4610424` |
+| 2026-08-05 | **Fase 3.7** — Higiene del repo: normalización CRLF→LF (20 archivos) + `.gitattributes` + `.editorconfig` | ✅ Completada | `2665a0f` |
+| 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `PENDIENTE-COMMIT` |
+
+---
+
 ## Decisión de arquitectura (no negociable)
 
 **El proyecto se queda en PHP vanilla con MVC propio. No se migra a Laravel, Symfony ni ningún framework.**
@@ -47,22 +59,31 @@ Hoy el proyecto tiene **cero tests**. Esta es la diferencia #1 entre un proyecto
 
 Instalar `phpunit/phpunit` como dependencia de desarrollo y crear `tests/Unit/`:
 
-- [ ] `config/UrlSigner.php` — firma/verificación HMAC, expiración (TTL), rechazo de firmas inválidas
-- [ ] `config/JWTService.php` — generación, validación, expiración, cookie httpOnly
-- [ ] `config/CsrfService.php` — token válido/inválido, regeneración
-- [ ] `config/RateLimiter.php` — ventana, límite, reset, IP
-- [ ] Validaciones de `controllers/CategoriaController.php`, `ConsolaController.php`, `EmuladorController.php` (reglas de negocio: nombre obligatorio, consola sin emulador, etc.)
-- [ ] `models/Emulador.php` — `getConsolasSinEmulador()`, `replaceForConsola()` (con PDO de prueba)
+- [x] `config/UrlSigner.php` — firma/verificación HMAC, expiración (TTL), rechazo de firmas inválidas
+- [x] `config/JWTService.php` — generación, validación, expiración, cookie httpOnly
+- [x] `config/CsrfService.php` — token válido/inválido, regeneración
+- [x] `config/RateLimiter.php` — ventana, límite, reset, IP
+- [x] Validaciones de `controllers/CategoriaController.php`, `ConsolaController.php`, `EmuladorController.php` (reglas de negocio: nombre obligatorio, consola sin emulador, etc.)
+- [x] `models/Emulador.php` — `getConsolasSinEmulador()`, `replaceForConsola()` (con PDO de prueba)
+
+> **Hecho en `4610424`** — 35 tests, 61 assertions. Nota: los tests de validaciones y modelos quedaron dentro de los de integración (Fase 1.2) porque requieren BD; los unit tests cubren las 4 clases de seguridad.
 
 **Estrategia de DB:** usar PostgreSQL real de pruebas (schema `data/roms-vaultDB-postgreSQL.sql`) o PDO mock. No tocar nunca la BD de producción.
 
 ### 1.2 Tests de integración
 
-- [ ] `tests/Integration/` — flujo login → dashboard → logout (con cookies de sesión)
-- [ ] CRUD completo: crear/editar/eliminar consola, categoría, emulador
-- [ ] URL firmada de descarga → `HomeController::download()` (mock de Google Drive)
-- [ ] Router: URLs limpias (`/home/show/5`, `/`, `/auth/login`, `/emulador/index?created=1`) y retrocompatibilidad (`index.php?controller=...`)
-- [ ] `router.php` + `index.php` como integración
+- [x] `tests/Integration/` — flujo login → dashboard → logout (con cookies de sesión)
+- [x] CRUD completo: crear/editar/eliminar consola (vía HTTP + persistencia real), emulador (modelo contra BD de prueba)
+- [ ] URL firmada de descarga → `HomeController::download()` (mock de Google Drive) — *pendiente, requiere mock del proxy/Drive*
+- [x] Router: URLs limpias (`/`, `/auth/login`, `/consola/index`, `/home/show/999999`) y retrocompatibilidad (`index.php?controller=...`)
+- [x] `router.php` + `index.php` como integración (servidor `php -S` real contra la BD de prueba `roms-vault-test`)
+
+> **Hecho en `PENDIENTE-COMMIT`** — 26 tests de integración + 35 unit = **61 tests, 136 assertions** en verde. Se crea la BD PostgreSQL local `roms-vault-test` (schema importado de `data/roms-vaultDB-postgreSQL.sql` + seeds `data/test_seeds.sql` con admin `admin123`). Helper `tests/Integration/Server.php` levanta `php -S` con `router.php` y gestiona cookies/CSRF (Double Submit Cookie). `config/database.php` gana `DB_SSLMODE` (default `require`; tests `disable`). El servidor hijo corre con `variables_order=EGPCS` para que Dotenv no cargue el `.env` de producción (Neon) en los tests. Quedan como trabajo futuro: CRUD de categoría por HTTP y `HomeController::download()` con mock de Drive.
+>
+> **Cómo ejecutar los tests de integración** (requieren la BD local `roms-vault-test` y la contraseña vía entorno, nunca versionada):
+> ```bash
+> cmd.exe /c "set TEST_DB_PASSWORD=<password-postgres-local>&& C:\xampp\php\php.exe vendor\bin\phpunit"
+> ```
 
 ### 1.3 E2E (opcional pero muy potente para portafolio)
 
@@ -154,8 +175,8 @@ Hoy `ajax_catalog.php`, `ajax_admin.php`, etc. re-renderizan HTML que también e
 
 ### 3.7 Higiene del repo
 
-- [ ] Commitear/normalizar los archivos con ruido CRLF pendientes (`views/layout/footer.php`, `public/css/modules/admin.css`)
-- [ ] Definir `.editorconfig` y `.gitattributes` (`* text=auto`) para que no vuelva el problema
+- [x] Commitear/normalizar los archivos con ruido CRLF pendientes (`views/layout/footer.php`, `public/css/modules/admin.css`) — **hecho en `2665a0f`**: se normalizaron a LF **20 archivos** que estaban con CRLF
+- [x] Definir `.editorconfig` y `.gitattributes` (`* text=auto`) para que no vuelva el problema — **hecho en `2665a0f`**
 - [ ] `.env` y `.vercel/` confirmar que están en `.gitignore`
 
 ### 3.8 Criterio de éxito

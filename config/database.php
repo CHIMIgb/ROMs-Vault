@@ -17,9 +17,13 @@ class Database {
         $db   = $_ENV['DB_NAME'] ?? getenv('DB_NAME');
         $user = $_ENV['DB_USER'] ?? getenv('DB_USER');
         $pass = $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD');
-        
+
+        // Modo SSL del DSN. Por defecto 'require' (Neon en producción). Los tests
+        // de integración usan un PostgreSQL local sin SSL → DB_SSLMODE=disable.
+        $sslmode = $_ENV['DB_SSLMODE'] ?? getenv('DB_SSLMODE') ?: 'require';
+
         // DSN para PostgreSQL (Neon requiere SSL)
-        $dsn = "pgsql:host=$host;port=$port;dbname=$db;sslmode=require";
+        $dsn = "pgsql:host=$host;port=$port;dbname=$db;sslmode=$sslmode";
         
         // Parche para XAMPP/Windows local: Si el cliente de PostgreSQL es antiguo (no soporta SNI)
         // Neon requiere que pasemos explícitamente el ID del endpoint en el parámetro 'options'.
