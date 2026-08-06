@@ -7,3 +7,5 @@ data/backup registros DB/
 scratch/
 vendor/
 .agents/
+.phpunit.cache/
+.phpunit.result.cache

@@ -138,6 +138,55 @@ docker run -p 8080:80 --env-file .env roms-vault
 
 La aplicación estará disponible en: `http://localhost:8080`
 
+## 🧪 Ejecutar los tests
+
+El proyecto incluye tests automatizados con **PHPUnit** para la lógica de negocio
+crítica (firma HMAC de URLs, tokens JWT, rate limiting y protección CSRF).
+
+Los tests usan un **entorno aislado**: no tocan tu base de datos real ni tu `.env`;
+definen su propio `JWT_SECRET` de prueba. Solo necesitas tener instaladas las
+dependencias de desarrollo:
+
+```bash
+# Desde la raíz del proyecto
+composer install            # Instala dependencias incluyendo phpunit (require-dev)
+composer test               # Ejecuta todos los tests
+```
+
+También puedes ejecutarlos directamente con:
+
+```bash
+vendor/bin/phpunit          # Misma salida detallada (testdox es el formato por defecto)
+```
+
+La salida usa el formato **testdox**, que muestra en pantalla el nombre y el
+propósito de cada test para saber exactamente qué se está verificando:
+
+```
+Url Signer (Tests\Unit\UrlSigner)
+ ✔ Sign and verify roundtrip
+ ✔ Verify rejects tampered signature
+ ✔ Verify rejects expired signature
+ ✔ Verify rejects future timestamp
+ ...
+OK (35 tests, 61 assertions)
+```
+
+### Estructura de tests
+
+```
+tests/
+├── bootstrap.php           # Carga clases y define el entorno de prueba (JWT_SECRET fake)
+└── Unit/                   # Tests unitarios de clases aisladas
+    ├── UrlSignerTest.php   # Firma/verificación HMAC de URLs (2h TTL, anti-tampering)
+    ├── JWTServiceTest.php  # Generación, validación y expiración de tokens JWT
+    ├── RateLimiterTest.php # Ventana deslizante por IP y detección de IP real
+    └── CsrfServiceTest.php # Patrón "Double Submit Cookie" y verificación por POST/header/query
+```
+
+> Los tests están pensados para ejecutarse también en **CI (GitHub Actions)**,
+> así que son deterministas: no dependen del orden, del estado global ni de la red.
+
 ## 🔑 Acceso al panel de administración
 
 Para acceder al área de administración, utiliza la siguiente URL:
@@ -163,10 +212,13 @@ roms-vault/
 ├── index.php                 # Front controller / Router principal
 ├── rom_proxy.php             # Proxy de streaming seguro para ROMs (Google Drive)
 ├── composer.json             # Dependencias PHP
+├── phpunit.xml               # Configuración de PHPUnit (tests)
 ├── Dockerfile                # Imagen Docker (PHP 8.2 + Apache)
 ├── docker-entrypoint.sh      # Script de inicio del contenedor
 ├── .htaccess                 # Reglas de rewrite y seguridad Apache
 ├── data/                     # Archivos SQL (PostgreSQL)
+├── tests/                    # Tests automatizados (PHPUnit)
+│   └── Unit/                 # Tests unitarios de lógica de negocio
 │
 ├── config/
 │   ├── database.php          # Conexión a la base de datos (PostgreSQL)
@@ -232,6 +284,7 @@ El archivo `rom_proxy.php` actúa como intermediario seguro entre EmulatorJS y G
 - **vlucas/phpdotenv**: Para el manejo de variables de entorno seguras (`.env`).
 - **firebase/php-jwt**: Implementación segura de JSON Web Tokens.
 - **shuchkin/simplexlsxgen**: Para la exportación ultra-rápida de datos a archivos `.xlsx` sin requerir extensiones pesadas de PHP (como `gd` o `zip`).
+- **phpunit/phpunit**: *(dev)* Framework de testing para los tests unitarios de seguridad (HMAC, JWT, rate limiting, CSRF).
 
 ## 🛠 Solución de problemas comunes
 
