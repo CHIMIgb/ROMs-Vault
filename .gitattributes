@@ -1,0 +1,25 @@
+# Normalización de finales de línea
+# Git convierte a LF en el repo y a CRLF (cuando corresponda) en el checkout de Windows.
+* text=auto
+
+# Archivos que SIEMPRE deben ser LF (independientemente del sistema operativo)
+*.sh text eol=lf
+*.php text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.sql text eol=lf
+*.xml text eol=lf
+
+# Archivos binarios que NO deben normalizarse
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
