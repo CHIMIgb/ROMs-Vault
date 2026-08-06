@@ -15,7 +15,7 @@
 |-------|--------|--------|--------|
 | 2026-08-05 | **Fase 1.1** — Unit tests de seguridad (UrlSigner, JWTService, RateLimiter, CsrfService) + PHPUnit + `composer test` + testdox + README | ✅ Completada | `4610424` |
 | 2026-08-05 | **Fase 3.7** — Higiene del repo: normalización CRLF→LF (20 archivos) + `.gitattributes` + `.editorconfig` | ✅ Completada | `2665a0f` |
-| 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `PENDIENTE-COMMIT` |
+| 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `762066f` |
 
 ---
 
@@ -78,7 +78,7 @@ Instalar `phpunit/phpunit` como dependencia de desarrollo y crear `tests/Unit/`:
 - [x] Router: URLs limpias (`/`, `/auth/login`, `/consola/index`, `/home/show/999999`) y retrocompatibilidad (`index.php?controller=...`)
 - [x] `router.php` + `index.php` como integración (servidor `php -S` real contra la BD de prueba `roms-vault-test`)
 
-> **Hecho en `PENDIENTE-COMMIT`** — 26 tests de integración + 35 unit = **61 tests, 136 assertions** en verde. Se crea la BD PostgreSQL local `roms-vault-test` (schema importado de `data/roms-vaultDB-postgreSQL.sql` + seeds `data/test_seeds.sql` con admin `admin123`). Helper `tests/Integration/Server.php` levanta `php -S` con `router.php` y gestiona cookies/CSRF (Double Submit Cookie). `config/database.php` gana `DB_SSLMODE` (default `require`; tests `disable`). El servidor hijo corre con `variables_order=EGPCS` para que Dotenv no cargue el `.env` de producción (Neon) en los tests. Quedan como trabajo futuro: CRUD de categoría por HTTP y `HomeController::download()` con mock de Drive.
+> **Hecho en `762066f`** — 26 tests de integración + 35 unit = **61 tests, 136 assertions** en verde. Se crea la BD PostgreSQL local `roms-vault-test` (schema importado de `data/roms-vaultDB-postgreSQL.sql` + seeds `data/test_seeds.sql` con admin `admin123`). Helper `tests/Integration/Server.php` levanta `php -S` con `router.php` y gestiona cookies/CSRF (Double Submit Cookie). `config/database.php` gana `DB_SSLMODE` (default `require`; tests `disable`). El servidor hijo corre con `variables_order=EGPCS` para que Dotenv no cargue el `.env` de producción (Neon) en los tests. Quedan como trabajo futuro: CRUD de categoría por HTTP y `HomeController::download()` con mock de Drive.
 >
 > **Cómo ejecutar los tests de integración** (requieren la BD local `roms-vault-test` y la contraseña vía entorno, nunca versionada):
 > ```bash
