@@ -17,7 +17,7 @@ $downloadUrl  = UrlSigner::downloadUrl($juego['google_drive_file_id'] ?? '');
     $emulacionOnline = (bool)($juego['consola_emulacion_online'] ?? true);
     if ($emulacionOnline): 
     ?>
-        <a href="index.php?controller=home&action=play&file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="<?= $playClass ?>">
+        <a href="/home/play?file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="<?= $playClass ?>">
             <i data-i="play" aria-hidden="true"></i> Jugar Online
         </a>
     <?php endif; ?>

@@ -51,7 +51,7 @@ class CategoriaController {
                 ]);
 
                 if ($ok) {
-                    header('Location: index.php?controller=categoria&action=index&created=1');
+                    header('Location: /categoria/index?created=1');
                     exit;
                 } else {
                     $error = 'Error al guardar la categoría. Es posible que el nombre ya exista.';
@@ -67,7 +67,7 @@ class CategoriaController {
     // ── Editar ────────────────────────────────────────────────────────────
     public function edit($id = null) {
         if (!$id) {
-            header('Location: index.php?controller=categoria&action=index');
+            header('Location: /categoria/index');
             exit;
         }
 
@@ -75,7 +75,7 @@ class CategoriaController {
         $categoria      = $categoriaModel->find($id);
 
         if (!$categoria) {
-            header('Location: index.php?controller=categoria&action=index');
+            header('Location: /categoria/index');
             exit;
         }
 
@@ -94,7 +94,7 @@ class CategoriaController {
                 ]);
 
                 if ($ok) {
-                    header('Location: index.php?controller=categoria&action=index&updated=1');
+                    header('Location: /categoria/index?updated=1');
                     exit;
                 } else {
                     $error = 'Error al actualizar la categoría.';
@@ -120,7 +120,7 @@ class CategoriaController {
         }
 
         if (!$id) {
-            header('Location: index.php?controller=categoria&action=index');
+            header('Location: /categoria/index');
             exit;
         }
 
@@ -130,14 +130,14 @@ class CategoriaController {
         $total      = $juegoModel->countAllFiltered($filters);
 
         if ($total > 0) {
-            header('Location: index.php?controller=categoria&action=index&error=has_games&count=' . $total);
+            header('Location: /categoria/index?error=has_games&count=' . $total);
             exit;
         }
 
         $categoriaModel = new Categoria();
         $categoriaModel->delete($id);
 
-        header('Location: index.php?controller=categoria&action=index&deleted=1');
+        header('Location: /categoria/index?deleted=1');
         exit;
     }
 

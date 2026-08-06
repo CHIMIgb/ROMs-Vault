@@ -74,19 +74,19 @@
 <div class="admin-header">
     <h2>Panel de Administracion</h2>
     <div class="admin-header-actions">
-        <a href="index.php?controller=consola&action=index" class="btn-primary">
+        <a href="/consola/index" class="btn-primary">
             <i data-i="gamepad"></i> Consolas
         </a>
-        <a href="index.php?controller=emulador&action=index" class="btn-primary">
+        <a href="/emulador/index" class="btn-primary">
             <i data-i="joystick"></i> Emuladores
         </a>
-        <a href="index.php?controller=categoria&action=index" class="btn-primary">
+        <a href="/categoria/index" class="btn-primary">
             <i data-i="dashboard"></i> Categorías
         </a>
         <button type="button" id="btn-export" class="btn-primary" style="background-color: var(--success);">
             <i data-i="save"></i> Exportar
         </button>
-        <a href="index.php?controller=admin&action=add" class="btn-primary">
+        <a href="/admin/add" class="btn-primary">
             <i data-i="plus"></i> Añadir nuevo juego
         </a>
     </div>
@@ -210,7 +210,7 @@
                         </button>
                     </td>
                     <td>
-                        <a href="index.php?controller=admin&action=edit&id=<?= $juego['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/admin/edit/<?= $juego['id'] ?>" class="btn-edit">Editar</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -300,8 +300,6 @@
 
     function getUiParams(page) {
         const p = getAjaxParams(page);
-        p.set('controller', 'admin');
-        p.set('action', 'dashboard');
         return p;
     }
 
@@ -402,7 +400,7 @@
 
                 try {
                     const res  = await fetch(
-                        `index.php?controller=admin&action=toggleActiveAjax&id=${id}`,
+                        `/admin/toggleActiveAjax/${id}`,
                         { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
                     );
                     const data = await res.json();
@@ -463,7 +461,7 @@
     if (btnConfirmExport) {
         btnConfirmExport.addEventListener('click', () => {
             const table = selectExportTable.value;
-            window.location.href = `index.php?controller=export&action=download&table=${table}`;
+            window.location.href = `/export/download?table=${table}`;
             closeExportModal();
         });
     }

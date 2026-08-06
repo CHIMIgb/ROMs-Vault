@@ -41,7 +41,7 @@
             <button type="submit" class="btn-primary">
                 <i data-i="save"></i> Guardar categoría
             </button>
-            <a href="index.php?controller=categoria&action=index"
+            <a href="/categoria/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
                 <i data-i="close"></i> Cancelar

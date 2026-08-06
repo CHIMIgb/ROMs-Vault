@@ -105,7 +105,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                     </button>
                 </td>
                 <td>
-                    <a href="index.php?controller=admin&action=edit&id=<?= $juego['id'] ?>" class="btn-edit">Editar</a>
+                    <a href="/admin/edit/<?= $juego['id'] ?>" class="btn-edit">Editar</a>
                 </td>
             </tr>
             <?php endforeach; ?>

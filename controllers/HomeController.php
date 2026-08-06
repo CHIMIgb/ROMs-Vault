@@ -63,7 +63,7 @@ class HomeController {
      */
     public function show($id = null) {
         if (!$id) {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
@@ -95,7 +95,7 @@ class HomeController {
         $pageImage       = !empty($juego['imagen']) && file_exists(ltrim($juego['imagen'], '/'))
             ? $juego['imagen']
             : 'public/uploads/icon.png';
-        $pageUrl         = 'index.php?controller=home&action=show&id=' . (int) $juego['id'];
+        $pageUrl         = '/home/show/' . (int) $juego['id'];
         $pageType        = 'video.game';
         $pageJsonLd      = [
             '@context'    => 'https://schema.org',

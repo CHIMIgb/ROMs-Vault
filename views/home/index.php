@@ -83,7 +83,7 @@
             <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
                 <div class="game-card">
                     <div class="game-card-inner">
-                        <a href="index.php?controller=home&action=show&id=<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
+                        <a href="/home/show/<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
                             <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
                                 <!-- Disco placeholder siempre presente: se ve cuando no hay
                                      imagen o cuando la imagen falla al cargar (onerror) -->
@@ -203,8 +203,6 @@
 
     function getUiParams(page) {
         const p = getAjaxParams(page);
-        p.set('controller', 'home');
-        p.set('action', 'index');
         return p;
     }
 

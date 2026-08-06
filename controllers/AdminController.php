@@ -121,7 +121,7 @@ class AdminController {
             if (!isset($error)) {
                 $juegoModel = new Juego();
                 if ($juegoModel->create($data)) {
-                    header('Location: index.php?controller=admin&action=dashboard');
+                    header('Location: /admin/dashboard');
                     exit;
                 } else {
                     $error = "Error al guardar el juego en la base de datos";
@@ -276,7 +276,7 @@ class AdminController {
 
             if (!isset($error)) {
                 if ($juegoModel->update($id, $data)) {
-                    header('Location: index.php?controller=admin&action=dashboard');
+                    header('Location: /admin/dashboard');
                     exit;
                 } else {
                     $error = "Error al actualizar el juego";
@@ -296,7 +296,7 @@ class AdminController {
         }
 
         if (!$id) {
-            header('Location: index.php?controller=admin&action=dashboard');
+            header('Location: /admin/dashboard');
             exit;
         }
 
@@ -309,7 +309,7 @@ class AdminController {
         }
 
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        header('Location: index.php?controller=admin&action=dashboard&page=' . $page);
+        header('Location: /admin/dashboard?page=' . $page);
         exit;
     }
 
@@ -550,7 +550,7 @@ class AdminController {
             $this->eliminarCapturasViejas($juego);
         }
         $juegoModel->delete($id);
-        header('Location: index.php?controller=admin&action=dashboard');
+        header('Location: /admin/dashboard');
         exit;
     }
 }

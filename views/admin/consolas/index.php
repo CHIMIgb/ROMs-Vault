@@ -20,10 +20,10 @@
 <div class="admin-header">
     <h2>Consolas</h2>
     <div class="admin-header-actions">
-        <a href="index.php?controller=admin&action=dashboard" class="btn-primary">
+        <a href="/admin/dashboard" class="btn-primary">
             <i data-i="arrow-left"></i> Dashboard
         </a>
-        <a href="index.php?controller=consola&action=add" class="btn-primary">
+        <a href="/consola/add" class="btn-primary">
             <i data-i="plus"></i> Nueva Consola
         </a>
     </div>
@@ -130,7 +130,7 @@ endif;
                     </td>
                     <td>
                         <!-- Solo btn-edit, exactamente igual que el dashboard -->
-                        <a href="index.php?controller=consola&action=edit&id=<?= $c['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/consola/edit/<?= $c['id'] ?>" class="btn-edit">Editar</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -188,8 +188,6 @@ endif;
 
     function getUiParams(page) {
         const p = getAjaxParams(page);
-        p.set('controller', 'consola');
-        p.set('action', 'index');
         return p;
     }
 
@@ -279,7 +277,7 @@ endif;
 
                 try {
                     const res  = await fetch(
-                        `index.php?controller=consola&action=toggleActiveAjax&id=${id}`,
+                        `/consola/toggleActiveAjax/${id}`,
                         { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
                     );
                     const data = await res.json();
@@ -331,7 +329,7 @@ endif;
 
                 try {
                     const res  = await fetch(
-                        `index.php?controller=consola&action=toggleEmulacionAjax&id=${id}`,
+                        `/consola/toggleEmulacionAjax/${id}`,
                         { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
                     );
                     const data = await res.json();

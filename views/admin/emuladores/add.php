@@ -14,7 +14,7 @@
     <?php if (empty($consolasSin)): ?>
         <?php Alert::render('info', 'Todas las consolas ya tienen un emulador configurado. Usa "Editar" en el listado para modificarlos.', 'info', 'text-align:center;padding:2rem;justify-content:center;'); ?>
         <div class="form-actions">
-            <a href="index.php?controller=emulador&action=index"
+            <a href="/emulador/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
                 <i data-i="arrow-left"></i> Volver al listado
@@ -134,7 +134,7 @@
             <button type="submit" class="btn-primary">
                 <i data-i="save"></i> Guardar emulador
             </button>
-            <a href="index.php?controller=emulador&action=index"
+            <a href="/emulador/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
                 <i data-i="close"></i> Cancelar

@@ -117,10 +117,14 @@ chmod 777 public/uploads/
 
 ```bash
 # Desde la raíz del proyecto
-php -S localhost:8000
+php -S localhost:8000 router.php
 ```
 
 La aplicación estará disponible en: `http://localhost:8000`
+
+> `router.php` habilita las **URLs limpias**: el catálogo se ve en `http://localhost:8000/`,
+> la ficha de un juego en `/home/show/12`, el login en `/auth/login`, etc.
+> Las URLs antiguas con `index.php?controller=...` siguen funcionando.
 
 ### Usando Docker
 
@@ -139,8 +143,15 @@ La aplicación estará disponible en: `http://localhost:8080`
 Para acceder al área de administración, utiliza la siguiente URL:
 
 ```
-http://localhost:8000/index.php?controller=auth&action=login
+http://localhost:8000/auth/login
 ```
+
+## 🌐 Despliegue en Vercel
+
+El proyecto incluye un `vercel.json` con rewrites para que las URLs limpias
+(`/home/show/12`, `/admin/dashboard`, ...) también funcionen en producción.
+Vercel sirve los archivos reales (`ajax_*.php`, `rom_proxy.php`, `public/`) sin
+cambios y enruta el resto al front controller `index.php`.
 
 ## 📁 Estructura del proyecto principal
 

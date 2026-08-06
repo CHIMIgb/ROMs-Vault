@@ -122,7 +122,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                     </button>
                 </td>
                 <td>
-                    <a href="index.php?controller=emulador&action=edit&id=<?= $f['id'] ?>" class="btn-edit">Editar</a>
+                    <a href="/emulador/edit/<?= $f['id'] ?>" class="btn-edit">Editar</a>
                 </td>
             </tr>
             <?php endforeach; ?>

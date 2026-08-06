@@ -56,7 +56,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                     <i data-i="reload"></i> Reintentar ahora
                 </a>
             <?php endif; ?>
-            <a href="index.php?controller=home&action=index" class="btn-back-catalog">
+            <a href="/" class="btn-back-catalog">
                 <i data-i="arrow-left"></i> Volver al catálogo
             </a>
         </div>
@@ -451,7 +451,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                                   class="btn-download-big" target="_blank"><i data-i="download"></i> Descargar ROM</a>`
                         : `<a href="javascript:location.reload()" class="btn-retry"><i data-i="reload"></i> Reintentar</a>`
                     }
-                        <a href="index.php?controller=home&action=index" class="btn-back-catalog"><i data-i="arrow-left"></i> Volver al catálogo</a>
+                        <a href="/" class="btn-back-catalog"><i data-i="arrow-left"></i> Volver al catálogo</a>
                     </div>
                     <details class="proxy-error-details">
                         <summary>Detalles técnicos</summary>

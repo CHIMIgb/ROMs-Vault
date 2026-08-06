@@ -63,7 +63,7 @@
             <button type="submit" class="btn-primary">
                 <i data-i="save"></i> Guardar cambios
             </button>
-            <a href="index.php?controller=consola&action=index"
+            <a href="/consola/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
                 <i data-i="close"></i> Cancelar
@@ -80,7 +80,7 @@
     </form>
 
     <!-- Formulario oculto de eliminación (POST con token CSRF) -->
-    <form id="form-eliminar-consola" method="POST" action="index.php?controller=consola&action=delete">
+    <form id="form-eliminar-consola" method="POST" action="/consola/delete">
         <?= CsrfService::field() ?>
         <input type="hidden" name="id" value="<?= (int) $consola['id'] ?>">
     </form>

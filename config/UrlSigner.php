@@ -45,8 +45,7 @@ class UrlSigner {
      */
     public static function downloadUrl(string $fileId): string {
         $f = self::sign($fileId);
-        return 'index.php?controller=home&action=download'
-             . '&file_id=' . urlencode($fileId)
+        return '/home/download?file_id=' . urlencode($fileId)
              . '&t=' . $f['t']
              . '&sig=' . $f['sig'];
     }
@@ -56,7 +55,7 @@ class UrlSigner {
      */
     public static function proxyUrl(string $fileId): string {
         $f = self::sign($fileId);
-        return 'rom_proxy.php?file_id=' . urlencode($fileId)
+        return '/rom_proxy.php?file_id=' . urlencode($fileId)
              . '&t=' . $f['t']
              . '&sig=' . $f['sig'];
     }

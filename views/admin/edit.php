@@ -202,7 +202,7 @@
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary"><i data-i="save"></i> Guardar cambios</button>
-                <a href="index.php?controller=admin&action=dashboard" class="btn-primary" style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
+                <a href="/admin/dashboard" class="btn-primary" style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
                     <i data-i="close"></i> Cancelar
                 </a>
         </div>

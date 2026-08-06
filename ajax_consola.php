@@ -81,7 +81,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                 </td>
                 <td><?= date('d/m/Y', strtotime($c['created_at'])) ?></td>
                 <td>
-                    <a href="index.php?controller=consola&action=edit&id=<?= $c['id'] ?>" class="btn-edit">Editar</a>
+                    <a href="/consola/edit/<?= $c['id'] ?>" class="btn-edit">Editar</a>
                 </td>
             </tr>
             <?php endforeach; ?>

@@ -39,7 +39,7 @@
             <button type="submit" class="btn-primary">
                 <i data-i="save"></i> Guardar cambios
             </button>
-            <a href="index.php?controller=categoria&action=index"
+            <a href="/categoria/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
                 <i data-i="close"></i> Cancelar
@@ -56,7 +56,7 @@
     </form>
 
     <!-- Formulario oculto de eliminación (POST con token CSRF) -->
-    <form id="form-eliminar-categoria" method="POST" action="index.php?controller=categoria&action=delete">
+    <form id="form-eliminar-categoria" method="POST" action="/categoria/delete">
         <?= CsrfService::field() ?>
         <input type="hidden" name="id" value="<?= (int) $categoria['id'] ?>">
     </form>

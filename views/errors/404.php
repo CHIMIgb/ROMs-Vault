@@ -25,7 +25,7 @@
 
     <!-- Acciones -->
     <div class="error-404-actions">
-        <a href="index.php?controller=home&action=index" class="btn-404-home">
+        <a href="/" class="btn-404-home">
             Ir al catálogo
         </a>
         <a href="javascript:history.back()" class="btn-404-back">

@@ -20,10 +20,10 @@
 <div class="admin-header">
     <h2>Emuladores recomendados</h2>
     <div class="admin-header-actions">
-        <a href="index.php?controller=admin&action=dashboard" class="btn-primary">
+        <a href="/admin/dashboard" class="btn-primary">
             <i data-i="arrow-left"></i> Dashboard
         </a>
-        <a href="index.php?controller=emulador&action=add" class="btn-primary">
+        <a href="/emulador/add" class="btn-primary">
             <i data-i="plus"></i> Nuevo Emulador
         </a>
     </div>
@@ -133,7 +133,7 @@ endif;
                     </td>
                     <td>
                         <!-- Solo btn-edit, exactamente igual que el dashboard -->
-                        <a href="index.php?controller=emulador&action=edit&id=<?= $f['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/emulador/edit/<?= $f['id'] ?>" class="btn-edit">Editar</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -191,8 +191,6 @@ endif;
 
     function getUiParams(page) {
         const p = getAjaxParams(page);
-        p.set('controller', 'emulador');
-        p.set('action', 'index');
         return p;
     }
 
@@ -281,7 +279,7 @@ endif;
 
                 try {
                     const res  = await fetch(
-                        `index.php?controller=emulador&action=toggleActiveAjax&id=${id}`,
+                        `/emulador/toggleActiveAjax/${id}`,
                         { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
                     );
                     const data = await res.json();

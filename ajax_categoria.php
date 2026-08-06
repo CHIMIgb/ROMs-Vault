@@ -70,7 +70,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                 </td>
                 <td><?= date('d/m/Y', strtotime($cat['created_at'])) ?></td>
                 <td>
-                    <a href="index.php?controller=categoria&action=edit&id=<?= $cat['id'] ?>" class="btn-edit">Editar</a>
+                    <a href="/categoria/edit/<?= $cat['id'] ?>" class="btn-edit">Editar</a>
                 </td>
             </tr>
             <?php endforeach; ?>

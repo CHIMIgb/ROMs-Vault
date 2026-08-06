@@ -20,10 +20,10 @@
 <div class="admin-header">
     <h2>Categorías</h2>
     <div class="admin-header-actions">
-        <a href="index.php?controller=admin&action=dashboard" class="btn-primary">
+        <a href="/admin/dashboard" class="btn-primary">
             <i data-i="arrow-left"></i> Dashboard
         </a>
-        <a href="index.php?controller=categoria&action=add" class="btn-primary">
+        <a href="/categoria/add" class="btn-primary">
             <i data-i="plus"></i> Nueva Categoría
         </a>
     </div>
@@ -118,7 +118,7 @@ endif;
                     </td>
                     <td>
                         <!-- Solo btn-edit, exactamente igual que el dashboard -->
-                        <a href="index.php?controller=categoria&action=edit&id=<?= $cat['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/categoria/edit/<?= $cat['id'] ?>" class="btn-edit">Editar</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -176,8 +176,6 @@ endif;
 
     function getUiParams(page) {
         const p = getAjaxParams(page);
-        p.set('controller', 'categoria');
-        p.set('action', 'index');
         return p;
     }
 
@@ -266,7 +264,7 @@ endif;
 
                 try {
                     const res  = await fetch(
-                        `index.php?controller=categoria&action=toggleActiveAjax&id=${id}`,
+                        `/categoria/toggleActiveAjax/${id}`,
                         { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
                     );
                     const data = await res.json();

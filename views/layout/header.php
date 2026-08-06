@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Base del documento: las URLs limpias (/controlador/accion) hacen que
+         las rutas relativas (public/css, public/js, rom_proxy.php, etc.)
+         deban resolverse siempre contra la raíz del sitio. -->
+    <base href="/">
     <?php if (class_exists('CsrfService')): ?>
         <?= CsrfService::metaTag() ?>
     <?php endif; ?>
@@ -43,7 +47,7 @@
             <div class="header-brand">
 
                 <!-- Logo: icono de la aplicación al inicio del título -->
-                <a href="index.php?controller=home&action=index" class="header-logo-link" title="ROMs Vault - Inicio">
+                <a href="/" class="header-logo-link" title="ROMs Vault - Inicio">
                     <img src="public/uploads/icon.png"
                          alt="ROMs Vault"
                          class="header-logo"
@@ -62,7 +66,7 @@
             <!-- ────────────────────────────────────────────── -->
 
             <nav>
-                <a href="index.php?controller=home&action=index">
+                <a href="/">
                     <i data-i="gamepad"  aria-hidden="true"></i>
                     Catálogo
                 </a>
@@ -70,11 +74,11 @@
                 $currentUser = AuthMiddleware::getUser();
                 if ($currentUser): 
                 ?>
-                <a href="index.php?controller=admin&action=dashboard">
+                <a href="/admin/dashboard">
                     <i data-i="shield-2" aria-hidden="true"></i>
                     Panel Admin
                 </a>
-                <a href="index.php?controller=auth&action=logout">
+                <a href="/auth/logout">
                     <i data-i="logout"   aria-hidden="true"></i>
                     Cerrar sesión
                 </a>

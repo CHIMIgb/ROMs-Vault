@@ -22,7 +22,7 @@ class AuthMiddleware {
     public static function requireAuth(): array {
         $user = JWTService::getCurrentUser();
         if ($user === null) {
-            header('Location: index.php?controller=auth&action=login');
+            header('Location: /auth/login');
             exit;
         }
         return $user;
@@ -57,12 +57,12 @@ class AuthMiddleware {
     public static function requireAdmin(): array {
         $user = JWTService::getCurrentUser();
         if ($user === null) {
-            header('Location: index.php?controller=auth&action=login');
+            header('Location: /auth/login');
             exit;
         }
         if ((int) ($user['rol_id'] ?? 0) !== self::ADMIN_ROLE_ID) {
             // Ya está autenticado pero no es admin: fuera del panel
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
         return $user;

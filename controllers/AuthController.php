@@ -25,7 +25,7 @@ class AuthController {
                 RateLimiter::reset(RateLimiter::clientIp(), 'login');
                 $token = JWTService::generate($user);
                 JWTService::setTokenCookie($token);
-                header('Location: index.php?controller=admin&action=dashboard');
+                header('Location: /admin/dashboard');
                 exit;
             } else {
                 $error = "Usuario o contraseña incorrectos";
@@ -38,7 +38,7 @@ class AuthController {
 
     public function logout() {
         JWTService::clearTokenCookie();
-        header('Location: index.php');
+        header('Location: /');
         exit;
     }
 }

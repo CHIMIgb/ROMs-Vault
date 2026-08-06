@@ -103,7 +103,7 @@ class EmuladorController {
                 if ($error === null) {
                     $ok = $emuladorModel->replaceForConsola($consolaId, $principal, $alterno);
                     if ($ok) {
-                        header('Location: index.php?controller=emulador&action=index&created=1');
+                        header('Location: /emulador/index?created=1');
                         exit;
                     }
                     $error = 'Error al guardar el emulador. Revisa los datos e inténtalo de nuevo.';
@@ -123,7 +123,7 @@ class EmuladorController {
     // ── Editar emuladores de una consola ──────────────────────────────────
     public function edit($id = null) {
         if (!$id) {
-            header('Location: index.php?controller=emulador&action=index');
+            header('Location: /emulador/index');
             exit;
         }
 
@@ -131,7 +131,7 @@ class EmuladorController {
         $consola      = $consolaModel->find($id);
 
         if (!$consola) {
-            header('Location: index.php?controller=emulador&action=index');
+            header('Location: /emulador/index');
             exit;
         }
 
@@ -165,7 +165,7 @@ class EmuladorController {
             if ($error === null) {
                 $ok = $emuladorModel->replaceForConsola((int) $id, $principal, $alterno);
                 if ($ok) {
-                    header('Location: index.php?controller=emulador&action=index&updated=1');
+                    header('Location: /emulador/index?updated=1');
                     exit;
                 }
                 $error = 'Error al guardar los emuladores. Revisa los datos e inténtalo de nuevo.';

@@ -57,7 +57,7 @@ class ConsolaController {
                 ]);
 
                 if ($ok) {
-                    header('Location: index.php?controller=consola&action=index&created=1');
+                    header('Location: /consola/index?created=1');
                     exit;
                 } else {
                     $error = 'Error al guardar la consola. Es posible que el nombre ya exista.';
@@ -73,7 +73,7 @@ class ConsolaController {
     // ── Editar ────────────────────────────────────────────────────────────
     public function edit($id = null) {
         if (!$id) {
-            header('Location: index.php?controller=consola&action=index');
+            header('Location: /consola/index');
             exit;
         }
 
@@ -81,7 +81,7 @@ class ConsolaController {
         $consola      = $consolaModel->find($id);
 
         if (!$consola) {
-            header('Location: index.php?controller=consola&action=index');
+            header('Location: /consola/index');
             exit;
         }
 
@@ -105,7 +105,7 @@ class ConsolaController {
                 ]);
 
                 if ($ok) {
-                    header('Location: index.php?controller=consola&action=index&updated=1');
+                    header('Location: /consola/index?updated=1');
                     exit;
                 } else {
                     $error = 'Error al actualizar la consola. El nombre puede estar duplicado.';
@@ -131,7 +131,7 @@ class ConsolaController {
         }
 
         if (!$id) {
-            header('Location: index.php?controller=consola&action=index');
+            header('Location: /consola/index');
             exit;
         }
 
@@ -141,14 +141,14 @@ class ConsolaController {
         $total      = $juegoModel->countAllFiltered($filters);
 
         if ($total > 0) {
-            header('Location: index.php?controller=consola&action=index&error=has_games&count=' . $total);
+            header('Location: /consola/index?error=has_games&count=' . $total);
             exit;
         }
 
         $consolaModel = new Consola();
         $consolaModel->delete($id);
 
-        header('Location: index.php?controller=consola&action=index&deleted=1');
+        header('Location: /consola/index?deleted=1');
         exit;
     }
 

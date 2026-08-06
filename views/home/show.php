@@ -78,7 +78,7 @@ if ($emuladorLocal) {
                     <span class="detail-hack-ribbon"><i data-i="zap" aria-hidden="true"></i> HACK</span>
                 <?php endif; ?>
                 <?php if ($esNuevo): ?>
-                    <span class="detail-new-badge"><i data-i="zap" aria-hidden="true"></i> NUEVO</span>
+                    <span class="detail-new-badge">NUEVO</span>
                 <?php endif; ?>
             </div>
         </div>
@@ -96,7 +96,7 @@ if ($emuladorLocal) {
                 </div>
                 <div class="detail-tags">
                     <?php if (!empty($juego['categoria_id'])): ?>
-                        <a href="index.php?categoria=<?= (int) $juego['categoria_id'] ?>" class="tag tag-categoria" title="Ver más de <?= htmlspecialchars($juego['categoria_nombre'] ?? 'esta categoría') ?>">
+                        <a href="/?categoria=<?= (int) $juego['categoria_id'] ?>" class="tag tag-categoria" title="Ver más de <?= htmlspecialchars($juego['categoria_nombre'] ?? 'esta categoría') ?>">
                             <?= htmlspecialchars($juego['categoria_nombre'] ?? 'Sin Categoría') ?>
                         </a>
                     <?php else: ?>

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/:controller/:action/:id", "destination": "/index.php?controller=:controller&action=:action&id=:id" },
+    { "source": "/:controller/:action",     "destination": "/index.php?controller=:controller&action=:action" },
+    { "source": "/:controller",             "destination": "/index.php?controller=:controller" },
+    { "source": "/",                        "destination": "/index.php" }
+  ]
+}

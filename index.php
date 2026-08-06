@@ -33,8 +33,25 @@ $currentUser = AuthMiddleware::getUser();
 // Protección CSRF: garantizar token del navegador antes de cualquier salida HTML
 CsrfService::ensureToken();
 
+// ── Resolución de rutas ────────────────────────────────────────────────────
+// URLs limpias: /controlador/accion/id
+// Si no viene ?controller= en el query string (enlaces nuevos, php -S con
+// router.php, o Apache vía .htaccess), se parsean los segmentos de REQUEST_URI.
+// Las URLs clásicas index.php?controller=X&action=Y&id=N siguen funcionando.
+if (!isset($_GET['controller'])) {
+    $uriPath  = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $uriPath  = trim($uriPath, '/');
+    $segments = $uriPath === '' ? [] : explode('/', $uriPath);
+
+    $_GET['controller'] = $segments[0] ?? 'home';
+    $_GET['action']     = $segments[1] ?? 'index';
+    if (isset($segments[2]) && $segments[2] !== '') {
+        $_GET['id'] = $segments[2];
+    }
+}
+
 $controller = $_GET['controller'] ?? 'home';
-$action     = $_GET['action']     ?? 'index';
+$action     = !empty($_GET['action']) ? $_GET['action'] : 'index';
 $id         = $_GET['id']         ?? null;
 
 // Sanitizar — solo letras y dígitos para controller y action

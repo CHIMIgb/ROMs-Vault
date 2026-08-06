@@ -9,7 +9,7 @@
         ?>
     <?php endif; ?>
     
-    <form method="POST" action="index.php?controller=auth&action=login" autocomplete="off">
+    <form method="POST" action="/auth/login" autocomplete="off">
         <?= CsrfService::field() ?>
         <div class="form-group">
             <label for="username">Usuario</label>
