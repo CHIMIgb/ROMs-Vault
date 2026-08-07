@@ -209,10 +209,18 @@ http://localhost:8000/auth/login
 
 ## 🌐 Despliegue en Vercel
 
-El proyecto incluye un `vercel.json` con rewrites para que las URLs limpias
-(`/home/show/12`, `/admin/dashboard`, ...) también funcionen en producción.
-Vercel sirve los archivos reales (`ajax_*.php`, `rom_proxy.php`, `public/`) sin
-cambios y enruta el resto al front controller `index.php`.
+El proyecto se despliega como **contenedor Docker** (`Dockerfile` + `docker-entrypoint.sh`).
+Dentro del contenedor, Apache + `.htaccess` se encargan de las URLs limpias
+(`/home/show/12`, `/admin/dashboard`, ...): reescriben todo lo que no sea un
+archivo real al front controller `index.php` y sirven directamente
+`ajax_*.php`, `rom_proxy.php`, `public/`, etc.
+
+> ⚠️ **Importante:** no definir `rewrites` en `vercel.json`. Aunque el edge de
+> Vercel los aplicaría ANTES de llegar al contenedor, la reescritura
+> (`/home/show/12` → `/index.php?controller=home&action=show&id=12`) pierde el
+> query string al proxyar al contenedor y las URLs limpias devuelven 404
+> (detalle, descargas, paginación). El array `rewrites` se mantiene vacío a
+> propósito; el enrutado real vive en `.htaccess`.
 
 ## 📁 Estructura del proyecto principal
 
