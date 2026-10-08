@@ -176,3 +176,4 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | Fecha | Mejora | Estado | Commit |
 |-------|--------|--------|--------|
 | 2026-10-08 | 2.1 Logging y alertas de autenticación (A09) | Implementada | `a3be845` |
+| 2026-10-08 | 2.1 Ampliación: auditoría en BD (`public.auditoria`) + fallback archivo | Implementada | `fd7c2cf` |
