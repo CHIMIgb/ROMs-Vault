@@ -5,6 +5,8 @@
 **Stack actual:** PHP 8.2 vanilla (sin framework), PostgreSQL (Neon, SSL) vía PDO, CSS/JS vanilla, Vercel, servidor local `php -S localhost:8000 router.php`.
 **Criterio rector:** cada fase debe resolver una pregunta que un entrevistador técnico senior haría y que hoy el proyecto no puede responder bien.
 
+> **Planes activos (fechados):** [`_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md`](./_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md) (seguridad OWASP + paginación DB + tests `Security` + i18n) · [`2026-10-07-migrar-imagenes-a-cloudflare-r2.md`](./2026-10-07-migrar-imagenes-a-cloudflare-r2.md) (imágenes a R2) · [`2026-10-07-reorganizacion-estructura-archivos.md`](./2026-10-07-reorganizacion-estructura-archivos.md) (reorganización a `src/` + `endpoints/`).
+
 ---
 
 ## Registro de progreso
@@ -16,6 +18,7 @@
 | 2026-08-05 | **Fase 1.1** — Unit tests de seguridad (UrlSigner, JWTService, RateLimiter, CsrfService) + PHPUnit + `composer test` + testdox + README | ✅ Completada | `4610424` |
 | 2026-08-05 | **Fase 3.7** — Higiene del repo: normalización CRLF→LF (20 archivos) + `.gitattributes` + `.editorconfig` | ✅ Completada | `2665a0f` |
 | 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `762066f` |
+| 2026-10-07 | **Fase 3.1** — Reorganización de estructura: `src/` (config/controllers/models/views) + `endpoints/` (rom_proxy y ajax_*), requires con `__DIR__`, URLs públicas intactas; `implementation_plan.md` archivado | ✅ Completada | `d39ee37` |
 
 ---
 
@@ -134,7 +137,7 @@ Hoy los `require_once` son manuales (`require_once 'config/CsrfService.php'`, et
 
 - [ ] Namespace raíz `App\` → `App\Config`, `App\Controllers`, `App\Models`, `App\Services`
 - [ ] `composer.json` → `"autoload": { "psr-4": { "App\\": "src/" } }`
-- [ ] Mover `config/` y `models/` a `src/` (o crear `src/` con estructura lógica)
+- [x] Mover `config/` y `models/` a `src/` (o crear `src/` con estructura lógica)
 - [ ] Eliminar los `require_once` manuales excepto el autoload de Composer
 - [ ] `vendor/` fuera del repo (verificar `.gitignore`)
 
