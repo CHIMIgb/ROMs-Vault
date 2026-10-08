@@ -53,6 +53,8 @@ class Server {
             'DB_SSLMODE'      => 'disable',
             'JWT_SECRET'      => 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro',
             'JWT_EXPIRATION'  => '3600',
+            'AUTH_LOG_DIR'    => sys_get_temp_dir() . '/rv_logs_test',
+            'LOG_MAX_BYTES'   => '10485760',
         ]);
 
         // Comando como ARRAY (PHP 7.4+): evita que Windows meta cmd.exe de

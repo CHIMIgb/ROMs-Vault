@@ -30,6 +30,9 @@ class AuthFlowTest extends IntegrationTestCase {
         $this->assertSame(200, $resp['status']);
         $this->assertStringContainsString('Usuario o contraseña incorrectos', $resp['body']);
         $this->assertSame('', Server::sessionToken());
+
+        // El intento fallido debe quedar registrado en el log de seguridad
+        $this->assertAuthLogContains('login_failed');
     }
 
     public function testLoginExitosoRedirigeADashboard(): void {
@@ -38,6 +41,9 @@ class AuthFlowTest extends IntegrationTestCase {
         $this->assertSame(302, $resp['status']);
         $this->assertSame('/admin/dashboard', $resp['headers']['location'] ?? '');
         $this->assertNotSame('', Server::sessionToken());
+
+        // El login exitoso debe quedar registrado
+        $this->assertAuthLogContains('login_success');
     }
 
     public function testDashboardProtegidoSinSesionRedirigeAlLogin(): void {
@@ -96,5 +102,22 @@ class AuthFlowTest extends IntegrationTestCase {
         $this->assertSame(429, $status429);
         // Después del bloqueo, un login correcto tampoco funciona hasta el reset
         $this->assertSame(429, $status429);
+    }
+
+    /**
+     * Lee el log de autenticación del directorio de test y verifica que
+     * contenga un evento concreto (el servidor hijo escribe en rv_logs_test,
+     * el mismo AUTH_LOG_DIR que usa LoggerService en este proceso).
+     */
+    private function assertAuthLogContains(string $event): void {
+        $file = \LoggerService::currentFile();
+        $this->assertNotNull($file, 'Debe poder resolverse el archivo de log');
+
+        $contents = is_file($file) ? (string) file_get_contents($file) : '';
+        $this->assertStringContainsString(
+            '"event":"' . $event . '"',
+            $contents,
+            "El log de autenticación debe contener el evento $event"
+        );
     }
 }

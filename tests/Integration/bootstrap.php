@@ -60,6 +60,14 @@ if (is_dir($rateLoginDir)) {
     }
 }
 
+// Limpiar logs de autenticación del directorio de test (determinismo)
+$authLogDir = sys_get_temp_dir() . '/rv_logs_test';
+if (is_dir($authLogDir)) {
+    foreach (glob($authLogDir . '/*.log') ?: [] as $f) {
+        @unlink($f);
+    }
+}
+
 // ── Conexión directa a la BD de prueba (para asserts de persistencia) ──────
 $GLOBALS['TEST_PDO'] = new PDO(
     'pgsql:host=127.0.0.1;port=5432;dbname=roms-vault-test;sslmode=disable',

@@ -22,9 +22,11 @@ require_once __DIR__ . '/../src/config/UrlSigner.php';
 require_once __DIR__ . '/../src/config/JWTService.php';
 require_once __DIR__ . '/../src/config/RateLimiter.php';
 require_once __DIR__ . '/../src/config/CsrfService.php';
+require_once __DIR__ . '/../src/config/LoggerService.php';
 
-// 4) Asegurar un directorio temporal limpio para RateLimiter
+// 4) Asegurar un directorio temporal limpio para RateLimiter y LoggerService
 $rateDir = sys_get_temp_dir() . '/rv_rate_limit/test';
 if (!is_dir($rateDir)) {
     @mkdir($rateDir, 0700, true);
 }
+$_ENV['AUTH_LOG_DIR'] = sys_get_temp_dir() . '/rv_logs_test';
