@@ -10,3 +10,4 @@ vendor/
 .agents/
 .phpunit.cache/
 .phpunit.result.cache
+.opencode/agents/roms-vault-senior.md

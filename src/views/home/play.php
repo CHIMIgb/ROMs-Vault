@@ -17,7 +17,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
         'not_found' => ['<i data-i="trash"></i>', 'Archivo no encontrado'],
         'private' => ['<i data-i="lock"></i>', 'Archivo privado o bloqueado'],
         'quota' => ['<i data-i="clock"></i>', 'Límite de descargas alcanzado'],
-        'network' => ['<i data-i="wifi"></i>', 'Error de conexión con Google Drive'],
+        'network' => ['<i data-i="wifi"></i>', 'Error de conexión'],
         'unsupported' => ['<i data-i="settings-cog"></i>', 'Emulación no disponible'],
     ];
     [$icon, $titulo] = $iconMap[$errorType] ?? ['<i data-i="warning"></i>', 'Error desconocido'];
@@ -423,7 +423,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                         not_found: ['<i data-i="trash"></i>', 'Archivo no encontrado'],
                         private: ['<i data-i="lock"></i>', 'Archivo privado o bloqueado'],
                         quota: ['<i data-i="clock"></i>', 'Límite de descargas alcanzado'],
-                        network: ['<i data-i="wifi"></i>', 'Error de conexión con Google Drive'],
+                        network: ['<i data-i="wifi"></i>', 'Error de conexión'],
                     };
                     const tipMap = {
                         not_found: 'El administrador del sitio tendrá que actualizar el enlace de Google Drive para este juego.',
