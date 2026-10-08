@@ -27,10 +27,11 @@ firma HMAC de enlaces); este plan cubre las brechas restantes con prioridad en:
 
 ## 2. Seguridad — acceso administrador
 
-- [ ] **2.1 Logging y alertas de autenticación (A09)** — registrar en un log (archivo
+- [x] **2.1 Logging y alertas de autenticación (A09)** — registrar en un log (archivo
       rotado, ruta en `RATE_LIMIT`/logs lista en `.env.example`): intentos fallidos de
       login, éxitos, cambios de rol/credenciales de administradores. Hoy no hay logging:
       no se detectaría un ataque de fuerza bruta. *Esfuerzo: medio.*
+      → Implementado en `docs/2026-10-08-logging-autenticacion.md`.
 - [ ] **2.2 Lockout por usuario + 2FA opcional (A07)** — hoy el rate limit es solo por IP
       (`AuthController.php:13`). Añadir bloqueo temporal por cuenta tras N fallos y,
       como fase opcional, TOTP (2FA) para el rol administrador. *Esfuerzo: medio-alto.*
@@ -174,4 +175,4 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 
 | Fecha | Mejora | Estado | Commit |
 |-------|--------|--------|--------|
-| — | (por completar en cada fase) | Pendiente | — |
+| 2026-10-08 | 2.1 Logging y alertas de autenticación (A09) | Implementada | `a3be845` |
