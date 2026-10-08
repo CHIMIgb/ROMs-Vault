@@ -1,4 +1,5 @@
 .env
+.env.neon
 .env.*
 .vercel
 *.log

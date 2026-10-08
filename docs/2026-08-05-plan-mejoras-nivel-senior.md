@@ -9,7 +9,7 @@
 
 ## Registro de progreso
 
-> Cada vez que se complete una mejora de este documento, se marca aquí (o en su checkbox) con el commit que la hizo. Mantenido por regla de `.agents/AGENTS.md`.
+> Cada vez que se complete una mejora de este documento, se marca aquí (o en su checkbox) con el commit que la hizo. Mantenido por regla de `AGENTS.md`.
 
 | Fecha | Mejora | Estado | Commit |
 |-------|--------|--------|--------|
