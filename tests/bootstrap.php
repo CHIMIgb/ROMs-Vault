@@ -18,10 +18,10 @@ $_ENV['JWT_EXPIRATION'] = '3600';
 $_ENV['JWT_REFRESH_THRESHOLD'] = '600';
 
 // 3) Cargar las clases del proyecto (hasta que exista autoload PSR-4)
-require_once __DIR__ . '/../config/UrlSigner.php';
-require_once __DIR__ . '/../config/JWTService.php';
-require_once __DIR__ . '/../config/RateLimiter.php';
-require_once __DIR__ . '/../config/CsrfService.php';
+require_once __DIR__ . '/../src/config/UrlSigner.php';
+require_once __DIR__ . '/../src/config/JWTService.php';
+require_once __DIR__ . '/../src/config/RateLimiter.php';
+require_once __DIR__ . '/../src/config/CsrfService.php';
 
 // 4) Asegurar un directorio temporal limpio para RateLimiter
 $rateDir = sys_get_temp_dir() . '/rv_rate_limit/test';

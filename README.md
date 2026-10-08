@@ -212,8 +212,9 @@ http://localhost:8000/auth/login
 El proyecto se despliega como **contenedor Docker** (`Dockerfile` + `docker-entrypoint.sh`).
 Dentro del contenedor, Apache + `.htaccess` se encargan de las URLs limpias
 (`/home/show/12`, `/admin/dashboard`, ...): reescriben todo lo que no sea un
-archivo real al front controller `index.php` y sirven directamente
-`ajax_*.php`, `rom_proxy.php`, `public/`, etc.
+archivo real al front controller `index.php` y reubican `ajax_*.php` y
+`rom_proxy.php` a `endpoints/` (sus URLs públicas siguen siendo la raíz),
+además de servir `public/`, etc.
 
 > ⚠️ **Importante:** no definir `rewrites` en `vercel.json`. Aunque el edge de
 > Vercel los aplicaría ANTES de llegar al contenedor, la reescritura
@@ -230,7 +231,7 @@ roms-vault/
 ├── .env                      # Configuración de entorno (no se sube al repo)
 ├── .env.example              # Plantilla de configuración
 ├── index.php                 # Front controller / Router principal
-├── rom_proxy.php             # Proxy de streaming seguro para ROMs (Google Drive)
+├── router.php                # Router para php -S (URLs limpias y endpoints)
 ├── composer.json             # Dependencias PHP
 ├── phpunit.xml               # Configuración de PHPUnit (tests)
 ├── Dockerfile                # Imagen Docker (PHP 8.2 + Apache)
@@ -240,36 +241,48 @@ roms-vault/
 ├── tests/                    # Tests automatizados (PHPUnit)
 │   └── Unit/                 # Tests unitarios de lógica de negocio
 │
-├── config/
-│   ├── database.php          # Conexión a la base de datos (PostgreSQL)
-│   ├── JWTService.php        # Generación y validación de tokens JWT
-│   └── AuthMiddleware.php    # Middleware para protección de rutas
+├── src/                      # Código de la aplicación (nunca servido por HTTP)
+│   ├── config/
+│   │   ├── database.php      # Conexión a la base de datos (PostgreSQL)
+│   │   ├── JWTService.php    # Generación y validación de tokens JWT
+│   │   ├── AuthMiddleware.php# Middleware para protección de rutas
+│   │   ├── CsrfService.php   # Anti-CSRF (Double Submit Cookie)
+│   │   ├── RateLimiter.php   # Rate limiting por IP
+│   │   └── UrlSigner.php     # Firma HMAC de URLs del proxy
+│   │
+│   ├── controllers/
+│   │   ├── HomeController.php    # Catálogo público y emulador
+│   │   ├── AuthController.php    # Login/logout con JWT y Google OAuth
+│   │   ├── AdminController.php   # Panel de administración (Juegos)
+│   │   ├── ConsolaController.php # Panel de administración (Consolas)
+│   │   ├── CategoriaController.php # Panel de administración (Categorías)
+│   │   ├── ErrorsController.php  # Páginas de error (404, 403, 500)
+│   │   └── ExportController.php  # Generación de descargas Excel (.xlsx)
+│   │
+│   ├── models/
+│   │   ├── Model.php             # Modelo base
+│   │   ├── Juego.php             # Gestión de juegos
+│   │   ├── Consola.php           # Gestión de consolas
+│   │   ├── Categoria.php         # Gestión de categorías
+│   │   ├── Usuario.php           # Autenticación
+│   │   └── Export.php            # Consultas para exportar bases de datos completas
+│   │
+│   └── views/
+│       ├── components/           # Alert, Pagination, game_actions, related_games
+│       ├── layout/               # Cabeceras y pies de página
+│       ├── home/                 # Catálogo, detalle y emulador
+│       ├── auth/                 # Login
+│       ├── admin/                # Vistas de gestión
+│       └── errors/               # Páginas de error personalizadas
 │
-├── controllers/
-│   ├── HomeController.php    # Catálogo público y emulador
-│   ├── AuthController.php    # Login/logout con JWT y Google OAuth
-│   ├── AdminController.php   # Panel de administración (Juegos)
-│   ├── ConsolaController.php # Panel de administración (Consolas)
-│   ├── CategoriaController.php # Panel de administración (Categorías)
-│   ├── ErrorsController.php  # Páginas de error (404, 403, 500)
-│   └── ExportController.php  # Generación de descargas Excel (.xlsx)
-│
-├── models/
-│   ├── Model.php             # Modelo base
-│   ├── Juego.php             # Gestión de juegos
-│   ├── Consola.php           # Gestión de consolas
-│   ├── Categoria.php         # Gestión de categorías
-│   ├── Usuario.php           # Autenticación
-│   └── Export.php            # Consultas para exportar bases de datos completas
-│
-├── views/
-│   ├── components/
-│   │   └── Alert.php         # Componente reutilizable para alertas UI
-│   ├── layout/               # Cabeceras y pies de página
-│   ├── home/                 # Catálogo, detalle y emulador
-│   ├── auth/                 # Login
-│   ├── admin/                # Vistas de gestión
-│   └── errors/               # Páginas de error personalizadas
+├── endpoints/                # Entrypoints públicos (URLs idénticas a la raíz)
+│   ├── rom_proxy.php         # Proxy de streaming seguro para ROMs (Google Drive)
+│   ├── ajax_admin.php        # Endpoint AJAX para operaciones de administración
+│   ├── ajax_autocomplete.php # Endpoint AJAX para autocompletado de búsqueda
+│   ├── ajax_catalog.php      # Endpoint AJAX para filtrado del catálogo
+│   ├── ajax_categoria.php    # Endpoint AJAX para gestión de categorías
+│   ├── ajax_consola.php      # Endpoint AJAX para gestión de consolas
+│   └── ajax_emulador.php     # Endpoint AJAX para gestión de emuladores
 │
 ├── public/
 │   ├── css/
@@ -278,16 +291,12 @@ roms-vault/
 │   │   └── rv-alerts.js      # Sistema de modales y notificaciones custom
 │   └── uploads/              # Imágenes subidas
 │
-├── ajax_admin.php            # Endpoint AJAX para operaciones de administración
-├── ajax_autocomplete.php     # Endpoint AJAX para autocompletado de búsqueda
-├── ajax_catalog.php          # Endpoint AJAX para filtrado del catálogo
-├── ajax_categoria.php        # Endpoint AJAX para gestión de categorías
-└── ajax_consola.php          # Endpoint AJAX para gestión de consolas
+└── docs/                     # Documentación de decisiones/planes (fechada)
 ```
 
 ## 🔒 Seguridad del Proxy de ROMs
 
-El archivo `rom_proxy.php` actúa como intermediario seguro entre EmulatorJS y Google Drive:
+El archivo `endpoints/rom_proxy.php` actúa como intermediario seguro entre EmulatorJS y Google Drive:
 
 | Característica | Descripción |
 |---|---|

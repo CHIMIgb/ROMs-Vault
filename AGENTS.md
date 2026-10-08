@@ -18,13 +18,14 @@ PHP 8.1+ vanilla MVC, no framework — custom routing in `index.php` (clean URLs
 ## Architecture
 
 - **Routing**: `index.php` resolves `controller/action/id` from query string or path segments; sanitizes with regex (alphanumeric), 404s otherwise; enforces CSRF on EVERY POST (`CsrfService::verify()`); sets global security headers incl. a CSP that intentionally allows `unsafe-eval`/`blob:` for EmulatorJS (Emscripten) — **don't tighten it blindly**.
-- **Standalone entrypoints** bypass `index.php` (own auth/CSRF): `rom_proxy.php` (Google Drive streaming proxy) and `ajax_admin.php`, `ajax_autocomplete.php`, `ajax_catalog.php`, `ajax_categoria.php`, `ajax_consola.php`.
+- **Standalone entrypoints** bypass `index.php` (own auth/CSRF) and now live in `endpoints/` (`rom_proxy.php` Google Drive streaming proxy, plus `ajax_admin.php`, `ajax_autocomplete.php`, `ajax_catalog.php`, `ajax_categoria.php`, `ajax_consola.php`, `ajax_emulador.php`). Their **public URLs are unchanged** (`/rom_proxy.php`, `/ajax_*.php`) — `router.php` and `.htaccess` remap them to `endpoints/`; they must never be renamed in a way that breaks those URLs (HMAC-signed proxy links + `fetch()` calls in views rely on them).
 - **`vercel.json` MUST keep `"rewrites": []`.** Edge rewrites drop the query string when proxying to the container and clean URLs 404. Routing lives in `.htaccess` (Apache) / `router.php` (php -S).
-- **Key dirs**: `config/` = singletons (`database.php`, `JWTService.php`, `CsrfService.php`, `RateLimiter.php`, `UrlSigner.php`, `AuthMiddleware.php`); `models/` = raw PDO, no ORM; `views/layout/header.php` + `footer.php` wrap every page; `public/css/style.css` is imports-only over `public/css/modules/*`; `public/bios/` = emulator BIOS (PS1: `ps1/scph1001.bin`); `data/backup registros DB/` = Excel dumps; `scratch/` = throwaway (gitignored).
+- **Key dirs**: `src/config/` = singletons (`database.php`, `JWTService.php`, `CsrfService.php`, `RateLimiter.php`, `UrlSigner.php`, `AuthMiddleware.php`); `src/models/` = raw PDO, no ORM; `src/controllers/`; `src/views/` (`layout/header.php` + `footer.php` wrap every page); `endpoints/` = standalone entrypoints; `public/css/style.css` is imports-only over `public/css/modules/*`; `public/bios/` = emulator BIOS (PS1: `ps1/scph1001.bin`); `data/backup registros DB/` = Excel dumps; `scratch/` = throwaway (gitignored).
+- **`src/` is app code, never served by HTTP**: `router.php` returns 403 for `/src/*` and `.htaccess` has `RewriteRule ^src/ - [F,L]`. All internal `require`/`require_once` use `__DIR__` (no cwd-relative) so the code is location-independent.
 
 ## Environment
 
-`.env` is loaded independently with `Dotenv::createImmutable()->safeLoad()` in several files (`config/database.php`, `config/JWTService.php`, `rom_proxy.php`). Docker entrypoint regenerates `.env` at runtime from container env. Key vars: `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD`, `DB_SSLMODE` (default `require` for Neon; tests set `disable`), `JWT_SECRET`, `SESSION_SECRET`, `RATE_LIMIT_MAX/WINDOW`, `ALLOWED_ORIGINS`. Tests override `JWT_SECRET` with a ≥32-byte fake (firebase/php-jwt enforces length); they never touch real `.env`/Neon.
+`.env` is loaded independently with `Dotenv::createImmutable()->safeLoad()` in several files (`src/config/database.php`, `src/config/JWTService.php`, `endpoints/rom_proxy.php`). Docker entrypoint regenerates `.env` at runtime from container env. Key vars: `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD`, `DB_SSLMODE` (default `require` for Neon; tests set `disable`), `JWT_SECRET`, `SESSION_SECRET`, `RATE_LIMIT_MAX/WINDOW`, `ALLOWED_ORIGINS`. Tests override `JWT_SECRET` with a ≥32-byte fake (firebase/php-jwt enforces length); they never touch real `.env`/Neon.
 
 ## Conventions
 
@@ -37,10 +38,10 @@ PHP 8.1+ vanilla MVC, no framework — custom routing in `index.php` (clean URLs
 
 ## Gotchas
 
-- Proxy URLs (HMAC-signed) expire after **2 hours** (`SIGNED_URL_TTL`, `rom_proxy.php:114`); drive-URL cache TTL 10 min.
+- Proxy URLs (HMAC-signed) expire after **2 hours** (`SIGNED_URL_TTL`, `endpoints/rom_proxy.php`); drive-URL cache TTL 10 min.
 - Rate limiting is **file-based** in `sys_get_temp_dir()` — not shared across processes; tests clear `rv_rate_limit/`.
 - Integration tests **TRUNCATE + reseed** `roms-vault-test` before each class (`IntegrationTestCase::resetDatabase()`); HTTP POSTs must send `Server::csrfToken()`.
 - Pagination hardcoded to 20 items (4×5 grid).
-- Neon needs SSL + endpoint-ID workaround in DSN (`config/database.php`, `neon.tech` hosts).
+- Neon needs SSL + endpoint-ID workaround in DSN (`src/config/database.php`, `neon.tech` hosts).
 - `public/uploads/` needs write permissions for cover uploads.
 - `.gitignore` ignores `.env*` (`.env.example` is tracked), `.agents/`, `scratch/`, `vendor/`, `*.log`, `generate_imports.py`.
