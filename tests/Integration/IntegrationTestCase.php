@@ -107,14 +107,16 @@ abstract class IntegrationTestCase extends TestCase {
     }
 
     /**
-     * Al terminar cada clase, limpiar cookies y rate-limit de login para
-     * que el estado no contamine la siguiente clase de tests.
+     * Al terminar cada clase, limpiar cookies y rate-limit de login y del
+     * segundo factor para que el estado no contamine la siguiente clase.
      */
     public static function tearDownAfterClass(): void {
         Server::resetCookies();
-        $rateDir = sys_get_temp_dir() . '/rv_rate_limit/login';
-        foreach (glob($rateDir . '/*.json') ?: [] as $f) {
-            @unlink($f);
+        foreach (['login', 'two_factor'] as $namespace) {
+            $rateDir = sys_get_temp_dir() . '/rv_rate_limit/' . $namespace;
+            foreach (glob($rateDir . '/*.json') ?: [] as $f) {
+                @unlink($f);
+            }
         }
     }
 }

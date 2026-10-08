@@ -8,9 +8,11 @@ INSERT INTO public.roles (id, nombre, descripcion) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.personas (id, nombre, apellido, email) VALUES
-    (1, 'Admin', 'Prueba', 'admin@test.local')
+    (1, 'Admin', 'Prueba', 'admin@test.local'),
+    (2, 'Admin', 'TFA', 'admin.tfa@test.local')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.usuarios (id, persona_id, username, password_hash, rol_id, activo) VALUES
-    (1, 1, 'admin', '$2y$10$aha7kWQ.0hnOuf56qHUGX.JbZ4jXXeC74.lrYZ.6Mn0YlBDoz479i', 1, TRUE)
+INSERT INTO public.usuarios (id, persona_id, username, password_hash, rol_id, activo, login_failed_attempts, locked_until, tfa_secret, tfa_enabled) VALUES
+    (1, 1, 'admin', '$2y$10$aha7kWQ.0hnOuf56qHUGX.JbZ4jXXeC74.lrYZ.6Mn0YlBDoz479i', 1, TRUE, 0, NULL, NULL, FALSE),
+    (2, 2, 'admin_tfa', '$2y$10$aha7kWQ.0hnOuf56qHUGX.JbZ4jXXeC74.lrYZ.6Mn0YlBDoz479i', 1, TRUE, 0, NULL, 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', TRUE)
 ON CONFLICT (id) DO NOTHING;

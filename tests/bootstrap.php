@@ -39,6 +39,7 @@ require_once __DIR__ . '/../src/config/JWTService.php';
 require_once __DIR__ . '/../src/config/RateLimiter.php';
 require_once __DIR__ . '/../src/config/CsrfService.php';
 require_once __DIR__ . '/../src/config/LoggerService.php';
+require_once __DIR__ . '/../src/config/TfaService.php';
 
 // 4) Asegurar un directorio temporal limpio para RateLimiter y LoggerService
 $rateDir = sys_get_temp_dir() . '/rv_rate_limit/test';

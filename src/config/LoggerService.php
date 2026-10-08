@@ -68,6 +68,40 @@ class LoggerService {
     }
 
     /**
+     * Registra el bloqueo temporal de una cuenta por exceso de fallos (2.2).
+     * Se emite una única vez, al alcanzar AUTH_LOCKOUT_MAX intentos fallidos.
+     */
+    public static function accountLocked(string $username, string $ip = ''): bool {
+        return self::write('account_locked', [
+            'username' => self::sanitizeUsername($username),
+            'ip'       => self::sanitizeIp($ip),
+        ], 'warning');
+    }
+
+    /**
+     * Registra un intento de login contra una cuenta ya bloqueada (2.2).
+     * Señal de ataque persistente: permite monitorizar fuerza bruta dirigida
+     * incluso aunque el mensaje al usuario sea genérico.
+     */
+    public static function loginBlockedAccount(string $username, string $ip = ''): bool {
+        return self::write('login_blocked_account', [
+            'username' => self::sanitizeUsername($username),
+            'ip'       => self::sanitizeIp($ip),
+        ], 'warning');
+    }
+
+    /**
+     * Registra un código TOTP incorrecto durante el paso 2FA (2.2).
+     * Permite detectar fuerza bruta contra el segundo factor.
+     */
+    public static function tfaFailed(string $username, string $ip = ''): bool {
+        return self::write('tfa_failed', [
+            'username' => self::sanitizeUsername($username),
+            'ip'       => self::sanitizeIp($ip),
+        ], 'warning');
+    }
+
+    /**
      * Registra un cierre de sesión.
      *
      * @param array|null $user Usuario antes de borrar la cookie (o null)

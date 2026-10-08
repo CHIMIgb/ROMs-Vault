@@ -53,14 +53,16 @@ class JWTService {
      * Genera un token JWT con los datos del usuario.
      *
      * @param array $user Datos del usuario (debe contener 'id', 'username', 'rol_id')
+     * @param bool  $tfa  true si la sesión superó el paso 2FA (TOTP)
      * @return string Token JWT codificado
      */
-    public static function generate(array $user): string {
+    public static function generate(array $user, bool $tfa = false): string {
         $now = time();
         $payload = [
             'sub'      => $user['id'],
             'username' => $user['username'],
             'rol_id'   => $user['rol_id'],
+            'tfa'      => $tfa,
             'iat'      => $now,
             'exp'      => $now + self::getExpiration(),
         ];
@@ -120,9 +122,10 @@ class JWTService {
                 'id'       => $payload['sub'],
                 'username' => $payload['username'],
                 'rol_id'   => $payload['rol_id'],
+                'tfa'      => !empty($payload['tfa']),
             ];
 
-            $newToken = self::generate($user);
+            $newToken = self::generate($user, !empty($payload['tfa']));
             self::setTokenCookie($newToken);
         }
     }
@@ -181,6 +184,7 @@ class JWTService {
             'user_id'  => $payload['sub'],
             'username' => $payload['username'],
             'rol_id'   => $payload['rol_id'],
+            'tfa'      => !empty($payload['tfa']),
         ];
     }
 }

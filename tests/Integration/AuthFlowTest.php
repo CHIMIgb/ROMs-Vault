@@ -104,6 +104,89 @@ class AuthFlowTest extends IntegrationTestCase {
         $this->assertSame(429, $status429);
     }
 
+    public function testLockoutPorCuentaBloqueaTrasMaximoFallosYRechazaLoginCorrecto(): void {
+        Server::resetCookies();
+        $this->get('/auth/login'); // captura cookie rv_csrf
+
+        // 5 fallos de contraseña. Limpiamos el rate limit por IP entre
+        // intentos para aislar el lockout por cuenta (AUTH_LOGIN_MAX=5 daría
+        // 429 antes de llegar al bloqueo de cuenta si no reseteáramos).
+        for ($i = 0; $i < 5; $i++) {
+            $this->limpiarRateLimitLogin();
+            $resp = $this->post('/auth/login', [
+                'username' => self::ADMIN_USER,
+                'password' => 'mal-password-' . $i,
+            ]);
+            $this->assertSame(200, $resp['status'], "Fallo $i debe ser 200, no 429 IP");
+            $this->assertStringContainsString('Usuario o contraseña incorrectos', $resp['body']);
+        }
+
+        // La cuenta quedó bloqueada en la BD de prueba: contador reseteado al
+        // bloquear y locked_until en el futuro.
+        $row = $this->pdo()->prepare(
+            'SELECT login_failed_attempts, locked_until FROM public.usuarios WHERE username = ?'
+        );
+        $row->execute([self::ADMIN_USER]);
+        $u = $row->fetch();
+        $this->assertSame(0, (int) $u['login_failed_attempts']);
+        $this->assertNotNull($u['locked_until']);
+        $this->assertGreaterThan(time(), strtotime($u['locked_until']));
+
+        // El evento de bloqueo quedó en la auditoría (BD fuente de verdad)
+        $this->assertAuthLogContains('account_locked');
+
+        // Con la cuenta bloqueada, aunque la contraseña sea correcta la
+        // respuesta es genérica (no revela la existencia de la cuenta) y no
+        // se emite sesión.
+        $this->limpiarRateLimitLogin();
+        $resp = $this->post('/auth/login', [
+            'username' => self::ADMIN_USER,
+            'password' => self::ADMIN_PASS,
+        ]);
+        $this->assertSame(200, $resp['status']);
+        $this->assertStringContainsString('Usuario o contraseña incorrectos', $resp['body']);
+        $this->assertSame('', Server::sessionToken());
+        $this->assertAuthLogContains('login_blocked_account');
+    }
+
+    public function testLoginCorrectoDespuesDeBloqueoExpiradoDesbloqueaYCleaContadores(): void {
+        // Simular un bloqueo ya expirado (locked_until en el pasado) con
+        // contador de fallos pendiente de limpiar.
+        $st = $this->pdo()->prepare(
+            "UPDATE public.usuarios SET locked_until = CURRENT_TIMESTAMP - interval '1 minute', "
+            . 'login_failed_attempts = 3 WHERE username = ?'
+        );
+        $st->execute([self::ADMIN_USER]);
+
+        Server::resetCookies();
+        $this->get('/auth/login');
+        $this->limpiarRateLimitLogin();
+        $resp = $this->login();
+
+        $this->assertSame(302, $resp['status']);
+        $this->assertSame('/admin/dashboard', $resp['headers']['location'] ?? '');
+
+        // El login exitoso desbloqueó la cuenta y reinició el contador
+        $row = $this->pdo()->prepare(
+            'SELECT login_failed_attempts, locked_until FROM public.usuarios WHERE username = ?'
+        );
+        $row->execute([self::ADMIN_USER]);
+        $u = $row->fetch();
+        $this->assertSame(0, (int) $u['login_failed_attempts']);
+        $this->assertNull($u['locked_until']);
+    }
+
+    /**
+     * Borra los contadores de rate limit por IP del login (evita que el 429
+     * por IP interrumpa un test centrado en el lockout por cuenta).
+     */
+    private function limpiarRateLimitLogin(): void {
+        $rateDir = sys_get_temp_dir() . '/rv_rate_limit/login';
+        foreach (glob($rateDir . '/*.json') ?: [] as $f) {
+            @unlink($f);
+        }
+    }
+
     /**
      * Verifica que el evento quedó persistido en la tabla de auditoría de la
      * BD de prueba. El servidor hijo escribe en BD (fuente de verdad), no en

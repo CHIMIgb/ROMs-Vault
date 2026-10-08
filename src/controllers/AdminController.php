@@ -2,8 +2,12 @@
 require_once __DIR__ . '/../models/Juego.php';
 require_once __DIR__ . '/../models/Consola.php';
 require_once __DIR__ . '/../models/Categoria.php';
+require_once __DIR__ . '/../models/Usuario.php';
 require_once __DIR__ . '/../config/AuthMiddleware.php';
 require_once __DIR__ . '/../config/CsrfService.php';
+require_once __DIR__ . '/../config/TfaService.php';
+require_once __DIR__ . '/../config/LoggerService.php';
+require_once __DIR__ . '/../config/RateLimiter.php';
 
 class AdminController {
     // Máximo de capturas por juego (el carrusel ya replica la portada si no hay capturas)
@@ -346,6 +350,92 @@ class AdminController {
             'titulo'   => $juego['titulo'],
         ]);
         exit;
+    }
+
+    /**
+     * Gestión de la verificación en dos pasos (2FA TOTP) del admin actual.
+     *
+     * GET: muestra el estado actual; si hay un secreto pendiente de confirmar
+     * (generado con 'activar'), lo muestra para escanearlo en la app.
+     *
+     * POST (acciones, siempre protegidas por el CSRF global de index.php):
+     *   - activar     → genera/rota un secreto TOTP y lo deja pendiente
+     *   - confirmar   → verifica un código contra el secreto y activa el 2FA
+     *   - desactivar  → exige la contraseña actual y revoca el 2FA
+     */
+    public function tfa() {
+        $admin  = AuthMiddleware::requireAdmin();
+        $userId = (int) $admin['user_id'];
+        $usuarioModel = new Usuario();
+        $fila   = $usuarioModel->find($userId);
+        $ip     = RateLimiter::clientIp();
+
+        $msg     = null;
+        $msgTipo = 'success';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $accion = $_POST['accion'] ?? '';
+
+            if ($accion === 'activar') {
+                $secret = TfaService::generarSecret();
+                $usuarioModel->registrarSecretTfa($userId, $secret);
+                $msg     = 'Escanea el código QR (o añade la clave manualmente) y confirma con un código para activar.';
+                $msgTipo = 'info';
+            } elseif ($accion === 'confirmar') {
+                $secret = $usuarioModel->obtenerSecretTfa($userId);
+                $code   = trim((string) ($_POST['code'] ?? ''));
+
+                if ($secret === null) {
+                    $msg     = 'Primero genera un código de activación.';
+                    $msgTipo = 'danger';
+                } elseif (!TfaService::verificar($secret, $code)) {
+                    LoggerService::tfaFailed((string) ($fila['username'] ?? ''), $ip);
+                    $msg     = 'Código incorrecto. No se ha activado el 2FA.';
+                    $msgTipo = 'danger';
+                } else {
+                    $usuarioModel->habilitarTfa($userId);
+                    LoggerService::write('tfa_enabled', [
+                        'username' => $fila['username'] ?? '',
+                        'ip'       => $ip,
+                    ]);
+                    // Invalidar la sesión actual: debe volver a entrar con 2FA
+                    JWTService::clearTokenCookie();
+                    header('Location: /auth/login?tfa=activado');
+                    exit;
+                }
+            } elseif ($accion === 'desactivar') {
+                $password = (string) ($_POST['password'] ?? '');
+
+                if (!$usuarioModel->verifyPassword($password, $fila['password_hash'] ?? '')) {
+                    $msg     = 'Contraseña incorrecta. No se ha desactivado el 2FA.';
+                    $msgTipo = 'danger';
+                } else {
+                    $usuarioModel->deshabilitarTfa($userId);
+                    LoggerService::write('tfa_disabled', [
+                        'username' => $fila['username'] ?? '',
+                        'ip'       => $ip,
+                    ]);
+                    JWTService::clearTokenCookie();
+                    header('Location: /auth/login?tfa=desactivado');
+                    exit;
+                }
+            }
+        }
+
+        // Estado para la vista
+        $tfaActivo = !empty($fila['tfa_enabled']);
+        $secretPendiente = null;
+        $provisionUri    = null;
+        if (!$tfaActivo) {
+            $secretPendiente = $usuarioModel->obtenerSecretTfa($userId);
+            if ($secretPendiente !== null) {
+                $provisionUri = TfaService::provisionUri((string) $fila['username'], $secretPendiente);
+            }
+        }
+
+        require_once __DIR__ . '/../views/layout/header.php';
+        require_once __DIR__ . '/../views/admin/tfa.php';
+        require_once __DIR__ . '/../views/layout/footer.php';
     }
 
     /**

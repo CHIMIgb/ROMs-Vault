@@ -74,6 +74,9 @@
 <div class="admin-header">
     <h2>Panel de Administracion</h2>
     <div class="admin-header-actions">
+        <a href="/admin/tfa" class="btn-primary" title="Verificación en dos pasos">
+            <i data-i="shield-2"></i> Seguridad 2FA
+        </a>
         <a href="/consola/index" class="btn-primary">
             <i data-i="gamepad"></i> Consolas
         </a>

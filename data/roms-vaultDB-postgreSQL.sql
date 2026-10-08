@@ -95,6 +95,10 @@ CREATE TABLE IF NOT EXISTS public.usuarios (
     password_hash VARCHAR(255) NOT NULL,
     rol_id INTEGER REFERENCES public.roles(id) ON DELETE SET NULL,
     activo BOOLEAN DEFAULT TRUE,
+    login_failed_attempts INT NOT NULL DEFAULT 0,
+    locked_until TIMESTAMPTZ,
+    tfa_secret VARCHAR(64),
+    tfa_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     last_login TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -147,6 +151,8 @@ CREATE INDEX IF NOT EXISTS idx_descargas_cookie ON public.descargas(cookie_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_fecha ON public.descargas(downloaded_at);
 CREATE INDEX IF NOT EXISTS idx_usuarios_persona ON public.usuarios(persona_id);
 CREATE INDEX IF NOT EXISTS idx_usuarios_rol ON public.usuarios(rol_id);
+CREATE INDEX IF NOT EXISTS idx_usuarios_locked_until ON public.usuarios (locked_until)
+    WHERE locked_until IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON public.auditoria (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_auditoria_evento ON public.auditoria (evento);
 CREATE INDEX IF NOT EXISTS idx_auditoria_username ON public.auditoria (username);
