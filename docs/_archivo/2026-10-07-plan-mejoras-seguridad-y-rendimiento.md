@@ -177,3 +177,54 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 |-------|--------|--------|--------|
 | 2026-10-08 | 2.1 Logging y alertas de autenticación (A09) | Implementada | `a3be845` |
 | 2026-10-08 | 2.1 Ampliación: auditoría en BD (`public.auditoria`) + fallback archivo | Implementada | `fd7c2cf` |
+
+## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
+
+**Origen:** revisión del ítem 2.1 (auditoría) — 2026-10-08.
+
+### Contexto
+
+La IP se captura en `public.auditoria.ip` (y en `contexto.ip`). El cálculo está en
+`RateLimiter::clientIp()`:
+
+- Confía en `REMOTE_ADDR` (IP del peer TCP que Apache ve).
+- Solo lee `X-Forwarded-For` / `X-Real-IP` cuando `REMOTE_ADDR` es un proxy confiable
+  (`esIpProxyConfiable()`: rangos `127.0.0.0/8`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`,
+  `192.168.0.0/16`).
+
+En local (`php -S localhost:8000`) la IP registrada es `::1`/`127.0.0.1` — correcto (no hay proxy).
+
+### Supuesto a confirmar en el primer despliegue real (Vercel)
+
+El contenedor Apache corre **detrás del edge de Vercel** (`Dockerfile` + `vercel.json` con
+`"rewrites": []`). La cadena esperada es:
+
+```
+Cliente ──► Vercel Edge ──► Apache (contenedor)
+            X-Forwarded-For: <IP pública real del cliente>
+```
+
+Se asume que el `REMOTE_ADDR` que ve Apache será una IP de la red interna de Vercel
+(rango privado RFC1918), por lo que `esIpProxyConfiable()` devolverá `true` y
+`clientIp()` retornará la IP pública real del cliente.
+
+**Si el hosting entrega `REMOTE_ADDR` como IP pública** (no reconocida como proxy),
+`clientIp()` no leería `X-Forwarded-For` y auditaría la IP del edge en lugar de la del
+visitante. Eso no bloquea el login (solo degrada el dato de auditoría), pero hay que
+detectarlo en el primer deploy.
+
+### Acción planificada (mitigación)
+
+Reemplazar el heurístico `esIpProxyConfiable()` por una **allowlist explícita de proxies
+de confianza** vía `.env` (`TRUSTED_PROXIES`, host/redes de Vercel): más seguro y
+predecible (evita que un cliente que conecte desde una IP privada por error influya en la
+decisión, y blinda el endpoint ante falsos `X-Forwarded-For`). Complementa el ítem 3.2
+(allowlist de hosts del proxy / anti-SSRF) y se resolverá junto a él.
+
+### Check en producción (FASE 2 / CI-CD)
+
+1. Hacer un login de prueba real en el dominio desplegado.
+2. Consultar `SELECT ip, evento, created_at FROM public.auditoria ORDER BY id DESC LIMIT 5;`
+   en la BD de producción (Neon).
+3. Verificar que la `ip` es la IP pública real del cliente (no la del edge/proxy ni `::1`).
+4. Si aparece la IP del proxy → activar `TRUSTED_PROXIES` en `.env` y re-verificar.
