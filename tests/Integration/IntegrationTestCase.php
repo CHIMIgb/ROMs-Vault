@@ -54,7 +54,7 @@ abstract class IntegrationTestCase extends TestCase {
         $pdo->exec(
             'TRUNCATE TABLE public.descargas, public.usuarios, public.personas, '
             . 'public.emuladores, public.juegos, public.consolas, public.categorias, '
-            . 'public.roles RESTART IDENTITY CASCADE'
+            . 'public.roles, public.auditoria RESTART IDENTITY CASCADE'
         );
 
         $seedFile = dirname(__DIR__, 2) . '/data/test_seeds.sql';

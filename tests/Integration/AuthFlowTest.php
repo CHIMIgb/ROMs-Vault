@@ -105,19 +105,19 @@ class AuthFlowTest extends IntegrationTestCase {
     }
 
     /**
-     * Lee el log de autenticación del directorio de test y verifica que
-     * contenga un evento concreto (el servidor hijo escribe en rv_logs_test,
-     * el mismo AUTH_LOG_DIR que usa LoggerService en este proceso).
+     * Verifica que el evento quedó persistido en la tabla de auditoría de la
+     * BD de prueba. El servidor hijo escribe en BD (fuente de verdad), no en
+     * archivo; solo usa el archivo si la BD no está disponible.
      */
     private function assertAuthLogContains(string $event): void {
-        $file = \LoggerService::currentFile();
-        $this->assertNotNull($file, 'Debe poder resolverse el archivo de log');
-
-        $contents = is_file($file) ? (string) file_get_contents($file) : '';
-        $this->assertStringContainsString(
-            '"event":"' . $event . '"',
-            $contents,
-            "El log de autenticación debe contener el evento $event"
+        $row = $this->pdo()->prepare(
+            'SELECT COUNT(*) FROM public.auditoria WHERE evento = :evento'
+        );
+        $row->execute(['evento' => $event]);
+        $this->assertGreaterThan(
+            0,
+            (int) $row->fetchColumn(),
+            "La tabla auditoria debe contener el evento $event"
         );
     }
 }

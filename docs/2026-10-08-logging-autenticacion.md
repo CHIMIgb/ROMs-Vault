@@ -19,7 +19,15 @@ ningún logging en la aplicación).
 Servicio **`src/config/LoggerService.php`**, estático y sin framework, siguiendo
 el patrón de `RateLimiter`:
 
-- **Formato:** JSON Lines (una línea JSON por evento) → legible por
+- **Persistencia (fuente de verdad):** tabla `public.auditoria` en PostgreSQL.
+  Columnas estructuradas (`evento`, `nivel`, `username`, `user_id`, `rol_id`,
+  `ip`, `created_at`) + `contexto JSONB` para datos extra. Permite consultas y
+  paneles de auditoría (`Auditoria::recientes()`, `contarEventos()`,
+  `podarAntiguos()`).
+- **Fallback a archivo JSON Lines** si la BD no está disponible (fail-open real:
+  `Database::tryGetInstance()` devuelve `null` en vez de `die()`; `write()`
+  intenta BD primero y cae al archivo solo si falla).
+- **Formato fallback:** JSON Lines, una línea JSON por evento → legible por
   herramientas externas: `{"ts":"...","level":"...","event":"...","context":{...}}`.
 - **Rotación:** por día (`auth-YYYY-MM-DD.log`) y por tamaño (`LOG_MAX_BYTES`,
   default 10 MB) con `auth-YYYY-MM-DD-N.log`.
@@ -34,47 +42,65 @@ el patrón de `RateLimiter`:
 
 ### Garantías
 
-- **Fail-open:** si la escritura falla, se registra `false` y NUNCA se corta el
-  flujo del login/logout (el logging no es bloqueante).
-- **Higiene:** nunca se loguean contraseñas ni hashes; usernames con caracteres
-  de control se sanitizan (evita inyección de líneas falsas); IP inválida → vacío.
-- **Permisos:** directorio 0700, archivo 0600.
+- **Fail-open:** si la escritura falla (BD y archivo), se registra `false` y
+  NUNCA se corta el flujo del login/logout (el logging no es bloqueante).
+- **Higiene:** nunca se loguean contraseñas ni hashes; la capa de BD filtra
+  `password`, `password_hash` y `token` incluso si el llamante se descuida;
+  usernames con caracteres de control se sanitizan (evita inyección de líneas
+  falsas); IP inválida → vacío.
+- **Permisos:** directorio 0700, archivo 0600 (solo fallback).
 
 ## 3. Cambios realizados
 
 | Archivo | Cambio |
 |---------|--------|
-| `src/config/LoggerService.php` | **Nuevo** servicio de logging |
+| `src/config/LoggerService.php` | **Nuevo** servicio de logging: BD (vía `Auditoria`) + fallback a archivo |
+| `src/models/Auditoria.php` | **Nuevo** modelo de auditoría (INSERT/consultas/podado, fail-open) |
+| `src/config/database.php` | `tryGetInstance()` fail-open + caché solo de conexiones exitosas; `die()` queda en `getInstance()` |
+| `data/migrations/2026-10-08-auditoria.sql` | **Nuevo**: tabla `public.auditoria` + 4 índices (idempotente) |
+| `data/roms-vaultDB-postgreSQL.sql` | Tabla `auditoria` + índices integrados en el schema base |
 | `src/controllers/AuthController.php` | Loguea rate limit, login fallido, login exitoso y logout |
 | `.env.example` | Añade `AUTH_LOG_DIR` y `LOG_MAX_BYTES` |
 | `docker-entrypoint.sh` | Fija `AUTH_LOG_DIR=/var/log/roms-vault` (default), lo crea y otorga a `www-data` |
-| `tests/bootstrap.php` | Carga `LoggerService` y fija `AUTH_LOG_DIR` de test |
+| `tests/bootstrap.php` | Carga `LoggerService`; fija `AUTH_LOG_DIR`, DB_* inertes (protegen Neon) y `ROMV_TESTING` |
 | `tests/Integration/Server.php` | Pasa `AUTH_LOG_DIR` al servidor hijo |
 | `tests/Integration/bootstrap.php` | Limpia el log de test en cada ejecución |
-| `tests/Unit/LoggerServiceTest.php` | **Nuevo**: 11 tests unitarios |
-| `tests/Integration/AuthFlowTest.php` | Verifica `login_failed` y `login_success` en el log real |
+| `tests/Unit/LoggerServiceTest.php` | **Nuevo**: 11 tests unitarios (fallback a archivo) |
+| `tests/Integration/AuditoriaModelTest.php` | **Nuevo**: 7 tests de persistencia/consultas/podado en BD |
+| `tests/Integration/AuthFlowTest.php` | Verifica `login_failed` y `login_success` en la **tabla BD** |
+| `tests/Integration/IntegrationTestCase.php` | TRUNCATE incluye `public.auditoria` |
 
 ## 4. Verificación
 
 - `php -l`: 0 errores en los 7 archivos PHP tocados.
-- Suite Unit: 46/46 OK (11 nuevos de LoggerService).
-- Suite completa: 72/72 OK (testdox).
-- Evidencia real del log generado por los tests de integración
-  (`rv_logs_test/auth-2026-10-08.log`):
+- Suite Unit: 46/46 OK (11 de LoggerService; el fallback a archivo es el camino
+  que se prueba por la BD inerte de Unit).
+- Suite completa: **79/79 OK** (una vez añadidos los 7 tests de
+  `AuditoriaModelTest`) — testdox.
+- Evidencia real en la BD de prueba:
 
 ```
-{"ts":"...19:43:05+02:00","level":"warning","event":"login_failed","context":{"username":"admin","ip":"127.0.0.1"}}
-{"ts":"...19:43:05+02:00","level":"info","event":"login_success","context":{"user_id":1,"username":"admin","rol_id":1,"ip":"127.0.0.1"}}
-{"ts":"...19:43:07+02:00","level":"warning","event":"rate_limited","context":{"username":"admin","ip":"127.0.0.1"}}
+ id |    evento     |  nivel  | username | user_id | rol_id |     ip     | created_at
+----+---------------+---------+----------+---------+--------+------------+-------------------------------
+  3 | logout        | info    | admin    |       1 |      1 | 192.0.2.3  | 2026-10-08 12:54:35.809404-06
+  2 | login_failed  | warning | admin    |         |        | 192.0.2.2  | 2026-10-08 12:54:35.807953-06
+  1 | login_success | info    | admin    |       1 |      1 | 192.0.2.1  | 2026-10-08 12:54:35.783561-06
 ```
 
 ## 5. Pendiente / decisiones
 
+- **Retención/podado:** `Auditoria::podarAntiguos($dias)` existe, pero el
+  programado (cron/scheduler) se deja para FASE 2 (observabilidad); el índice
+  `idx_auditoria_created_at (DESC)` permite podado y orden eficientes.
 - **Alertas activas** (email/telegram) y consumo del log por un observador
   externo: se deja para la FASE 2 (observabilidad), cuando exista CI/CD que
   pueda entregar esas alertas.
 - Los cambios de rol/credenciales de administradores se loguearán con
   `LoggerService::write()` en cuanto exista esa funcionalidad (hoy no hay UI que
   lo permita).
-- En Vercel (contenedor efímero) los logs no persisten entre instancias; se
-  recomienda redirigir a stdout/obj. de logs en FASE 2.
+- En Vercel (contenedor efímero) los logs **de archivo** no persisten entre
+  instancias; la **tabla `auditoria` en Neon sí persiste** (motivo por el que se
+  eligió BD como fuente de verdad). El fallback a archivo queda solo para
+  supervivencia ante caída de BD.
+- `Database::getInstance()` mantiene el `die()`/503 histórico para los flujos
+  normales; solo `tryGetInstance()` es fail-open (usado por `Auditoria`).

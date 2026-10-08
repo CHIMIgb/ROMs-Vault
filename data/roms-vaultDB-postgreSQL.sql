@@ -114,6 +114,21 @@ CREATE TABLE IF NOT EXISTS public.descargas (
 );
 
 -- =====================================================
+-- Tabla: auditoria (registro de auditoría de autenticación, A09)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.auditoria (
+    id BIGSERIAL PRIMARY KEY,
+    evento VARCHAR(50) NOT NULL,
+    nivel VARCHAR(10) NOT NULL DEFAULT 'info',
+    username VARCHAR(64),
+    user_id INTEGER REFERENCES public.usuarios(id) ON DELETE SET NULL,
+    rol_id INTEGER,
+    ip VARCHAR(45),
+    contexto JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- =====================================================
 -- Índices
 -- =====================================================
 CREATE INDEX IF NOT EXISTS idx_juegos_consola ON public.juegos(consola_id);
@@ -132,6 +147,10 @@ CREATE INDEX IF NOT EXISTS idx_descargas_cookie ON public.descargas(cookie_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_fecha ON public.descargas(downloaded_at);
 CREATE INDEX IF NOT EXISTS idx_usuarios_persona ON public.usuarios(persona_id);
 CREATE INDEX IF NOT EXISTS idx_usuarios_rol ON public.usuarios(rol_id);
+CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON public.auditoria (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_auditoria_evento ON public.auditoria (evento);
+CREATE INDEX IF NOT EXISTS idx_auditoria_username ON public.auditoria (username);
+CREATE INDEX IF NOT EXISTS idx_auditoria_user_id ON public.auditoria (user_id);
 
 -- =====================================================
 -- Función y triggers para updated_at

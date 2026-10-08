@@ -45,22 +45,49 @@ class Database {
             $this->pdo->exec("SET NAMES 'UTF8'");
             
         } catch (PDOException $e) {
-            // Log del error para depuración
-            error_log("Error de conexión PostgreSQL: " . $e->getMessage());
+            // Log del error a nivel general (no expuesto al usuario). Se omite
+            // en el entorno de test (ROMV_TESTING) para no ensuciar PHPUnit.
+            if (!defined('ROMV_TESTING')) {
+                error_log("Error de conexión PostgreSQL: " . $e->getMessage());
+            }
 
-            // Mensaje genérico al usuario — nunca exponer detalles técnicos
-            http_response_code(503);
-            die("No se pudo conectar con la base de datos. Inténtalo de nuevo en unos minutos.");
+            // No se hace die() aquí: el comportamiento decide getInstance()
+            // (fail-hard, 503 genérico) o tryGetInstance() (fail-open, null).
+            $this->pdo = null;
         }
     }
 
     public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new Database();
+        $pdo = self::tryGetInstance();
+        if ($pdo === null) {
+            // Comportamiento histórico: mensaje genérico 503, nunca detalles técnicos
+            http_response_code(503);
+            die("No se pudo conectar con la base de datos. Inténtalo de nuevo en unos minutos.");
         }
-        return self::$instance->pdo;
+        return $pdo;
     }
-    
+
+    /**
+     * Devuelve el PDO o null si la BD no está disponible.
+     * Fail-open: pensado para flujos que NO deben morir si la BD falla
+     * (p. ej. el LoggerService, que cae al archivo como respaldo).
+     * A diferencia de getInstance(), nunca emite die()/503.
+     *
+     * Nota: solo se cachea una conexión EXITOSA. Si la primera conexión
+     * falla (p. ej. en la suite Unit) y más tarde las variables de entorno
+     * apuntan a una BD accesible (suite Integration), se reconecta.
+     */
+    public static function tryGetInstance() {
+        if (self::$instance !== null && self::$instance->pdo !== null) {
+            return self::$instance->pdo;
+        }
+        $db = new Database();
+        if ($db->pdo !== null) {
+            self::$instance = $db;
+        }
+        return $db->pdo;
+    }
+
     // Método para probar la conexión (útil para depuración)
     public static function testConnection() {
         try {

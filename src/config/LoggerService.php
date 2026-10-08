@@ -1,25 +1,31 @@
 <?php
 /**
  * config/LoggerService.php
- * Logging estructurado de seguridad/autenticación en archivo (JSON Lines).
+ * Logging estructurado de seguridad/autenticación (DB + fallback a archivo).
  *
- * Registra eventos de auditoría (login fallido, login exitoso, rate limit,
- * logout) en un archivo rotado por día y por tamaño, legible por herramientas
- * externas de monitoreo. Sigue el patrón estático de RateLimiter: sin
- * framework, configurable vía variables de entorno.
+ * Persiste eventos de auditoría (login fallido, login exitoso, rate limit,
+ * logout) en la tabla public.auditoria (PostgreSQL) como fuente de verdad.
+ * Si la BD no está disponible, cae a un archivo JSON Lines rotado por día y
+ * por tamaño, legible por herramientas externas de monitoreo. Sigue el
+ * patrón estático de RateLimiter: sin framework, configurable vía variables
+ * de entorno.
  *
  * Configuración (`.env`):
- *   AUTH_LOG_DIR  — ruta absoluta del directorio de logs
- *                   (vacío/ausente = sys_get_temp_dir()/rv_logs).
+ *   AUTH_LOG_DIR  — ruta absoluta del directorio de logs del fallback a
+ *                   archivo (vacío/ausente = sys_get_temp_dir()/rv_logs).
  *   LOG_MAX_BYTES — tamaño máximo por archivo antes de rotar (default 10 MB).
  *
  * Garantías de seguridad:
- *   - Fail-open: si no se puede escribir, devuelve false pero NUNCA rompe el
- *     flujo (login, logout, etc.) ni lanza excepciones al llamante.
+ *   - Fail-open: si no se puede escribir (ni BD ni archivo), devuelve false
+ *     pero NUNCA rompe el flujo (login, logout, etc.) ni lanza excepciones
+ *     al llamante.
  *   - Nunca se registran contraseñas ni datos sensibles.
- *   - Permisos: directorio 0700, archivo 0600.
+ *   - Permisos (solo fallback archivo): directorio 0700, archivo 0600.
  *   - Los valores de contexto (usuario, IP) se sanitizan.
+ *   - La DB es el destino principal; el archivo solo cubre la caída de BD.
  */
+
+require_once __DIR__ . '/../models/Auditoria.php';
 
 class LoggerService {
 
@@ -76,17 +82,52 @@ class LoggerService {
     }
 
     /**
-     * Escribe una línea JSON en el archivo de logs del día.
+     * Persiste un evento de auditoría.
      *
-     * Formato por línea:
+     * Estrategia espejo de la tabla public.auditoria:
+     *   1. DB como fuente de verdad (estructura: evento, nivel, username,
+     *      user_id, rol_id, ip, contexto JSONB).
+     *   2. Fallback a archivo JSON Lines si la BD no está disponible o el
+     *      INSERT falla (fail-open; el archivo usa el contexto original).
+     *
+     * Formato por línea del fallback a archivo:
      *   {"ts":"2026-10-08T12:00:00+00:00","level":"info","event":"...","context":{...}}
      *
      * @param string $event   Nombre del evento (kebab_case)
      * @param array  $context Datos estructurados del evento (ya sanitizados)
      * @param string $level   Nivel de severidad: info, warning, error, critical
-     * @return bool true si se escribió; false si no se pudo (fail-open)
+     * @return bool true si se persistió (DB o archivo); false si nada se pudo
      */
     public static function write(string $event, array $context = [], string $level = 'info'): bool {
+        // 1) DB como fuente de verdad.
+        try {
+            $auditoria = new Auditoria();
+            $ok = $auditoria->registrar([
+                'evento'   => $event,
+                'nivel'    => $level,
+                'username' => $context['username'] ?? null,
+                'user_id'  => $context['user_id'] ?? null,
+                'rol_id'   => $context['rol_id'] ?? null,
+                'ip'       => $context['ip'] ?? null,
+                'contexto' => $context,
+            ]);
+            if ($ok) {
+                return true;
+            }
+        } catch (\Throwable $e) {
+            // Fail-open: caer al archivo si la BD falla de forma inesperada.
+            error_log('LoggerService: BD de auditoría no disponible, fallback a archivo: ' . $e->getMessage());
+        }
+
+        // 2) Fallback: archivo JSON Lines.
+        return self::writeFile($event, $context, $level);
+    }
+
+    /**
+     * Escribe una línea JSON en el archivo de logs del día (solo fallback).
+     * Ver write() para la estrategia de persistencia.
+     */
+    private static function writeFile(string $event, array $context = [], string $level = 'info'): bool {
         $file = self::currentFile();
         if ($file === null) {
             return false;
