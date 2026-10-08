@@ -32,9 +32,10 @@ firma HMAC de enlaces); este plan cubre las brechas restantes con prioridad en:
       login, éxitos, cambios de rol/credenciales de administradores. Hoy no hay logging:
       no se detectaría un ataque de fuerza bruta. *Esfuerzo: medio.*
       → Implementado en `docs/2026-10-08-logging-autenticacion.md`.
-- [ ] **2.2 Lockout por usuario + 2FA opcional (A07)** — hoy el rate limit es solo por IP
+- [x] **2.2 Lockout por usuario + 2FA opcional (A07)** — hoy el rate limit es solo por IP
       (`AuthController.php:13`). Añadir bloqueo temporal por cuenta tras N fallos y,
       como fase opcional, TOTP (2FA) para el rol administrador. *Esfuerzo: medio-alto.*
+      → Implementado en `docs/2026-10-08-lockout-y-2fa.md`.
 - [ ] **2.3 Revisión IDOR / objeto directo (A01)** — auditar todos los `action` y endpoints
       que reciben `id` de la URL: comprobar que ninguna acción sirva datos o ejecute
       cambios validando solo el `id` sin verificar sesión y rol (`AuthMiddleware::requireAdmin()`).
@@ -177,6 +178,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 |-------|--------|--------|--------|
 | 2026-10-08 | 2.1 Logging y alertas de autenticación (A09) | Implementada | `a3be845` |
 | 2026-10-08 | 2.1 Ampliación: auditoría en BD (`public.auditoria`) + fallback archivo | Implementada | `fd7c2cf` |
+| 2026-10-08 | 2.2 Lockout por usuario + 2FA TOTP opcional (A07) | Implementada | `4aab50f` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
