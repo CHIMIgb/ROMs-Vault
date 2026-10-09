@@ -12,6 +12,9 @@ RUN sed -ri -e 's!AllowOverride None!AllowOverride All!g' \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Configuración de producción: display_errors Off + E_ALL a logs (ítem 2.4)
+COPY docker/php-production.ini /usr/local/etc/php/conf.d/zz-production.ini
+
 WORKDIR /var/www/html
 COPY . .
 
