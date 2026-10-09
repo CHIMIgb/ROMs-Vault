@@ -26,7 +26,7 @@ class JWTServiceTest extends TestCase {
         $_ENV['JWT_SECRET'] = self::SECRET;
         $_ENV['JWT_EXPIRATION'] = '3600';
         $_ENV['JWT_REFRESH_THRESHOLD'] = '600';
-        unset($_COOKIE['rv_token']);
+        unset($_COOKIE['__Host-rv_token']);
     }
 
     public function testGenerateProducesDecodableToken(): void {
@@ -65,7 +65,7 @@ class JWTServiceTest extends TestCase {
 
     public function testGetCurrentUserFromCookie(): void {
         $token = JWTService::generate(self::USER);
-        $_COOKIE['rv_token'] = $token;
+        $_COOKIE['__Host-rv_token'] = $token;
 
         $user = JWTService::getCurrentUser();
 
@@ -89,6 +89,6 @@ class JWTServiceTest extends TestCase {
         // Debe ejecutarse sin lanzar y sin renovar (no hay cookie seteada)
         JWTService::refreshIfNeeded($freshPayload);
 
-        $this->assertArrayNotHasKey('rv_token', $_COOKIE);
+        $this->assertArrayNotHasKey('__Host-rv_token', $_COOKIE);
     }
 }

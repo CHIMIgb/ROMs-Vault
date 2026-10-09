@@ -19,8 +19,13 @@ use Firebase\JWT\ExpiredException;
 
 class JWTService {
 
-    /** Nombre de la cookie donde se almacena el JWT */
-    private const COOKIE_NAME = 'rv_token';
+    /**
+     * Nombre de la cookie donde se almacena el JWT.
+     * Prefijo `__Host-` (RFC 6265bis): exige `Secure` siempre + `Path=/` y
+     * blinda contra fijación e inyección de cookies desde subdominios.
+     * Cambiar este nombre invalida las sesiones emitidas con el anterior.
+     */
+    private const COOKIE_NAME = '__Host-rv_token';
 
     /**
      * Obtiene la clave secreta desde las variables de entorno.
@@ -133,16 +138,20 @@ class JWTService {
     /**
      * Establece la cookie httpOnly con el token JWT.
      *
+     * `Secure` va SIEMPRE activo: lo exige el prefijo `__Host-` y no depende de
+     * la detección de $_SERVER['HTTPS'] (poco fiable tras el edge de Vercel).
+     * En desarrollo local es compatible con http://localhost (chrome/firefox
+     * tratan localhost como secure context); NO funcionará sobre http://IP.
+     *
      * @param string $token Token JWT generado
      */
     public static function setTokenCookie(string $token): void {
         $expiration = time() + self::getExpiration();
-        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 
         setcookie(self::COOKIE_NAME, $token, [
             'expires'  => $expiration,
             'path'     => '/',
-            'secure'   => $secure,
+            'secure'   => true,
             'httponly'  => true,
             'samesite' => 'Strict',
         ]);
@@ -155,7 +164,7 @@ class JWTService {
         setcookie(self::COOKIE_NAME, '', [
             'expires'  => time() - 3600,
             'path'     => '/',
-            'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+            'secure'   => true,
             'httponly'  => true,
             'samesite' => 'Strict',
         ]);

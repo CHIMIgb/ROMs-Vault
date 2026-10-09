@@ -154,9 +154,9 @@ class Server {
         return self::$cookies['rv_csrf'] ?? '';
     }
 
-    /** Cookie de sesión JWT capturada (rv_token). */
+    /** Cookie de sesión JWT capturada (__Host-rv_token). */
     public static function sessionToken(): string {
-        return self::$cookies['rv_token'] ?? '';
+        return self::$cookies['__Host-rv_token'] ?? '';
     }
 
     public static function get(string $path, array $headers = []): array {
