@@ -137,7 +137,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 
 ## 6. i18n — aplicación multidioma
 
-- [ ] **6.1 Cargador de diccionarios** — `src/i18n/es.php`, `en.php` + función global
+- [x] **6.1 Cargador de diccionarios** — `src/i18n/es.php`, `en.php` + función global
       `t('clave', params)` con placeholders (roadmap #219). *Esfuerzo: medio.*
 - [ ] **6.2 Detección de idioma** — cookie + `Accept-Language`; atributo `lang` en HTML.
       (Decisión: cookie, no subdirectorio `/en/`, para no duplicar URLs; `hreflang` si algún
@@ -215,6 +215,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | §9 Fix publicación: `findByFileId()` filtra `activo` | Implementada | `0824ef5` |
 | 2026-10-08 | 5.1-5.9 Suite `Security` (tests de integración de seguridad) + fix `find()`/`findWithDetails()` id no numérico (H1) y aislamiento de `JWT_SECRET` en Unit (H2) | Implementada | `1674ede` |
 | 2026-10-08 | Fix login: TypeError `estaBloqueado()` con usuario inexistente (`findByUsername(): ?array`) + test de regresión | Implementada | `94013b5` |
+| 2026-10-09 | 6.1 Cargador de diccionarios i18n (JSON es/en + clase `I18n` + función global `t()`) | Implementada | `2242c42` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
