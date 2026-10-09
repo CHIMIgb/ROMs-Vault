@@ -54,37 +54,6 @@ class Juego extends Model {
         return $stmt->execute([$id]);
     }
 
-    public function getWithRelations($filters = []) {
-        $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
-                FROM juegos j
-                LEFT JOIN consolas c ON j.consola_id = c.id
-                LEFT JOIN categorias cat ON j.categoria_id = cat.id
-                WHERE j.activo = true";
-
-        $params = [];
-
-        if (!empty($filters['consola'])) {
-            $sql .= " AND j.consola_id = :consola";
-            $params['consola'] = $filters['consola'];
-        }
-        if (!empty($filters['categoria'])) {
-            $sql .= " AND j.categoria_id = :categoria";
-            $params['categoria'] = $filters['categoria'];
-        }
-        if (!empty($filters['region'])) {
-            $sql .= " AND j.region = :region";
-            $params['region'] = $filters['region'];
-        }
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll();
-    }
-
-    public function getDownloadLink($fileId) {
-        return "https://drive.google.com/uc?export=download&id={$fileId}&confirm=t";
-    }
-
     // Todos los juegos (activos e inactivos) paginados para el dashboard
     public function getAllPaginated($offset = 0, $limit = 20, $busqueda = null) {
         $sql = "SELECT j.*, c.nombre as consola_nombre, cat.nombre as categoria_nombre 
