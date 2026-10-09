@@ -139,7 +139,10 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 
 - [x] **6.1 Cargador de diccionarios** — `src/i18n/es.php`, `en.php` + función global
       `t('clave', params)` con placeholders (roadmap #219). *Esfuerzo: medio.*
-- [ ] **6.2 Detección de idioma** — cookie + `Accept-Language`; atributo `lang` en HTML.
+- [x] **6.2 Detección de idioma** — cookie `rv_lang` + `Accept-Language`; atributo `lang`
+      en HTML; selector `?lang=es|en` con 302 sin duplicar URLs. Diccionarios es/en
+      COMPLETOS (~568 claves: todas las cadenas hardcodeadas de vistas, controladores,
+      endpoints, config y JS) listos para el 6.3.
       (Decisión: cookie, no subdirectorio `/en/`, para no duplicar URLs; `hreflang` si algún
       día se quiere SEO multidioma.) *Esfuerzo: medio.*
 - [ ] **6.3 Migrar UI por secciones** — header/home/show/play primero; admin y errors
@@ -216,6 +219,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 5.1-5.9 Suite `Security` (tests de integración de seguridad) + fix `find()`/`findWithDetails()` id no numérico (H1) y aislamiento de `JWT_SECRET` en Unit (H2) | Implementada | `1674ede` |
 | 2026-10-08 | Fix login: TypeError `estaBloqueado()` con usuario inexistente (`findByUsername(): ?array`) + test de regresión | Implementada | `94013b5` |
 | 2026-10-09 | 6.1 Cargador de diccionarios i18n (JSON es/en + clase `I18n` + función global `t()`) | Implementada | `2242c42` |
+| 2026-10-09 | 6.2 Detección de idioma (cookie `rv_lang` + `Accept-Language` + `?lang=` + `lang` dinámico) y diccionarios es/en completos (~568 claves, todas las cadenas hardcodeadas) | Implementada | `a3e120f` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
