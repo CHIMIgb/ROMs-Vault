@@ -81,12 +81,16 @@ Regla de negocio: **ningún listado de la UI debe traer todos los registros**; l
 `fetchAll()` sin `LIMIT` permitidos son dropdowns pequeños (consolas/categorías/emuladores
 activos) y los exports de administrador.
 
-- [ ] **4.1 Auditoría de `fetchAll()`/queries sin `LIMIT`** (`src/models/*.php`) — clasificar
+- [x] **4.1 Auditoría de `fetchAll()`/queries sin `LIMIT`** (`src/models/*.php`) — clasificar
       cada uno en *legítimo* (≤ decenas de filas) o *a paginar*. Pendientes claro: catálogo
       y dashboard ya pagan (LIMIT/OFFSET + COUNT). *Esfuerzo: bajo.*
-- [ ] **4.2 Eliminar dead code de `Juego`** — `Juego::getWithRelations()` (sin `LIMIT`, sin
+      → Auditoría completa en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md`: todo lo que
+      queda está limitado o es agregación; los únicos `fetchAll()` sin `LIMIT` son legítimos
+      (dropdowns y exports). Sin cambios de código pendientes hasta 4.4 (keyset).
+- [x] **4.2 Eliminar dead code de `Juego`** — `Juego::getWithRelations()` (sin `LIMIT`, sin
       usos en `src/`) y `Juego::getDownloadLink()` (construye URL directa de Google Drive
       **sin firma HMAC**, sin usos — anti-patrón si alguien lo reutiliza). *Esfuerzo: bajo.*
+      → Eliminados en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md` (0 usos residuales).
 - [ ] **4.3 Paginar listados admin restantes** — verificar `Consola::all()` (LIMIT ✓),
       `Categoria::all()` (LIMIT ✓) y cualquier lista de juegos de dashboard/búsqueda;
       aplicar LIMIT/OFFSET + COUNT cuando corresponda. *Esfuerzo: medio.*
@@ -190,6 +194,8 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 3.2 Allowlist de hosts del proxy (SSRF / A10) | Implementada | `f96af9b` |
 | 2026-10-08 | 3.3 Validación de Origin/Referer en el proxy (anti-hotlink) | Implementada | `d07c2d5` |
 | 2026-10-08 | 3.4 Revocación de firmas vía rotación de `JWT_SECRET` (doc) | Implementada | `103fc13` |
+| 2026-10-08 | 4.1 Auditoría de `fetchAll()`/queries sin `LIMIT` (doc + verificación) | Implementada | `5af78ea` |
+| 2026-10-08 | 4.2 Dead code de `Juego` (`getWithRelations` + `getDownloadLink`) | Implementada | `5af78ea` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
