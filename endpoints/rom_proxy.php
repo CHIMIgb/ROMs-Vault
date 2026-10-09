@@ -76,6 +76,7 @@ define('GDRIVE_BASE',  'https://drive.google.com/uc?export=download&confirm=t&id
 
 require_once __DIR__ . '/../src/config/database.php';
 require_once __DIR__ . '/../src/config/RateLimiter.php';
+require_once __DIR__ . '/../src/config/UrlSigner.php';
 require_once __DIR__ . '/../src/models/Model.php';
 require_once __DIR__ . '/../src/models/Juego.php';
 
@@ -110,8 +111,9 @@ if (!hash_equals($expectedSig, $signature)) {
     exit;
 }
 
-// Verificar que el enlace no haya expirado (2 horas = 7200 segundos)
-define('SIGNED_URL_TTL', 7200);
+// Verificar que el enlace no haya expirado (SIGNED_URL_TTL, defecto 900 s / 15 min).
+// El TTL se resuelve desde UrlSigner::ttl() (única fuente del valor en el proyecto).
+define('SIGNED_URL_TTL', UrlSigner::ttl());
 if ((time() - $timestamp) > SIGNED_URL_TTL) {
     http_response_code(410);
     header('Content-Type: application/json');
