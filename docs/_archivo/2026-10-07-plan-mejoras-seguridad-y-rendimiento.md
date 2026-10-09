@@ -36,21 +36,29 @@ firma HMAC de enlaces); este plan cubre las brechas restantes con prioridad en:
       (`AuthController.php:13`). Añadir bloqueo temporal por cuenta tras N fallos y,
       como fase opcional, TOTP (2FA) para el rol administrador. *Esfuerzo: medio-alto.*
       → Implementado en `docs/2026-10-08-lockout-y-2fa.md`.
-- [ ] **2.3 Revisión IDOR / objeto directo (A01)** — auditar todos los `action` y endpoints
+- [x] **2.3 Revisión IDOR / objeto directo (A01)** — auditar todos los `action` y endpoints
       que reciben `id` de la URL: comprobar que ninguna acción sirva datos o ejecute
       cambios validando solo el `id` sin verificar sesión y rol (`AuthMiddleware::requireAdmin()`).
       *Esfuerzo: bajo (auditoría).*
-- [ ] **2.4 No mostrar errores en producción (A05)** — `docker-entrypoint.sh` no configura
+      → Auditoría en `docs/2026-10-08-auditoria-idor.md`: SIN IDOR en el panel (todos los
+      mutadores con rol + CSRF). Hallazgo menor de publicación: `findByFileId()` no filtra
+      `activo` → pasa a plan §9.
+- [x] **2.4 No mostrar errores en producción (A05)** — `docker-entrypoint.sh` no configura
       `display_errors` ni `error_reporting`. Forzar `display_errors=Off`,
       `error_reporting=E_ALL` (para logs) en la imagen Docker/YAML de Vercel
       (`php_value display_errors Off` en `.htaccess` aplicable). *Esfuerzo: bajo.*
-- [ ] **2.5 Endurecer cookie JWT (`__Host-`)** — `JWTService::setTokenCookie()`
+      → Implementado en `docs/2026-10-08-display-errors-produccion.md` (`conf.d` en la
+      imagen, SAPI-independiente). Build pendiente de validar con Docker Desktop.
+- [x] **2.5 Endurecer cookie JWT (`__Host-`)** — `JWTService::setTokenCookie()`
       (`src/config/JWTService.php:139`) ya usa `httpOnly`, `SameSite=Strict` y
       `Secure` condicional. Migrar al prefijo `__Host-` (exige `Secure` siempre + `Path=/`,
       ya `/`) para blindar contra fijación e inyección de cookies en subdominios. *Esfuerzo: bajo.*
-- [ ] **2.6 Revisar credenciales por defecto** — confirmar que `admin/admin123` solo existe
+      → Implementado en `docs/2026-10-08-cookie-host-segura.md` (`__Host-rv_token`;
+      `Secure` siempre; logout forzado único; dev solo `localhost`).
+- [x] **2.6 Revisar credenciales por defecto** — confirmar que `admin/admin123` solo existe
       en `data/test_seeds.sql` (BD local de tests) y que producción usa credenciales
       rotadas y generadas en `.env`. *Esfuerzo: bajo (verificación).*
+      → Verificado y CUMPLE en `docs/2026-10-08-credenciales-por-defecto.md`.
 
 ## 3. Seguridad — enlaces a juegos (proxy)
 
@@ -200,6 +208,10 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 4.1 Auditoría de `fetchAll()`/queries sin `LIMIT` (doc + verificación) | Implementada | `5af78ea` |
 | 2026-10-08 | 4.2 Dead code de `Juego` (`getWithRelations` + `getDownloadLink`) | Implementada | `5af78ea` |
 | 2026-10-08 | 4.3 Verificación paginación listados admin + dead code `getAllWithConsolas` | Implementada | `a982ac0` |
+| 2026-10-08 | 2.3 Auditoría IDOR / objeto directo (A01) | Implementada | `5e50f12` |
+| 2026-10-08 | 2.4 `display_errors=Off` en producción (A05) | Implementada | `d0ffbc2` |
+| 2026-10-08 | 2.5 Cookie JWT `__Host-` | Implementada | `5e50f12` |
+| 2026-10-08 | 2.6 Credenciales por defecto (verificación) | Implementada | `5e50f12` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
