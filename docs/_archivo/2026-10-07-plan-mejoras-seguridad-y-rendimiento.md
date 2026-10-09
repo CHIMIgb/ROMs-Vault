@@ -189,7 +189,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 3.1 TTL de firma 7200 → 900 s configurable (A02) | Implementada | `fc11260` |
 | 2026-10-08 | 3.2 Allowlist de hosts del proxy (SSRF / A10) | Implementada | `f96af9b` |
 | 2026-10-08 | 3.3 Validación de Origin/Referer en el proxy (anti-hotlink) | Implementada | `d07c2d5` |
-| 2026-10-08 | 3.4 Revocación de firmas vía rotación de `JWT_SECRET` (doc) | Implementada | *(hash en commit de cierre)* |
+| 2026-10-08 | 3.4 Revocación de firmas vía rotación de `JWT_SECRET` (doc) | Implementada | `103fc13` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
