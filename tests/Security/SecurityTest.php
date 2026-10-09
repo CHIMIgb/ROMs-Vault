@@ -155,6 +155,23 @@ class SecurityTest extends IntegrationTestCase {
         $this->assertArrayNotHasKey('location', $resp['headers']);
     }
 
+    public function testLoginUsuarioInexistenteDevuelveErrorGenerico200(): void {
+        Server::resetCookies();
+        $this->get('/auth/login'); // captura cookie rv_csrf
+        $resp = $this->post('/auth/login', [
+            'username' => 'usuario-que-no-existe-en-la-bd',
+            'password' => 'cualquier-cosa',
+        ]);
+        // Regresión del TypeError: findByUsername() devolvía false y
+        // estaBloqueado(?array) explotaba. Ahora debe responder 200 con el
+        // error genérico, igual que una contraseña incorrecta.
+        $this->assertSame(200, $resp['status']);
+        $this->assertStringContainsString('Usuario o contraseña incorrectos', $resp['body']);
+        $this->assertStringNotContainsString('TypeError', $resp['body']);
+        $this->assertStringNotContainsString('Fatal error', $resp['body']);
+        $this->assertArrayNotHasKey('location', $resp['headers']);
+    }
+
     // ── 5.8 Cabeceras de seguridad ──────────────────────────────────────────
     public function testCabecerasDeSeguridadPresentesEnHome(): void {
         Server::resetCookies();

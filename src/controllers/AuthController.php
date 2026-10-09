@@ -22,7 +22,9 @@ class AuthController {
             }
 
             $usuarioModel = new Usuario();
-            $user = $usuarioModel->findByUsername($username);
+            // Blindaje: findByUsername() devuelve ?array; si es false/null,
+            // estaBloqueado(?array) no debe recibir false (TypeError).
+            $user = $usuarioModel->findByUsername($username) ?: null;
 
             // Lockout por cuenta (2.2): si la cuenta está temporalmente
             // bloqueada, rechazo genérico (no revela que la cuenta existe).

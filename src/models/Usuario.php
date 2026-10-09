@@ -4,10 +4,16 @@ require_once __DIR__ . '/Model.php';
 class Usuario extends Model {
     protected $table = 'usuarios';
 
-    public function findByUsername($username) {
+    /**
+     * Busca un usuario por nombre.
+     *
+     * @return array|null Fila del usuario o null si no existe (nunca false:
+     *                    contrato honesto para estaBloqueado() y callers).
+     */
+    public function findByUsername($username): ?array {
         $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE username = ?");
         $stmt->execute([$username]);
-        return $stmt->fetch();
+        return $stmt->fetch() ?: null;
     }
 
     public function verifyPassword($password, $hash) {
