@@ -47,6 +47,22 @@ tests (verificado con grep global):
 - `grep -rn 'getWithRelations(\|getDownloadLink(' src/ endpoints/ public/js` → **0 usos**.
 - Suite completa: **121 tests / 316 assertions OK** (sin regresiones).
 
+## 4.3 — Verificación de paginación en listados admin (verificado, 1 dead code extra)
+
+Verificado tras la auditoría 4.1 (2026-10-08):
+
+| Listado admin | Estado |
+|---|---|
+| Juegos del dashboard + búsqueda | ✅ ya pagina (`getAllPaginatedFiltered` + `countAllFiltered`) |
+| Consolas con emuladores (panel admin) | ✅ ya pagina (`getConsolasPaginated` + `countConsolas`, usado por `EmuladorController::index` y `ajax_emulador.php`) |
+| Emuladores por consola (`getByConsolaIds`) | ✅ acotado al set de la página (≤ decenas) |
+| Dropdowns: `Consola::all()`, `Categoria::all()`, `getConsolasSinEmulador()`, `getByConsola()` | ✅ legítimos (dropdowns pequeños) |
+
+**Hallazgo y limpieza:** `Emulador::getAllWithConsolas()` — `SELECT` sin `LIMIT` que repetía la
+vista del panel admin sin paginar; **sin usos** en `src/`, `endpoints/`, `public/js`, vistas ni
+tests (grep global). Eliminado (mismo patrón que 4.2). El listado admin real usa la versión
+paginada, así que el cambio es transparente.
+
 ## Commits
 
 - `refactor(modelos):` eliminar dead code de Juego (getWithRelations + getDownloadLink) — 4.2.

@@ -91,9 +91,12 @@ activos) y los exports de administrador.
       usos en `src/`) y `Juego::getDownloadLink()` (construye URL directa de Google Drive
       **sin firma HMAC**, sin usos — anti-patrón si alguien lo reutiliza). *Esfuerzo: bajo.*
       → Eliminados en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md` (0 usos residuales).
-- [ ] **4.3 Paginar listados admin restantes** — verificar `Consola::all()` (LIMIT ✓),
+- [x] **4.3 Paginar listados admin restantes** — verificar `Consola::all()` (LIMIT ✓),
       `Categoria::all()` (LIMIT ✓) y cualquier lista de juegos de dashboard/búsqueda;
       aplicar LIMIT/OFFSET + COUNT cuando corresponda. *Esfuerzo: medio.*
+      → Verificado en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md` (dashboard y panel
+      de emuladores ya pagan; dropdowns legítimos). Dead code extra hallado y eliminado:
+      `Emulador::getAllWithConsolas()`.
 - [ ] **4.4 Keyset pagination (fase futura)** — para un catálogo grande, sustituir
       OFFSET por keyset (`WHERE j.id < :cursor ORDER BY id DESC LIMIT n`) e índices
       cubrientes. *Esfuerzo: medio-alto.*
@@ -196,6 +199,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 3.4 Revocación de firmas vía rotación de `JWT_SECRET` (doc) | Implementada | `103fc13` |
 | 2026-10-08 | 4.1 Auditoría de `fetchAll()`/queries sin `LIMIT` (doc + verificación) | Implementada | `5af78ea` |
 | 2026-10-08 | 4.2 Dead code de `Juego` (`getWithRelations` + `getDownloadLink`) | Implementada | `5af78ea` |
+| 2026-10-08 | 4.3 Verificación paginación listados admin + dead code `getAllWithConsolas` | Implementada | `a982ac0` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
