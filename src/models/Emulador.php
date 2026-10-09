@@ -16,19 +16,6 @@ class Emulador extends Model {
     }
 
     /**
-     * Todos los emuladores con el nombre de su consola (para el panel admin).
-     */
-    public function getAllWithConsolas(): array {
-        $stmt = $this->pdo->query(
-            "SELECT e.*, c.nombre AS consola_nombre
-             FROM {$this->table} e
-             INNER JOIN consolas c ON c.id = e.consola_id
-             ORDER BY c.nombre ASC, e.es_alterno ASC"
-        );
-        return $stmt->fetchAll();
-    }
-
-    /**
      * Consolas que tienen emuladores, filtradas y paginadas (1 fila por consola).
      * `activo` de la fila = 1 si al menos un emulador de la consola está activo.
      */
