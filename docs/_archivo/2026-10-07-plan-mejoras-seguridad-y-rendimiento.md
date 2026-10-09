@@ -54,9 +54,10 @@ firma HMAC de enlaces); este plan cubre las brechas restantes con prioridad en:
 
 ## 3. Seguridad — enlaces a juegos (proxy)
 
-- [ ] **3.1 Acortar TTL de firma** — `SIGNED_URL_TTL=7200` (`endpoints/rom_proxy.php:114`)
+- [x] **3.1 Acortar TTL de firma** — `SIGNED_URL_TTL=7200` (`endpoints/rom_proxy.php:114`)
       → 900 s configurable (mantener `SIGNED_URL_TTL` en `.env.example`). Reduce la ventana
       de replay de enlaces firmados. *Esfuerzo: bajo.*
+      → Implementado en `docs/2026-10-08-ttl-enlaces-firmados.md`.
 - [ ] **3.2 Allowlist de hosts ante redirects (SSRF / A10)** — `GDRIVE_BASE` apunta a
       `drive.google.com` y el proxy rebota sobre el host actual sin allowlist
       (`rom_proxy.php:273-274`). Añadir validación explícita de `host` contra
@@ -179,6 +180,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 2.1 Logging y alertas de autenticación (A09) | Implementada | `a3be845` |
 | 2026-10-08 | 2.1 Ampliación: auditoría en BD (`public.auditoria`) + fallback archivo | Implementada | `fd7c2cf` |
 | 2026-10-08 | 2.2 Lockout por usuario + 2FA TOTP opcional (A07) | Implementada | `4aab50f` |
+| 2026-10-08 | 3.1 TTL de firma 7200 → 900 s configurable (A02) | Implementada | `fc11260` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
