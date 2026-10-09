@@ -208,10 +208,10 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 4.1 Auditoría de `fetchAll()`/queries sin `LIMIT` (doc + verificación) | Implementada | `5af78ea` |
 | 2026-10-08 | 4.2 Dead code de `Juego` (`getWithRelations` + `getDownloadLink`) | Implementada | `5af78ea` |
 | 2026-10-08 | 4.3 Verificación paginación listados admin + dead code `getAllWithConsolas` | Implementada | `a982ac0` |
-| 2026-10-08 | 2.3 Auditoría IDOR / objeto directo (A01) | Implementada | `5e50f12` |
+| 2026-10-08 | 2.3 Auditoría IDOR / objeto directo (A01) | Implementada | `2d523fd` |
 | 2026-10-08 | 2.4 `display_errors=Off` en producción (A05) | Implementada | `d0ffbc2` |
 | 2026-10-08 | 2.5 Cookie JWT `__Host-` | Implementada | `5e50f12` |
-| 2026-10-08 | 2.6 Credenciales por defecto (verificación) | Implementada | `5e50f12` |
+| 2026-10-08 | 2.6 Credenciales por defecto (verificación) | Implementada | `2d523fd` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
