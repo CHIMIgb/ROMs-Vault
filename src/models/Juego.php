@@ -33,6 +33,9 @@ class Juego extends Model {
     
     // Obtener un juego por ID con detalles de relaciones
     public function findWithDetails($id) {
+        if (!ctype_digit((string) $id)) {
+            return null;
+        }
         $stmt = $this->pdo->prepare("SELECT j.*, c.nombre as consola_nombre,
                    c.emulacion_online AS consola_emulacion_online,
                    cat.nombre as categoria_nombre 
@@ -40,7 +43,7 @@ class Juego extends Model {
                 LEFT JOIN consolas c ON j.consola_id = c.id
                 LEFT JOIN categorias cat ON j.categoria_id = cat.id
                 WHERE j.id = ? AND j.activo = true");
-        $stmt->execute([$id]);
+        $stmt->execute([(int) $id]);
         return $stmt->fetch();
     }
     

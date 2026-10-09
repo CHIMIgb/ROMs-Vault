@@ -14,9 +14,16 @@ abstract class Model {
         return $stmt->fetchAll();
     }
 
+    /**
+     * Busca por ID numérico. Cualquier id no numérico devuelve null (evita
+     * PDOException por conversión de tipo y enumera 404 en vez de fatal).
+     */
     public function find($id) {
+        if (!ctype_digit((string) $id)) {
+            return null;
+        }
         $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt->execute([(int) $id]);
         return $stmt->fetch();
     }
 

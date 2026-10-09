@@ -14,6 +14,23 @@ class UrlSignerTest extends TestCase {
 
     private const FILE_ID = '1AbCdEfGh1234567890';
 
+    /** Secret global del bootstrap (tests/bootstrap.php), para restaurarlo al
+     *  final de la clase: estos tests usan otro valor a propósito y NO deben
+     *  dejarlo alterado para las suites Integration/Security del proceso. */
+    private static ?string $bootstrappedSecret = null;
+
+    public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
+        self::$bootstrappedSecret = $_ENV['JWT_SECRET'] ?? null;
+    }
+
+    public static function tearDownAfterClass(): void {
+        if (self::$bootstrappedSecret !== null) {
+            $_ENV['JWT_SECRET'] = self::$bootstrappedSecret;
+        }
+        parent::tearDownAfterClass();
+    }
+
     protected function setUp(): void {
         parent::setUp();
         $_ENV['JWT_SECRET'] = 'secret-de-prueba-phpunit-2026';
