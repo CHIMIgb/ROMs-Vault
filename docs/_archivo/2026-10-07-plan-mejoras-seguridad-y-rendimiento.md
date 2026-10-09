@@ -214,6 +214,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 2.6 Credenciales por defecto (verificación) | Implementada | `2d523fd` |
 | 2026-10-08 | §9 Fix publicación: `findByFileId()` filtra `activo` | Implementada | `0824ef5` |
 | 2026-10-08 | 5.1-5.9 Suite `Security` (tests de integración de seguridad) + fix `find()`/`findWithDetails()` id no numérico (H1) y aislamiento de `JWT_SECRET` en Unit (H2) | Implementada | `1674ede` |
+| 2026-10-08 | Fix login: TypeError `estaBloqueado()` con usuario inexistente (`findByUsername(): ?array`) + test de regresión | Implementada | `94013b5` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
