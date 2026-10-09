@@ -113,19 +113,19 @@ activos) y los exports de administrador.
 
 Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Casos mínimos:
 
-- [ ] **5.1 Accesos sin sesión** — ruta admin y `ajax_admin.php`/`ajax_consola.php` etc.
+- [x] **5.1 Accesos sin sesión** — ruta admin y `ajax_admin.php`/`ajax_consola.php` etc.
       sin sesión → 302/403.
-- [ ] **5.2 CSRF** — POST sin token (`Server::csrfToken()`) → 403.
-- [ ] **5.3 Rate limit de login** — N intentos → 429.
-- [ ] **5.4 Firma de enlaces** — firma ausente/válida/vencida/tamper → rechazo
+- [x] **5.2 CSRF** — POST sin token (`Server::csrfToken()`) → 403.
+- [x] **5.3 Rate limit de login** — N intentos → 429.
+- [x] **5.4 Firma de enlaces** — firma ausente/válida/vencida/tamper → rechazo
       (400/403/`expired`).
-- [ ] **5.5 `/src/*` no servible** — HTTP → 403 (rutas internas nunca expuestas).
-- [ ] **5.6 Método no permitido / validación** — respuestas JSON coherentes.
-- [ ] **5.7 Intento de inyección SQL** — parámetro malicioso no altera resultados
+- [x] **5.5 `/src/*` no servible** — HTTP → 403 (rutas internas nunca expuestas).
+- [x] **5.6 Método no permitido / validación** — respuestas JSON coherentes.
+- [x] **5.7 Intento de inyección SQL** — parámetro malicioso no altera resultados
       (helper sobre PDO preparado).
-- [ ] **5.8 Cabeceras de seguridad** — presencia de CSP, `X-Content-Type-Options`,
+- [x] **5.8 Cabeceras de seguridad** — presencia de CSP, `X-Content-Type-Options`,
       `X-Frame-Options`, `Referrer-Policy`.
-- [ ] **5.9 Host allowlist del proxy** — mock de redirect a host no permitido → bloqueo.
+- [x] **5.9 Host allowlist del proxy** — mock de redirect a host no permitido → bloqueo.
 
 **Política de credenciales (decisión):** los tests permanecen **tracked** en el repositorio
 (AGENTS.md exige `composer test`); lo que se blinda son los secretos:
@@ -213,6 +213,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 2.5 Cookie JWT `__Host-` | Implementada | `5e50f12` |
 | 2026-10-08 | 2.6 Credenciales por defecto (verificación) | Implementada | `2d523fd` |
 | 2026-10-08 | §9 Fix publicación: `findByFileId()` filtra `activo` | Implementada | `0824ef5` |
+| 2026-10-08 | 5.1-5.9 Suite `Security` (tests de integración de seguridad) + fix `find()`/`findWithDetails()` id no numérico (H1) y aislamiento de `JWT_SECRET` en Unit (H2) | Implementada | `1674ede` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
