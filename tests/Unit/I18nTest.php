@@ -86,4 +86,80 @@ class I18nTest extends TestCase {
             }
         }
     }
+
+    // ── Detección de idioma (ítem 6.2) ───────────────────────────────────────
+
+    public function testDetectLangPorCookie(): void {
+        $_COOKIE['rv_lang'] = 'en';
+        $this->assertSame('en', I18n::detectLangFromRequest());
+        unset($_COOKIE['rv_lang']);
+    }
+
+    public function testDetectLangPorAcceptLanguage(): void {
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.9,es;q=0.8';
+        $this->assertSame('en', I18n::detectLangFromRequest());
+        unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    }
+
+    public function testDetectLangPrefiereCookieSobreAcceptLanguage(): void {
+        $_COOKIE['rv_lang'] = 'es';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.9';
+        $this->assertSame('es', I18n::detectLangFromRequest());
+        unset($_COOKIE['rv_lang'], $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    }
+
+    public function testDetectLangIgnoraCookieInvalida(): void {
+        $_COOKIE['rv_lang'] = 'fr';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.9';
+        $this->assertSame('en', I18n::detectLangFromRequest());
+        unset($_COOKIE['rv_lang'], $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    }
+
+    public function testDetectLangSinIndiciosUsaI18nLangComoBase(): void {
+        $had = array_key_exists('I18N_LANG', $_ENV);
+        $prev = $_ENV['I18N_LANG'] ?? null;
+        $_ENV['I18N_LANG'] = 'en';
+        try {
+            $this->assertSame('en', I18n::detectLangFromRequest());
+        } finally {
+            if ($had) {
+                $_ENV['I18N_LANG'] = $prev;
+            } else {
+                unset($_ENV['I18N_LANG']);
+            }
+        }
+    }
+
+    public function testDetectLangDefaultEspanol(): void {
+        $had = array_key_exists('I18N_LANG', $_ENV);
+        $prev = $_ENV['I18N_LANG'] ?? null;
+        unset($_ENV['I18N_LANG'], $_SERVER['HTTP_ACCEPT_LANGUAGE'], $_COOKIE['rv_lang']);
+        try {
+            $this->assertSame('es', I18n::detectLangFromRequest());
+        } finally {
+            if ($had) {
+                $_ENV['I18N_LANG'] = $prev;
+            }
+        }
+    }
+
+    public function testResetLimpiaEstadoSinDejarContaminacion(): void {
+        I18n::setLang('en');
+        $this->assertSame('en', I18n::getLang());
+
+        I18n::reset();
+        // getLang() es lazy: tras reset() vuelve a DETECTAR desde superglobales,
+        // no debe quedarse con el idioma previo ('en').
+        unset($_COOKIE['rv_lang'], $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $had = array_key_exists('I18N_LANG', $_ENV);
+        $prev = $_ENV['I18N_LANG'] ?? null;
+        unset($_ENV['I18N_LANG']);
+        try {
+            $this->assertSame('es', I18n::getLang());
+        } finally {
+            if ($had) {
+                $_ENV['I18N_LANG'] = $prev;
+            }
+        }
+    }
 }

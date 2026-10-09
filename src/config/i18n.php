@@ -29,12 +29,74 @@ class I18n {
     private static string $lang = '';
 
     /**
-     * Inicializa el cargador con el idioma activo.
+     * Inicializa el cargador con el idioma activo de la petición.
      * Se llama desde index.php (todas las páginas HTML) y desde los tests.
      */
     public static function init(): void {
-        $requested = $_ENV['I18N_LANG'] ?? self::DEFAULT_LANG;
-        self::setLang(is_string($requested) ? $requested : self::DEFAULT_LANG);
+        self::setLang(self::detectLangFromRequest());
+    }
+
+    /**
+     * Resuelve el idioma activo de la petición (ítem 6.2):
+     *   1. Cookie rv_lang (preferencia persistida por el selector ?lang=)
+     *   2. Cabecera Accept-Language (primer idioma soportado entre es|en)
+     *   3. I18N_LANG del entorno (.env) — base del sitio
+     *   4. Default 'es'
+     */
+    public static function detectLangFromRequest(): string {
+        // 1) Cookie persistida
+        $cookie = $_COOKIE['rv_lang'] ?? '';
+        if (is_string($cookie) && in_array($cookie, self::LANGUAGES, true)) {
+            return $cookie;
+        }
+
+        // 2) Accept-Language: "es-ES,es;q=0.9,en;q=0.8" → primer idioma soportado
+        $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+        if (is_string($accept) && $accept !== '') {
+            foreach (explode(',', $accept) as $part) {
+                $code = strtolower(trim(explode(';', $part)[0]));
+                $lang = explode('-', $code)[0]; // 'en-US' → 'en'
+                if (in_array($lang, self::LANGUAGES, true)) {
+                    return $lang;
+                }
+            }
+        }
+
+        // 3) Base del sitio desde entorno
+        $env = $_ENV['I18N_LANG'] ?? self::DEFAULT_LANG;
+        if (is_string($env) && in_array($env, self::LANGUAGES, true)) {
+            return $env;
+        }
+
+        return self::DEFAULT_LANG;
+    }
+
+    /**
+     * Persiste la preferencia de idioma en la cookie rv_lang (1 año).
+     * No lleva __Host- ni HttpOnly: no es dato sensible y el selector
+     * funciona sin JavaScript; SameSite=Lax evita envío en contextos raros.
+     */
+    public static function setLangCookie(string $lang): void {
+        if (!in_array($lang, self::LANGUAGES, true)) {
+            return;
+        }
+        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+        setcookie('rv_lang', $lang, [
+            'expires'  => time() + 365 * 24 * 3600,
+            'path'     => '/',
+            'secure'   => $secure,
+            'httponly' => false,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    /**
+     * Resetea el estado estático (idioma + cache de diccionarios).
+     * Uso exclusivo en tests para no contaminar entre casos.
+     */
+    public static function reset(): void {
+        self::$lang = '';
+        self::$dictionaries = [];
     }
 
     /**

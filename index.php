@@ -3,6 +3,22 @@
 require_once __DIR__ . '/src/config/AuthMiddleware.php';
 require_once __DIR__ . '/src/config/CsrfService.php';
 require_once __DIR__ . '/src/config/i18n.php';
+
+// ── Selector de idioma (?lang=es|en) — ítem 6.2 ──────────────────────────────
+// Persiste la preferencia en la cookie rv_lang y redirige a la MISMA URL sin el
+// parámetro (no se duplica ninguna URL; SEO y enlaces intactos). Antes de
+// I18n::init() para que la cookie ya exista al detectar el idioma.
+if (isset($_GET['lang']) && in_array($_GET['lang'], I18n::LANGUAGES, true)) {
+    I18n::setLangCookie($_GET['lang']);
+    $parsed = parse_url($_SERVER['REQUEST_URI'] ?? '/');
+    parse_str($parsed['query'] ?? '', $query);
+    unset($query['lang']);
+    $qs = http_build_query($query);
+    $target = ($parsed['path'] ?? '/') . ($qs !== '' ? '?' . $qs : '');
+    header('Location: ' . $target);
+    exit;
+}
+
 I18n::init(); // t() disponible en todas las páginas HTML
 
 // ── Cabeceras de seguridad globales (todas las páginas HTML) ────────────────
