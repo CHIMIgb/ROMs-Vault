@@ -41,6 +41,7 @@ require_once __DIR__ . '/../src/config/CsrfService.php';
 require_once __DIR__ . '/../src/config/LoggerService.php';
 require_once __DIR__ . '/../src/config/TfaService.php';
 require_once __DIR__ . '/../src/config/GDriveAllowlist.php';
+require_once __DIR__ . '/../src/config/OriginPolicy.php';
 
 // 4) Asegurar un directorio temporal limpio para RateLimiter y LoggerService
 $rateDir = sys_get_temp_dir() . '/rv_rate_limit/test';

@@ -78,6 +78,7 @@ require_once __DIR__ . '/../src/config/database.php';
 require_once __DIR__ . '/../src/config/RateLimiter.php';
 require_once __DIR__ . '/../src/config/UrlSigner.php';
 require_once __DIR__ . '/../src/config/GDriveAllowlist.php';
+require_once __DIR__ . '/../src/config/OriginPolicy.php';
 require_once __DIR__ . '/../src/models/Model.php';
 require_once __DIR__ . '/../src/models/Juego.php';
 
@@ -119,6 +120,21 @@ if ((time() - $timestamp) > SIGNED_URL_TTL) {
     http_response_code(410);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Este enlace ha expirado. Recarga la página.', 'error_type' => 'expired']);
+    exit;
+}
+
+// ── Validación de origen (anti-hotlink, ítem 3.3 / A10) ─────────────────────
+// Con ALLOWED_ORIGINS configurado, las peticiones que declaren Origin o
+// Referer deben pertenecer a un origen permitido. Sin ninguno de los dos se
+// permiten (descargas <a rel="noopener noreferrer">, descargadores CLI con
+// enlace firmado); la autorización principal sigue siendo firma HMAC + TTL.
+if (!OriginPolicy::verificar(
+    $_SERVER['HTTP_ORIGIN'] ?? null,
+    $_SERVER['HTTP_REFERER'] ?? null
+)) {
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Acceso denegado: origen no permitido.', 'error_type' => 'origin']);
     exit;
 }
 
