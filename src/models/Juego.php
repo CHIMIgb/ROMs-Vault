@@ -16,14 +16,16 @@ class Juego extends Model {
         return $result;
     }
 
-    // Buscar juego por google_drive_file_id
+    // Buscar juego por google_drive_file_id (solo públicos: activos).
+    // Filtrar `activo` evita que un juego desactivado siga siendo jugable o
+    // descargable con una URL conocida (hallazgo de la auditoría IDOR).
     public function findByFileId($fileId) {
         $stmt = $this->pdo->prepare(
             "SELECT j.*, c.nombre AS consola_nombre,
                     c.emulacion_online AS consola_emulacion_online
              FROM {$this->table} j
              LEFT JOIN consolas c ON j.consola_id = c.id
-             WHERE j.google_drive_file_id = ?"
+             WHERE j.google_drive_file_id = ? AND j.activo = true"
         );
         $stmt->execute([$fileId]);
         return $stmt->fetch();
