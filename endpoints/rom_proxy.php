@@ -77,6 +77,7 @@ define('GDRIVE_BASE',  'https://drive.google.com/uc?export=download&confirm=t&id
 require_once __DIR__ . '/../src/config/database.php';
 require_once __DIR__ . '/../src/config/RateLimiter.php';
 require_once __DIR__ . '/../src/config/UrlSigner.php';
+require_once __DIR__ . '/../src/config/GDriveAllowlist.php';
 require_once __DIR__ . '/../src/models/Model.php';
 require_once __DIR__ . '/../src/models/Juego.php';
 
@@ -170,6 +171,20 @@ if (!$juego['activo']) {
 
 // ── Construir URL inicial de Google Drive ────────────────────────────────────
 $gdriveUrl = GDRIVE_BASE . urlencode($fileId);
+
+// Anti-SSRF: la URL inicial también debe estar en la allowlist de hosts
+// (por construcción GDRIVE_BASE es drive.google.com; queda explícito).
+if (!GDriveAllowlist::hostPermitido((string) parse_url($gdriveUrl, PHP_URL_HOST))) {
+    http_response_code(502);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error'      => 'No se pudo resolver la URL de Google Drive.',
+        'error_type' => 'network',
+        'detail'     => 'El destino de la ROM no es válido.',
+    ]);
+    error_log('[rom_proxy] Host inicial no permitido para file_id=' . $fileId);
+    exit;
+}
 
 // ── Función: seguir redirecciones manualmente con cURL ───────────────────────
 /**
@@ -274,6 +289,15 @@ function resolveGDriveUrl(string $initialUrl): array {
             if (strpos($location, 'http') !== 0) {
                 $parsed = parse_url($currentUrl);
                 $location = $parsed['scheme'] . '://' . $parsed['host'] . $location;
+            }
+
+            // ── Anti-SSRF: solo seguir redirects a hosts de la allowlist ──
+            // Cualquier Location a un host no permitido corta la cadena sin
+            // conectar. El detalle se deja solo para los logs (anti-información).
+            $locationHost = (string) parse_url($location, PHP_URL_HOST);
+            if (!GDriveAllowlist::hostPermitido($locationHost)) {
+                error_log('[rom_proxy] Redirect a host no permitido en resolveGDriveUrl(): ' . $locationHost);
+                return ['url' => null, 'cookies' => [], 'error' => 'host_no_permitido'];
             }
 
             $currentUrl = $location;
@@ -407,7 +431,7 @@ if ($cached) {
         echo json_encode([
             'error'      => 'No se pudo resolver la URL de Google Drive.',
             'error_type' => 'network',
-            'detail'     => $resolved['error'] ?? 'Sin respuesta del servidor de Google Drive.',
+            'detail'     => 'El destino de la ROM no es válido.',
         ]);
         error_log('[rom_proxy] Error resolviendo URL para file_id=' . $fileId . ': ' . ($resolved['error'] ?? ''));
         exit;
@@ -416,6 +440,22 @@ if ($cached) {
     $finalUrl  = $resolved['url'];
     $cookieJar = $resolved['cookies'];
     cacheUrl($fileId, $finalUrl, $cookieJar);
+}
+
+// ── Anti-SSRF (defensa en profundidad): también se valida el host de la URL
+// final (venga de la caché o de la resolución) antes de abrir el stream.
+// Nunca se conecta a un host que no esté en la allowlist.
+$finalHost = (string) parse_url($finalUrl, PHP_URL_HOST);
+if (!GDriveAllowlist::hostPermitido($finalHost)) {
+    http_response_code(502);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error'      => 'No se pudo resolver la URL de Google Drive.',
+        'error_type' => 'network',
+        'detail'     => 'El destino de la ROM no es válido.',
+    ]);
+    error_log('[rom_proxy] Host final no permitido (cache o resolución): ' . $finalHost . ' para file_id=' . $fileId);
+    exit;
 }
 
 // ── Procesar Range Request del cliente (para seeking en EmulatorJS) ───────────
