@@ -1,0 +1,22 @@
+{
+    "app.nombre": "ROMs Vault",
+    "app.slogan": "Catálogo de ROMs e ISOs",
+    "nav.catalogo": "Catálogo",
+    "nav.panel_admin": "Panel Admin",
+    "nav.cerrar_sesion": "Cerrar sesión",
+    "header.inicio_titulo": "ROMs Vault - Inicio",
+    "common.saludo": "Hola, {nombre}",
+    "auth.acceso_admin": "Acceso Administrador",
+    "auth.usuario": "Usuario",
+    "auth.contrasena": "Contraseña",
+    "auth.iniciar_sesion": "Iniciar sesión",
+    "auth.ingresar_usuario": "Ingresa tu usuario",
+    "auth.ingresar_contrasena": "Ingresa tu contraseña",
+    "auth.mostrar_contrasena": "Mostrar contraseña",
+    "auth.acceso_restringido": "Acceso restringido a personal autorizado",
+    "auth.error_credenciales": "Usuario o contraseña incorrectos",
+    "auth.error_bloqueada": "Usuario o contraseña incorrectos",
+    "errors.not_found": "Página no encontrada",
+    "errors.not_found_msg": "La página que buscas no existe o ha sido movida.",
+    "catalog.sin_resultados": "No hay juegos disponibles que coincidan con los filtros."
+}

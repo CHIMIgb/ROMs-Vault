@@ -2,6 +2,8 @@
 // index.php — Router principal
 require_once __DIR__ . '/src/config/AuthMiddleware.php';
 require_once __DIR__ . '/src/config/CsrfService.php';
+require_once __DIR__ . '/src/config/i18n.php';
+I18n::init(); // t() disponible en todas las páginas HTML
 
 // ── Cabeceras de seguridad globales (todas las páginas HTML) ────────────────
 // CSP equilibrada: permite el CDN de EmulatorJS (scripts, estilos, fuentes,
