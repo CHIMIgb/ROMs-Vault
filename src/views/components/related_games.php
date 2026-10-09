@@ -80,13 +80,13 @@ $renderRel = function (array $items, string $titulo, string $icon, string $varia
 
 $renderRel(
     $mismaConsola,
-    'Más de ' . ($juego['consola_nombre'] ?? 'la consola'),
+    t('component.mas_de', ['consola' => $juego['consola_nombre'] ?? t('component.la_consola')]),
     'gamepad',
     'consola'
 );
 $renderRel(
     $mismoGenero,
-    'Juegos recomendados',
+    t('component.juegos_recomendados'),
     'disc',
     'genero'
 );

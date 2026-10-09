@@ -10,7 +10,7 @@
     <?php if (class_exists('CsrfService')): ?>
         <?= CsrfService::metaTag() ?>
     <?php endif; ?>
-    <title><?= htmlspecialchars($pageTitle ?? 'ROMs Vault - Catálogo de videojuegos') ?></title>
+    <title><?= htmlspecialchars($pageTitle ?? t('header.catalogo_titulo')) ?></title>
     <?php if (!empty($pageDescription)): ?>
         <meta name="description" content="<?= htmlspecialchars($pageDescription) ?>">
     <?php endif; ?>
@@ -18,12 +18,12 @@
     <?php if (!empty($pageType)): ?>
         <!-- Open Graph / compartir en redes -->
         <meta property="og:type" content="<?= htmlspecialchars($pageType) ?>">
-        <meta property="og:title" content="<?= htmlspecialchars($pageTitle ?? 'ROMs Vault') ?>">
+        <meta property="og:title" content="<?= htmlspecialchars($pageTitle ?? t('app.nombre')) ?>">
         <meta property="og:description" content="<?= htmlspecialchars($pageDescription ?? '') ?>">
         <meta property="og:image" content="<?= htmlspecialchars($pageImage ?? '') ?>">
         <meta property="og:url" content="<?= htmlspecialchars($pageUrl ?? '') ?>">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle ?? 'ROMs Vault') ?>">
+        <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle ?? t('app.nombre')) ?>">
         <meta name="twitter:description" content="<?= htmlspecialchars($pageDescription ?? '') ?>">
         <meta name="twitter:image" content="<?= htmlspecialchars($pageImage ?? '') ?>">
     <?php endif; ?>
@@ -47,19 +47,19 @@
             <div class="header-brand">
 
                 <!-- Logo: icono de la aplicación al inicio del título -->
-                <a href="/" class="header-logo-link" title="ROMs Vault - Inicio">
+                <a href="/" class="header-logo-link" title="<?= t('header.inicio_titulo') ?>">
                     <img src="public/uploads/icon.png"
-                         alt="ROMs Vault"
+                         alt="<?= t('app.nombre') ?>"
                          class="header-logo"
                          width="56" height="56">
                 </a>
 
                 <div class="header-brand-text">
-                    <h1>ROMs Vault</h1>
+                    <h1><?= t('app.nombre') ?></h1>
                     <p class="subtitle">
                         <!-- play icon -->
                         <i data-i="play" data-cls="pxi-subtitle" aria-hidden="true"></i>
-                        Catálogo de ROMs e ISOs
+                        <?= t('app.slogan') ?>
                     </p>
                 </div>
             </div>
@@ -68,7 +68,7 @@
             <nav>
                 <a href="/">
                     <i data-i="gamepad"  aria-hidden="true"></i>
-                    Catálogo
+                    <?= t('nav.catalogo') ?>
                 </a>
                 <?php 
                 $currentUser = AuthMiddleware::getUser();
@@ -76,11 +76,11 @@
                 ?>
                 <a href="/admin/dashboard">
                     <i data-i="shield-2" aria-hidden="true"></i>
-                    Panel Admin
+                    <?= t('nav.panel_admin') ?>
                 </a>
                 <a href="/auth/logout">
                     <i data-i="logout"   aria-hidden="true"></i>
-                    Cerrar sesión
+                    <?= t('nav.cerrar_sesion') ?>
                 </a>
                 <?php endif; ?>
             </nav>

@@ -14,21 +14,21 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
     <?php
     // Icono y título según tipo
     $iconMap = [
-        'not_found' => ['<i data-i="trash"></i>', 'Archivo no encontrado'],
-        'private' => ['<i data-i="lock"></i>', 'Archivo privado o bloqueado'],
-        'quota' => ['<i data-i="clock"></i>', 'Límite de descargas alcanzado'],
-        'network' => ['<i data-i="wifi"></i>', 'Error de conexión'],
-        'unsupported' => ['<i data-i="settings-cog"></i>', 'Emulación no disponible'],
+        'not_found' => ['<i data-i="trash"></i>', t('play.error_archivo_no_encontrado')],
+        'private' => ['<i data-i="lock"></i>', t('play.error_archivo_privado')],
+        'quota' => ['<i data-i="clock"></i>', t('play.error_limite_descargas')],
+        'network' => ['<i data-i="wifi"></i>', t('play.error_conexion')],
+        'unsupported' => ['<i data-i="settings-cog"></i>', t('play.error_no_disponible')],
     ];
-    [$icon, $titulo] = $iconMap[$errorType] ?? ['<i data-i="warning"></i>', 'Error desconocido'];
+    [$icon, $titulo] = $iconMap[$errorType] ?? ['<i data-i="warning"></i>', t('play.error_desconocido')];
 
     // Consejo específico por tipo
     $consejo = match ($errorType) {
-        'not_found' => 'El administrador del sitio tendrá que actualizar el enlace de Google Drive para este juego.',
-        'private' => 'Puede que el propietario del archivo haya cambiado sus permisos. El equipo del sitio puede solucionarlo.',
-        'quota' => 'Google Drive limita el número de descargas de archivos grandes. Vuelve a intentarlo en 24 horas o descarga la ROM directamente.',
-        'network' => 'Esto suele ser temporal. Espera unos minutos e inténtalo de nuevo.',
-        default => 'Puedes descargar la ROM y ejecutarla con un emulador local en tu equipo.',
+        'not_found' => t('play.consejo_archivo_no_encontrado'),
+        'private' => t('play.consejo_archivo_privado'),
+        'quota' => t('play.consejo_limite_descargas'),
+        'network' => t('play.consejo_conexion'),
+        default => t('play.consejo_generico'),
     };
     ?>
     <!-- ====== Error con diagnóstico ====== -->
@@ -48,27 +48,27 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
             <?php if ($errorType !== 'quota'): ?>
                 <a href="<?= htmlspecialchars($downloadUrl) ?>"
                     class="btn-download-big" target="_blank">
-                    <i data-i="download"></i> Descargar ROM
+<i data-i="download"></i> <?= t('play.descargar_rom') ?>
                 </a>
             <?php endif; ?>
             <?php if ($errorType === 'quota'): ?>
                 <a href="javascript:location.reload()" class="btn-retry">
-                    <i data-i="reload"></i> Reintentar ahora
+                    <i data-i="reload"></i> <?= t('play.reintentar_ahora') ?>
                 </a>
             <?php endif; ?>
             <a href="/" class="btn-back-catalog">
-                <i data-i="arrow-left"></i> Volver al catálogo
+<i data-i="arrow-left"></i> <?= t('play.volver_catalogo') ?>
             </a>
         </div>
 
         <!-- Detalles técnicos colapsables para el admin -->
         <details class="proxy-error-details">
-            <summary>Detalles técnicos</summary>
+            <summary><?= t('play.detalles_tecnicos') ?></summary>
             <div class="proxy-error-technical">
-                <div><span>Juego:</span> <?= htmlspecialchars($juego['titulo']) ?></div>
-                <div><span>Consola:</span> <?= htmlspecialchars($juego['consola_nombre'] ?? '—') ?></div>
-                <div><span>File ID:</span> <code><?= htmlspecialchars($juego['google_drive_file_id']) ?></code></div>
-                <div><span>Error:</span> <code><?= htmlspecialchars($errorType) ?></code></div>
+                <div><span><?= t('play.juego') ?></span> <?= htmlspecialchars($juego['titulo']) ?></div>
+                <div><span><?= t('play.consola') ?></span> <?= htmlspecialchars($juego['consola_nombre'] ?? '—') ?></div>
+                <div><span><?= t('play.file_id') ?></span> <code><?= htmlspecialchars($juego['google_drive_file_id']) ?></code></div>
+                <div><span><?= t('play.error_label') ?></span> <code><?= htmlspecialchars($errorType) ?></code></div>
             </div>
         </details>
 
@@ -80,17 +80,14 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
     <?php if ($core === 'ppsspp'): ?>
         <!-- Aviso experimental PSP -->
         <div class="psp-warning">
-            <strong><i data-i="warning"></i> PSP — Soporte experimental:</strong>
-            El emulador de PSP en navegador es inestable. Juegos 3D complejos pueden no funcionar
-            o ir lentos. Se recomienda Chrome o Edge en escritorio para mejores resultados.
+            <strong><i data-i="warning"></i> <?= t('play.psp_soporte') ?></strong>
+            <?= t('play.psp_aviso') ?>
         </div>
     <?php elseif ($core === 'psx'): ?>
         <!-- Aviso experimental PSX -->
         <div class="psp-warning">
-            <strong><i data-i="warning"></i> PlayStation — Soporte experimental:</strong>
-            El emulador de PS1 en navegador es inestable. Algunos juegos pueden presentar
-            fallos gráficos, lentitud o no cargar correctamente.
-            Se recomienda Chrome o Edge en escritorio para mejores resultados.
+            <strong><i data-i="warning"></i> <?= t('play.psx_soporte') ?></strong>
+            <?= t('play.psx_aviso') ?>
         </div>
     <?php elseif ($core === 'n64'): ?>
         <!-- Aviso experimental N64 -->
@@ -102,9 +99,8 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
     <?php elseif ($core === 'nds'): ?>
         <!-- Aviso experimental NDS -->
         <div class="psp-warning">
-            <strong><i data-i="warning"></i> Nintendo DS — Soporte experimental:</strong>
-            El emulador de DS en navegador puede ser lento en dispositivos móviles.
-            Se recomienda usar Chrome o Edge en escritorio para una experiencia fluida.
+            <strong><i data-i="warning"></i> <?= t('play.nds_soporte') ?></strong>
+            <?= t('play.nds_aviso') ?>
         </div>
     <?php endif; ?>
 
@@ -156,15 +152,15 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
 
                     <div class="emulator-actions">
                         <a href="<?= htmlspecialchars($downloadUrl) ?>"
-                            class="btn-dl-small" target="_blank"><i data-i="download"></i> Descargar ROM</a>
+                            class="btn-dl-small" target="_blank"><i data-i="download"></i> <?= t('play.descargar_rom') ?></a>
                         <button class="btn-fullscreen"
                             onclick="document.getElementById('emulator-container').requestFullscreen()">
-                            <i data-i="expand"></i> Pantalla completa
+                            <i data-i="expand"></i> <?= t('play.pantalla_completa') ?>
                         </button>
                         <button class="btn-share" id="btn-share-game"
                             data-url="<?= htmlspecialchars((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $_SERVER['REQUEST_URI']) ?>"
-                            title="Copiar enlace permanente del juego">
-                            <i data-i="share"></i> Compartir
+                            title="<?= t('play.copiar_enlace') ?>">
+                            <i data-i="share"></i> <?= t('play.compartir') ?>
                         </button>
                     </div>
                     <div id="share-toast" class="share-toast" aria-live="polite"></div>
@@ -176,13 +172,13 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
             <!-- Barra de progreso — ROMs pequeñas (NES, SNES, GBA, N64…) -->
             <div id="proxy-load-bar" class="proxy-load-bar" style="display:none;">
                 <div class="proxy-load-label">
-                    <span id="proxy-load-text"><i data-i="clock"></i> Cargando ROM desde el servidor…</span>
+                    <span id="proxy-load-text"><i data-i="clock"></i> <?= t('play.cargando_rom') ?></span>
                     <span id="proxy-load-pct">0%</span>
                 </div>
                 <div class="proxy-load-track">
                     <div id="proxy-load-fill" class="proxy-load-fill"></div>
                 </div>
-                <div id="proxy-load-detail" class="proxy-load-detail">Conectando con el servidor...</div>
+                <span id="proxy-load-detail" class="proxy-load-detail"><?= t('play.conectando_servidor') ?></span>
             </div>
         <?php else: ?>
             <!-- Aviso streaming — ISOs grandes (PSP, PS1, Saturn…) -->
@@ -191,8 +187,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                 <span>
                     Esta es una ISO grande<?php if (!empty($juego['size_bytes'])): ?>
                         (<?= number_format($juego['size_bytes'] / 1048576, 0) ?> MB)<?php endif; ?>.
-                    Se cargará en streaming directo en el emulador.
-                    La carga inicial puede tardar unos segundos dependiendo de tu conexión.
+                    <?= t('play.aviso_streaming') ?>
                 </span>
             </div>
         <?php endif; ?>
@@ -203,11 +198,11 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                     height="14">
                     <path
                         d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z" />
-                </svg> Tamaño de pantalla</span>
+                </svg> <?= t('play.tamano_pantalla') ?></span>
             <div class="size-control-row">
                 <span class="size-control-min">40%</span>
                 <input type="range" id="emulator-size-slider" min="40" max="100" value="80" step="5"
-                    aria-label="Tamaño de la pantalla del emulador">
+                    aria-label="<?= t('play.tamano_pantalla_aria') ?>">
                 <span class="size-control-max">100%</span>
             </div>
             <span id="emulator-size-value" class="size-control-value">80%</span>
@@ -381,15 +376,15 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                         } else {
                             loadFill.classList.add('indeterminate');
                             loadPct.textContent = '…';
-                            loadDetail.textContent = fmtBytes(received) + ' recibidos';
+                            loadDetail.textContent = fmtBytes(received) + ' ' + <?= json_encode(t('play.recibidos')) ?>.replace('{valor}', '');
                         }
                     }
 
                     loadFill.style.width = '100%';
                     loadFill.classList.remove('indeterminate');
                     loadPct.textContent = '100%';
-                    loadText.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> ROM cargada — iniciando emulador…';
-                    loadDetail.textContent = 'Procesando ' + fmtBytes(received) + '…';
+                    loadText.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> ' + <?= json_encode(t('play.rom_cargada')) ?>;
+                    loadDetail.textContent = <?= json_encode(t('play.procesando', ['valor' => ''])) ?>.replace('{valor}', fmtBytes(received));
 
                     window.EJS_gameUrl = URL.createObjectURL(new Blob(chunks));
 
@@ -420,44 +415,44 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
 
                     // Mostrar página de error amigable en vez del emulador
                     const iconMap = {
-                        not_found: ['<i data-i="trash"></i>', 'Archivo no encontrado'],
-                        private: ['<i data-i="lock"></i>', 'Archivo privado o bloqueado'],
-                        quota: ['<i data-i="clock"></i>', 'Límite de descargas alcanzado'],
-                        network: ['<i data-i="wifi"></i>', 'Error de conexión'],
+                        not_found: ['<i data-i="trash"></i>', <?= json_encode(t('play.error_archivo_no_encontrado')) ?>],
+                        private: ['<i data-i="lock"></i>', <?= json_encode(t('play.error_archivo_privado')) ?>],
+                        quota: ['<i data-i="clock"></i>', <?= json_encode(t('play.error_limite_descargas')) ?>],
+                        network: ['<i data-i="wifi"></i>', <?= json_encode(t('play.error_conexion')) ?>],
                     };
                     const tipMap = {
-                        not_found: 'El administrador del sitio tendrá que actualizar el enlace de Google Drive para este juego.',
-                        private: 'Puede que el propietario haya cambiado los permisos. El equipo del sitio puede solucionarlo.',
-                        quota: 'Google Drive limita las descargas de archivos grandes. Vuelve a intentarlo en 24 horas.',
-                        network: 'Esto suele ser temporal. Espera unos minutos e inténtalo de nuevo.',
+                        not_found: <?= json_encode(t('play.consejo_archivo_no_encontrado_js')) ?>,
+                        private: <?= json_encode(t('play.consejo_archivo_privado_js')) ?>,
+                        quota: <?= json_encode(t('play.consejo_limite_descargas_js')) ?>,
+                        network: <?= json_encode(t('play.consejo_conexion')) ?>,
                     };
-                    const [icon, titulo] = iconMap[errorType] || ['<i data-i="warning"></i>', 'Error al cargar la ROM'];
-                    const consejo = tipMap[errorType] || 'Inténtalo de nuevo o descarga la ROM.';
+                    const [icon, titulo] = iconMap[errorType] || ['<i data-i="warning"></i>', <?= json_encode(t('play.error_cargar_rom')) ?>];
+                    const consejo = tipMap[errorType] || <?= json_encode(t('play.consejo_reintentar')) ?>;
                     // URL de descarga firmada por el servidor (inyectada desde PHP)
                     const signedDownloadUrl = '<?= addslashes($downloadUrl) ?>';
 
-                    document.querySelector('.emulator-wrapper').innerHTML = `
+document.querySelector('.emulator-wrapper').innerHTML = `
                 <div class="proxy-error-page">
                     <div class="proxy-error-icon">${icon}</div>
                     <h2 class="proxy-error-title">${titulo}</h2>
                     <p class="proxy-error-msg">${errorMsg}</p>
                     <div class="proxy-error-tip">
-                        <span class="proxy-tip-label"><i data-i="lightbulb"></i> ¿Qué puedo hacer?</span>
+                        <span class="proxy-tip-label"><i data-i="lightbulb"></i> ${<?= json_encode(t('play.que_puedo_hacer')) ?>}</span>
                         ${consejo}
                     </div>
                     <div class="proxy-error-actions">
                         ${errorType !== 'quota'
                         ? `<a href="${signedDownloadUrl}"
-                                  class="btn-download-big" target="_blank"><i data-i="download"></i> Descargar ROM</a>`
-                        : `<a href="javascript:location.reload()" class="btn-retry"><i data-i="reload"></i> Reintentar</a>`
+                                   class="btn-download-big" target="_blank"><i data-i="download"></i> ${<?= json_encode(t('play.descargar_rom')) ?>}</a>`
+                        : `<a href="javascript:location.reload()" class="btn-retry"><i data-i="reload"></i> ${<?= json_encode(t('play.reintentar')) ?>}</a>`
                     }
-                        <a href="/" class="btn-back-catalog"><i data-i="arrow-left"></i> Volver al catálogo</a>
+                        <a href="/" class="btn-back-catalog"><i data-i="arrow-left"></i> ${<?= json_encode(t('play.volver_catalogo')) ?>}</a>
                     </div>
                     <details class="proxy-error-details">
-                        <summary>Detalles técnicos</summary>
+                        <summary>${<?= json_encode(t('play.detalles_tecnicos')) ?>}</summary>
                         <div class="proxy-error-technical">
-                            <div><span>Error:</span> <code>${errorType}</code></div>
-                            <div><span>Mensaje:</span> <code>${errorMsg}</code></div>
+                            <div><span>${<?= json_encode(t('play.error_label')) ?>}</span> <code>${errorType}</code></div>
+                            <div><span>${<?= json_encode(t('play.mensaje')) ?>}</span> <code>${errorMsg}</code></div>
                         </div>
                     </details>
                 </div>`;

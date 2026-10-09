@@ -44,13 +44,14 @@ if (!$capturas && !empty($juego['imagen'])) {
 // Pasos de instalación del emulador recomendado
 $pasosLocales = [];
 if ($emuladorLocal) {
-    $pasosLocales[] = 'Descarga ' . $emuladorLocal['nombre'] . ' para '
-        . implode(' y ', $emuladorLocal['plataformas'])
-        . ' desde su sitio oficial.';
+    $pasosLocales[] = t('show.paso_descarga', [
+        'emulador'    => $emuladorLocal['nombre'],
+        'plataformas' => implode(t('show.conector_y'), $emuladorLocal['plataformas']),
+    ]);
     $pasosLocales[] = $esImagenDisco
-        ? 'Ábrelo y carga la imagen de disco (ISO o .cue) desde el menú Archivo.'
-        : 'Ábrelo y carga el archivo de la ROM (' . htmlspecialchars($juego['formato_imagen'] ?? 'rom') . ') desde Archivo > Abrir.';
-    $pasosLocales[] = 'Configura el mando o el teclado y pulsa Play.';
+        ? t('show.paso_abrir_disco')
+        : t('show.paso_abrir_rom', ['formato' => htmlspecialchars($juego['formato_imagen'] ?? 'rom')]);
+    $pasosLocales[] = t('show.paso_configurar');
 }
 ?>
 <div class="game-detail-page">
@@ -72,13 +73,13 @@ if ($emuladorLocal) {
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($juego['region']) && in_array($juego['region'], ['PAL', 'NTSC', 'NTSC-J', 'NTSC-U'])): ?>
-                    <span class="detail-region-seal" title="Región"><?= htmlspecialchars($juego['region']) ?></span>
+                    <span class="detail-region-seal" title="<?= t('show.region') ?>"><?= htmlspecialchars($juego['region']) ?></span>
                 <?php endif; ?>
                 <?php if (($juego['formato_imagen'] ?? '') === 'Hack'): ?>
-                    <span class="detail-hack-ribbon"><i data-i="zap" aria-hidden="true"></i> HACK</span>
+                    <span class="detail-hack-ribbon"><i data-i="zap" aria-hidden="true"></i> <?= t('show.hack') ?></span>
                 <?php endif; ?>
                 <?php if ($esNuevo): ?>
-                    <span class="detail-new-badge">NUEVO</span>
+                    <span class="detail-new-badge"><?= t('show.nuevo') ?></span>
                 <?php endif; ?>
             </div>
         </div>
@@ -96,33 +97,33 @@ if ($emuladorLocal) {
                 </div>
                 <div class="detail-tags">
                     <?php if (!empty($juego['categoria_id'])): ?>
-                        <a href="/?categoria=<?= (int) $juego['categoria_id'] ?>" class="tag tag-categoria" title="Ver más de <?= htmlspecialchars($juego['categoria_nombre'] ?? 'esta categoría') ?>">
-                            <?= htmlspecialchars($juego['categoria_nombre'] ?? 'Sin Categoría') ?>
+                        <a href="/?categoria=<?= (int) $juego['categoria_id'] ?>" class="tag tag-categoria" title="<?= t('show.ver_mas_de', ['categoria' => htmlspecialchars($juego['categoria_nombre'] ?? t('show.esta_categoria'))]) ?>">
+                            <?= htmlspecialchars($juego['categoria_nombre'] ?? t('show.sin_categoria')) ?>
                         </a>
                     <?php else: ?>
-                        <span class="tag tag-categoria"><?= htmlspecialchars($juego['categoria_nombre'] ?? 'Sin Categoría') ?></span>
+                        <span class="tag tag-categoria"><?= htmlspecialchars($juego['categoria_nombre'] ?? t('show.sin_categoria')) ?></span>
                     <?php endif; ?>
                     <?php if (($juego['formato_imagen'] ?? '') === 'Hack'): ?>
-                        <span class="tag tag-hack">Hack ROM</span>
+                        <span class="tag tag-hack"><?= t('show.hack_rom') ?></span>
                     <?php endif; ?>
                 </div>
             </div>
 
             <!-- Stats bar -->
             <div class="detail-stats-bar">
-                <span class="stat-chip" title="Descargas">
+                <span class="stat-chip" title="<?= t('show.descargas') ?>">
                     <i data-i="download" aria-hidden="true"></i>
                     <span class="stat-chip-num"><?= number_format($juego['downloads_count']) ?></span>
-                    <span class="stat-chip-label">descargas</span>
+                    <span class="stat-chip-label"><?= t('show.descargas_label') ?></span>
                 </span>
-                <span class="stat-chip" title="Partidas Online">
+                <span class="stat-chip" title="<?= t('show.partidas_online') ?>">
                     <i data-i="play" aria-hidden="true"></i>
                     <span class="stat-chip-num"><?= number_format($juego['plays_count']) ?></span>
-                    <span class="stat-chip-label">jugadas</span>
+                    <span class="stat-chip-label"><?= t('show.jugadas_label') ?></span>
                 </span>
-                <button type="button" class="stat-chip stat-chip--share" id="btn-share-game" title="Compartir este juego">
+                <button type="button" class="stat-chip stat-chip--share" id="btn-share-game" title="<?= t('show.compartir_title') ?>">
                     <i data-i="share" aria-hidden="true"></i>
-                    Compartir
+                    <?= t('show.compartir') ?>
                 </button>
             </div>
 
@@ -137,10 +138,10 @@ if ($emuladorLocal) {
 
             <!-- Idiomas disponibles -->
             <?php if (!empty($idiomas)): ?>
-                <div class="detail-languages" aria-label="Idiomas disponibles">
+                <div class="detail-languages" aria-label="<?= t('show.idiomas_disponibles') ?>">
                     <span class="detail-languages-label">
                         <i data-i="globe" aria-hidden="true"></i>
-                        <span>Idiomas</span>
+                        <span><?= t('show.idiomas') ?></span>
                     </span>
                     <span class="detail-languages-list">
                         <?php foreach ($idiomas as $idioma): ?>
@@ -159,9 +160,9 @@ if ($emuladorLocal) {
     <?php if (!empty($juego['descripcion'])): ?>
     <section class="detail-synopsis">
         <h2 class="detail-section-title">
-            Sinopsis
+            <?= t('show.sinopsis') ?>
             <?php if (($juego['formato_imagen'] ?? '') === 'Hack'): ?>
-                <span class="synopsis-hack-badge"><i data-i="zap" aria-hidden="true"></i> ROM Hack</span>
+                <span class="synopsis-hack-badge"><i data-i="zap" aria-hidden="true"></i> <?= t('show.rom_hack') ?></span>
             <?php endif; ?>
         </h2>
         <div class="detail-synopsis-content">
@@ -175,18 +176,18 @@ if ($emuladorLocal) {
          ══════════════════════════════════════════════════════ -->
     <?php if (!empty($capturas)): ?>
     <section class="detail-screenshots" aria-labelledby="capturas-title">
-        <h2 class="detail-section-title" id="capturas-title"><i data-i="image" aria-hidden="true"></i> Capturas</h2>
+        <h2 class="detail-section-title" id="capturas-title"><i data-i="image" aria-hidden="true"></i> <?= t('show.capturas') ?></h2>
 
         <div class="screenshot-carousel" data-carousel>
             <!-- Viewport con marco CRT + scanlines -->
             <div class="screenshot-viewport">
                 <div class="screenshot-track" data-carousel-track>
                     <?php foreach ($capturas as $i => $cap): ?>
-                        <div class="screenshot-slide" role="group" aria-label="Captura <?= $i + 1 ?> de <?= count($capturas) ?>">
-                            <img src="<?= htmlspecialchars($cap) ?>" alt="Captura <?= $i + 1 ?> de <?= htmlspecialchars($juego['titulo']) ?>"
+                        <div class="screenshot-slide" role="group" aria-label="<?= t('show.captura_de', ['indice' => $i + 1, 'total' => count($capturas)]) ?>">
+                            <img src="<?= htmlspecialchars($cap) ?>" alt="<?= t('show.captura_alt', ['indice' => $i + 1, 'titulo' => htmlspecialchars($juego['titulo'])]) ?>"
                                 loading="lazy" decoding="async">
                             <button type="button" class="screenshot-open" data-carousel-open="<?= $i ?>"
-                                aria-label="Ver captura <?= $i + 1 ?> a pantalla completa">
+                                aria-label="<?= t('show.ver_captura', ['indice' => $i + 1]) ?>">
                                 <i data-i="expand" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -195,10 +196,10 @@ if ($emuladorLocal) {
             </div>
 
             <!-- Flechas prev / next -->
-            <button type="button" class="screenshot-nav screenshot-nav--prev" data-carousel-prev aria-label="Captura anterior">
+            <button type="button" class="screenshot-nav screenshot-nav--prev" data-carousel-prev aria-label="<?= t('show.captura_anterior') ?>">
                 <i data-i="chevron-left" aria-hidden="true"></i>
             </button>
-            <button type="button" class="screenshot-nav screenshot-nav--next" data-carousel-next aria-label="Siguiente captura">
+            <button type="button" class="screenshot-nav screenshot-nav--next" data-carousel-next aria-label="<?= t('show.siguiente_captura') ?>">
                 <i data-i="chevron-right" aria-hidden="true"></i>
             </button>
 
@@ -211,7 +212,7 @@ if ($emuladorLocal) {
             <?php foreach ($capturas as $i => $cap): ?>
                 <button type="button" class="screenshot-thumb<?= $i === 0 ? ' is-active' : '' ?>"
                     data-carousel-thumb="<?= $i ?>"
-                    aria-label="Ir a captura <?= $i + 1 ?>"
+                    aria-label="<?= t('show.ir_a_captura', ['indice' => $i + 1]) ?>"
                     aria-current="<?= $i === 0 ? 'true' : 'false' ?>">
                     <img src="<?= htmlspecialchars($cap) ?>" alt="" loading="lazy" decoding="async">
                 </button>
@@ -220,11 +221,11 @@ if ($emuladorLocal) {
 
         <!-- Visor a pantalla completa (lightbox): misma imagen, sin recorte,
              carrusel completo con flechas, contador y miniaturas -->
-        <div class="screenshot-lightbox" data-lightbox hidden role="dialog" aria-modal="true" aria-label="Visor de capturas">
+        <div class="screenshot-lightbox" data-lightbox hidden role="dialog" aria-modal="true" aria-label="<?= t('show.visor_capturas') ?>">
             <div class="screenshot-lightbox-backdrop" data-lightbox-close></div>
 
             <div class="screenshot-lightbox-content">
-                <button type="button" class="screenshot-lightbox-close" data-lightbox-close aria-label="Cerrar visor de capturas">
+                <button type="button" class="screenshot-lightbox-close" data-lightbox-close aria-label="<?= t('show.cerrar_visor') ?>">
                     <i data-i="close" aria-hidden="true"></i>
                 </button>
 
@@ -233,12 +234,12 @@ if ($emuladorLocal) {
                         <div class="screenshot-track screenshot-track--lightbox" data-lightbox-track></div>
                     </div>
 
-                    <button type="button" class="screenshot-nav screenshot-nav--prev" data-lightbox-prev aria-label="Captura anterior">
-                        <i data-i="chevron-left" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="screenshot-nav screenshot-nav--next" data-lightbox-next aria-label="Siguiente captura">
-                        <i data-i="chevron-right" aria-hidden="true"></i>
-                    </button>
+<button type="button" class="screenshot-nav screenshot-nav--prev" data-lightbox-prev aria-label="<?= t('show.captura_anterior') ?>">
+                    <i data-i="chevron-left" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="screenshot-nav screenshot-nav--next" data-lightbox-next aria-label="<?= t('show.siguiente_captura') ?>">
+                    <i data-i="chevron-right" aria-hidden="true"></i>
+                </button>
 
                     <span class="screenshot-counter" data-lightbox-counter aria-live="polite">1 / <?= count($capturas) ?></span>
                 </div>
@@ -253,21 +254,21 @@ if ($emuladorLocal) {
          CÓMO JUGAR — Instrucciones con el emulador recomendado
          ══════════════════════════════════════════════════════ -->
     <section class="detail-howto" aria-labelledby="howto-title">
-        <h2 class="detail-section-title" id="howto-title"><i data-i="play" aria-hidden="true"></i> Cómo jugar</h2>
+        <h2 class="detail-section-title" id="howto-title"><i data-i="play" aria-hidden="true"></i> <?= t('show.como_jugar') ?></h2>
 
         <?php if ($emuladorLocal): ?>
         <div class="howto-local">
-            <h3 class="howto-local-title"><i data-i="hard-drive" aria-hidden="true"></i> En tu equipo</h3>
+            <h3 class="howto-local-title"><i data-i="hard-drive" aria-hidden="true"></i> <?= t('show.en_tu_equipo') ?></h3>
             <p class="howto-local-intro">
-                Esta ROM es de <strong><?= htmlspecialchars($juego['consola_nombre'] ?? 'su consola') ?></strong>.
-                El emulador recomendado es <strong><?= htmlspecialchars($emuladorLocal['nombre']) ?></strong>
+                Esta ROM es de <strong><?= htmlspecialchars($juego['consola_nombre'] ?? t('component.la_consola')) ?></strong>.
+                <?= t('show.emulador_recomendado') ?> <strong><?= htmlspecialchars($emuladorLocal['nombre']) ?></strong>
                 (<span class="howto-platforms">
                     <?php foreach ($emuladorLocal['plataformas'] as $p): ?>
                         <span class="platform-tag"><?= htmlspecialchars($p) ?></span>
                     <?php endforeach; ?>
                 </span>).
                 <a href="<?= htmlspecialchars($emuladorLocal['url']) ?>" target="_blank" rel="noopener noreferrer" class="howto-dl-link">
-                    <i data-i="download" aria-hidden="true"></i> Descargar emulador
+                    <i data-i="download" aria-hidden="true"></i> <?= t('show.descargar_emulador') ?>
                 </a>
             </p>
             <ol class="howto-steps">
@@ -277,7 +278,7 @@ if ($emuladorLocal) {
             </ol>
             <?php if (!empty($emuladorLocal['alterno'])): ?>
             <p class="howto-alt">
-                Alternativa:
+                <?= t('show.alternativa') ?>
                 <a href="<?= htmlspecialchars($emuladorLocal['alterno']['url']) ?>" target="_blank" rel="noopener noreferrer">
                     <?= htmlspecialchars($emuladorLocal['alterno']['nombre']) ?>
                 </a>
@@ -291,7 +292,7 @@ if ($emuladorLocal) {
         </div>
         <?php else: ?>
         <p class="howto-nomap">
-            No tenemos un emulador recomendado registrado para <?= htmlspecialchars($juego['consola_nombre'] ?? 'esta consola') ?>.
+            <?= t('show.sin_emulador', ['consola' => htmlspecialchars($juego['consola_nombre'] ?? t('show.esta_categoria'))]) ?>
         </p>
         <?php endif; ?>
     </section>
@@ -301,7 +302,7 @@ if ($emuladorLocal) {
 </div>
 
 <!-- Toast de compartir (reutiliza el sistema existente) -->
-<div class="share-toast" id="share-toast" role="status" aria-live="polite">¡Enlace copiado al portapapeles!</div>
+<div class="share-toast" id="share-toast" role="status" aria-live="polite"><?= t('show.enlace_copiado') ?></div>
 
 <script>
 (function () {

@@ -50,7 +50,7 @@ class Pagination {
             <?php if ($currentPage > 1): ?>
                 <a href="<?= $baseUrl ?>&page=<?= $currentPage - 1 ?><?= $paramStr ?>"
                    class="pagination-link" data-page="<?= $currentPage - 1 ?>">
-                   <i data-i="chevron-left"></i> Anterior
+                   <i data-i="chevron-left"></i> <?= t('component.anterior') ?>
                 </a>
             <?php endif; ?>
             
@@ -83,7 +83,7 @@ class Pagination {
             <?php if ($currentPage < $totalPages): ?>
                 <a href="<?= $baseUrl ?>&page=<?= $currentPage + 1 ?><?= $paramStr ?>"
                    class="pagination-link" data-page="<?= $currentPage + 1 ?>">
-                   Siguiente <i data-i="chevron-right"></i>
+                   <?= t('component.siguiente') ?> <i data-i="chevron-right"></i>
                 </a>
             <?php endif; ?>
         </div>
@@ -91,9 +91,13 @@ class Pagination {
 
         <?php if ($totalItems > 0): ?>
         <div class="pagination-info" style="margin-top:0.75rem;" <?= $idPrefix ? 'id="' . htmlspecialchars($idPrefix) . '-info"' : '' ?>>
-            Mostrando <?= number_format($countCurrent) ?> de <?= number_format($totalItems) ?> <?= htmlspecialchars($itemLabel) ?>
+            <?= t('component.mostrando', [
+                'mostrados' => number_format($countCurrent),
+                'total'     => number_format($totalItems),
+                'etiqueta'  => htmlspecialchars($itemLabel),
+            ]) ?>
             <?php if ($totalPages > 1): ?>
-                - Página <?= $currentPage ?> de <?= $totalPages ?>
+                - <?= t('component.pagina_x_de_y', ['pagina' => $currentPage, 'total' => $totalPages]) ?>
             <?php endif; ?>
             <?= $extraHtml ?>
         </div>

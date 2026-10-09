@@ -2,7 +2,7 @@
         </main>
         <footer>
             <div class="footer-content">
-                <p>© <?= date('Y') ?> ROMs Vault</p>
+                <p><?= t('footer.copyright', ['anio' => date('Y')]) ?></p>
             </div>
         </footer>
     </div>

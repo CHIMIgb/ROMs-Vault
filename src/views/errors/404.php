@@ -15,31 +15,27 @@
         <div class="error-404-blink">▼</div>
     </div>
 
-    <h1 class="error-404-title">Página no encontrada</h1>
+    <h1 class="error-404-title"><?= t('errors.not_found') ?></h1>
 
-    <p class="error-404-msg">
-        La URL que escribiste no existe en este servidor.
-        Puede que el enlace esté roto, que la página haya sido movida,
-        o que hayas escrito mal la dirección.
-    </p>
+    <p class="error-404-msg"><?= t('errors.not_found_detalle') ?></p>
 
     <!-- Acciones -->
     <div class="error-404-actions">
         <a href="/" class="btn-404-home">
-            Ir al catálogo
+            <?= t('errors.ir_catalogo') ?>
         </a>
         <a href="javascript:history.back()" class="btn-404-back">
-            ← Volver atrás
+            <?= t('errors.volver_atras') ?>
         </a>
     </div>
 
     <?php if (!empty($errorContext) && AuthMiddleware::getUser()): ?>
     <!-- Solo visible para admins logueados -->
     <details class="error-404-details">
-        <summary>Detalles técnicos (admin)</summary>
+        <summary><?= t('errors.detalles_admin') ?></summary>
         <div class="error-technical-content">
-            <div><span>URL:</span> <code><?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '') ?></code></div>
-            <div><span>Detalle:</span> <code><?= htmlspecialchars($errorContext) ?></code></div>
+            <div><span><?= t('errors.url') ?></span> <code><?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '') ?></code></div>
+            <div><span><?= t('errors.detalle') ?></span> <code><?= htmlspecialchars($errorContext) ?></code></div>
         </div>
     </details>
     <?php endif; ?>
@@ -58,7 +54,7 @@
     let n = 0;
     const el = document.getElementById('credits-num');
     if (!el) return;
-    const t = setInterval(() => {
+    const timer = setInterval(() => {
         n = Math.min(n + 1, 99);
         el.textContent = String(n).padStart(2, '0');
         if (n >= 99) clearInterval(t);

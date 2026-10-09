@@ -5,19 +5,19 @@
     <div class="search-wrapper" style="position:relative;">
         <input type="text"
                id="f-busqueda"
-               placeholder="Buscar juego por título..."
+               placeholder="<?= t('home.buscar_placeholder') ?>"
                value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                class="search-input"
                autocomplete="off"
-               aria-label="Buscar juego"
+               aria-label="<?= t('home.buscar_aria_label') ?>"
                aria-autocomplete="list"
                aria-controls="autocomplete-list"
                aria-expanded="false">
-        <button type="button" class="search-button" onclick="document.getElementById('f-busqueda').dispatchEvent(new Event('input'))" aria-label="Buscar">
+        <button type="button" class="search-button" onclick="document.getElementById('f-busqueda').dispatchEvent(new Event('input'))" aria-label="<?= t('home.boton_buscar') ?>">
             <i data-i="search" aria-hidden="true"></i>
         </button>
         <!-- Dropdown autocompletado -->
-        <ul id="autocomplete-list" class="autocomplete-list" role="listbox" aria-label="Sugerencias"></ul>
+        <ul id="autocomplete-list" class="autocomplete-list" role="listbox" aria-label="<?= t('home.sugerencias') ?>"></ul>
     </div>
 </div>
 
@@ -25,7 +25,7 @@
 <div class="filters">
     <div class="filters-row">
         <select id="f-consola">
-            <option value="">Todas las plataformas</option>
+            <option value=""><?= t('home.todas_plataformas') ?></option>
             <?php foreach ($consolas as $consola): ?>
                 <option value="<?= $consola['id'] ?>" <?= (($_GET['consola'] ?? '') == $consola['id']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($consola['nombre']) ?>
@@ -34,7 +34,7 @@
         </select>
 
         <select id="f-categoria">
-            <option value="">Todos los géneros</option>
+            <option value=""><?= t('home.todos_generos') ?></option>
             <?php foreach ($categorias as $categoria): ?>
                 <option value="<?= $categoria['id'] ?>" <?= (($_GET['categoria'] ?? '') == $categoria['id']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($categoria['nombre']) ?>
@@ -43,30 +43,30 @@
         </select>
 
         <select id="f-region">
-            <option value="">Todas las regiones</option>
-            <option value="PAL"    <?= (($_GET['region'] ?? '') === 'PAL')    ? 'selected' : '' ?>>PAL</option>
-            <option value="NTSC"   <?= (($_GET['region'] ?? '') === 'NTSC')   ? 'selected' : '' ?>>NTSC</option>
-            <option value="NTSC-J" <?= (($_GET['region'] ?? '') === 'NTSC-J') ? 'selected' : '' ?>>NTSC-J</option>
-            <option value="NTSC-U" <?= (($_GET['region'] ?? '') === 'NTSC-U') ? 'selected' : '' ?>>NTSC-U</option>
+            <option value=""><?= t('home.todas_regiones') ?></option>
+            <option value="PAL"    <?= (($_GET['region'] ?? '') === 'PAL')    ? 'selected' : '' ?>><?= t('home.region_pal') ?></option>
+            <option value="NTSC"   <?= (($_GET['region'] ?? '') === 'NTSC')   ? 'selected' : '' ?>><?= t('home.region_ntsc') ?></option>
+            <option value="NTSC-J" <?= (($_GET['region'] ?? '') === 'NTSC-J') ? 'selected' : '' ?>><?= t('home.region_ntsc_j') ?></option>
+            <option value="NTSC-U" <?= (($_GET['region'] ?? '') === 'NTSC-U') ? 'selected' : '' ?>><?= t('home.region_ntsc_u') ?></option>
         </select>
 
         <select id="f-orden">
-            <option value="random"    <?= (($_GET['orden'] ?? 'random') === 'random') ? 'selected' : '' ?>>Aleatorio</option>
-            <option value="titulo"    <?= (($_GET['orden'] ?? '') === 'titulo')    ? 'selected' : '' ?>>A - Z</option>
-            <option value="recientes" <?= (($_GET['orden'] ?? '') === 'recientes') ? 'selected' : '' ?>>Mas recientes</option>
-            <option value="descargas" <?= (($_GET['orden'] ?? '') === 'descargas') ? 'selected' : '' ?>>Mas descargados</option>
-            <option value="jugados"   <?= (($_GET['orden'] ?? '') === 'jugados')   ? 'selected' : '' ?>>Mas jugados</option>
-            <option value="año_desc"  <?= (($_GET['orden'] ?? '') === 'año_desc')  ? 'selected' : '' ?>>Año nuevos primero</option>
-            <option value="año_asc"   <?= (($_GET['orden'] ?? '') === 'año_asc')   ? 'selected' : '' ?>>Año clasicos primero</option>
+            <option value="random"    <?= (($_GET['orden'] ?? 'random') === 'random') ? 'selected' : '' ?>><?= t('home.orden_aleatorio') ?></option>
+            <option value="titulo"    <?= (($_GET['orden'] ?? '') === 'titulo')    ? 'selected' : '' ?>><?= t('home.orden_a_z') ?></option>
+            <option value="recientes" <?= (($_GET['orden'] ?? '') === 'recientes') ? 'selected' : '' ?>><?= t('home.orden_mas_recientes') ?></option>
+            <option value="descargas" <?= (($_GET['orden'] ?? '') === 'descargas') ? 'selected' : '' ?>><?= t('home.orden_mas_descargados') ?></option>
+            <option value="jugados"   <?= (($_GET['orden'] ?? '') === 'jugados')   ? 'selected' : '' ?>><?= t('home.orden_mas_jugados') ?></option>
+            <option value="año_desc"  <?= (($_GET['orden'] ?? '') === 'año_desc')  ? 'selected' : '' ?>><?= t('home.orden_ano_desc') ?></option>
+            <option value="año_asc"   <?= (($_GET['orden'] ?? '') === 'año_asc')   ? 'selected' : '' ?>><?= t('home.orden_ano_asc') ?></option>
         </select>
 
-        <button type="button" id="btn-limpiar" class="clear-filters" style="display:none;"><i data-i="close" aria-hidden="true"></i> Limpiar</button>
+        <button type="button" id="btn-limpiar" class="clear-filters" style="display:none;"><i data-i="close" aria-hidden="true"></i> <?= t('home.limpiar') ?></button>
     </div>
 
     <!-- Indicador de carga -->
     <div id="filter-loading" class="filter-loading" style="display:none;">
         <span class="filter-loading-bar"></span>
-        <span class="filter-loading-text">Buscando</span>
+        <span class="filter-loading-text"><?= t('home.buscando') ?></span>
     </div>
 </div>
 
@@ -77,7 +77,7 @@
     <div class="games-grid" id="games-grid">
         <?php if (empty($juegos)): ?>
             <div class="alert alert-info" style="grid-column:1/-1;text-align:center;padding:3rem;">
-                No hay juegos disponibles que coincidan con los filtros.
+                <?= t('catalog.sin_resultados') ?>
             </div>
         <?php else: ?>
             <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
@@ -95,31 +95,31 @@
                             <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
                         </a>
                         <div class="game-metadata">
-                            <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre'] ?? 'Sin genero') ?></span>
-                            <span class="game-tag platform"><?= htmlspecialchars($juego['consola_nombre'] ?? 'Multi') ?></span>
-                            <span class="game-tag language"><?= htmlspecialchars($juego['region'] ?? 'All') ?></span>
+                            <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre'] ?? t('home.sin_genero')) ?></span>
+                            <span class="game-tag platform"><?= htmlspecialchars($juego['consola_nombre'] ?? t('home.multi')) ?></span>
+                            <span class="game-tag language"><?= htmlspecialchars($juego['region'] ?? t('home.region_all')) ?></span>
                         </div>
                         <?php if (!empty($juego['formato_imagen']) && $juego['formato_imagen'] === 'Hack'): ?>
-                            <div class="game-hack-info"><?= htmlspecialchars($juego['descripcion'] ?? 'ROM Hack') ?></div>
+                            <div class="game-hack-info"><?= htmlspecialchars($juego['descripcion'] ?? t('home.rom_hack')) ?></div>
                         <?php endif; ?>
                         <div class="game-info">
                             <div class="game-info-item">
-                                <span class="game-info-label">Idiomas</span>
+                                <span class="game-info-label"><?= t('home.idiomas') ?></span>
                                 <span class="game-info-value"><?= htmlspecialchars($juego['idiomas'] ?? 'English') ?></span>
                             </div>
                             <div class="game-info-item">
-                                <span class="game-info-label">Tamano</span>
+                                <span class="game-info-label"><?= t('home.tamano') ?></span>
                                 <span class="game-info-value"><?= number_format($juego['size_bytes'] / 1048576, 2) ?> MB</span>
                             </div>
                             <?php if (!empty($juego['downloads_count'])): ?>
                             <div class="game-info-item">
-                                <span class="game-info-label">Descargas</span>
+                                <span class="game-info-label"><?= t('home.descargas') ?></span>
                                 <span class="game-info-value"><?= number_format($juego['downloads_count']) ?></span>
                             </div>
                             <?php endif; ?>
                             <?php if (!empty($juego['plays_count'])): ?>
                             <div class="game-info-item">
-                                <span class="game-info-label">Jugadas</span>
+                                <span class="game-info-label"><?= t('home.jugadas') ?></span>
                                 <span class="game-info-value"><?= number_format($juego['plays_count']) ?></span>
                             </div>
                             <?php endif; ?>
@@ -142,7 +142,7 @@
     
     require_once __DIR__ . '/../components/Pagination.php';
     $extra = isset($_GET['busqueda']) && $_GET['busqueda'] !== '' 
-        ? ' - Búsqueda: "' . htmlspecialchars($_GET['busqueda']) . '"' 
+        ? t('home.paginacion_busqueda', ['valor' => htmlspecialchars($_GET['busqueda'])]) 
         : '';
         
     Pagination::render(
@@ -153,7 +153,7 @@
         'index', 
         count($juegos), 
         $totalJuegos ?? 0, 
-        'juegos', 
+        t('component.juegos'), 
         'catalog',
         $extra
     );
@@ -246,7 +246,7 @@
             if (window.scrollY > top) window.scrollTo({ top, behavior: 'smooth' });
         } catch (err) {
             if (err.name !== 'AbortError') {
-                resultsEl.innerHTML = '<div class="alert alert-error">Error al cargar. Intenta de nuevo.</div>';
+                resultsEl.innerHTML = '<div class="alert alert-error">' + <?= json_encode(t('home.error_carga')) ?> + '</div>';
             }
         } finally {
             loadingEl.style.display = 'none';
@@ -429,10 +429,10 @@
                 </div>
                 <div class="ac-actions">
                     ${item.emulacion_online
-                        ? `<a href="${escHtml(item.play_url)}" class="ac-btn-play" title="Jugar online"><i data-i="play"></i></a>`
+                        ? `<a href="${escHtml(item.play_url)}" class="ac-btn-play" title="${<?= json_encode(t('home.jugar_online')) ?>}"><i data-i="play"></i></a>`
                         : ''
                     }
-                    <a href="${escHtml(item.download_url)}" class="ac-btn-dl" title="Descargar" target="_blank"><i data-i="download"></i></a>
+                    <a href="${escHtml(item.download_url)}" class="ac-btn-dl" title="${<?= json_encode(t('home.descargar')) ?>}" target="_blank"><i data-i="download"></i></a>
                 </div>`;
 
             li.addEventListener('mousedown', e => {
