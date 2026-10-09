@@ -51,9 +51,9 @@ Consecuencia: un juego desactivado **después** de publicarse sigue siendo jugab
 descartable) con una URL directa conocida `/home/play?file_id=…` (play no exige firma), y
 `incrementPlays()` se ejecuta igualmente (infla métricas de contenido no publicado).
 
-**Corrección propuesta (1 línea, sin impacto en el panel — el admin usa `find()` por id):**
-añadir `AND j.activo = true` a `findByFileId()`. *Requiere aprobación / test de
-regresión.* *(Pendiente de aplicar — ver plan §9.)*
+**Corrección aplicada:** `AND j.activo = true` en `findByFileId()` — commit `0824ef5`
+(ver `docs/2026-10-08-fix-findbyfileid-activo.md`); regresión cubierta en
+`tests/Integration/JuegoModelTest.php`.
 
 ## Observación (no defecto — decisión documentada): descarga local a Drive directo
 

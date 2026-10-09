@@ -212,6 +212,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | 2.4 `display_errors=Off` en producción (A05) | Implementada | `d0ffbc2` |
 | 2026-10-08 | 2.5 Cookie JWT `__Host-` | Implementada | `5e50f12` |
 | 2026-10-08 | 2.6 Credenciales por defecto (verificación) | Implementada | `2d523fd` |
+| 2026-10-08 | §9 Fix publicación: `findByFileId()` filtra `activo` | Implementada | `0824ef5` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
