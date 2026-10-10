@@ -79,6 +79,7 @@ require_once __DIR__ . '/../src/config/RateLimiter.php';
 require_once __DIR__ . '/../src/config/UrlSigner.php';
 require_once __DIR__ . '/../src/config/GDriveAllowlist.php';
 require_once __DIR__ . '/../src/config/OriginPolicy.php';
+require_once __DIR__ . '/../src/config/i18n.php';
 require_once __DIR__ . '/../src/models/Model.php';
 require_once __DIR__ . '/../src/models/Juego.php';
 
@@ -88,7 +89,7 @@ $fileId = $_GET['file_id'] ?? '';
 if (empty($fileId) || !preg_match('/^[a-zA-Z0-9_\-]+$/', $fileId)) {
     http_response_code(400);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'file_id inválido o ausente']);
+    echo json_encode(['error' => t('proxy.file_id_invalido')]);
     exit;
 }
 
@@ -100,7 +101,7 @@ $jwtSecret = $_ENV['JWT_SECRET'] ?? '';
 if (empty($signature) || empty($timestamp) || empty($jwtSecret)) {
     http_response_code(403);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Acceso denegado: enlace sin firma.', 'error_type' => 'auth']);
+    echo json_encode(['error' => t('proxy.sin_firma'), 'error_type' => 'auth']);
     exit;
 }
 
@@ -109,7 +110,7 @@ $expectedSig = hash_hmac('sha256', $fileId . '|' . $timestamp, $jwtSecret);
 if (!hash_equals($expectedSig, $signature)) {
     http_response_code(403);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Acceso denegado: firma inválida.', 'error_type' => 'auth']);
+    echo json_encode(['error' => t('proxy.firma_invalida'), 'error_type' => 'auth']);
     exit;
 }
 
@@ -119,7 +120,7 @@ define('SIGNED_URL_TTL', UrlSigner::ttl());
 if ((time() - $timestamp) > SIGNED_URL_TTL) {
     http_response_code(410);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Este enlace ha expirado. Recarga la página.', 'error_type' => 'expired']);
+    echo json_encode(['error' => t('proxy.expirado'), 'error_type' => 'expired']);
     exit;
 }
 
@@ -134,7 +135,7 @@ if (!OriginPolicy::verificar(
 )) {
     http_response_code(403);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Acceso denegado: origen no permitido.', 'error_type' => 'origin']);
+    echo json_encode(['error' => t('proxy.origen_denegado'), 'error_type' => 'origin']);
     exit;
 }
 
@@ -154,7 +155,7 @@ if (empty($_SERVER['HTTP_RANGE'])) {
         http_response_code(429);
         header('Content-Type: application/json');
         header('Retry-After: ' . $rlWindow);
-        echo json_encode(['error' => 'Demasiadas peticiones. Intenta en ' . $rlWindow . ' segundos.', 'error_type' => 'rate_limit']);
+        echo json_encode(['error' => t('proxy.demasiadas_peticiones', ['segundos' => $rlWindow]), 'error_type' => 'rate_limit']);
         exit;
     }
 }
@@ -166,7 +167,7 @@ try {
 } catch (Exception $e) {
     http_response_code(503);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Error interno del servidor']);
+    echo json_encode(['error' => t('msg.error_interno_servidor')]);
     error_log('[rom_proxy] Error BD: ' . $e->getMessage());
     exit;
 }
@@ -174,14 +175,14 @@ try {
 if (!$juego) {
     http_response_code(404);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'ROM no encontrada en la base de datos']);
+    echo json_encode(['error' => t('proxy.no_encontrado')]);
     exit;
 }
 
 if (!$juego['activo']) {
     http_response_code(403);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Esta ROM no está disponible']);
+    echo json_encode(['error' => t('proxy.no_disponible')]);
     exit;
 }
 
@@ -194,9 +195,9 @@ if (!GDriveAllowlist::hostPermitido((string) parse_url($gdriveUrl, PHP_URL_HOST)
     http_response_code(502);
     header('Content-Type: application/json');
     echo json_encode([
-        'error'      => 'No se pudo resolver la URL de Google Drive.',
+        'error'      => t('proxy.url_no_resuelta'),
         'error_type' => 'network',
-        'detail'     => 'El destino de la ROM no es válido.',
+        'detail'     => t('proxy.destino_invalido'),
     ]);
     error_log('[rom_proxy] Host inicial no permitido para file_id=' . $fileId);
     exit;
@@ -445,9 +446,9 @@ if ($cached) {
         http_response_code(502);
         header('Content-Type: application/json');
         echo json_encode([
-            'error'      => 'No se pudo resolver la URL de Google Drive.',
+            'error'      => t('proxy.url_no_resuelta'),
             'error_type' => 'network',
-            'detail'     => 'El destino de la ROM no es válido.',
+            'detail'     => t('proxy.destino_invalido'),
         ]);
         error_log('[rom_proxy] Error resolviendo URL para file_id=' . $fileId . ': ' . ($resolved['error'] ?? ''));
         exit;
@@ -466,9 +467,9 @@ if (!GDriveAllowlist::hostPermitido($finalHost)) {
     http_response_code(502);
     header('Content-Type: application/json');
     echo json_encode([
-        'error'      => 'No se pudo resolver la URL de Google Drive.',
+        'error'      => t('proxy.url_no_resuelta'),
         'error_type' => 'network',
-        'detail'     => 'El destino de la ROM no es válido.',
+        'detail'     => t('proxy.destino_invalido'),
     ]);
     error_log('[rom_proxy] Host final no permitido (cache o resolución): ' . $finalHost . ' para file_id=' . $fileId);
     exit;
@@ -563,16 +564,16 @@ curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (
         if ($streamHttpCode >= 400) {
             if ($streamHttpCode === 404) {
                 $errorType = 'not_found';
-                $errorMsg  = 'El archivo ya no existe en Google Drive (fue eliminado o el enlace es incorrecto).';
+                $errorMsg  = t('proxy.gdrive_no_existe');
             } elseif ($streamHttpCode === 403) {
                 $errorType = 'private';
-                $errorMsg  = 'Google Drive ha bloqueado el acceso a este archivo (permisos insuficientes o cuota de descargas superada).';
+                $errorMsg  = t('proxy.gdrive_bloqueado');
             } elseif ($streamHttpCode === 429) {
                 $errorType = 'quota';
-                $errorMsg  = 'Google Drive ha limitado el acceso temporalmente por exceso de descargas. Inténtalo más tarde.';
+                $errorMsg  = t('proxy.gdrive_cuota');
             } else {
                 $errorType = 'network';
-                $errorMsg  = "Google Drive devolvió un error inesperado (HTTP $streamHttpCode).";
+                $errorMsg  = t('proxy.gdrive_error_inesperado', ['codigo' => $streamHttpCode]);
             }
 
             http_response_code(502);

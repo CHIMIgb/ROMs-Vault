@@ -573,5 +573,12 @@
     "two_factor.codigo": "Verification code",
     "two_factor.instruccion": "Enter the 6-digit code from your authenticator app.",
     "two_factor.titulo": "Two-step verification",
-    "two_factor.verificar": "Verify"
+    "two_factor.verificar": "Verify",
+    "msg.metodo_no_permitido": "Method not allowed",
+    "admin.juego.sin_resultados": "No games match the applied filters.",
+    "admin.juego.tabla_jugadas_online": "Online plays",
+    "admin.juego.filtros_activos": " • Active filters",
+    "component.categorias": "categories",
+    "component.consolas": "consoles",
+    "component.consolas_con_emulador": "consoles with emulator"
 }

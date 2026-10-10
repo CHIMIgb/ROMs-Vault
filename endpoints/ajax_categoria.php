@@ -37,19 +37,19 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <?php if (empty($categorias)): ?>
     <?php 
     require_once __DIR__ . '/../src/views/components/Alert.php';
-    Alert::render('info', 'No hay categorías que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+    Alert::render('info', t('admin.categoria.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
     ?>
 <?php else: ?>
 <div style="overflow-x:auto;">
     <table class="admin-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th>Creada</th>
-                <th>Acciones</th>
+                <th><?= t('admin.categoria.id') ?></th>
+                <th><?= t('admin.categoria.nombre') ?></th>
+                <th><?= t('admin.categoria.descripcion') ?></th>
+                <th><?= t('admin.categoria.estado') ?></th>
+                <th><?= t('admin.categoria.creada_col') ?></th>
+                <th><?= t('admin.categoria.acciones') ?></th>
             </tr>
         </thead>
         <tbody>
@@ -65,12 +65,12 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                             data-id="<?= $cat['id'] ?>"
                             data-titulo="<?= htmlspecialchars($cat['nombre'], ENT_QUOTES) ?>"
                             data-accion="<?= $cat['activo'] ? 'desactivar' : 'activar' ?>">
-                        <?= $cat['activo'] ? 'Desactivar' : 'Activar' ?>
+                        <?= $cat['activo'] ? t('admin.categoria.desactivar') : t('admin.categoria.activar') ?>
                     </button>
                 </td>
                 <td><?= date('d/m/Y', strtotime($cat['created_at'])) ?></td>
                 <td>
-                    <a href="/categoria/edit/<?= $cat['id'] ?>" class="btn-edit">Editar</a>
+                    <a href="/categoria/edit/<?= $cat['id'] ?>" class="btn-edit"><?= t('admin.categoria.editar') ?></a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -88,7 +88,7 @@ Pagination::render(
     'index', 
     count($categorias), 
     $total, 
-    'categorías', 
+    t('component.categorias'), 
     'cat'
 );
 ?>

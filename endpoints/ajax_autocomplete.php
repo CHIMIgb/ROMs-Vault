@@ -1,13 +1,15 @@
 <?php
 // ajax_autocomplete.php — Sugerencias de búsqueda en tiempo real
 // Endpoint público — no requiere autenticación
+require_once __DIR__ . '/../src/config/i18n.php';
+
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
 // Solo GET
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
+    echo json_encode(['error' => t('msg.metodo_no_permitido')]);
     exit;
 }
 
@@ -45,5 +47,5 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Error interno']);
+    echo json_encode(['error' => t('msg.error_interno_servidor')]);
 }

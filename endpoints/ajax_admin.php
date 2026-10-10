@@ -46,24 +46,24 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <?php if (empty($juegos)): ?>
     <?php 
     require_once __DIR__ . '/../src/views/components/Alert.php';
-    Alert::render('info', 'No hay juegos que coincidan con los filtros aplicados.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+    Alert::render('info', t('admin.juego.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
     ?>
 <?php else: ?>
 <div style="overflow-x:auto;">
     <table class="admin-table" id="admin-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Portada</th>
-                <th>Título</th>
-                <th>ID Juego</th>
-                <th>Consola</th>
-                <th>Categoría</th>
-                <th>Región</th>
-                <th style="text-align:center;" title="Descargas">⬇</th>
-                <th style="text-align:center;" title="Jugadas online">▶</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th><?= t('admin.juego.tabla_id') ?></th>
+                <th><?= t('admin.juego.tabla_portada') ?></th>
+                <th><?= t('admin.juego.tabla_titulo') ?></th>
+                <th><?= t('admin.juego.tabla_id_juego') ?></th>
+                <th><?= t('admin.juego.tabla_consola') ?></th>
+                <th><?= t('admin.juego.tabla_categoria') ?></th>
+                <th><?= t('admin.juego.tabla_region') ?></th>
+                <th style="text-align:center;" title="<?= t('admin.juego.tabla_descargas') ?>">⬇</th>
+                <th style="text-align:center;" title="<?= t('admin.juego.tabla_jugadas_online') ?>">▶</th>
+                <th><?= t('admin.juego.tabla_estado') ?></th>
+                <th><?= t('admin.juego.tabla_acciones') ?></th>
             </tr>
         </thead>
         <tbody>
@@ -75,7 +75,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                 <td>#<?= $juego['id'] ?></td>
                 <td>
                     <?php if (!empty($juego['imagen'])): ?>
-                        <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="Portada"
+                        <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= t('admin.juego.alt_portada') ?>"
                              style="width:40px;height:40px;object-fit:cover;border-radius:4px;">
                     <?php else: ?>
                         <span style="color:var(--text-light);">📁</span>
@@ -101,11 +101,11 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                             data-id="<?= $juego['id'] ?>"
                             data-titulo="<?= htmlspecialchars($juego['titulo'], ENT_QUOTES) ?>"
                             data-accion="<?= $juego['activo'] ? 'desactivar' : 'activar' ?>">
-                        <?= $juego['activo'] ? 'Desactivar' : 'Activar' ?>
+                        <?= $juego['activo'] ? t('admin.juego.desactivar') : t('admin.juego.activar') ?>
                     </button>
                 </td>
                 <td>
-                    <a href="/admin/edit/<?= $juego['id'] ?>" class="btn-edit">Editar</a>
+                    <a href="/admin/edit/<?= $juego['id'] ?>" class="btn-edit"><?= t('admin.juego.editar') ?></a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -116,7 +116,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <!-- PAGINACIÓN -->
 <?php 
 require_once __DIR__ . '/../src/views/components/Pagination.php';
-$extra = $hayFiltros ? '<span style="color:var(--text-light);"> • Filtros activos</span>' : '';
+$extra = $hayFiltros ? '<span style="color:var(--text-light);">' . t('admin.juego.filtros_activos') . '</span>' : '';
 Pagination::render(
     $currentPage, 
     $totalPages ?? 1, 
@@ -125,7 +125,7 @@ Pagination::render(
     'dashboard', 
     count($juegos), 
     $totalJuegos, 
-    'juegos', 
+    t('component.juegos'), 
     'admin',
     $extra
 );

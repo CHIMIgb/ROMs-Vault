@@ -37,21 +37,21 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <?php if (empty($consolas)): ?>
     <?php 
     require_once __DIR__ . '/../src/views/components/Alert.php';
-    Alert::render('info', 'No hay consolas que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+    Alert::render('info', t('admin.consola.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
     ?>
 <?php else: ?>
 <div style="overflow-x:auto;">
     <table class="admin-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Fabricante</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th>Emulación</th>
-                <th>Creada</th>
-                <th>Acciones</th>
+                <th><?= t('admin.consola.id') ?></th>
+                <th><?= t('admin.consola.nombre') ?></th>
+                <th><?= t('admin.consola.fabricante') ?></th>
+                <th><?= t('admin.consola.descripcion') ?></th>
+                <th><?= t('admin.consola.estado') ?></th>
+                <th><?= t('admin.consola.emulacion') ?></th>
+                <th><?= t('admin.consola.creada_col') ?></th>
+                <th><?= t('admin.consola.acciones') ?></th>
             </tr>
         </thead>
         <tbody>
@@ -68,7 +68,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                             data-id="<?= $c['id'] ?>"
                             data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
                             data-accion="<?= $c['activo'] ? 'desactivar' : 'activar' ?>">
-                        <?= $c['activo'] ? 'Desactivar' : 'Activar' ?>
+                        <?= $c['activo'] ? t('admin.consola.desactivar') : t('admin.consola.activar') ?>
                     </button>
                 </td>
                 <td>
@@ -76,12 +76,12 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                             data-id="<?= $c['id'] ?>"
                             data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
                             data-accion="<?= $c['emulacion_online'] ? 'desactivar' : 'activar' ?>">
-                        <?= $c['emulacion_online'] ? 'Desactivar' : 'Activar' ?>
+                        <?= $c['emulacion_online'] ? t('admin.consola.desactivar') : t('admin.consola.activar') ?>
                     </button>
                 </td>
                 <td><?= date('d/m/Y', strtotime($c['created_at'])) ?></td>
                 <td>
-                    <a href="/consola/edit/<?= $c['id'] ?>" class="btn-edit">Editar</a>
+                    <a href="/consola/edit/<?= $c['id'] ?>" class="btn-edit"><?= t('admin.consola.editar') ?></a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -99,7 +99,7 @@ Pagination::render(
     'index', 
     count($consolas), 
     $total, 
-    'consolas', 
+    t('component.consolas'), 
     'cs'
 );
 ?>

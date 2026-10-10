@@ -6,6 +6,7 @@
  */
 
 // Endpoint público — no requiere autenticación
+require_once __DIR__ . '/../src/config/i18n.php';
 require_once __DIR__ . '/../src/config/database.php';
 require_once __DIR__ . '/../src/models/Model.php';
 require_once __DIR__ . '/../src/models/Juego.php';
@@ -45,7 +46,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
     <?php if (empty($juegos)): ?>
         <?php 
         require_once __DIR__ . '/../src/views/components/Alert.php';
-        Alert::render('info', 'No hay juegos disponibles que coincidan con los filtros.', 'info', 'grid-column:1/-1;text-align:center;padding:3rem;justify-content:center;');
+        Alert::render('info', t('catalog.sin_resultados'), 'info', 'grid-column:1/-1;text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
         <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
@@ -62,31 +63,31 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                         <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
                     </a>
                     <div class="game-metadata">
-                        <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre'] ?? 'Sin género') ?></span>
+                        <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre'] ?? t('home.sin_genero')) ?></span>
                         <span class="game-tag platform"><?= htmlspecialchars($juego['consola_nombre'] ?? 'Multi') ?></span>
                         <span class="game-tag language"><?= htmlspecialchars($juego['region'] ?? 'All') ?></span>
                     </div>
                     <?php if (!empty($juego['formato_imagen']) && $juego['formato_imagen'] === 'Hack'): ?>
-                        <div class="game-hack-info"><?= htmlspecialchars($juego['descripcion'] ?? 'ROM Hack') ?></div>
+                        <div class="game-hack-info"><?= htmlspecialchars($juego['descripcion'] ?? t('home.rom_hack')) ?></div>
                     <?php endif; ?>
                     <div class="game-info">
                         <div class="game-info-item">
-                            <span class="game-info-label">Idiomas</span>
+                            <span class="game-info-label"><?= t('home.idiomas') ?></span>
                             <span class="game-info-value"><?= htmlspecialchars($juego['idiomas'] ?? 'English') ?></span>
                         </div>
                         <div class="game-info-item">
-                            <span class="game-info-label">Tamaño</span>
+                            <span class="game-info-label"><?= t('home.tamano') ?></span>
                             <span class="game-info-value"><?= number_format($juego['size_bytes'] / 1048576, 2) ?> MB</span>
                         </div>
                         <?php if (!empty($juego['downloads_count'])): ?>
                         <div class="game-info-item">
-                            <span class="game-info-label">Descargas</span>
+                            <span class="game-info-label"><?= t('home.descargas') ?></span>
                             <span class="game-info-value"><?= number_format($juego['downloads_count']) ?></span>
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($juego['plays_count'])): ?>
                         <div class="game-info-item">
-                            <span class="game-info-label">Jugadas</span>
+                            <span class="game-info-label"><?= t('home.jugadas') ?></span>
                             <span class="game-info-value"><?= number_format($juego['plays_count']) ?></span>
                         </div>
                         <?php endif; ?>
@@ -102,7 +103,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <?php 
 require_once __DIR__ . '/../src/views/components/Pagination.php';
 $extra = !empty($filters['busqueda']) 
-    ? ' • Búsqueda: "' . htmlspecialchars($filters['busqueda']) . '"' 
+    ? t('home.paginacion_busqueda', ['valor' => $filters['busqueda']]) 
     : '';
 
 Pagination::render(
@@ -113,7 +114,7 @@ Pagination::render(
     'index', 
     count($juegos), 
     $totalJuegos, 
-    'juegos', 
+    t('component.juegos'), 
     'catalog',
     $extra
 );

@@ -573,5 +573,12 @@
     "two_factor.codigo": "Código de verificación",
     "two_factor.instruccion": "Introduce el código de 6 dígitos de tu aplicación autenticadora.",
     "two_factor.titulo": "Verificación en dos pasos",
-    "two_factor.verificar": "Verificar"
+    "two_factor.verificar": "Verificar",
+    "msg.metodo_no_permitido": "Método no permitido",
+    "admin.juego.sin_resultados": "No hay juegos que coincidan con los filtros.",
+    "admin.juego.tabla_jugadas_online": "Jugadas online",
+    "admin.juego.filtros_activos": " • Filtros activos",
+    "component.categorias": "categorías",
+    "component.consolas": "consolas",
+    "component.consolas_con_emulador": "consolas con emulador"
 }
