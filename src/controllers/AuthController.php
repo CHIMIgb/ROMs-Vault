@@ -30,7 +30,7 @@ class AuthController {
             // bloqueada, rechazo genérico (no revela que la cuenta existe).
             if ($usuarioModel->estaBloqueado($user)) {
                 LoggerService::loginBlockedAccount($username, $ip);
-                $error = "Usuario o contraseña incorrectos";
+                $error = t('auth.error_credenciales');
             } elseif ($user && $usuarioModel->verifyPassword($password, $user['password_hash'])) {
                 // Contraseña correcta: reiniciar contador de fallos y
                 // desbloquear la cuenta (aunque el 2FA siga pendiente).
@@ -63,7 +63,7 @@ class AuthController {
                         LoggerService::accountLocked($username, $ip);
                     }
                 }
-                $error = "Usuario o contraseña incorrectos";
+                $error = t('auth.error_credenciales');
             }
         }
         require_once __DIR__ . '/../views/layout/header.php';
@@ -123,7 +123,7 @@ class AuthController {
             }
 
             LoggerService::tfaFailed($user['username'], $ip);
-            $error = "Código incorrecto o expirado. Inténtalo de nuevo.";
+            $error = t('msg.tfa_codigo_incorrecto');
         }
 
         require_once __DIR__ . '/../views/layout/header.php';

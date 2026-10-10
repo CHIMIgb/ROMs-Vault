@@ -443,6 +443,7 @@
     "msg.tfa_codigo_incorrecto_activacion": "Incorrect code. 2FA has not been activated.",
     "msg.tfa_contrasena_incorrecta": "Incorrect password. 2FA has not been disabled.",
     "msg.tfa_generar_primero": "First generate an activation code.",
+    "msg.tfa_pendiente": "Two-factor verification pending.",
     "nav.catalogo": "Catalog",
     "nav.cerrar_sesion": "Sign out",
     "nav.panel_admin": "Admin Panel",

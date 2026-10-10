@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/JWTService.php';
 require_once __DIR__ . '/TfaService.php';
+require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/../models/Usuario.php';
 
 class AuthMiddleware {
@@ -61,7 +62,7 @@ class AuthMiddleware {
         if ($user === null) {
             http_response_code(403);
             require_once __DIR__ . '/../views/components/Alert.php';
-            Alert::render('danger', 'Acceso denegado.', '✖');
+            Alert::render('danger', t('msg.acceso_denegado'), '✖');
             exit;
         }
         return $user;
@@ -107,19 +108,19 @@ class AuthMiddleware {
         if ($user === null) {
             http_response_code(403);
             require_once __DIR__ . '/../views/components/Alert.php';
-            Alert::render('danger', 'Acceso denegado.', '✖');
+            Alert::render('danger', t('msg.acceso_denegado'), '✖');
             exit;
         }
         if ((int) ($user['rol_id'] ?? 0) !== self::ADMIN_ROLE_ID) {
             http_response_code(403);
             require_once __DIR__ . '/../views/components/Alert.php';
-            Alert::render('danger', 'Acceso denegado.', '✖');
+            Alert::render('danger', t('msg.acceso_denegado'), '✖');
             exit;
         }
         if (self::requiereSegundoFactor($user)) {
             http_response_code(403);
             require_once __DIR__ . '/../views/components/Alert.php';
-            Alert::render('danger', 'Verificación de dos factores pendiente.', '✖');
+            Alert::render('danger', t('msg.tfa_pendiente'), '✖');
             exit;
         }
         return $user;

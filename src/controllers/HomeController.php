@@ -373,15 +373,15 @@ class HomeController {
         }
 
         $typeMap = [
-            404 => ['type' => 'not_found', 'message' => 'El archivo de esta ROM ya no existe en Google Drive. Puede haber sido eliminado o el enlace está desactualizado.'],
-            403 => ['type' => 'private',   'message' => 'Google Drive está bloqueando el acceso a este archivo. Puede que sea privado o que su cuota de descargas se haya agotado.'],
-            429 => ['type' => 'quota',     'message' => 'Google Drive ha limitado temporalmente el acceso por exceso de descargas. Inténtalo de nuevo en unos minutos.'],
-            502 => ['type' => 'network',   'message' => 'No se pudo conectar con Google Drive. El servicio puede estar caído o el archivo fue movido.'],
+            404 => ['type' => 'not_found', 'message' => t('msg.proxy_rom_no_existe')],
+            403 => ['type' => 'private',   'message' => t('msg.proxy_privado')],
+            429 => ['type' => 'quota',     'message' => t('msg.proxy_cuota')],
+            502 => ['type' => 'network',   'message' => t('msg.proxy_red')],
         ];
 
         return $typeMap[$httpCode] ?? [
             'type'    => 'network',
-            'message' => "Error inesperado al acceder al archivo (código $httpCode). Inténtalo de nuevo más tarde.",
+            'message' => t('msg.proxy_error_inesperado', ['codigo' => $httpCode]),
         ];
     }
 
@@ -394,8 +394,8 @@ class HomeController {
         if (!$fileId || !UrlSigner::verify((string) $fileId, $t, (string) $sig)) {
             http_response_code(403);
             $errorCode  = 403;
-            $errorTitle = 'Enlace no válido';
-            $errorMsg   = 'Este enlace de descarga no es válido o ha caducado. Vuelve al catálogo y pulsa de nuevo en Descargar.';
+            $errorTitle = t('msg.enlace_no_valido');
+            $errorMsg   = t('msg.enlace_caducado');
             require_once __DIR__ . '/../views/layout/header.php';
             require_once __DIR__ . '/../views/errors/generic.php';
             require_once __DIR__ . '/../views/layout/footer.php';
@@ -408,8 +408,8 @@ class HomeController {
         if (!RateLimiter::check(RateLimiter::clientIp(), $rlMax, $rlWindow, 'download')) {
             http_response_code(429);
             $errorCode  = 429;
-            $errorTitle = 'Demasiadas descargas';
-            $errorMsg   = 'Has superado el número máximo de descargas. Espera unos minutos e inténtalo de nuevo.';
+            $errorTitle = t('msg.demasiadas_descargas');
+            $errorMsg   = t('msg.descargas_excedidas');
             require_once __DIR__ . '/../views/layout/header.php';
             require_once __DIR__ . '/../views/errors/generic.php';
             require_once __DIR__ . '/../views/layout/footer.php';
@@ -422,8 +422,8 @@ class HomeController {
         if (!$juego) {
             http_response_code(404);
             $errorCode  = 404;
-            $errorTitle = 'Archivo no encontrado';
-            $errorMsg   = 'El archivo solicitado no existe en nuestra base de datos.';
+            $errorTitle = t('msg.archivo_no_encontrado');
+            $errorMsg   = t('msg.archivo_no_existe');
             require_once __DIR__ . '/../views/layout/header.php';
             require_once __DIR__ . '/../views/errors/generic.php';
             require_once __DIR__ . '/../views/layout/footer.php';

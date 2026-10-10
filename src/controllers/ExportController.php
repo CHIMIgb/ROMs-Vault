@@ -20,7 +20,7 @@ class ExportController {
 
         if (empty($table)) {
             http_response_code(400);
-            echo "Error: Tabla no especificada.";
+            echo t('msg.tabla_no_especificada');
             exit;
         }
 
@@ -29,7 +29,7 @@ class ExportController {
 
         if (!array_key_exists($table, $allowedTables)) {
             http_response_code(400);
-            echo "Error: Tabla no válida para exportación.";
+            echo t('msg.tabla_no_valida');
             exit;
         }
 
@@ -66,7 +66,7 @@ class ExportController {
 
         } catch (Exception $e) {
             http_response_code(500);
-            echo "Error interno al generar el archivo Excel: " . $e->getMessage();
+            echo t('msg.export_error_interno', ['detalle' => $e->getMessage()]);
             exit;
         }
     }

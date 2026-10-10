@@ -41,7 +41,7 @@ class CategoriaController {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             if ($nombre === '') {
-                $error = 'El nombre de la categoría es obligatorio.';
+                $error = t('msg.categoria_nombre_obligatorio');
             } else {
                 $categoriaModel = new Categoria();
                 $ok = $categoriaModel->create([
@@ -54,7 +54,7 @@ class CategoriaController {
                     header('Location: /categoria/index?created=1');
                     exit;
                 } else {
-                    $error = 'Error al guardar la categoría. Es posible que el nombre ya exista.';
+                    $error = t('msg.categoria_guardar_error');
                 }
             }
         }
@@ -85,7 +85,7 @@ class CategoriaController {
             $nombre      = trim($_POST['nombre']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             if ($nombre === '') {
-                $error = 'El nombre de la categoría es obligatorio.';
+                $error = t('msg.categoria_nombre_obligatorio');
             } else {
                 $ok = $categoriaModel->update($id, [
                     'nombre'      => $nombre,
@@ -97,7 +97,7 @@ class CategoriaController {
                     header('Location: /categoria/index?updated=1');
                     exit;
                 } else {
-                    $error = 'Error al actualizar la categoría.';
+                    $error = t('msg.categoria_actualizar_error');
                 }
             }
         }
@@ -152,7 +152,7 @@ class CategoriaController {
 
         if (!$id) {
             http_response_code(400);
-            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            echo json_encode(['ok' => false, 'error' => t('msg.id_no_especificado')]);
             exit;
         }
 
@@ -161,7 +161,7 @@ class CategoriaController {
 
         if (!$categoria) {
             http_response_code(404);
-            echo json_encode(['ok' => false, 'error' => 'Categoría no encontrada']);
+            echo json_encode(['ok' => false, 'error' => t('msg.categoria_no_encontrada')]);
             exit;
         }
 

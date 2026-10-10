@@ -45,7 +45,7 @@ class ConsolaController {
             $emulacionOnline = isset($_POST['emulacion_online']) ? 1 : 0;
 
             if ($nombre === '') {
-                $error = 'El nombre de la consola es obligatorio.';
+                $error = t('msg.consola_nombre_obligatorio');
             } else {
                 $consolaModel = new Consola();
                 $ok = $consolaModel->create([
@@ -60,7 +60,7 @@ class ConsolaController {
                     header('Location: /consola/index?created=1');
                     exit;
                 } else {
-                    $error = 'Error al guardar la consola. Es posible que el nombre ya exista.';
+                    $error = t('msg.consola_guardar_error');
                 }
             }
         }
@@ -94,7 +94,7 @@ class ConsolaController {
             $emulacionOnline = isset($_POST['emulacion_online']) ? 1 : 0;
 
             if ($nombre === '') {
-                $error = 'El nombre de la consola es obligatorio.';
+                $error = t('msg.consola_nombre_obligatorio');
             } else {
                 $ok = $consolaModel->update($id, [
                     'nombre'           => $nombre,
@@ -108,7 +108,7 @@ class ConsolaController {
                     header('Location: /consola/index?updated=1');
                     exit;
                 } else {
-                    $error = 'Error al actualizar la consola. El nombre puede estar duplicado.';
+                    $error = t('msg.consola_actualizar_error');
                 }
             }
         }
@@ -163,7 +163,7 @@ class ConsolaController {
 
         if (!$id) {
             http_response_code(400);
-            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            echo json_encode(['ok' => false, 'error' => t('msg.id_no_especificado')]);
             exit;
         }
 
@@ -172,7 +172,7 @@ class ConsolaController {
 
         if (!$consola) {
             http_response_code(404);
-            echo json_encode(['ok' => false, 'error' => 'Consola no encontrada']);
+            echo json_encode(['ok' => false, 'error' => t('msg.consola_no_encontrada')]);
             exit;
         }
 
@@ -198,7 +198,7 @@ class ConsolaController {
 
         if (!$id) {
             http_response_code(400);
-            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            echo json_encode(['ok' => false, 'error' => t('msg.id_no_especificado')]);
             exit;
         }
 
@@ -207,7 +207,7 @@ class ConsolaController {
 
         if (!$consola) {
             http_response_code(404);
-            echo json_encode(['ok' => false, 'error' => 'Consola no encontrada']);
+            echo json_encode(['ok' => false, 'error' => t('msg.consola_no_encontrada')]);
             exit;
         }
 

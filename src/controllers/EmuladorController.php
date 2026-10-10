@@ -86,7 +86,7 @@ class EmuladorController {
                 }
             }
             if (!$consolaValida) {
-                $error = 'Selecciona una consola válida sin emulador configurado.';
+                $error = t('msg.emulador_consola_invalida');
             }
 
             if ($error === null) {
@@ -106,7 +106,7 @@ class EmuladorController {
                         header('Location: /emulador/index?created=1');
                         exit;
                     }
-                    $error = 'Error al guardar el emulador. Revisa los datos e inténtalo de nuevo.';
+                    $error = t('msg.emulador_guardar_error');
                 }
 
                 // Si hay error, mantener lo que escribió el usuario
@@ -168,7 +168,7 @@ class EmuladorController {
                     header('Location: /emulador/index?updated=1');
                     exit;
                 }
-                $error = 'Error al guardar los emuladores. Revisa los datos e inténtalo de nuevo.';
+                $error = t('msg.emuladores_guardar_error');
             }
 
             // Si hay error, mantener lo que escribió el usuario en el formulario
@@ -192,7 +192,7 @@ class EmuladorController {
 
         if (!$id) {
             http_response_code(400);
-            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            echo json_encode(['ok' => false, 'error' => t('msg.id_no_especificado')]);
             exit;
         }
 
@@ -201,7 +201,7 @@ class EmuladorController {
 
         if ($nuevoEstado === null) {
             http_response_code(404);
-            echo json_encode(['ok' => false, 'error' => 'Esta consola no tiene emuladores configurados']);
+            echo json_encode(['ok' => false, 'error' => t('msg.consola_sin_emuladores')]);
             exit;
         }
 
@@ -242,19 +242,19 @@ class EmuladorController {
     // ── Validar un emulador antes de guardarlo ────────────────────────────
     private function validarEmulador(array $emulador): ?string {
         if ($emulador['nombre'] === '') {
-            return 'El nombre del emulador es obligatorio.';
+            return t('msg.emulador_nombre_obligatorio');
         }
         if (mb_strlen($emulador['nombre']) > 100) {
-            return 'El nombre del emulador no puede superar los 100 caracteres.';
+            return t('msg.emulador_nombre_largo');
         }
         if (empty($emulador['plataformas'])) {
-            return 'Selecciona al menos una plataforma (PC o Android).';
+            return t('msg.emulador_plataforma_obligatoria');
         }
         if ($emulador['url'] === '' || !filter_var($emulador['url'], FILTER_VALIDATE_URL)) {
-            return 'La URL del emulador debe ser una dirección válida (incluye http:// o https://).';
+            return t('msg.emulador_url_invalida');
         }
         if (mb_strlen($emulador['url']) > 300) {
-            return 'La URL no puede superar los 300 caracteres.';
+            return t('msg.emulador_url_larga');
         }
         return null;
     }

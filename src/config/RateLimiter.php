@@ -3,8 +3,10 @@
  * config/RateLimiter.php
  * Rate limiting por IP con ventana deslizante, persistido en archivos del
  * directorio temporal del sistema. Mismo patrón que rom_proxy.php, extraído
- * a una clase reutilizable para proteger también el login y otros endpoints.
+*  a una clase reutilizable para proteger también el login y otros endpoints.
  */
+
+require_once __DIR__ . '/i18n.php';
 
 class RateLimiter {
 
@@ -103,11 +105,11 @@ class RateLimiter {
             && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(['ok' => false, 'error' => 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.']);
+            echo json_encode(['ok' => false, 'error' => t('rate.demasiados_intentos')]);
         } else {
             $errorCode  = 429;
-            $errorTitle = 'Demasiadas peticiones';
-            $errorMsg   = 'Has superado el número máximo de intentos permitidos. Espera unos minutos e inténtalo de nuevo.';
+            $errorTitle = t('rate.demasiadas_peticiones');
+            $errorMsg   = t('rate.limite_intentos');
             require_once __DIR__ . '/../views/layout/header.php';
             require_once __DIR__ . '/../views/errors/generic.php';
             require_once __DIR__ . '/../views/layout/footer.php';

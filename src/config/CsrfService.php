@@ -10,9 +10,11 @@
  *      compara el token recibido (body/header/query) contra el de la cookie
  *      usando hash_equals(). Si no coinciden → 403.
  *
- * La cookie es httpOnly y SameSite=Strict, así que un atacante externo no
- * puede leerla ni forzarla en el navegador de la víctima.
+*  La cookie es httpOnly y SameSite=Strict, así que un atacante externo no
+ *  puede leerla ni forzarla en el navegador de la víctima.
  */
+
+require_once __DIR__ . '/i18n.php';
 
 class CsrfService {
 
@@ -112,11 +114,11 @@ class CsrfService {
         $isAjax = self::isAjax();
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(['ok' => false, 'error' => 'Token CSRF inválido o expirado. Recarga la página e inténtalo de nuevo.']);
+            echo json_encode(['ok' => false, 'error' => t('csrf.token_invalido')]);
         } else {
             $errorCode  = 403;
-            $errorTitle = 'Acceso denegado';
-            $errorMsg   = 'Token CSRF inválido o expirado. Recarga la página e inténtalo de nuevo.';
+            $errorTitle = t('msg.acceso_denegado');
+            $errorMsg   = t('csrf.token_invalido');
             require_once __DIR__ . '/../views/layout/header.php';
             require_once __DIR__ . '/../views/errors/generic.php';
             require_once __DIR__ . '/../views/layout/footer.php';

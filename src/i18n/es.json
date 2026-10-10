@@ -443,6 +443,7 @@
     "msg.tfa_codigo_incorrecto_activacion": "Código incorrecto. No se ha activado el 2FA.",
     "msg.tfa_contrasena_incorrecta": "Contraseña incorrecta. No se ha desactivado el 2FA.",
     "msg.tfa_generar_primero": "Primero genera un código de activación.",
+    "msg.tfa_pendiente": "Verificación de dos factores pendiente.",
     "nav.catalogo": "Catálogo",
     "nav.cerrar_sesion": "Cerrar sesión",
     "nav.panel_admin": "Panel Admin",

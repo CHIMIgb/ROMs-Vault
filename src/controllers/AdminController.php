@@ -128,7 +128,7 @@ class AdminController {
                     header('Location: /admin/dashboard');
                     exit;
                 } else {
-                    $error = "Error al guardar el juego en la base de datos";
+                    $error = t('msg.juego_guardar_error');
                 }
             }
         }
@@ -140,14 +140,14 @@ class AdminController {
 
     public function edit($id = null) {
         if (!$id) {
-            die("Error: No se especificó el ID del juego a editar");
+            die(t('msg.id_juego_no_especificado'));
         }
         
         $juegoModel = new Juego();
         $juego = $juegoModel->find($id);
         
         if (!$juego) {
-            die("Error: Juego no encontrado con ID: " . $id);
+            die(t('msg.juego_no_encontrado_id', ['id' => $id]));
         }
 
         $consolaModel = new Consola();
@@ -283,7 +283,7 @@ class AdminController {
                     header('Location: /admin/dashboard');
                     exit;
                 } else {
-                    $error = "Error al actualizar el juego";
+                    $error = t('msg.juego_actualizar_error');
                 }
             }
         }
@@ -328,7 +328,7 @@ class AdminController {
 
         if (!$id) {
             http_response_code(400);
-            echo json_encode(['ok' => false, 'error' => 'ID no especificado']);
+            echo json_encode(['ok' => false, 'error' => t('msg.id_no_especificado')]);
             exit;
         }
 
@@ -337,7 +337,7 @@ class AdminController {
 
         if (!$juego) {
             http_response_code(404);
-            echo json_encode(['ok' => false, 'error' => 'Juego no encontrado']);
+            echo json_encode(['ok' => false, 'error' => t('msg.juego_no_encontrado')]);
             exit;
         }
 
@@ -379,18 +379,18 @@ class AdminController {
             if ($accion === 'activar') {
                 $secret = TfaService::generarSecret();
                 $usuarioModel->registrarSecretTfa($userId, $secret);
-                $msg     = 'Escanea el código QR (o añade la clave manualmente) y confirma con un código para activar.';
+                $msg     = t('msg.tfa_activar_instruccion');
                 $msgTipo = 'info';
             } elseif ($accion === 'confirmar') {
                 $secret = $usuarioModel->obtenerSecretTfa($userId);
                 $code   = trim((string) ($_POST['code'] ?? ''));
 
                 if ($secret === null) {
-                    $msg     = 'Primero genera un código de activación.';
+                    $msg     = t('msg.tfa_generar_primero');
                     $msgTipo = 'danger';
                 } elseif (!TfaService::verificar($secret, $code)) {
                     LoggerService::tfaFailed((string) ($fila['username'] ?? ''), $ip);
-                    $msg     = 'Código incorrecto. No se ha activado el 2FA.';
+                    $msg     = t('msg.tfa_codigo_incorrecto_activacion');
                     $msgTipo = 'danger';
                 } else {
                     $usuarioModel->habilitarTfa($userId);
@@ -407,7 +407,7 @@ class AdminController {
                 $password = (string) ($_POST['password'] ?? '');
 
                 if (!$usuarioModel->verifyPassword($password, $fila['password_hash'] ?? '')) {
-                    $msg     = 'Contraseña incorrecta. No se ha desactivado el 2FA.';
+                    $msg     = t('msg.tfa_contrasena_incorrecta');
                     $msgTipo = 'danger';
                 } else {
                     $usuarioModel->deshabilitarTfa($userId);
@@ -452,16 +452,16 @@ class AdminController {
     private function uploadImage($file, string $carpeta, string $nombreBase) {
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!in_array($file['type'], $allowedTypes)) {
-            return ['success' => false, 'error' => 'Tipo de archivo no permitido'];
+            return ['success' => false, 'error' => t('msg.archivo_tipo_no_permitido')];
         }
 
         if ($file['size'] > 2 * 1024 * 1024) {
-            return ['success' => false, 'error' => 'La imagen no puede ser mayor a 2MB'];
+            return ['success' => false, 'error' => t('msg.imagen_demasiado_grande')];
         }
 
         // Verificar si la librería GD está activa en el servidor
         if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
-            return ['success' => false, 'error' => 'La extensión GD de PHP no está activada en este servidor. Habilita "extension=gd" en tu archivo php.ini.'];
+            return ['success' => false, 'error' => t('msg.gd_no_activada')];
         }
 
         if (!is_dir($carpeta)) {
@@ -491,7 +491,7 @@ class AdminController {
         }
 
         if (!$image) {
-            return ['success' => false, 'error' => 'Error al procesar la imagen (formato no válido o corrupto)'];
+            return ['success' => false, 'error' => t('msg.imagen_procesar_error')];
         }
 
         // Convertir y guardar a WebP con calidad 80
@@ -504,7 +504,7 @@ class AdminController {
             $juegoDir   = basename($carpeta);
             return ['success' => true, 'filename' => 'public/uploads/' . $consolaDir . '/' . $juegoDir . '/' . $nombreBase . '.webp'];
         } else {
-            return ['success' => false, 'error' => 'Error al convertir la imagen a WebP'];
+            return ['success' => false, 'error' => t('msg.imagen_webp_error')];
         }
     }
 
