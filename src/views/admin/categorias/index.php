@@ -1,5 +1,9 @@
 <!-- views/admin/categorias/index.php -->
 
+<?php
+require_once __DIR__ . '/../../../config/IntlHelper.php';
+?>
+
 <!-- ESTADÍSTICAS -->
 <div class="admin-stats-grid">
     <div class="stat-card">
@@ -146,9 +150,6 @@ endif;
         'cat'
     );
     ?>
-    <?php
-require_once __DIR__ . '/../../config/IntlHelper.php';
-?>
 <?php endif; ?>
 
 </div><!-- /#categorias-results -->

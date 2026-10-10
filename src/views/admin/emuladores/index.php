@@ -1,7 +1,7 @@
 <!-- views/admin/emuladores/index.php -->
 
 <?php
-require_once __DIR__ . '/../../config/IntlHelper.php';
+require_once __DIR__ . '/../../../config/IntlHelper.php';
 ?>
 
 <!-- ESTADÍSTICAS — mismo patrón que consolas/categorías -->

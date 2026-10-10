@@ -1,5 +1,9 @@
 <!-- views/admin/consolas/index.php -->
 
+<?php
+require_once __DIR__ . '/../../../config/IntlHelper.php';
+?>
+
 <!-- ESTADÍSTICAS -->
 <div class="admin-stats-grid">
     <div class="stat-card">
@@ -158,9 +162,6 @@ endif;
         'cs'
     );
     ?>
-    <?php
-require_once __DIR__ . '/../../config/IntlHelper.php';
-?>
 <?php endif; ?>
 
 </div><!-- /#consolas-results -->
