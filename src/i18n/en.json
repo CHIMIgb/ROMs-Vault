@@ -138,6 +138,7 @@
     "admin.dashboard.top_jugados": "Top 5 most played online",
     "admin.dashboard.total_descargas": "Total downloads",
     "admin.dashboard.total_juegos": "Total games",
+    "admin.dashboard.total_jugadas": "Total plays",
     "admin.dashboard.total_jugadas_online": "Total online plays",
     "admin.dashboard.verificacion_dos_pasos": "Two-step verification",
     "admin.emulador.acciones": "Actions",
@@ -326,8 +327,8 @@
     "common.saludo": "Hello, {nombre}",
     "component.anterior": "Previous",
     "component.descargar": "Download",
-    "component.juegos": "games",
     "component.juegos_recomendados": "Recommended games",
+    "component.juegos": "games",
     "component.jugar_online": "Play Online",
     "component.la_consola": "the console",
     "component.mas_de": "More from {consola}",
@@ -581,8 +582,7 @@
     "admin.juego.filtros_activos": " • Active filters",
     "component.categorias": "categories",
     "component.consolas": "consoles",
-    "component.consolas_con_emulador": "consoles with emulator"
-,
+    "component.consolas_con_emulador": "consoles with emulator",
     "play.error_sin_juego": "Error: No se especificó el juego a reproducir.",
     "play.error_juego_no_existe": "Error: The requested game does not exist in the database."
 }

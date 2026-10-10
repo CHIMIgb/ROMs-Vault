@@ -138,6 +138,7 @@
     "admin.dashboard.top_jugados": "オンラインプレイ回数トップ5",
     "admin.dashboard.total_descargas": "ダウンロード総数",
     "admin.dashboard.total_juegos": "ゲーム総数",
+    "admin.dashboard.total_jugadas": "プレイ総数",
     "admin.dashboard.total_jugadas_online": "オンラインプレイ総数",
     "admin.dashboard.verificacion_dos_pasos": "二段階認証",
     "admin.emulador.acciones": "操作",

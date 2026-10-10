@@ -138,6 +138,7 @@
     "admin.dashboard.top_jugados": "Top 5 mais jogados online",
     "admin.dashboard.total_descargas": "Total de downloads",
     "admin.dashboard.total_juegos": "Total de jogos",
+    "admin.dashboard.total_jugadas": "Total de partidas jogadas",
     "admin.dashboard.total_jugadas_online": "Total de partidas online",
     "admin.dashboard.verificacion_dos_pasos": "Verificação em duas etapas",
     "admin.emulador.acciones": "Ações",
