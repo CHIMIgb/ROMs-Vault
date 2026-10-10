@@ -16,6 +16,7 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use I18n;
+use IntlHelper;
 
 class I18nTest extends TestCase {
 
@@ -175,6 +176,39 @@ class I18nTest extends TestCase {
             if ($had) {
                 $_ENV['I18N_LANG'] = $prev;
             }
+        }
+    }
+
+    // ── EJS_language: idioma de la UI del emulador (ítem 5.3) ───────────────
+    //
+    // Debe mapear cada idioma de la app a un código que exista REALMENTE en
+    // cdn.emulatorjs.org/stable/data/localization/. EmulatorJS no publica
+    // francés (af-FR es afrikáans), así que 'fr' cae a 'en-US'.
+
+    public function testEmulatorLanguageMapeaCadaIdiomaAlCodigoDelCdn(): void {
+        $esperado = [
+            'es' => 'es-ES',
+            'en' => 'en-US',
+            'fr' => 'en-US', // fallback: no existe fr-FR en el CDN
+            'pt' => 'pt-BR',
+            'de' => 'de-GER',
+            'ja' => 'ja-JA',
+        ];
+        foreach ($esperado as $lang => $codigo) {
+            $this->assertTrue(I18n::setLang($lang));
+            $this->assertSame($codigo, IntlHelper::emulatorLanguage(), "Idioma '$lang' → '$codigo'.");
+        }
+    }
+
+    public function testEmulatorLanguageSiempreDevuelveUnCodigoPublicado(): void {
+        $publicados = ['es-ES', 'en-US', 'pt-BR', 'de-GER', 'ja-JA'];
+        foreach (I18n::LANGUAGES as $lang) {
+            I18n::setLang($lang);
+            $this->assertContains(
+                IntlHelper::emulatorLanguage(),
+                $publicados,
+                "El código para '$lang' debe existir en el CDN de EmulatorJS."
+            );
         }
     }
 }

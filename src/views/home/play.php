@@ -263,7 +263,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
             window.EJS_color = '#c0392b';
             window.EJS_startOnLoaded = false;
             window.EJS_backgroundColor = '#1a1a1a';
-            window.EJS_language = 'es-ES';  // Español (rama stable del CDN: localization/es-ES.json)
+            window.EJS_language = '<?= IntlHelper::emulatorLanguage() ?>';  // UI del emulador según idioma activo (FASE 5.3)
             window.EJS_Buttons = {
                 saveState: true,
                 loadState: true,

@@ -40,6 +40,23 @@ class IntlHelper
     ];
 
     /**
+     * Código de idioma que espera EmulatorJS en `window.EJS_language` según el
+     * idioma activo. Debe corresponder a un fichero real del CDN
+     * (cdn.emulatorjs.org/stable/data/localization/<código>.json).
+     *
+     * OJO: EmulatorJS NO publica francés (`af-FR` es afrikáans, no français),
+     * así que 'fr' cae a 'en-US' (fallback neutro).
+     */
+    private const EMULATOR_LOCALES = [
+        'es' => 'es-ES',
+        'en' => 'en-US',
+        'fr' => 'en-US',
+        'pt' => 'pt-BR',
+        'de' => 'de-GER',
+        'ja' => 'ja-JA',
+    ];
+
+    /**
      * Devuelve el locale para Intl según idioma activo.
      * @return string p. ej. 'es_ES', 'en_US', 'fr_FR', 'pt_BR', 'de_DE', 'ja_JP'
      */
@@ -52,6 +69,26 @@ class IntlHelper
             }
         }
         return self::LOCALES['es'];
+    }
+
+    /**
+     * Idioma de la interfaz de EmulatorJS (`window.EJS_language`) según el
+     * idioma activo de la app.
+     *
+     * Siempre devuelve un código publicado por el CDN de EmulatorJS; si el
+     * idioma activo no tuviera traducción propia, cae a 'en-US'.
+     *
+     * @return string p. ej. 'es-ES', 'en-US', 'de-GER', 'ja-JA', 'pt-BR'
+     */
+    public static function emulatorLanguage(): string
+    {
+        if (class_exists('I18n')) {
+            $lang = I18n::getLang();
+            if (isset(self::EMULATOR_LOCALES[$lang])) {
+                return self::EMULATOR_LOCALES[$lang];
+            }
+        }
+        return 'en-US';
     }
 
     /**
