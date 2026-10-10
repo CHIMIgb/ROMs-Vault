@@ -496,21 +496,3 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
 
 })();
 </script>
-<style>
-/* Cabecera con múltiples acciones */
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: .75rem;
-    margin-bottom: 1.5rem;
-}
-
-.admin-header-actions {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    flex-wrap: wrap;
-}
-</style>
