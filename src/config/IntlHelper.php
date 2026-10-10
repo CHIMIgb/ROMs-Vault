@@ -2,15 +2,29 @@
 /**
  * config/IntlHelper.php
  *
- * Helper de internacionalización para fechas y números con Intl (PHP 8.2).
- * Usa el idioma activo de I18n::getLang() (es/en). Con fallback seguro a
- * date()/number_format() si la extensión intl no está disponible.
+ * Helper de internacionalización para fechas y números (PHP 8.2).
+ * Usa el idioma activo de I18n::getLang() (es/en) y formatea con la
+ * extensión intl cuando está disponible.
+ *
+ * IMPORTANTE: la extensión `intl` es OPCIONAL. Todo el código —incluidos los
+ * valores por defecto de los parámetros— debe funcionar SIN ella. Por eso no
+ * se referencia nunca `IntlDateFormatter::*` fuera de un bloque protegido por
+ * class_exists(); las constantes de estilo se definen aquí con los mismos
+ * valores que usa Intl, de modo que son intercambiables al construir el
+ * formateador.
  *
  * NOTA: No gestiona moneda (no existe en la app). Los tamaños de archivo
  * conservan sus unidades (B/KB/MB/GB) y solo se formatea el valor numérico.
  */
 class IntlHelper
 {
+    // ── Estilos de fecha/hora (mismos valores que IntlDateFormatter) ─────────
+    public const FULL   = 0;
+    public const LONG   = 1;
+    public const MEDIUM = 2;
+    public const SHORT  = 3;
+    public const NONE   = -1;
+
     /**
      * Devuelve el locale para Intl según idioma activo.
      * @return string 'es_ES' o 'en_US'
@@ -30,10 +44,10 @@ class IntlHelper
      * Formatea una fecha (timestamp, string ISO/fecha o DateTime).
      *
      * @param int|string|\DateTimeInterface|null $date
-     * @param int $dateStyle  IntlDateFormatter::NONE|SHORT|MEDIUM|LONG|FULL
-     * @param int $timeStyle  IntlDateFormatter::NONE|SHORT|MEDIUM|LONG|FULL
+     * @param int $dateStyle  self::FULL|LONG|MEDIUM|SHORT|NONE
+     * @param int $timeStyle  self::FULL|LONG|MEDIUM|SHORT|NONE
      */
-    public static function formatDate($date = null, int $dateStyle = IntlDateFormatter::MEDIUM, int $timeStyle = IntlDateFormatter::NONE): string
+    public static function formatDate($date = null, int $dateStyle = self::MEDIUM, int $timeStyle = self::NONE): string
     {
         if ($date === null || $date === '') {
             return '';
@@ -45,23 +59,23 @@ class IntlHelper
             $dt = null;
         }
 
+        // Si no pudimos interpretarlo, intento bruto sin Intl.
         if ($dt === null) {
-            // Fallback bruto
-            if (is_numeric($date)) {
-                return date('d/m/Y', (int) $date);
+            $ts = is_numeric($date) ? (int) $date : strtotime((string) $date);
+            if ($ts === false || $ts === null) {
+                return (string) $date;
             }
-            $ts = strtotime((string) $date);
-            return $ts === false ? (string) $date : date('d/m/Y', $ts);
+            $dt = (new \DateTimeImmutable())->setTimestamp($ts);
         }
 
-        // Intl disponible
+        // Intl disponible: formato nativo según locale.
         if (class_exists('IntlDateFormatter')) {
             $fmt = new IntlDateFormatter(
                 self::getLocale(),
                 $dateStyle,
                 $timeStyle,
                 null,
-                IntlDateFormatter::GREGORIAN
+                \IntlDateFormatter::GREGORIAN
             );
             if ($fmt !== false) {
                 $res = $fmt->format($dt);
@@ -71,8 +85,8 @@ class IntlHelper
             }
         }
 
-        // Fallback: formato español neutro por defecto
-        return $dt->format('d/m/Y');
+        // Fallback sin intl: respeta el idioma activo.
+        return self::fallbackDate($dt, $dateStyle, $timeStyle);
     }
 
     /**
@@ -93,92 +107,66 @@ class IntlHelper
                 return (string) $date;
             }
             $ts = strtotime((string) $date);
-            return $ts === false ? '' : (string) date('Y', $ts);
+            return $ts === false ? (string) $date : date('Y', $ts);
         }
 
-        // Año numérico (no varía entre locales). Usamos Intl con patrón y para robustez
-        if (class_exists('IntlDateFormatter')) {
-            $fmt = new IntlDateFormatter(
-                self::getLocale(),
-                IntlDateFormatter::NONE,
-                IntlDateFormatter::NONE,
-                null,
-                IntlDateFormatter::GREGORIAN,
-                'yyyy'
-            );
-            if ($fmt !== false) {
-                $res = $fmt->format($dt);
-                if ($res !== false) {
-                    return $res;
-                }
-            }
-        }
+        // El año es numérico: no depende de Intl ni del locale.
         return $dt->format('Y');
     }
 
     /**
-     * Formatea un número con separadores de miles según locale.
+     * Formatea un número según locale (separador de miles/decimales).
      *
-     * @param int|float $num
+     * @param int|float|string|null $number
+     * @param int $decimals  Número de decimales (0 = entero)
      */
-    public static function formatNumber($num, int $decimals = 0): string
+    public static function formatNumber($number, int $decimals = 0): string
     {
-        if ($num === null) {
-            return '0';
+        if ($number === null || $number === '' || !is_numeric($number)) {
+            $number = 0;
         }
-        if (!is_numeric($num)) {
-            $num = 0;
-        }
-
-        $value = (float) $num;
-        $isInt = ($decimals <= 0);
+        $number = (float) $number;
 
         if (class_exists('NumberFormatter')) {
-            $fmt = new NumberFormatter(self::getLocale(), NumberFormatter::DEFAULT_STYLE);
+            $fmt = new \NumberFormatter(self::getLocale(), \NumberFormatter::DECIMAL);
             if ($fmt !== false) {
-                if ($isInt) {
-                    // Enteros sin decimales
-                    $res = $fmt->format((int) round($value));
-                } else {
-                    $fmt->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, $decimals);
-                    $fmt->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $decimals);
-                    $res = $fmt->format($value);
-                }
+                $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $decimals);
+                $fmt->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $decimals);
+                $res = $fmt->format($number);
                 if ($res !== false) {
                     return $res;
                 }
             }
         }
 
-        // Fallback
-        return number_format($value, $decimals, '.', ',');
+        // Fallback: es → 1.234.567,89 ; en → 1,234,567.89
+        $isEn = self::getLocale() === 'en_US';
+        return number_format($number, $decimals, $isEn ? '.' : ',', $isEn ? ',' : '.');
     }
 
     /**
-     * Formatea bytes a B/KB/MB/GB con separadores según locale.
+     * Bytes → B/KB/MB/GB, formateando el número según locale.
      *
-     * @param int|float|null $bytes
+     * @param int|float|string|null $bytes
      */
     public static function formatBytes($bytes): string
     {
-        if ($bytes === null || $bytes === '') {
+        if ($bytes === null || $bytes === '' || !is_numeric($bytes)) {
             return '0 B';
         }
-        if (!is_numeric($bytes)) {
-            $bytes = 0;
-        }
-        $bytesFloat = (float) $bytes;
+        $bytes = (float) $bytes;
 
-        if ($bytesFloat >= 1073741824) {
-            return self::formatNumber($bytesFloat / 1073741824, 2) . ' GB';
+        foreach ([
+            ['GB', 1073741824, 2],
+            ['MB', 1048576,    2],
+            ['KB', 1024,       1],
+        ] as [$unit, $factor, $decimals]) {
+            if ($bytes >= $factor) {
+                return self::formatNumber($bytes / $factor, $decimals) . ' ' . $unit;
+            }
         }
-        if ($bytesFloat >= 1048576) {
-            return self::formatNumber($bytesFloat / 1048576, 2) . ' MB';
-        }
-        if ($bytesFloat >= 1024) {
-            return self::formatNumber($bytesFloat / 1024, 1) . ' KB';
-        }
-        return self::formatNumber($bytesFloat, 0) . ' B';
+
+        return self::formatNumber($bytes, 0) . ' B';
     }
 
     /**
@@ -199,29 +187,72 @@ class IntlHelper
             return (new \DateTimeImmutable())->setTimestamp($date);
         }
         if (is_string($date)) {
-            $s = trim($date);
-            if ($s === '') {
+            $date = trim($date);
+            if ($date === '') {
                 return null;
             }
-            // Intentar formatos comunes (DATE, DATETIME, ISO)
-            $dt = \DateTimeImmutable::createFromFormat('Y-m-d', $s);
-            if ($dt !== false) {
-                return $dt;
+            // Formato de la BD (DATE) y variantes ISO.
+            foreach (['Y-m-d', 'Y-m-d H:i:s', 'Y-m-d\TH:i:sP', 'Y-m-d\TH:i:s'] as $format) {
+                $dt = \DateTimeImmutable::createFromFormat($format, $date);
+                if ($dt instanceof \DateTimeImmutable) {
+                    return $dt;
+                }
             }
-            $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $s);
-            if ($dt !== false) {
-                return $dt;
-            }
-            $dt = \DateTimeImmutable::createFromFormat(DATE_ATOM, $s);
-            if ($dt !== false) {
-                return $dt;
-            }
-            // strtotime
-            $ts = strtotime($s);
+            $ts = strtotime($date);
             if ($ts !== false) {
                 return (new \DateTimeImmutable())->setTimestamp($ts);
             }
         }
         return null;
+    }
+
+    /**
+     * Formato de fecha/hora sin la extensión intl, respetando es/en.
+     * Cubre los estilos que usa la aplicación (MEDIUM/SHORT + NONE).
+     */
+    private static function fallbackDate(\DateTimeImmutable $dt, int $dateStyle, int $timeStyle): string
+    {
+        $isEn = self::getLocale() === 'en_US';
+
+        $monthsEs = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+        $monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        $m = (int) $dt->format('n');
+        $d = $dt->format('j');
+        $y = $dt->format('Y');
+
+        $date = '';
+        switch ($dateStyle) {
+            case self::FULL:
+            case self::LONG:
+            case self::MEDIUM:
+                $date = $isEn
+                    ? $monthsEn[$m - 1] . ' ' . $d . ', ' . $y
+                    : $d . ' ' . $monthsEs[$m - 1] . ' ' . $y;
+                break;
+            case self::SHORT:
+                $date = $isEn ? $dt->format('m/d/Y') : $dt->format('d/m/Y');
+                break;
+            case self::NONE:
+            default:
+                $date = '';
+        }
+
+        $time = '';
+        switch ($timeStyle) {
+            case self::FULL:
+            case self::LONG:
+            case self::MEDIUM:
+                $time = $dt->format('H:i:s');
+                break;
+            case self::SHORT:
+                $time = $dt->format('H:i');
+                break;
+            case self::NONE:
+            default:
+                $time = '';
+        }
+
+        return trim($date . ($date !== '' && $time !== '' ? ' ' : '') . $time);
     }
 }

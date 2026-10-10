@@ -106,7 +106,7 @@ endif;
                     <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--slate-mid);font-size:.88rem;">
                         <?= htmlspecialchars($cat['descripcion'] ?? '—') ?>
                     </td>
-                    <td><?= htmlspecialchars(IntlHelper::formatDate($cat['created_at'], IntlDateFormatter::MEDIUM)) ?></td>
+                    <td><?= htmlspecialchars(IntlHelper::formatDate($cat['created_at'], IntlHelper::MEDIUM)) ?></td>
                     <td>
                         <!-- btn-toggle-active con data-titulo, exactamente igual que el dashboard -->
                         <button class="btn-toggle-active <?= $cat['activo'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
