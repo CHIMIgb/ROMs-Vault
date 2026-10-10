@@ -350,6 +350,7 @@
     "footer.copyright": "© {anio} ROMs Vault",
     "header.catalogo_titulo": "ROMs Vault - Video game catalog",
     "header.inicio_titulo": "ROMs Vault - Home",
+    "header.seleccionar_idioma": "Select language",
     "home.boton_buscar": "Search",
     "home.buscando": "Searching",
     "home.buscar_aria_label": "Search game",

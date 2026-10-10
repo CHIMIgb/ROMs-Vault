@@ -83,6 +83,51 @@
                     <?= t('nav.cerrar_sesion') ?>
                 </a>
                 <?php endif; ?>
+
+                <?php
+                // ── Selector de idioma (FASE 5.3) ───────────────────────────
+                // Reutiliza el flujo ?lang= de index.php: persiste la cookie
+                // rv_lang y redirige a la misma URL sin el parámetro. El form
+                // (GET) apunta a la URI actual para conservar la ruta.
+                // Banderas como SVG inline: renderizado garantizado en todos
+                // los SO (a diferencia de emoji) y compatible con la CSP.
+                $lang = I18n::getLang();
+                $langAction = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8');
+                $langFlags = [
+                    'es' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#ffffff"/>'
+                          . '<rect width="7" height="14" fill="#006847"/>'
+                          . '<rect x="13" width="7" height="14" fill="#ce1126"/>'
+                          . '<circle cx="10" cy="7" r="1.8" fill="#8a6d3b"/>'
+                          . '</svg>',
+                    'en' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#ffffff"/>'
+                          . '<g fill="#b22234">'
+                          . '<rect y="0" width="20" height="1.08"/><rect y="2.15" width="20" height="1.08"/>'
+                          . '<rect y="4.31" width="20" height="1.08"/><rect y="6.46" width="20" height="1.08"/>'
+                          . '<rect y="8.62" width="20" height="1.08"/><rect y="10.77" width="20" height="1.08"/>'
+                          . '<rect y="12.92" width="20" height="1.08"/>'
+                          . '</g>'
+                          . '<rect width="8" height="7.5" fill="#3c3b6e"/>'
+                          . '<g fill="#ffffff">'
+                          . '<circle cx="1.6" cy="1.5" r="0.34"/><circle cx="4" cy="1.5" r="0.34"/><circle cx="6.4" cy="1.5" r="0.34"/>'
+                          . '<circle cx="2.8" cy="3.75" r="0.34"/><circle cx="5.2" cy="3.75" r="0.34"/>'
+                          . '<circle cx="1.6" cy="6" r="0.34"/><circle cx="4" cy="6" r="0.34"/><circle cx="6.4" cy="6" r="0.34"/>'
+                          . '</g>'
+                          . '</svg>',
+                ];
+                ?>
+                <form class="lang-switch" method="get" action="<?= $langAction ?>">
+                    <?= $langFlags[$lang] ?? '' ?>
+                    <select class="lang-select" name="lang"
+                            aria-label="<?= htmlspecialchars(t('header.seleccionar_idioma')) ?>"
+                            title="<?= htmlspecialchars(t('header.seleccionar_idioma')) ?>"
+                            onchange="this.form.submit()">
+                        <option value="es" <?= $lang === 'es' ? 'selected' : '' ?>>ES</option>
+                        <option value="en" <?= $lang === 'en' ? 'selected' : '' ?>>EN</option>
+                    </select>
+                    <noscript><button type="submit" class="lang-submit">OK</button></noscript>
+                </form>
             </nav>
         </header>
         <main>
