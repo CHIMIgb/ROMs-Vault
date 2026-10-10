@@ -57,7 +57,7 @@
     const timer = setInterval(() => {
         n = Math.min(n + 1, 99);
         el.textContent = String(n).padStart(2, '0');
-        if (n >= 99) clearInterval(t);
+        if (n >= 99) clearInterval(timer);
     }, 40);
 })();
 </script>

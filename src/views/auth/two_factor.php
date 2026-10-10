@@ -10,13 +10,13 @@
     <?php endif; ?>
 
     <p style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem; text-align: center;">
-        <?= t('two_factor.introduce_codigo') ?>
+        <?= t('two_factor.instruccion') ?>
     </p>
 
     <form method="POST" action="/auth/twoFactor" autocomplete="off">
         <?= CsrfService::field() ?>
         <div class="form-group">
-            <label for="code"><?= t('two_factor.codigo_verificacion') ?></label>
+            <label for="code"><?= t('two_factor.codigo') ?></label>
             <input type="text"
                    name="code"
                    id="code"

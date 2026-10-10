@@ -41,7 +41,7 @@
     </div>
 <?php elseif ($secretPendiente !== null): ?>
     <div class="stat-card" style="margin-bottom: 1rem;">
-        <h3 class="ranking-title" style="margin-bottom: 0.75rem;"><?= t('admin.tfa.paso1') ?></h3>
+        <h3 class="ranking-title" style="margin-bottom: 0.75rem;"><?= t('admin.tfa.paso1_titulo') ?></h3>
         <p style="margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--text-light);">
             <?= t('admin.tfa.paso1_ayuda') ?>
         </p>
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <h3 class="ranking-title" style="margin-bottom: 0.75rem;"><?= t('admin.tfa.paso2') ?></h3>
+        <h3 class="ranking-title" style="margin-bottom: 0.75rem;"><?= t('admin.tfa.paso2_titulo') ?></h3>
         <form method="POST" action="/admin/tfa" autocomplete="off" style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:flex-end;">
             <?= CsrfService::field() ?>
             <input type="hidden" name="accion" value="confirmar">
