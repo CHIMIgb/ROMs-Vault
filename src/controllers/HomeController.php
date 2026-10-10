@@ -263,14 +263,22 @@ class HomeController {
         $fileId = $_GET['file_id'] ?? null;
 
         if (!$fileId) {
-            die("Error: No se especificó el juego a reproducir.");
+            $error = t('play.error_sin_juego') ?: "Error: No se especificó el juego a reproducir.";
+            require_once __DIR__ . '/../views/layout/header.php';
+            require_once __DIR__ . '/../views/home/play.php';
+            require_once __DIR__ . '/../views/layout/footer.php';
+            return;
         }
 
         $juegoModel = new Juego();
         $juego      = $juegoModel->findByFileId($fileId);
 
         if (!$juego) {
-            die("Error: El juego solicitado no existe en la base de datos.");
+            $error = t('play.error_juego_no_existe') ?: "Error: El juego solicitado no existe en la base de datos.";
+            require_once __DIR__ . '/../views/layout/header.php';
+            require_once __DIR__ . '/../views/home/play.php';
+            require_once __DIR__ . '/../views/layout/footer.php';
+            return;
         }
 
         // Registrar jugada online (solo cuando hay core disponible; se incrementa aquí

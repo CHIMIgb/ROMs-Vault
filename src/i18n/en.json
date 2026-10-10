@@ -582,4 +582,7 @@
     "component.categorias": "categories",
     "component.consolas": "consoles",
     "component.consolas_con_emulador": "consoles with emulator"
+,
+    "play.error_sin_juego": "Error: No se especificó el juego a reproducir.",
+    "play.error_juego_no_existe": "Error: The requested game does not exist in the database."
 }
