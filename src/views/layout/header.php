@@ -87,12 +87,34 @@
                 <?php
                 // ── Selector de idioma (FASE 5.3) ───────────────────────────
                 // Reutiliza el flujo ?lang= de index.php: persiste la cookie
-                // rv_lang y redirige a la misma URL sin el parámetro. El form
-                // (GET) apunta a la URI actual para conservar la ruta.
+                // rv_lang y redirige a la misma URL sin el parámetro.
+                //
+                // IMPORTANTE: un formulario GET REEMPLAZA la query string del
+                // `action` con sus propios campos. Por eso NO podemos poner los
+                // parámetros actuales en el action (se perderían: p.ej. el
+                // file_id de /home/play). En su lugar, el action apunta SOLO a
+                // la ruta y los parámetros actuales viajan como campos ocultos.
                 // Banderas como SVG inline: renderizado garantizado en todos
                 // los SO (a diferencia de emoji) y compatible con la CSP.
                 $lang = I18n::getLang();
-                $langAction = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8');
+                $langPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+                $langAction = htmlspecialchars($langPath, ENT_QUOTES, 'UTF-8');
+                // Conserva los parámetros GET actuales (excepto lang) como campos ocultos.
+                $langHidden = [];
+                foreach ($_GET as $key => $value) {
+                    if ($key === 'lang') {
+                        continue;
+                    }
+                    if (is_array($value)) {
+                        foreach ($value as $v) {
+                            if (is_scalar($v)) {
+                                $langHidden[] = [$key . '[]', (string)$v];
+                            }
+                        }
+                    } elseif (is_scalar($value)) {
+                        $langHidden[] = [$key, (string)$value];
+                    }
+                }
                 $langFlags = [
                     'es' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
                           . '<rect width="20" height="14" fill="#ffffff"/>'
@@ -118,6 +140,9 @@
                 ];
                 ?>
                 <form class="lang-switch" method="get" action="<?= $langAction ?>">
+                    <?php foreach ($langHidden as [$hk, $hv]): ?>
+                        <input type="hidden" name="<?= htmlspecialchars($hk, ENT_QUOTES, 'UTF-8') ?>" value="<?= htmlspecialchars($hv, ENT_QUOTES, 'UTF-8') ?>">
+                    <?php endforeach; ?>
                     <?= $langFlags[$lang] ?? '' ?>
                     <select class="lang-select" name="lang"
                             aria-label="<?= htmlspecialchars(t('header.seleccionar_idioma')) ?>"
