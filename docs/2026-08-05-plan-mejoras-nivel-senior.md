@@ -20,6 +20,8 @@
 | 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `762066f` |
 | 2026-10-07 | **Fase 3.1** — Reorganización de estructura: `src/` (config/controllers/models/views) + `endpoints/` (rom_proxy y ajax_*), requires con `__DIR__`, URLs públicas intactas; `implementation_plan.md` archivado | ✅ Completada | `d39ee37` |
 | 2026-10-09 | **FASE 5 (5.1-5.2)** — i18n: cargador JSON es/en (582 claves paritarias), detección de idioma + cookie, y migración total de la UI pública, admin, controladores, router, servicios de seguridad y endpoints (`ajax_*`, `rom_proxy`) a `t()` en 5 bloques | ✅ Completada (pendiente 5.3 selector, RTL e `Intl`) | `2242c42` + `a3e120f` + `8a4ec97` + `76a2fc4` + `8c009ea` + `3f027f1` + `4f720b0` |
+| 2026-10-09 | **FASE 5 (5.3, 5.4 y 5.2 Intl)** — selector de idioma (ES/EN) en header con banderas SVG; fechas/números con `IntlHelper` (fallback); criterios 5.4 cumplidos (Accept-Language + grep de literales) | ✅ Completada (RTL 5.2 pendiente) | `4102f63` + `44a9cb9` |
+
 
 ---
 
@@ -230,18 +232,18 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 - [x] UI estática del catálogo, ficha, play, auth, footer/header
 - [x] Mensajes de error de validación y alertas (controladores + AJAX)
 - [x] Mensajes de éxito del admin (`created`, `updated`, `deleted`)
-- [ ] Fechas y moneda con `Intl` según locale
-- [ ] Soporte RTL en CSS (usar logical properties: `margin-inline-start` en vez de `margin-left`) para futuros idiomas
+- [x] Fechas (y números) con `Intl` según locale (sin moneda; RTL pendiente)
+- [ ] Soporte RTL en CSS (usar logical properties: `margin-inline-start` en vez de `margin-left`) para futuros idiomas (pendiente)
 
 ### 5.3 Selector de idioma en la UI
 
-- [ ] Dropdown ES/EN en el header (icono de idioma)
-- [ ] Los textos de EmulatorJS ya soportan locales (`EJS_language`) — parametrizarlo según idioma
+- [x] Selector de idioma visible en header (ES/EN) con banderas/abreviaturas.
+- [x] Los textos de EmulatorJS ya soportan locales (`EJS_language`) — parametrizarlo según idioma (vía vista)
 
 ### 5.4 Criterio de éxito
 
-- [ ] Con `Accept-Language: en` la app carga en inglés; el selector cambia sin recargar la sesión
-- [ ] `grep -rn "texto literal"` en las vistas ≈ solo texto de datos (títulos de juegos, etc.)
+- [x] Con `Accept-Language: en` la app carga en inglés; el selector cambia sin recargar la sesión
+- [x] `grep -rn "texto literal"` en las vistas ≈ solo texto de datos (títulos de juegos, etc.)
 
 ---
 
