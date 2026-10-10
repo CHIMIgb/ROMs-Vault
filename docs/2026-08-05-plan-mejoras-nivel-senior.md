@@ -22,6 +22,7 @@
 | 2026-10-09 | **FASE 5 (5.1-5.2)** — i18n: cargador JSON es/en (582 claves paritarias), detección de idioma + cookie, y migración total de la UI pública, admin, controladores, router, servicios de seguridad y endpoints (`ajax_*`, `rom_proxy`) a `t()` en 5 bloques | ✅ Completada (pendiente 5.3 selector, RTL e `Intl`) | `2242c42` + `a3e120f` + `8a4ec97` + `76a2fc4` + `8c009ea` + `3f027f1` + `4f720b0` |
 | 2026-10-09 | **FASE 5 (5.3, 5.4 y 5.2 Intl)** — selector de idioma (ES/EN) en header con banderas SVG; fechas/números con `IntlHelper` (fallback); criterios 5.4 cumplidos (Accept-Language + grep de literales) | ✅ Completada (RTL 5.2 pendiente) | `4102f63` + `44a9cb9` |
 | 2026-10-10 | **FASE 5 — i18n ampliado** — 4 idiomas nuevos (`fr`, `pt` pt-BR, `de`, `ja`) con paridad 585 claves, banderas en selector, fallback Intl multi-idioma y tests actualizados (aceptación de `xx` para "no soportado") | ✅ Completada (RTL 5.2 y `EJS_language` 5.3 pendiente) | `d521eee` |
+| 2026-10-10 | **FASE 5 (5.3) — cambio de idioma sin recarga** — `endpoints/ajax_lang.php` + `public/js/rv-lang.js` (sincronización in-place sin romper listeners/estado), transición suave CSS y fallback GET nativo | ✅ Completada (queda `EJS_language` y RTL 5.2) | `3561a05` |
 
 
 ---
@@ -241,6 +242,7 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 
 - [x] Selector de idioma visible en header (es/en/fr/pt/de/ja) con banderas.
 - [x] Los textos de EmulatorJS ya soportan locales (`EJS_language`) — parametrizarlo según idioma (vía vista)
+- [x] El idioma cambia **sin recargar la página**: POST a `endpoints/ajax_lang.php` + sincronización in-place del DOM (`public/js/rv-lang.js`), con fallback GET nativo sin JS (`3561a05`)
 
 ### 5.4 Criterio de éxito
 
