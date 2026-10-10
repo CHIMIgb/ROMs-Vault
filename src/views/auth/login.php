@@ -1,6 +1,6 @@
 <!-- views/auth/login.php -->
 <div class="login-container">
-    <h2>Acceso Administrador</h2>
+    <h2><?= t('auth.acceso_admin') ?></h2>
     
     <?php if (isset($error)): ?>
         <?php 
@@ -12,25 +12,25 @@
     <form method="POST" action="/auth/login" autocomplete="off">
         <?= CsrfService::field() ?>
         <div class="form-group">
-            <label for="username">Usuario</label>
+            <label for="username"><?= t('auth.usuario') ?></label>
             <input type="text" 
                    name="username" 
                    id="username" 
                    required 
-                   placeholder="Ingresa tu usuario"
+                   placeholder="<?= t('auth.ingresar_usuario') ?>"
                    autocomplete="off">
         </div>
         
         <div class="form-group">
-            <label for="password">Contraseña</label>
+            <label for="password"><?= t('auth.contrasena') ?></label>
             <div class="password-wrapper">
                 <input type="password" 
                        name="password" 
                        id="password" 
                        required 
-                       placeholder="Ingresa tu contraseña"
+                       placeholder="<?= t('auth.ingresar_contrasena') ?>"
                        autocomplete="off">
-                <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Mostrar contraseña">
+                <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="<?= t('auth.mostrar_contrasena') ?>">
                     <svg id="eye-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
                         <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                     </svg>
@@ -41,11 +41,11 @@
             </div>
         </div>
         
-        <button type="submit" class="btn-primary" style="width: 100%;"><i data-i="shield-2"></i> Iniciar sesión</button>
+        <button type="submit" class="btn-primary" style="width: 100%;"><i data-i="shield-2"></i> <?= t('auth.iniciar_sesion') ?></button>
     </form>
     
     <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-light);">
-        <p>Acceso restringido a personal autorizado</p>
+        <p><?= t('auth.acceso_restringido') ?></p>
     </div>
 </div>
 

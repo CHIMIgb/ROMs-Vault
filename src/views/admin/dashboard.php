@@ -3,23 +3,23 @@
 <!-- ESTADÍSTICAS GLOBALES REALES -->
 <div class="admin-stats-grid">
     <div class="stat-card">
-        <div class="stat-label">Total juegos</div>
+        <div class="stat-label"><?= t('admin.dashboard.total_juegos') ?></div>
         <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total']) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Activos</div>
+        <div class="stat-label"><?= t('admin.dashboard.activos') ?></div>
         <div class="stat-value" style="color:var(--success);"><?= number_format($stats['activos']) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Inactivos</div>
+        <div class="stat-label"><?= t('admin.dashboard.inactivos') ?></div>
         <div class="stat-value" style="color:var(--text-light);"><?= number_format($stats['inactivos']) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Total descargas</div>
+        <div class="stat-label"><?= t('admin.dashboard.total_descargas') ?></div>
         <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total_descargas']) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Total jugadas online</div>
+        <div class="stat-label"><?= t('admin.dashboard.total_jugadas_online') ?></div>
         <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total_jugadas']) ?></div>
     </div>
 </div>
@@ -29,7 +29,7 @@
 <div class="admin-rankings">
     <?php if (!empty($topDescargas)): ?>
     <div class="ranking-card">
-        <h3 class="ranking-title">Top 5 mas descargados</h3>
+        <h3 class="ranking-title"><?= t('admin.dashboard.top_descargados') ?></h3>
         <ol class="ranking-list">
             <?php $maxD = $topDescargas[0]['downloads_count'] ?: 1;
             foreach ($topDescargas as $i => $j):
@@ -49,7 +49,7 @@
     <?php endif; ?>
     <?php if (!empty($topJugados)): ?>
     <div class="ranking-card">
-        <h3 class="ranking-title">Top 5 mas jugados online</h3>
+        <h3 class="ranking-title"><?= t('admin.dashboard.top_jugados') ?></h3>
         <ol class="ranking-list">
             <?php $maxP = $topJugados[0]['plays_count'] ?: 1;
             foreach ($topJugados as $i => $j):
