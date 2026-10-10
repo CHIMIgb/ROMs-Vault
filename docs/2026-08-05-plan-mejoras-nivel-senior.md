@@ -19,6 +19,7 @@
 | 2026-08-05 | **Fase 3.7** — Higiene del repo: normalización CRLF→LF (20 archivos) + `.gitattributes` + `.editorconfig` | ✅ Completada | `2665a0f` |
 | 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `762066f` |
 | 2026-10-07 | **Fase 3.1** — Reorganización de estructura: `src/` (config/controllers/models/views) + `endpoints/` (rom_proxy y ajax_*), requires con `__DIR__`, URLs públicas intactas; `implementation_plan.md` archivado | ✅ Completada | `d39ee37` |
+| 2026-10-09 | **FASE 5 (5.1-5.2)** — i18n: cargador JSON es/en (582 claves paritarias), detección de idioma + cookie, y migración total de la UI pública, admin, controladores, router, servicios de seguridad y endpoints (`ajax_*`, `rom_proxy`) a `t()` en 5 bloques | ✅ Completada (pendiente 5.3 selector, RTL e `Intl`) | `2242c42` + `a3e120f` + `8a4ec97` + `76a2fc4` + `8c009ea` + `3f027f1` + `4f720b0` |
 
 ---
 
@@ -219,16 +220,16 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 
 ### 5.1 Infraestructura de traducción
 
-- [ ] `config/i18n.php` — cargador de idiomas, función global `t('clave', params)`
-- [ ] `lang/es.php`, `lang/en.php` (y opcional `lang/pt.php`) — arrays `clave → texto`
-- [ ] Detección de idioma: header `Accept-Language` → cookie (`?lang=` selector) → default `es`
-- [ ] Persistir preferencia en cookie (y en el perfil del usuario si existe)
+- [x] `src/config/i18n.php` — cargador de idiomas, función global `t('clave', params)`
+- [x] `src/i18n/es.json`, `src/i18n/en.json` (implementado como JSON paritario en vez de `lang/*.php`; 582 claves)
+- [x] Detección de idioma: header `Accept-Language` → cookie (`?lang=` selector) → default `es`
+- [x] Persistir preferencia en cookie `rv_lang` (selector `?lang=`)
 
 ### 5.2 Aplicación
 
-- [ ] UI estática del catálogo, ficha, play, auth, footer/header
-- [ ] Mensajes de error de validación y alertas (controladores + AJAX)
-- [ ] Mensajes de éxito del admin (`created`, `updated`, `deleted`)
+- [x] UI estática del catálogo, ficha, play, auth, footer/header
+- [x] Mensajes de error de validación y alertas (controladores + AJAX)
+- [x] Mensajes de éxito del admin (`created`, `updated`, `deleted`)
 - [ ] Fechas y moneda con `Intl` según locale
 - [ ] Soporte RTL en CSS (usar logical properties: `margin-inline-start` en vez de `margin-left`) para futuros idiomas
 
