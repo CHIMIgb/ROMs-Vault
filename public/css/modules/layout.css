@@ -337,14 +337,24 @@ header .subtitle { margin-bottom: 1.2rem; }
     .lang-trigger { min-width: 84px; }
 }
 
-/* Transición suave al cambiar de idioma sin recargar (enhancement rv-lang.js).
-   Sólo el cambio de clase html.lang-switching dispara la animación; si JS está
-   desactivado, esta regla nunca se activa y el submit GET recarga con normalidad. */
-body {
-    transition: opacity .15s ease-in-out;
+/* Transición localizada al cambiar de idioma sin recargar (rv-lang.js).
+   Sólo los elementos cuyo texto/atributos realmente cambiaron reciben
+   .rv-lang-fade (nunca bloques con imágenes o el canvas del emulador);
+   el resto de la página permanece quieto. Sin JS, el submit GET recarga
+   con normalidad y esta regla ni siquiera se activa. */
+@keyframes rv-lang-pop {
+    0%   { opacity: 1; }
+    15%  { opacity: .45; }
+    85%  { opacity: .45; }
+    100% { opacity: 1; }
 }
 
-html.lang-switching body {
-    opacity: .7;
-    pointer-events: none;
+.rv-lang-fade {
+    animation: rv-lang-pop .35s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rv-lang-fade {
+        animation: none;
+    }
 }

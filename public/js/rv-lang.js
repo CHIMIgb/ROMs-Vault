@@ -87,6 +87,44 @@
         return out;
     }
 
+    // ── Transición localizada ──────────────────────────────────────────────
+    // Sólo se animan los elementos cuyo texto/atributos cambiaron de verdad.
+    // Nunca un elemento cuyo subtree contenga media (portadas, capturas,
+    // canvas del emulador, iframes): esas zonas quedan quietas mientras el
+    // idioma cambia.
+    var fadeTargets = null; // Set activo durante la sincronización
+
+    var MEDIA_SELECTOR = 'img, video, canvas, audio, iframe, .emulator, .ejs_container';
+
+    function safeToFade(el) {
+        if (el.nodeType !== 1) return false;
+        if (el.matches && el.matches(MEDIA_SELECTOR)) return false;
+        if (el.querySelector && el.querySelector(MEDIA_SELECTOR)) return false;
+        return true;
+    }
+
+    function markChanged(el) {
+        if (!fadeTargets || !el || !safeToFade(el)) return;
+        fadeTargets.add(el);
+    }
+
+    function flashFadeTargets() {
+        if (!fadeTargets) return;
+        var targets = Array.from(fadeTargets);
+        // El propio selector (bandera + código) también cambia siempre.
+        var sw = document.querySelector('.lang-switch');
+        if (sw && targets.indexOf(sw) === -1) targets.push(sw);
+        targets.forEach(function (el) {
+            el.classList.add('rv-lang-fade');
+            el.addEventListener('animationend', function handler(ev) {
+                if (ev.target === el && ev.animationName === 'rv-lang-pop') {
+                    el.classList.remove('rv-lang-fade');
+                    el.removeEventListener('animationend', handler);
+                }
+            });
+        });
+    }
+
     /**
      * Sincroniza en sitio el nodo actual con su equivalente en el HTML nuevo.
      * Tolerante a nodos añadidos/eliminados en tiempo de ejecución: filtra los
@@ -98,6 +136,7 @@
         if (cur.nodeType === 3) { // TEXT_NODE
             if (inc.nodeType === 3 && cur.data !== inc.data) {
                 cur.data = inc.data;
+                markChanged(cur.parentNode);
             }
             return;
         }
@@ -109,6 +148,7 @@
             var nv = inc.getAttribute(attr);
             if (nv !== null && cur.getAttribute(attr) !== nv) {
                 cur.setAttribute(attr, nv);
+                markChanged(cur);
             }
         }
 
@@ -149,12 +189,15 @@
     }
 
     function applyDocument(parsed, lang) {
+        fadeTargets = new Set();
         var newLang = parsed.documentElement.getAttribute('lang') || lang;
         document.documentElement.setAttribute('lang', newLang);
         if (parsed.title) document.title = parsed.title;
         syncMeta(parsed);
         if (parsed.body) syncNode(document.body, parsed.body);
         swapLangSwitch(parsed);
+        flashFadeTargets();
+        fadeTargets = null;
     }
 
     function fallbackNavigation(lang) {
@@ -165,7 +208,7 @@
 
     function switchLanguage(lang) {
         var root = document.documentElement;
-        if (root.classList.contains('lang-switching')) return;
+        if (root.classList.contains('lang-switching')) return; // guard de reentrada
         root.classList.add('lang-switching');
 
         Promise.resolve()
@@ -200,9 +243,7 @@
                 fallbackNavigation(lang);
             })
             .finally(function () {
-                global.requestAnimationFrame(function () {
-                    root.classList.remove('lang-switching');
-                });
+                root.classList.remove('lang-switching');
             });
     }
 
