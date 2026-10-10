@@ -3,28 +3,28 @@
 <!-- ESTADÍSTICAS -->
 <div class="admin-stats-grid">
     <div class="stat-card">
-        <div class="stat-label">Total categorías</div>
+        <div class="stat-label"><?= t('admin.categoria.total') ?></div>
         <div class="stat-value" style="color:var(--primary);"><?= number_format($total) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Activas</div>
+        <div class="stat-label"><?= t('admin.categoria.activas') ?></div>
         <div class="stat-value" style="color:var(--success);"><?= number_format($totalActivas) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Inactivas</div>
+        <div class="stat-label"><?= t('admin.categoria.inactivas') ?></div>
         <div class="stat-value" style="color:var(--text-light);"><?= number_format($total - $totalActivas) ?></div>
     </div>
 </div>
 
 <!-- CABECERA -->
 <div class="admin-header">
-    <h2>Categorías</h2>
+    <h2><?= t('admin.categoria.titulo') ?></h2>
     <div class="admin-header-actions">
         <a href="/admin/dashboard" class="btn-primary">
-            <i data-i="arrow-left"></i> Dashboard
+            <i data-i="arrow-left"></i> <?= t('admin.categoria.dashboard') ?>
         </a>
         <a href="/categoria/add" class="btn-primary">
-            <i data-i="plus"></i> Nueva Categoría
+            <i data-i="plus"></i> <?= t('admin.categoria.nueva') ?>
         </a>
     </div>
 </div>
@@ -33,14 +33,14 @@
 <?php 
 require_once __DIR__ . '/../../components/Alert.php';
 if (isset($_GET['created'])): 
-    Alert::render('success', 'Categoría creada correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.categoria.creada'), 'check', 'margin-bottom:1.25rem;');
 elseif (isset($_GET['updated'])): 
-    Alert::render('success', 'Categoría actualizada correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.categoria.actualizada'), 'check', 'margin-bottom:1.25rem;');
 elseif (isset($_GET['deleted'])): 
-    Alert::render('success', 'Categoría eliminada correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.categoria.eliminada'), 'check', 'margin-bottom:1.25rem;');
 elseif (isset($_GET['error']) && $_GET['error'] === 'has_games'): 
     $count = (int)($_GET['count'] ?? 0);
-    Alert::render('danger', "No se puede eliminar: esta categoría tiene {$count} juego(s) asociado(s). Reasígnalos o elimínalos primero.", 'alert-triangle', 'margin-bottom:1.25rem;');
+    Alert::render('danger', t('admin.categoria.error_has_games', ['count' => $count]), 'alert-triangle', 'margin-bottom:1.25rem;');
 endif; 
 ?>
 
@@ -50,7 +50,7 @@ endif;
         <div class="search-wrapper" style="flex:2;min-width:180px;">
             <input type="text"
                    id="cat-busqueda"
-                   placeholder="Buscar por nombre..."
+                   placeholder="<?= t('admin.categoria.buscar_placeholder') ?>"
                    value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                    class="search-input"
                    autocomplete="off">
@@ -61,19 +61,19 @@ endif;
         </div>
 
         <select id="cat-activo" class="admin-filter-select">
-            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>>Todos los estados</option>
-            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>>Solo activas</option>
-            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>>Solo inactivas</option>
+            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>><?= t('admin.categoria.todos_estados') ?></option>
+            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>><?= t('admin.categoria.solo_activas') ?></option>
+            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>><?= t('admin.categoria.solo_inactivas') ?></option>
         </select>
 
         <button type="button" id="cat-limpiar" class="clear-filters" style="display:none;white-space:nowrap;">
-            <i data-i="close" aria-hidden="true"></i> Limpiar
+            <i data-i="close" aria-hidden="true"></i> <?= t('admin.categoria.limpiar') ?>
         </button>
     </div>
 
     <div id="cat-loading" class="filter-loading" style="display:none;">
         <span class="filter-loading-bar"></span>
-        <span class="filter-loading-text">Buscando...</span>
+        <span class="filter-loading-text"><?= t('admin.categoria.buscando') ?></span>
     </div>
 </div>
 
@@ -83,19 +83,19 @@ endif;
     <?php if (empty($categorias)): ?>
         <?php 
         require_once __DIR__ . '/../../components/Alert.php';
-        Alert::render('info', 'No hay categorías que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+        Alert::render('info', t('admin.categoria.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
     <div style="overflow-x:auto;">
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Creada</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th><?= t('admin.categoria.id') ?></th>
+                    <th><?= t('admin.categoria.nombre') ?></th>
+                    <th><?= t('admin.categoria.descripcion') ?></th>
+                    <th><?= t('admin.categoria.creada_col') ?></th>
+                    <th><?= t('admin.categoria.estado') ?></th>
+                    <th><?= t('admin.categoria.acciones') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -113,12 +113,12 @@ endif;
                                 data-id="<?= $cat['id'] ?>"
                                 data-titulo="<?= htmlspecialchars($cat['nombre'], ENT_QUOTES) ?>"
                                 data-accion="<?= $cat['activo'] ? 'desactivar' : 'activar' ?>">
-                            <?= $cat['activo'] ? 'Desactivar' : 'Activar' ?>
+                            <?= $cat['activo'] ? t('admin.categoria.desactivar') : t('admin.categoria.activar') ?>
                         </button>
                     </td>
                     <td>
                         <!-- Solo btn-edit, exactamente igual que el dashboard -->
-                        <a href="/categoria/edit/<?= $cat['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/categoria/edit/<?= $cat['id'] ?>" class="btn-edit"><?= t('admin.categoria.editar') ?></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -142,7 +142,7 @@ endif;
         'index', 
         count($categorias), 
         $total, 
-        'categorías', 
+        t('component.categorias'), 
         'cat'
     );
     ?>
@@ -161,6 +161,22 @@ endif;
     const btnLimpiar = document.getElementById('cat-limpiar');
     const resultsEl  = document.getElementById('categorias-results');
     const loadingEl  = document.getElementById('cat-loading');
+
+    const textos = {
+        tituloActivar:   <?= json_encode(t('admin.categoria.confirm_activar_titulo')) ?>,
+        tituloDesactivar: <?= json_encode(t('admin.categoria.confirm_desactivar_titulo')) ?>,
+        msgActivar:      <?= json_encode(t('admin.categoria.confirm_estado_activar', ['nombre' => '{n}'])) ?>,
+        msgDesactivar:   <?= json_encode(t('admin.categoria.confirm_estado_desactivar', ['nombre' => '{n}'])) ?>,
+        okActivar:       <?= json_encode(t('admin.categoria.si_activar')) ?>,
+        okDesactivar:    <?= json_encode(t('admin.categoria.si_desactivar')) ?>,
+        cancelar:        <?= json_encode(t('admin.categoria.cancelar')) ?>,
+        errorDesconocido: <?= json_encode(t('admin.categoria.error_desconocido')) ?>,
+        errorEstado:     <?= json_encode(t('admin.categoria.error_estado')) ?>,
+        toastActivada:   <?= json_encode(t('admin.categoria.toast_activada', ['nombre' => '{n}'])) ?>,
+        toastDesactivada: <?= json_encode(t('admin.categoria.toast_desactivada', ['nombre' => '{n}'])) ?>,
+        desactivar:      <?= json_encode(t('admin.categoria.desactivar')) ?>,
+        activar:         <?= json_encode(t('admin.categoria.activar')) ?>,
+    };
 
     let debounceTimer  = null;
     let currentRequest = null;
@@ -252,12 +268,10 @@ endif;
 
         RVAlerts.confirm({
             tipo:      accion === 'desactivar' ? 'warning' : 'success',
-            titulo:    accion === 'desactivar' ? '¿Desactivar categoría?' : '¿Activar categoría?',
-            mensaje:   `<strong>${titulo}</strong> quedará ${accion === 'desactivar'
-                            ? 'oculta en los filtros del catálogo'
-                            : 'visible en los filtros del catálogo'}.`,
-            btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
-            btnCancel: 'Cancelar',
+            titulo:    accion === 'desactivar' ? textos.tituloDesactivar : textos.tituloActivar,
+            mensaje:   (accion === 'desactivar' ? textos.msgDesactivar : textos.msgActivar).replace('{n}', titulo),
+            btnOk:     accion === 'desactivar' ? textos.okDesactivar : textos.okActivar,
+            btnCancel: textos.cancelar,
             onOk: async () => {
                 btn.disabled    = true;
                 btn.textContent = '...';
@@ -269,22 +283,22 @@ endif;
                     );
                     const data = await res.json();
 
-                    if (!data.ok) throw new Error(data.error || 'Error desconocido');
+                    if (!data.ok) throw new Error(data.error || textos.errorDesconocido);
 
                     const estaActivo     = data.activo === 1;
-                    btn.textContent      = estaActivo ? 'Desactivar' : 'Activar';
+                    btn.textContent      = estaActivo ? textos.desactivar : textos.activar;
                     btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
                     btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
 
                     RVAlerts.toast(
-                        `"${data.nombre}" ${estaActivo ? 'activada' : 'desactivada'} correctamente`,
+                        (estaActivo ? textos.toastActivada : textos.toastDesactivada).replace('{n}', data.nombre),
                         estaActivo ? 'success' : 'warning'
                     );
 
                 } catch (err) {
-                    RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
+                    RVAlerts.toast(textos.errorEstado, 'danger');
                     btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
+                    btn.textContent = accion === 'desactivar' ? textos.desactivar : textos.activar;
                 }
 
                 btn.disabled = false;

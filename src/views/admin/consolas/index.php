@@ -3,28 +3,28 @@
 <!-- ESTADÍSTICAS -->
 <div class="admin-stats-grid">
     <div class="stat-card">
-        <div class="stat-label">Total consolas</div>
+        <div class="stat-label"><?= t('admin.consola.total') ?></div>
         <div class="stat-value" style="color:var(--primary);"><?= number_format($total) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Activas</div>
+        <div class="stat-label"><?= t('admin.consola.activas') ?></div>
         <div class="stat-value" style="color:var(--success);"><?= number_format($totalActivas) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Inactivas</div>
+        <div class="stat-label"><?= t('admin.consola.inactivas') ?></div>
         <div class="stat-value" style="color:var(--text-light);"><?= number_format($total - $totalActivas) ?></div>
     </div>
 </div>
 
 <!-- CABECERA -->
 <div class="admin-header">
-    <h2>Consolas</h2>
+    <h2><?= t('admin.consola.titulo') ?></h2>
     <div class="admin-header-actions">
         <a href="/admin/dashboard" class="btn-primary">
-            <i data-i="arrow-left"></i> Dashboard
+            <i data-i="arrow-left"></i> <?= t('admin.consola.dashboard') ?>
         </a>
         <a href="/consola/add" class="btn-primary">
-            <i data-i="plus"></i> Nueva Consola
+            <i data-i="plus"></i> <?= t('admin.consola.nueva') ?>
         </a>
     </div>
 </div>
@@ -33,14 +33,14 @@
 <?php 
 require_once __DIR__ . '/../../components/Alert.php';
 if (isset($_GET['created'])): 
-    Alert::render('success', 'Consola creada correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.consola.creada'), 'check', 'margin-bottom:1.25rem;');
 elseif (isset($_GET['updated'])): 
-    Alert::render('success', 'Consola actualizada correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.consola.actualizada'), 'check', 'margin-bottom:1.25rem;');
 elseif (isset($_GET['deleted'])): 
-    Alert::render('success', 'Consola eliminada correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.consola.eliminada'), 'check', 'margin-bottom:1.25rem;');
 elseif (isset($_GET['error']) && $_GET['error'] === 'has_games'): 
     $count = (int)($_GET['count'] ?? 0);
-    Alert::render('danger', "No se puede eliminar: esta consola tiene {$count} juego(s) asociado(s). Reasígnalos o elimínalos primero.", 'alert-triangle', 'margin-bottom:1.25rem;');
+    Alert::render('danger', t('admin.consola.error_has_games', ['count' => $count]), 'alert-triangle', 'margin-bottom:1.25rem;');
 endif; 
 ?>
 
@@ -50,7 +50,7 @@ endif;
         <div class="search-wrapper" style="flex:2;min-width:180px;">
             <input type="text"
                    id="cs-busqueda"
-                   placeholder="Buscar por nombre..."
+                   placeholder="<?= t('admin.consola.buscar_placeholder') ?>"
                    value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                    class="search-input"
                    autocomplete="off">
@@ -61,19 +61,19 @@ endif;
         </div>
 
         <select id="cs-activo" class="admin-filter-select">
-            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>>Todos los estados</option>
-            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>>Solo activas</option>
-            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>>Solo inactivas</option>
+            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>><?= t('admin.consola.todos_estados') ?></option>
+            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>><?= t('admin.consola.solo_activas') ?></option>
+            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>><?= t('admin.consola.solo_inactivas') ?></option>
         </select>
 
         <button type="button" id="cs-limpiar" class="clear-filters" style="display:none;white-space:nowrap;">
-            <i data-i="close" aria-hidden="true"></i> Limpiar
+            <i data-i="close" aria-hidden="true"></i> <?= t('admin.consola.limpiar') ?>
         </button>
     </div>
 
     <div id="cs-loading" class="filter-loading" style="display:none;">
         <span class="filter-loading-bar"></span>
-        <span class="filter-loading-text">Buscando...</span>
+        <span class="filter-loading-text"><?= t('admin.consola.buscando') ?></span>
     </div>
 </div>
 
@@ -83,21 +83,21 @@ endif;
     <?php if (empty($consolas)): ?>
         <?php 
         require_once __DIR__ . '/../../components/Alert.php';
-        Alert::render('info', 'No hay consolas que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+        Alert::render('info', t('admin.consola.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
     <div style="overflow-x:auto;">
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Fabricante</th>
-                    <th>Descripción</th>
-                    <th>Creada</th>
-                    <th>Estado</th>
-                    <th>Emulación</th>
-                    <th>Acciones</th>
+                    <th><?= t('admin.consola.id') ?></th>
+                    <th><?= t('admin.consola.nombre') ?></th>
+                    <th><?= t('admin.consola.fabricante') ?></th>
+                    <th><?= t('admin.consola.descripcion') ?></th>
+                    <th><?= t('admin.consola.creada_col') ?></th>
+                    <th><?= t('admin.consola.estado') ?></th>
+                    <th><?= t('admin.consola.emulacion') ?></th>
+                    <th><?= t('admin.consola.acciones') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -116,7 +116,7 @@ endif;
                                 data-id="<?= $c['id'] ?>"
                                 data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
                                 data-accion="<?= $c['activo'] ? 'desactivar' : 'activar' ?>">
-                            <?= $c['activo'] ? 'Desactivar' : 'Activar' ?>
+                            <?= $c['activo'] ? t('admin.consola.desactivar') : t('admin.consola.activar') ?>
                         </button>
                     </td>
                     <td>
@@ -125,12 +125,12 @@ endif;
                                 data-id="<?= $c['id'] ?>"
                                 data-titulo="<?= htmlspecialchars($c['nombre'], ENT_QUOTES) ?>"
                                 data-accion="<?= $c['emulacion_online'] ? 'desactivar' : 'activar' ?>">
-                            <?= $c['emulacion_online'] ? 'Desactivar' : 'Activar' ?>
+                            <?= $c['emulacion_online'] ? t('admin.consola.desactivar') : t('admin.consola.activar') ?>
                         </button>
                     </td>
                     <td>
                         <!-- Solo btn-edit, exactamente igual que el dashboard -->
-                        <a href="/consola/edit/<?= $c['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/consola/edit/<?= $c['id'] ?>" class="btn-edit"><?= t('admin.consola.editar') ?></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -154,7 +154,7 @@ endif;
         'index', 
         count($consolas), 
         $total, 
-        'consolas', 
+        t('component.consolas'), 
         'cs'
     );
     ?>
@@ -173,6 +173,28 @@ endif;
     const btnLimpiar = document.getElementById('cs-limpiar');
     const resultsEl  = document.getElementById('consolas-results');
     const loadingEl  = document.getElementById('cs-loading');
+
+    const textos = {
+        tituloActivar:    <?= json_encode(t('admin.consola.confirm_activar_titulo')) ?>,
+        tituloDesactivar: <?= json_encode(t('admin.consola.confirm_desactivar_titulo')) ?>,
+        msgActivar:       <?= json_encode(t('admin.consola.confirm_estado_activar', ['nombre' => '{n}'])) ?>,
+        msgDesactivar:    <?= json_encode(t('admin.consola.confirm_estado_desactivar', ['nombre' => '{n}'])) ?>,
+        tituloEmuActivar:    <?= json_encode(t('admin.consola.confirm_emulacion_activar_titulo')) ?>,
+        tituloEmuDesactivar: <?= json_encode(t('admin.consola.confirm_emulacion_desactivar_titulo')) ?>,
+        msgEmuActivar:       <?= json_encode(t('admin.consola.confirm_emulacion_activar', ['nombre' => '{n}'])) ?>,
+        msgEmuDesactivar:    <?= json_encode(t('admin.consola.confirm_emulacion_desactivar', ['nombre' => '{n}'])) ?>,
+        okActivar:        <?= json_encode(t('admin.consola.si_activar')) ?>,
+        okDesactivar:     <?= json_encode(t('admin.consola.si_desactivar')) ?>,
+        cancelar:         <?= json_encode(t('admin.consola.cancelar')) ?>,
+        errorDesconocido: <?= json_encode(t('admin.consola.error_desconocido')) ?>,
+        errorEstado:      <?= json_encode(t('admin.consola.error_estado')) ?>,
+        toastActivada:    <?= json_encode(t('admin.consola.toast_activada', ['nombre' => '{n}'])) ?>,
+        toastDesactivada: <?= json_encode(t('admin.consola.toast_desactivada', ['nombre' => '{n}'])) ?>,
+        toastEmuActivada:    <?= json_encode(t('admin.consola.toast_emulacion_activada', ['nombre' => '{n}'])) ?>,
+        toastEmuDesactivada: <?= json_encode(t('admin.consola.toast_emulacion_desactivada', ['nombre' => '{n}'])) ?>,
+        desactivar:       <?= json_encode(t('admin.consola.desactivar')) ?>,
+        activar:          <?= json_encode(t('admin.consola.activar')) ?>,
+    };
 
     let debounceTimer  = null;
     let currentRequest = null;
@@ -265,12 +287,10 @@ endif;
 
         RVAlerts.confirm({
             tipo:      accion === 'desactivar' ? 'warning' : 'success',
-            titulo:    accion === 'desactivar' ? '¿Desactivar consola?' : '¿Activar consola?',
-            mensaje:   `<strong>${titulo}</strong> quedará ${accion === 'desactivar'
-                            ? 'oculta en los filtros del catálogo'
-                            : 'visible en los filtros del catálogo'}.`,
-            btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
-            btnCancel: 'Cancelar',
+            titulo:    accion === 'desactivar' ? textos.tituloDesactivar : textos.tituloActivar,
+            mensaje:   (accion === 'desactivar' ? textos.msgDesactivar : textos.msgActivar).replace('{n}', titulo),
+            btnOk:     accion === 'desactivar' ? textos.okDesactivar : textos.okActivar,
+            btnCancel: textos.cancelar,
             onOk: async () => {
                 btn.disabled    = true;
                 btn.textContent = '...';
@@ -282,22 +302,22 @@ endif;
                     );
                     const data = await res.json();
 
-                    if (!data.ok) throw new Error(data.error || 'Error desconocido');
+                    if (!data.ok) throw new Error(data.error || textos.errorDesconocido);
 
                     const estaActivo     = data.activo === 1;
-                    btn.textContent      = estaActivo ? 'Desactivar' : 'Activar';
+                    btn.textContent      = estaActivo ? textos.desactivar : textos.activar;
                     btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
                     btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
 
                     RVAlerts.toast(
-                        `"${data.nombre}" ${estaActivo ? 'activada' : 'desactivada'} correctamente`,
+                        (estaActivo ? textos.toastActivada : textos.toastDesactivada).replace('{n}', data.nombre),
                         estaActivo ? 'success' : 'warning'
                     );
 
                 } catch (err) {
-                    RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
+                    RVAlerts.toast(textos.errorEstado, 'danger');
                     btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
+                    btn.textContent = accion === 'desactivar' ? textos.desactivar : textos.activar;
                 }
 
                 btn.disabled = false;
@@ -317,12 +337,10 @@ endif;
 
         RVAlerts.confirm({
             tipo:    accion === 'desactivar' ? 'warning' : 'success',
-            titulo:  accion === 'desactivar' ? '¿Desactivar emulación online?' : '¿Activar emulación online?',
-            mensaje: `<strong>${titulo}</strong> ${accion === 'desactivar'
-                        ? 'dejará de mostrar el botón «Jugar Online» en el catálogo y la ficha.'
-                        : 'volverá a mostrar el botón «Jugar Online» en el catálogo y la ficha.'}`,
-            btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
-            btnCancel: 'Cancelar',
+            titulo:  accion === 'desactivar' ? textos.tituloEmuDesactivar : textos.tituloEmuActivar,
+            mensaje: (accion === 'desactivar' ? textos.msgEmuDesactivar : textos.msgEmuActivar).replace('{n}', titulo),
+            btnOk:     accion === 'desactivar' ? textos.okDesactivar : textos.okActivar,
+            btnCancel: textos.cancelar,
             onOk: async () => {
                 btn.disabled    = true;
                 btn.textContent = '...';
@@ -334,22 +352,22 @@ endif;
                     );
                     const data = await res.json();
 
-                    if (!data.ok) throw new Error(data.error || 'Error desconocido');
+                    if (!data.ok) throw new Error(data.error || textos.errorDesconocido);
 
                     const activada = data.emulacion_online === 1;
-                    btn.textContent    = activada ? 'Desactivar' : 'Activar';
+                    btn.textContent    = activada ? textos.desactivar : textos.activar;
                     btn.dataset.accion = activada ? 'desactivar' : 'activar';
                     btn.className      = 'btn-toggle-active btn-toggle-emulacion ' + (activada ? 'btn-toggle--on' : 'btn-toggle--off');
 
                     RVAlerts.toast(
-                        `Emulación online de "${data.nombre}" ${activada ? 'activada' : 'desactivada'} correctamente`,
+                        (activada ? textos.toastEmuActivada : textos.toastEmuDesactivada).replace('{n}', data.nombre),
                         activada ? 'success' : 'warning'
                     );
 
                 } catch (err) {
-                    RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
+                    RVAlerts.toast(textos.errorEstado, 'danger');
                     btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
+                    btn.textContent = accion === 'desactivar' ? textos.desactivar : textos.activar;
                 }
 
                 btn.disabled = false;

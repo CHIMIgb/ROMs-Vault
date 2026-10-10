@@ -1,6 +1,6 @@
 <!-- views/admin/edit.php -->
 <div class="form-container">
-    <h2>Editar Juego: <?= htmlspecialchars($juego['titulo']) ?></h2>
+    <h2><?= t('admin.juego.titulo_editar', ['nombre' => htmlspecialchars($juego['titulo'])]) ?></h2>
     
     <?php if (isset($error)): ?>
         <?php 
@@ -13,7 +13,7 @@
         <?= CsrfService::field() ?>
         <!-- Información básica -->
         <div class="form-group">
-            <label for="titulo">Título del juego *</label>
+            <label for="titulo"><?= t('admin.juego.titulo') ?></label>
             <input type="text" 
                    id="titulo"
                    name="titulo" 
@@ -22,7 +22,7 @@
         </div>
         
         <div class="form-group">
-            <label for="descripcion">Descripción</label>
+            <label for="descripcion"><?= t('admin.juego.descripcion') ?></label>
             <textarea id="descripcion"
                       name="descripcion" 
                       rows="4"><?= htmlspecialchars($juego['descripcion'] ?? '') ?></textarea>
@@ -31,9 +31,9 @@
         <!-- Plataforma y categoría -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
-                <label for="consola_id">Consola *</label>
+                <label for="consola_id"><?= t('admin.juego.consola') ?></label>
                 <select id="consola_id" name="consola_id" required>
-                    <option value="">Seleccionar consola</option>
+                    <option value=""><?= t('admin.juego.seleccionar_consola') ?></option>
                     <?php foreach ($consolas as $consola): ?>
                         <option value="<?= $consola['id'] ?>" 
                             <?= ($juego['consola_id'] == $consola['id']) ? 'selected' : '' ?>>
@@ -44,9 +44,9 @@
             </div>
             
             <div class="form-group">
-                <label for="categoria_id">Categoría *</label>
+                <label for="categoria_id"><?= t('admin.juego.categoria') ?></label>
                 <select id="categoria_id" name="categoria_id" required>
-                    <option value="">Seleccionar categoría</option>
+                    <option value=""><?= t('admin.juego.seleccionar_categoria') ?></option>
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?= $categoria['id'] ?>" 
                             <?= ($juego['categoria_id'] == $categoria['id']) ? 'selected' : '' ?>>
@@ -60,18 +60,18 @@
         <!-- Región y fecha -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
-                <label for="region">Región</label>
+                <label for="region"><?= t('admin.juego.region') ?></label>
                 <select id="region" name="region">
-                    <option value="">Seleccionar región</option>
-                    <option value="PAL" <?= ($juego['region'] == 'PAL') ? 'selected' : '' ?>>PAL</option>
-                    <option value="NTSC" <?= ($juego['region'] == 'NTSC') ? 'selected' : '' ?>>NTSC</option>
-                    <option value="NTSC-J" <?= ($juego['region'] == 'NTSC-J') ? 'selected' : '' ?>>NTSC-J</option>
-                    <option value="NTSC-U" <?= ($juego['region'] == 'NTSC-U') ? 'selected' : '' ?>>NTSC-U</option>
+                    <option value=""><?= t('admin.juego.seleccionar_region') ?></option>
+                    <option value="PAL" <?= ($juego['region'] == 'PAL') ? 'selected' : '' ?>><?= t('admin.juego.region_pal') ?></option>
+                    <option value="NTSC" <?= ($juego['region'] == 'NTSC') ? 'selected' : '' ?>><?= t('admin.juego.region_ntsc') ?></option>
+                    <option value="NTSC-J" <?= ($juego['region'] == 'NTSC-J') ? 'selected' : '' ?>><?= t('admin.juego.region_ntsc_j') ?></option>
+                    <option value="NTSC-U" <?= ($juego['region'] == 'NTSC-U') ? 'selected' : '' ?>><?= t('admin.juego.region_ntsc_u') ?></option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="fecha_lanzamiento">Fecha de lanzamiento</label>
+                <label for="fecha_lanzamiento"><?= t('admin.juego.fecha_lanzamiento') ?></label>
                 <input type="date" 
                        id="fecha_lanzamiento"
                        name="fecha_lanzamiento" 
@@ -82,47 +82,47 @@
         <!-- Idiomas y formato -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
-                <label for="idiomas">Idiomas</label>
+                <label for="idiomas"><?= t('admin.juego.idiomas') ?></label>
                 <input type="text" 
                        id="idiomas"
                        name="idiomas" 
                        value="<?= htmlspecialchars($juego['idiomas'] ?? '') ?>"
-                       placeholder="Ej: Español, Inglés">
+                       placeholder="<?= t('admin.juego.idiomas_placeholder') ?>">
             </div>
             
             <div class="form-group">
-                <label for="formato_imagen">Formato</label>
+                <label for="formato_imagen"><?= t('admin.juego.formato') ?></label>
                 <input type="text" 
                        id="formato_imagen"
                        name="formato_imagen" 
                        value="<?= htmlspecialchars($juego['formato_imagen'] ?? '') ?>"
-                       placeholder="Ej: ISO, ROM, Hack">
+                       placeholder="<?= t('admin.juego.formato_placeholder') ?>">
             </div>
         </div>
         
         <!-- Códigos -->
         <div class="form-group">
-            <label for="game_id_code">Game ID Code</label>
+            <label for="game_id_code"><?= t('admin.juego.game_id_code') ?></label>
             <input type="text" 
                    id="game_id_code"
                    name="game_id_code" 
                    value="<?= htmlspecialchars($juego['game_id_code'] ?? '') ?>"
-                   placeholder="Ej: ULES-12345">
+                   placeholder="<?= t('admin.juego.game_id_code_placeholder') ?>">
         </div>
         
         <!-- Google Drive -->
         <div class="form-group">
-            <label for="google_drive_file_id">Google Drive File ID *</label>
+            <label for="google_drive_file_id"><?= t('admin.juego.google_drive_file_id') ?></label>
             <input type="text" 
                    id="google_drive_file_id"
                    name="google_drive_file_id" 
                    value="<?= htmlspecialchars($juego['google_drive_file_id'] ?? '') ?>" 
                    required>
-            <small>El ID del archivo en Google Drive</small>
+            <small><?= t('admin.juego.google_drive_file_id_ayuda') ?></small>
         </div>
         
         <div class="form-group">
-            <label for="google_drive_view_link">Google Drive View Link</label>
+            <label for="google_drive_view_link"><?= t('admin.juego.google_drive_view_link') ?></label>
             <input type="url" 
                    id="google_drive_view_link"
                    name="google_drive_view_link" 
@@ -131,27 +131,27 @@
         
         <!-- Tamaño -->
         <div class="form-group">
-            <label for="size_bytes">Tamaño en bytes</label>
+            <label for="size_bytes"><?= t('admin.juego.tamano') ?></label>
             <input type="text" 
                    id="size_bytes"
                    name="size_bytes" 
                    value="<?= $juego['size_bytes'] ?? 0 ?>"
                    pattern="[0-9]+"
                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            <small>Solo números enteros positivos</small>
+            <small><?= t('admin.juego.tamano_ayuda') ?></small>
         </div>
         
         <!-- Portada -->
         <div class="form-group">
-            <label for="imagen">Portada del juego</label>
+            <label for="imagen"><?= t('admin.juego.portada') ?></label>
             <?php if (!empty($juego['imagen'])): ?>
                 <div style="display:flex; align-items:flex-start; gap:1rem; margin-bottom:0.75rem; padding:0.75rem; background:var(--cream-dark); border:2px solid var(--border-dark); box-shadow:var(--raise-shadow);">
                     <img src="<?= htmlspecialchars($juego['imagen']) ?>"
-                         alt="Portada actual"
+                         alt="<?= t('admin.juego.alt_portada_actual') ?>"
                          style="width:80px; height:80px; object-fit:cover; border:2px solid var(--border-dark); flex-shrink:0;">
                     <div style="font-family:'Courier Prime',monospace;">
-                        <p style="font-size:0.78rem; font-weight:700; color:var(--slate); margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.05em;">Imagen actual</p>
-                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;"><i data-i="warning"></i> Si eliges una nueva, se reemplazará al guardar. Puedes quitarla con ✕ para conservar la actual.</p>
+                        <p style="font-size:0.78rem; font-weight:700; color:var(--slate); margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.05em;"><?= t('admin.juego.imagen_actual') ?></p>
+                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;"><i data-i="warning"></i> <?= t('admin.juego.portada_reemplaza_aviso') ?></p>
                     </div>
                 </div>
             <?php endif; ?>
@@ -161,29 +161,29 @@
                        name="imagen"
                        accept="image/jpeg,image/png,image/gif,image/webp">
                 <div class="file-input-display" onclick="document.getElementById('imagen').click()">
-                    <div class="file-input-btn"><i data-i="upload-2"></i> Elegir archivo
+                    <div class="file-input-btn"><i data-i="upload-2"></i> <?= t('admin.juego.elegir_archivo') ?>
                     </div>
-                    <div class="file-input-name" id="imagen-name">Sin archivo seleccionado</div>
+                    <div class="file-input-name" id="imagen-name"><?= t('admin.juego.sin_archivo') ?></div>
                 </div>
             </div>
             <div class="image-preview-grid" id="imagen-preview-grid" hidden></div>
-            <small>Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB.<br>
-            <i>Las imágenes se optimizarán y convertirán automáticamente a formato WebP.</i></small>
+            <small><?= t('admin.juego.portada_formatos') ?><br>
+            <i><?= t('admin.juego.portada_optimizacion') ?></i></small>
         </div>
 
         <!-- Capturas -->
         <div class="form-group">
-            <label>Capturas del juego</label>
+            <label><?= t('admin.juego.capturas') ?></label>
             <?php $capturasActuales = Juego::parseCapturas($juego['capturas'] ?? null); ?>
             <?php if ($capturasActuales): ?>
                 <div class="image-preview-grid" id="capturas-actuales-grid">
                     <?php foreach ($capturasActuales as $i => $ruta): ?>
                         <div class="image-preview-item" data-ruta="<?= htmlspecialchars($ruta) ?>">
-                            <img src="<?= htmlspecialchars($ruta) ?>" alt="Captura actual <?= $i + 1 ?>">
-                            <span class="image-preview-badge">Actual <?= $i + 1 ?></span>
+                            <img src="<?= htmlspecialchars($ruta) ?>" alt="<?= t('admin.juego.captura_actual_i', ['i' => $i + 1]) ?>">
+                            <span class="image-preview-badge"><?= t('admin.juego.actual_i', ['i' => $i + 1]) ?></span>
                             <button type="button"
                                     class="image-preview-remove"
-                                    aria-label="Marcar captura <?= $i + 1 ?> para eliminar">&#10005;</button>
+                                    aria-label="<?= t('admin.juego.marcar_captura_i', ['i' => $i + 1]) ?>">&#10005;</button>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -195,15 +195,15 @@
                    multiple
                    hidden>
             <div class="image-preview-grid" id="capturas-nuevas-grid"></div>
-            <small>Opcional. Formatos: JPG, PNG, GIF, WEBP. Máx. 2MB por archivo y 7 capturas.<br>
-            <i>Las capturas actuales se conservan: usa ✕ en una captura para eliminarla al guardar, y + para añadir más sin perder las existentes.</i></small>
+            <small><?= t('admin.juego.capturas_ayuda') ?><br>
+            <i><?= t('admin.juego.capturas_actuales_ayuda') ?></i></small>
         </div>
                 
         <!-- Botones -->
         <div class="form-actions">
-            <button type="submit" class="btn-primary"><i data-i="save"></i> Guardar cambios</button>
+            <button type="submit" class="btn-primary"><i data-i="save"></i> <?= t('admin.juego.guardar_cambios') ?></button>
                 <a href="/admin/dashboard" class="btn-primary" style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
-                    <i data-i="close"></i> Cancelar
+                    <i data-i="close"></i> <?= t('admin.juego.cancelar') ?>
                 </a>
         </div>
     </form>
@@ -232,16 +232,16 @@
 
         var img = document.createElement('img');
         img.src = URL.createObjectURL(f);
-        img.alt = 'Nueva portada seleccionada';
+        img.alt = <?= json_encode(t('admin.juego.alt_nueva_portada')) ?>;
 
         var badge = document.createElement('span');
         badge.className = 'image-preview-badge';
-        badge.textContent = 'Nueva';
+        badge.textContent = <?= json_encode(t('admin.juego.badge_nueva')) ?>;
 
         var remove = document.createElement('button');
         remove.type = 'button';
         remove.className = 'image-preview-remove';
-        remove.setAttribute('aria-label', 'Quitar portada nueva seleccionada');
+        remove.setAttribute('aria-label', <?= json_encode(t('admin.juego.aria_quitar_portada_nueva')) ?>);
         remove.textContent = '\u2715';
         remove.addEventListener('click', function() {
             portadaInput.value = '';
@@ -314,16 +314,16 @@
 
             var img = document.createElement('img');
             img.src = URL.createObjectURL(file);
-            img.alt = 'Nueva captura ' + (index + 1);
+            img.alt = <?= json_encode(t('admin.juego.nueva_captura_i', ['i' => '{n}'])) ?>.replace('{n}', index + 1);
 
             var badge = document.createElement('span');
             badge.className = 'image-preview-badge';
-            badge.textContent = 'Nueva';
+            badge.textContent = <?= json_encode(t('admin.juego.badge_nueva')) ?>;
 
             var remove = document.createElement('button');
             remove.type = 'button';
             remove.className = 'image-preview-remove';
-            remove.setAttribute('aria-label', 'Quitar nueva captura ' + (index + 1));
+            remove.setAttribute('aria-label', <?= json_encode(t('admin.juego.quitar_nueva_captura_i', ['i' => '{n}'])) ?>.replace('{n}', index + 1));
             remove.textContent = '\u2715';
             remove.addEventListener('click', function(i) {
                 return function() {
@@ -344,7 +344,7 @@
         addBtn.type = 'button';
         addBtn.className = 'image-preview-add' + (cupoLleno ? ' is-disabled' : '');
         addBtn.textContent = '+';
-        addBtn.setAttribute('aria-label', 'Añadir capturas');
+        addBtn.setAttribute('aria-label', <?= json_encode(t('admin.juego.aria_anadir_capturas')) ?>);
         addBtn.addEventListener('click', function() {
             if (!cupoLleno) {
                 capturasInput.click();
@@ -355,7 +355,7 @@
         if (cupoLleno) {
             var limit = document.createElement('span');
             limit.className = 'image-preview-limit';
-            limit.textContent = 'Límite alcanzado: ' + MAX_CAPTURAS + ' capturas. Quita alguna para añadir más.';
+            limit.textContent = <?= json_encode(t('admin.juego.limite_capturas', ['total' => '{n}'])) ?>.replace('{n}', MAX_CAPTURAS);
             capturasGrid.appendChild(limit);
         }
     }

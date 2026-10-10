@@ -72,25 +72,25 @@
 
 <!-- CABECERA -->
 <div class="admin-header">
-    <h2>Panel de Administracion</h2>
+    <h2><?= t('admin.dashboard.panel_administracion') ?></h2>
     <div class="admin-header-actions">
-        <a href="/admin/tfa" class="btn-primary" title="Verificación en dos pasos">
-            <i data-i="shield-2"></i> Seguridad 2FA
+        <a href="/admin/tfa" class="btn-primary" title="<?= t('admin.dashboard.verificacion_dos_pasos') ?>">
+            <i data-i="shield-2"></i> <?= t('admin.dashboard.seguridad_2fa') ?>
         </a>
         <a href="/consola/index" class="btn-primary">
-            <i data-i="gamepad"></i> Consolas
+            <i data-i="gamepad"></i> <?= t('admin.dashboard.consolas') ?>
         </a>
         <a href="/emulador/index" class="btn-primary">
-            <i data-i="joystick"></i> Emuladores
+            <i data-i="joystick"></i> <?= t('admin.dashboard.emuladores') ?>
         </a>
         <a href="/categoria/index" class="btn-primary">
-            <i data-i="dashboard"></i> Categorías
+            <i data-i="dashboard"></i> <?= t('admin.dashboard.categorias') ?>
         </a>
         <button type="button" id="btn-export" class="btn-primary" style="background-color: var(--success);">
-            <i data-i="save"></i> Exportar
+            <i data-i="save"></i> <?= t('admin.dashboard.exportar') ?>
         </button>
         <a href="/admin/add" class="btn-primary">
-            <i data-i="plus"></i> Añadir nuevo juego
+            <i data-i="plus"></i> <?= t('admin.dashboard.anadir_juego') ?>
         </a>
     </div>
 </div>
@@ -101,7 +101,7 @@
         <div class="search-wrapper" style="flex:2;min-width:180px;">
             <input type="text"
                    id="af-busqueda"
-                   placeholder="Buscar por titulo..."
+                   placeholder="<?= t('admin.dashboard.buscar_titulo') ?>"
                    value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                    class="search-input"
                    autocomplete="off">
@@ -112,7 +112,7 @@
         </div>
 
         <select id="af-consola" class="admin-filter-select">
-            <option value="">Todas las consolas</option>
+            <option value=""><?= t('admin.dashboard.todas_consolas') ?></option>
             <?php foreach ($consolas as $c): ?>
                 <option value="<?= $c['id'] ?>" <?= (($_GET['consola'] ?? '') == $c['id']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($c['nombre']) ?>
@@ -121,7 +121,7 @@
         </select>
 
         <select id="af-categoria" class="admin-filter-select">
-            <option value="">Todas las categorias</option>
+            <option value=""><?= t('admin.dashboard.todas_categorias') ?></option>
             <?php foreach ($categorias as $cat): ?>
                 <option value="<?= $cat['id'] ?>" <?= (($_GET['categoria'] ?? '') == $cat['id']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($cat['nombre']) ?>
@@ -130,7 +130,7 @@
         </select>
 
         <select id="af-region" class="admin-filter-select">
-            <option value="">Todas las regiones</option>
+            <option value=""><?= t('admin.dashboard.todas_regiones') ?></option>
             <option value="PAL"    <?= (($_GET['region'] ?? '') === 'PAL')    ? 'selected' : '' ?>>PAL</option>
             <option value="NTSC"   <?= (($_GET['region'] ?? '') === 'NTSC')   ? 'selected' : '' ?>>NTSC</option>
             <option value="NTSC-J" <?= (($_GET['region'] ?? '') === 'NTSC-J') ? 'selected' : '' ?>>NTSC-J</option>
@@ -138,18 +138,18 @@
         </select>
 
         <select id="af-activo" class="admin-filter-select">
-            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>>Todos los estados</option>
-            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>>Solo activos</option>
-            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>>Solo inactivos</option>
+            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>><?= t('admin.dashboard.todos_estados') ?></option>
+            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>><?= t('admin.dashboard.solo_activos') ?></option>
+            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>><?= t('admin.dashboard.solo_inactivos') ?></option>
         </select>
 
-        <button type="button" id="af-limpiar" class="clear-filters" style="display:none;white-space:nowrap;"><i data-i="close" aria-hidden="true"></i> Limpiar</button>
+        <button type="button" id="af-limpiar" class="clear-filters" style="display:none;white-space:nowrap;"><i data-i="close" aria-hidden="true"></i> <?= t('admin.dashboard.limpiar') ?></button>
     </div>
 
     <!-- Indicador de carga -->
     <div id="admin-filter-loading" class="filter-loading" style="display:none;">
         <span class="filter-loading-bar"></span>
-        <span class="filter-loading-text">Buscando...</span>
+        <span class="filter-loading-text"><?= t('admin.dashboard.buscando') ?></span>
     </div>
 </div>
 
@@ -159,18 +159,18 @@
     <?php if (empty($juegos)): ?>
         <?php 
         require_once __DIR__ . '/../components/Alert.php';
-        Alert::render('info', 'No hay juegos que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+        Alert::render('info', t('admin.dashboard.sin_juegos'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
     <div style="overflow-x:auto;">
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>ID</th><th>Portada</th><th>Titulo</th><th>ID Juego</th>
-                    <th>Consola</th><th>Categoria</th><th>Region</th>
-                    <th style="text-align:center;" title="Descargas">D</th>
-                    <th style="text-align:center;" title="Jugadas">J</th>
-                    <th>Estado</th><th>Acciones</th>
+                    <th><?= t('admin.juego.tabla_id') ?></th><th><?= t('admin.juego.tabla_portada') ?></th><th><?= t('admin.juego.tabla_titulo') ?></th><th><?= t('admin.juego.tabla_id_juego') ?></th>
+                    <th><?= t('admin.juego.tabla_consola') ?></th><th><?= t('admin.juego.tabla_categoria') ?></th><th><?= t('admin.juego.tabla_region') ?></th>
+                    <th style="text-align:center;" title="<?= t('admin.juego.tabla_descargas') ?>"><?= t('admin.juego.tabla_descargas_abrev') ?></th>
+                    <th style="text-align:center;" title="<?= t('admin.juego.tabla_jugadas_online') ?>"><?= t('admin.juego.tabla_jugadas_abrev') ?></th>
+                    <th><?= t('admin.juego.tabla_estado') ?></th><th><?= t('admin.juego.tabla_acciones') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -187,7 +187,7 @@
                     <td>#<?= $juego['id'] ?></td>
                     <td>
                         <?php if (!empty($juego['imagen'])): ?>
-                            <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="Portada"
+                            <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= t('admin.juego.alt_portada') ?>"
                                  style="width:40px;height:40px;object-fit:cover;">
                         <?php else: ?>
                             <span style="color:var(--text-light);"><i data-i="image"></i></span>
@@ -209,11 +209,11 @@
                                 data-id="<?= $juego['id'] ?>"
                                 data-titulo="<?= htmlspecialchars($juego['titulo'], ENT_QUOTES) ?>"
                                 data-accion="<?= $juego['activo'] ? 'desactivar' : 'activar' ?>">
-                            <?= $juego['activo'] ? 'Desactivar' : 'Activar' ?>
+                            <?= $juego['activo'] ? t('admin.juego.desactivar') : t('admin.juego.activar') ?>
                         </button>
                     </td>
                     <td>
-                        <a href="/admin/edit/<?= $juego['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/admin/edit/<?= $juego['id'] ?>" class="btn-edit"><?= t('admin.juego.editar') ?></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -237,7 +237,7 @@
         'dashboard', 
         count($juegos), 
         $totalJuegos, 
-        'juegos', 
+        t('component.juegos'), 
         'admin'
     );
     ?>
@@ -250,23 +250,23 @@
     <div class="rv-modal-box rv-modal--info rv-modal--open">
         <div class="rv-modal-header">
             <span class="rv-modal-icon"><i data-i="save"></i></span>
-            <h3 class="rv-modal-title">Exportar a Excel</h3>
+            <h3 class="rv-modal-title"><?= t('admin.dashboard.exportar_titulo') ?></h3>
         </div>
         <div class="rv-modal-body" style="padding-top:0.5rem; text-align:center;">
-            <p style="margin-bottom: 1rem; color: var(--text-light);">Selecciona la tabla que deseas descargar:</p>
+            <p style="margin-bottom: 1rem; color: var(--text-light);"><?= t('admin.dashboard.exportar_instruccion') ?></p>
             <select id="export-table" class="admin-filter-select" style="width:100%;">
-                <option value="juegos">Juegos</option>
-                <option value="consolas">Consolas</option>
-                <option value="categorias">Categorías</option>
-                <option value="usuarios">Usuarios</option>
-                <option value="personas">Personas</option>
-                <option value="roles">Roles</option>
-                <option value="descargas">Descargas</option>
+                <option value="juegos"><?= t('admin.dashboard.exportar_tabla_juegos') ?></option>
+                <option value="consolas"><?= t('admin.dashboard.exportar_tabla_consolas') ?></option>
+                <option value="categorias"><?= t('admin.dashboard.exportar_tabla_categorias') ?></option>
+                <option value="usuarios"><?= t('admin.dashboard.exportar_tabla_usuarios') ?></option>
+                <option value="personas"><?= t('admin.dashboard.exportar_tabla_personas') ?></option>
+                <option value="roles"><?= t('admin.dashboard.exportar_tabla_roles') ?></option>
+                <option value="descargas"><?= t('admin.dashboard.exportar_tabla_descargas') ?></option>
             </select>
         </div>
         <div class="rv-modal-footer">
-            <button class="rv-btn rv-btn-cancel" id="btn-export-cancel">Cancelar</button>
-            <button class="rv-btn rv-btn-ok rv-btn--success" id="btn-export-confirm">Descargar</button>
+            <button class="rv-btn rv-btn-cancel" id="btn-export-cancel"><?= t('admin.dashboard.cancelar') ?></button>
+            <button class="rv-btn rv-btn-ok rv-btn--success" id="btn-export-confirm"><?= t('admin.dashboard.descargar') ?></button>
         </div>
     </div>
 </div>
@@ -331,7 +331,7 @@
             bindPagination();
         } catch (err) {
             if (err.name !== 'AbortError') {
-                RVAlerts.toast('Error al cargar los resultados. Intenta de nuevo.', 'danger');
+                RVAlerts.toast(<?= json_encode(t('admin.juego.error_cargar_resultados')) ?>, 'danger');
             }
         } finally {
             loadingEl.style.display = 'none';
@@ -389,14 +389,28 @@
         const titulo = btn.dataset.titulo;
         const id     = btn.dataset.id;
 
+        const textosConfirm = {
+            tituloActivar:    <?= json_encode(t('admin.juego.confirmar_activar_titulo')) ?>,
+            tituloDesactivar: <?= json_encode(t('admin.juego.confirmar_desactivar_titulo')) ?>,
+            msgActivar:       <?= json_encode(t('admin.juego.confirmar_activar_mensaje', ['nombre' => '{n}'])) ?>,
+            msgDesactivar:    <?= json_encode(t('admin.juego.confirmar_desactivar_mensaje', ['nombre' => '{n}'])) ?>,
+            okActivar:        <?= json_encode(t('admin.juego.confirmar_btn_activar')) ?>,
+            okDesactivar:     <?= json_encode(t('admin.juego.confirmar_btn_desactivar')) ?>,
+            cancelar:         <?= json_encode(t('admin.juego.cancelar')) ?>,
+            errorDesconocido: <?= json_encode(t('admin.juego.error_desconocido')) ?>,
+            errorEstado:      <?= json_encode(t('admin.juego.error_cambiar_estado')) ?>,
+            toastActivado:    <?= json_encode(t('admin.juego.toast_activado', ['nombre' => '{n}'])) ?>,
+            toastDesactivado: <?= json_encode(t('admin.juego.toast_desactivado', ['nombre' => '{n}'])) ?>,
+            desactivar:       <?= json_encode(t('admin.juego.desactivar')) ?>,
+            activar:          <?= json_encode(t('admin.juego.activar')) ?>,
+        };
+
         RVAlerts.confirm({
             tipo:      accion === 'desactivar' ? 'warning' : 'success',
-            titulo:    accion === 'desactivar' ? '¿Desactivar juego?' : '¿Activar juego?',
-            mensaje:   `<strong>${titulo}</strong> quedará ${accion === 'desactivar'
-                            ? 'oculto en el catálogo público'
-                            : 'visible en el catálogo público'}.`,
-            btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
-            btnCancel: 'Cancelar',
+            titulo:    accion === 'desactivar' ? textosConfirm.tituloDesactivar : textosConfirm.tituloActivar,
+            mensaje:   (accion === 'desactivar' ? textosConfirm.msgDesactivar : textosConfirm.msgActivar).replace('{n}', titulo),
+            btnOk:     accion === 'desactivar' ? textosConfirm.okDesactivar : textosConfirm.okActivar,
+            btnCancel: textosConfirm.cancelar,
             onOk: async () => {
                 btn.disabled    = true;
                 btn.textContent = '...';
@@ -408,22 +422,22 @@
                     );
                     const data = await res.json();
 
-                    if (!data.ok) throw new Error(data.error || 'Error desconocido');
+                    if (!data.ok) throw new Error(data.error || textosConfirm.errorDesconocido);
 
                     const estaActivo = data.activo === 1;
-                    btn.textContent      = estaActivo ? 'Desactivar' : 'Activar';
+                    btn.textContent      = estaActivo ? textosConfirm.desactivar : textosConfirm.activar;
                     btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
                     btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
 
                     RVAlerts.toast(
-                        `"${data.titulo}" ${estaActivo ? 'activado' : 'desactivado'} correctamente`,
+                        (estaActivo ? textosConfirm.toastActivado : textosConfirm.toastDesactivado).replace('{n}', data.titulo),
                         estaActivo ? 'success' : 'warning'
                     );
 
                 } catch (err) {
-                    RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
+                    RVAlerts.toast(textosConfirm.errorEstado, 'danger');
                     btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
+                    btn.textContent = accion === 'desactivar' ? textosConfirm.desactivar : textosConfirm.activar;
                 }
 
                 btn.disabled = false;

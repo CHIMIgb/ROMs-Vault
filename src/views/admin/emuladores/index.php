@@ -3,28 +3,28 @@
 <!-- ESTADÍSTICAS — mismo patrón que consolas/categorías -->
 <div class="admin-stats-grid">
     <div class="stat-card">
-        <div class="stat-label">Consolas con emulador</div>
+        <div class="stat-label"><?= t('admin.emulador.total') ?></div>
         <div class="stat-value" style="color:var(--primary);"><?= number_format($total) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Activas</div>
+        <div class="stat-label"><?= t('admin.emulador.activas') ?></div>
         <div class="stat-value" style="color:var(--success);"><?= number_format($totalActivas) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Inactivas</div>
+        <div class="stat-label"><?= t('admin.emulador.inactivas') ?></div>
         <div class="stat-value" style="color:var(--text-light);"><?= number_format($total - $totalActivas) ?></div>
     </div>
 </div>
 
 <!-- CABECERA — mismo patrón que consolas/categorías -->
 <div class="admin-header">
-    <h2>Emuladores recomendados</h2>
+    <h2><?= t('admin.emulador.titulo') ?></h2>
     <div class="admin-header-actions">
         <a href="/admin/dashboard" class="btn-primary">
-            <i data-i="arrow-left"></i> Dashboard
+            <i data-i="arrow-left"></i> <?= t('admin.emulador.dashboard') ?>
         </a>
         <a href="/emulador/add" class="btn-primary">
-            <i data-i="plus"></i> Nuevo Emulador
+            <i data-i="plus"></i> <?= t('admin.emulador.nuevo') ?>
         </a>
     </div>
 </div>
@@ -33,9 +33,9 @@
 <?php 
 require_once __DIR__ . '/../../components/Alert.php';
 if (isset($_GET['created'])): 
-    Alert::render('success', 'Emulador registrado correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.emulador.registrado'), 'check', 'margin-bottom:1.25rem;');
 elseif (isset($_GET['updated'])): 
-    Alert::render('success', 'Emuladores actualizados correctamente.', 'check', 'margin-bottom:1.25rem;');
+    Alert::render('success', t('admin.emulador.actualizados'), 'check', 'margin-bottom:1.25rem;');
 endif; 
 ?>
 
@@ -45,7 +45,7 @@ endif;
         <div class="search-wrapper" style="flex:2;min-width:180px;">
             <input type="text"
                    id="em-busqueda"
-                   placeholder="Buscar por consola o emulador..."
+                   placeholder="<?= t('admin.emulador.buscar_placeholder') ?>"
                    value="<?= htmlspecialchars($_GET['busqueda'] ?? '') ?>"
                    class="search-input"
                    autocomplete="off">
@@ -56,19 +56,19 @@ endif;
         </div>
 
         <select id="em-activo" class="admin-filter-select">
-            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>>Todos los estados</option>
-            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>>Solo activos</option>
-            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>>Solo inactivos</option>
+            <option value=""  <?= (!isset($_GET['activo']) || $_GET['activo'] === '') ? 'selected' : '' ?>><?= t('admin.emulador.todos_estados') ?></option>
+            <option value="1" <?= (($_GET['activo'] ?? '') === '1') ? 'selected' : '' ?>><?= t('admin.emulador.solo_activos') ?></option>
+            <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>><?= t('admin.emulador.solo_inactivos') ?></option>
         </select>
 
         <button type="button" id="em-limpiar" class="clear-filters" style="display:none;white-space:nowrap;">
-            <i data-i="close" aria-hidden="true"></i> Limpiar
+            <i data-i="close" aria-hidden="true"></i> <?= t('admin.emulador.limpiar') ?>
         </button>
     </div>
 
     <div id="em-loading" class="filter-loading" style="display:none;">
         <span class="filter-loading-bar"></span>
-        <span class="filter-loading-text">Buscando...</span>
+        <span class="filter-loading-text"><?= t('admin.emulador.buscando') ?></span>
     </div>
 </div>
 
@@ -78,19 +78,19 @@ endif;
     <?php if (empty($filas)): ?>
         <?php 
         require_once __DIR__ . '/../../components/Alert.php';
-        Alert::render('info', 'No hay consolas con emuladores que coincidan con los filtros.', 'info', 'text-align:center;padding:3rem;justify-content:center;');
+        Alert::render('info', t('admin.emulador.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
     <div style="overflow-x:auto;">
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Consola</th>
-                    <th>Emulador principal</th>
-                    <th>Alternativo</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th><?= t('admin.emulador.id') ?></th>
+                    <th><?= t('admin.emulador.consola') ?></th>
+                    <th><?= t('admin.emulador.principal') ?></th>
+                    <th><?= t('admin.emulador.alternativo') ?></th>
+                    <th><?= t('admin.emulador.estado') ?></th>
+                    <th><?= t('admin.emulador.acciones') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -104,7 +104,7 @@ endif;
                             <div style="color:var(--slate-mid);font-size:.88rem;margin-top:.25rem;">
                                 <?= htmlspecialchars(implode(' / ', $f['principal']['plataformas'])) ?>
                                 ·
-                                <a href="<?= htmlspecialchars($f['principal']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;">sitio oficial</a>
+                                <a href="<?= htmlspecialchars($f['principal']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
                             </div>
                         <?php else: ?>
                             <span style="color:var(--text-light);">—</span>
@@ -116,7 +116,7 @@ endif;
                             <div style="color:var(--slate-mid);font-size:.88rem;margin-top:.25rem;">
                                 <?= htmlspecialchars(implode(' / ', $f['alterno']['plataformas'])) ?>
                                 ·
-                                <a href="<?= htmlspecialchars($f['alterno']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;">sitio oficial</a>
+                                <a href="<?= htmlspecialchars($f['alterno']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
                             </div>
                         <?php else: ?>
                             <span style="color:var(--text-light);">—</span>
@@ -128,12 +128,12 @@ endif;
                                 data-id="<?= $f['id'] ?>"
                                 data-titulo="<?= htmlspecialchars($f['consola_nombre'], ENT_QUOTES) ?>"
                                 data-accion="<?= $f['activo'] ? 'desactivar' : 'activar' ?>">
-                            <?= $f['activo'] ? 'Desactivar' : 'Activar' ?>
+                            <?= $f['activo'] ? t('admin.emulador.desactivar') : t('admin.emulador.activar') ?>
                         </button>
                     </td>
                     <td>
                         <!-- Solo btn-edit, exactamente igual que el dashboard -->
-                        <a href="/emulador/edit/<?= $f['id'] ?>" class="btn-edit">Editar</a>
+                        <a href="/emulador/edit/<?= $f['id'] ?>" class="btn-edit"><?= t('admin.emulador.editar') ?></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -157,7 +157,7 @@ endif;
         'index', 
         count($filas), 
         $total, 
-        'consolas con emulador', 
+        t('component.consolas_con_emulador'), 
         'em'
     );
     ?>
@@ -176,6 +176,22 @@ endif;
     const btnLimpiar = document.getElementById('em-limpiar');
     const resultsEl  = document.getElementById('emuladores-results');
     const loadingEl  = document.getElementById('em-loading');
+
+    const textos = {
+        tituloActivar:    <?= json_encode(t('admin.emulador.confirm_activar_titulo')) ?>,
+        tituloDesactivar: <?= json_encode(t('admin.emulador.confirm_desactivar_titulo')) ?>,
+        msgActivar:       <?= json_encode(t('admin.emulador.confirm_estado_activar', ['nombre' => '{n}'])) ?>,
+        msgDesactivar:    <?= json_encode(t('admin.emulador.confirm_estado_desactivar', ['nombre' => '{n}'])) ?>,
+        okActivar:        <?= json_encode(t('admin.emulador.si_activar')) ?>,
+        okDesactivar:     <?= json_encode(t('admin.emulador.si_desactivar')) ?>,
+        cancelar:         <?= json_encode(t('admin.emulador.cancelar')) ?>,
+        errorDesconocido: <?= json_encode(t('admin.emulador.error_desconocido')) ?>,
+        errorEstado:      <?= json_encode(t('admin.emulador.error_estado')) ?>,
+        toastActivado:    <?= json_encode(t('admin.emulador.toast_activado', ['nombre' => '{n}'])) ?>,
+        toastDesactivado: <?= json_encode(t('admin.emulador.toast_desactivado', ['nombre' => '{n}'])) ?>,
+        desactivar:       <?= json_encode(t('admin.emulador.desactivar')) ?>,
+        activar:          <?= json_encode(t('admin.emulador.activar')) ?>,
+    };
 
     let debounceTimer  = null;
     let currentRequest = null;
@@ -267,12 +283,10 @@ endif;
 
         RVAlerts.confirm({
             tipo:      accion === 'desactivar' ? 'warning' : 'success',
-            titulo:    accion === 'desactivar' ? '¿Desactivar emulador?' : '¿Activar emulador?',
-            mensaje:   `El emulador recomendado de <strong>${titulo}</strong> quedará ${accion === 'desactivar'
-                            ? 'oculto en la ficha pública de sus juegos'
-                            : 'visible en la ficha pública de sus juegos'}.`,
-            btnOk:     accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar',
-            btnCancel: 'Cancelar',
+            titulo:    accion === 'desactivar' ? textos.tituloDesactivar : textos.tituloActivar,
+            mensaje:   (accion === 'desactivar' ? textos.msgDesactivar : textos.msgActivar).replace('{n}', titulo),
+            btnOk:     accion === 'desactivar' ? textos.okDesactivar : textos.okActivar,
+            btnCancel: textos.cancelar,
             onOk: async () => {
                 btn.disabled    = true;
                 btn.textContent = '...';
@@ -284,22 +298,22 @@ endif;
                     );
                     const data = await res.json();
 
-                    if (!data.ok) throw new Error(data.error || 'Error desconocido');
+                    if (!data.ok) throw new Error(data.error || textos.errorDesconocido);
 
                     const estaActivo     = data.activo === 1;
-                    btn.textContent      = estaActivo ? 'Desactivar' : 'Activar';
+                    btn.textContent      = estaActivo ? textos.desactivar : textos.activar;
                     btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
                     btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
 
                     RVAlerts.toast(
-                        `Emulador de "${data.nombre}" ${estaActivo ? 'activado' : 'desactivado'} correctamente`,
+                        (estaActivo ? textos.toastActivado : textos.toastDesactivado).replace('{n}', data.nombre),
                         estaActivo ? 'success' : 'warning'
                     );
 
                 } catch (err) {
-                    RVAlerts.toast('Error al cambiar el estado. Inténtalo de nuevo.', 'danger');
+                    RVAlerts.toast(textos.errorEstado, 'danger');
                     btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? 'Desactivar' : 'Activar';
+                    btn.textContent = accion === 'desactivar' ? textos.desactivar : textos.activar;
                 }
 
                 btn.disabled = false;

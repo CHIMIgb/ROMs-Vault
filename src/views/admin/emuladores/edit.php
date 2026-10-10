@@ -3,7 +3,7 @@
 
     <!-- Cabecera del formulario -->
     <div class="form-container-header">
-        <h2>Editar Emuladores — <?= htmlspecialchars($consola['nombre']) ?></h2>
+        <h2><?= t('admin.emulador.editar_titulo', ['nombre' => htmlspecialchars($consola['nombre'])]) ?></h2>
     </div>
 
     <?php if (isset($error)): ?>
@@ -16,28 +16,27 @@
     <form method="POST" autocomplete="off">
         <?= CsrfService::field() ?>
         <p style="margin:0 0 1.5rem;color:var(--text-light);font-size:.92rem;">
-            Configura el emulador que se mostrará como recomendado en la ficha de los juegos de esta consola.
-            El campo alternativo es opcional.
+            <?= t('admin.emulador.ayuda_edit') ?>
         </p>
 
         <!-- ═══ Emulador principal ═══ -->
         <div style="margin-bottom:2.25rem;padding-bottom:1.5rem;border-bottom:1px dashed var(--border-mid);">
             <h3 style="margin:0 0 1rem;font-size:1.05rem;color:var(--text);">
-                <i data-i="gamepad"></i> Emulador principal
+                <i data-i="gamepad"></i> <?= t('admin.emulador.principal') ?>
             </h3>
 
             <div class="form-group">
-                <label for="principal_nombre">Nombre del emulador *</label>
+                <label for="principal_nombre"><?= t('admin.emulador.nombre_principal') ?></label>
                 <input type="text"
                        id="principal_nombre"
                        name="principal_nombre"
                        value="<?= htmlspecialchars($actual['principal']['nombre'] ?? '') ?>"
-                       placeholder="Ej: PPSSPP, Dolphin, mGBA..."
+                       placeholder="<?= t('admin.emulador.example_ppsspp') ?>"
                        required>
             </div>
 
             <div class="form-group">
-                <label>Plataformas *</label>
+                <label><?= t('admin.emulador.plataformas') ?></label>
                 <div style="display:flex;gap:1.5rem;padding-top:.25rem;">
                     <?php
                     $platPrincipal = $actual['principal']['plataformas'] ?? [];
@@ -54,12 +53,12 @@
             </div>
 
             <div class="form-group">
-                <label for="principal_url">URL oficial *</label>
+                <label for="principal_url"><?= t('admin.emulador.url') ?></label>
                 <input type="url"
                        id="principal_url"
                        name="principal_url"
                        value="<?= htmlspecialchars($actual['principal']['url'] ?? '') ?>"
-                       placeholder="https://..."
+                       placeholder="<?= t('admin.emulador.url_placeholder') ?>"
                        required>
             </div>
         </div>
@@ -67,20 +66,20 @@
         <!-- ═══ Emulador alternativo (opcional) ═══ -->
         <div style="margin-bottom:2.25rem;padding-bottom:1.5rem;border-bottom:1px dashed var(--border-mid);">
             <h3 style="margin:0 0 1rem;font-size:1.05rem;color:var(--text);">
-                <i data-i="gamepad-2"></i> Emulador alternativo <span style="font-weight:400;color:var(--text-light);font-size:.85rem;">(opcional)</span>
+                <i data-i="gamepad-2"></i> <?= t('admin.emulador.alternativo') ?> <span style="font-weight:400;color:var(--text-light);font-size:.85rem;"><?= t('admin.emulador.opcional') ?></span>
             </h3>
 
             <div class="form-group">
-                <label for="alterno_nombre">Nombre del emulador</label>
+                <label for="alterno_nombre"><?= t('admin.emulador.nombre_alternativo') ?></label>
                 <input type="text"
                        id="alterno_nombre"
                        name="alterno_nombre"
                        value="<?= htmlspecialchars($actual['alterno']['nombre'] ?? '') ?>"
-                       placeholder="Ej: RetroArch, ePSXe...">
+                       placeholder="<?= t('admin.emulador.example_retroarch') ?>">
             </div>
 
             <div class="form-group">
-                <label>Plataformas</label>
+                <label><?= t('admin.emulador.plataformas_opcional') ?></label>
                 <div style="display:flex;gap:1.5rem;padding-top:.25rem;">
                     <?php
                     $platAlterno = $actual['alterno']['plataformas'] ?? [];
@@ -97,24 +96,24 @@
             </div>
 
             <div class="form-group">
-                <label for="alterno_url">URL oficial</label>
+                <label for="alterno_url"><?= t('admin.emulador.url_opcional') ?></label>
                 <input type="url"
                        id="alterno_url"
                        name="alterno_url"
                        value="<?= htmlspecialchars($actual['alterno']['url'] ?? '') ?>"
-                       placeholder="https://...">
+                       placeholder="<?= t('admin.emulador.url_placeholder') ?>">
             </div>
         </div>
 
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">
-                <i data-i="save"></i> Guardar cambios
+                <i data-i="save"></i> <?= t('admin.emulador.guardar_cambios') ?>
             </button>
             <a href="/emulador/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
-                <i data-i="close"></i> Cancelar
+                <i data-i="close"></i> <?= t('admin.emulador.cancelar') ?>
             </a>
         </div>
     </form>

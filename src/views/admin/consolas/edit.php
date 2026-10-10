@@ -3,7 +3,7 @@
 
     <!-- Cabecera del formulario -->
     <div class="form-container-header">
-        <h2>Editar Consola: <?= htmlspecialchars($consola['nombre']) ?></h2>
+        <h2><?= t('admin.consola.editar_titulo', ['nombre' => htmlspecialchars($consola['nombre'])]) ?></h2>
     </div>
 
     <?php if (isset($error)): ?>
@@ -18,7 +18,7 @@
 
         <!-- Nombre -->
         <div class="form-group">
-            <label for="nombre">Nombre del sistema *</label>
+            <label for="nombre"><?= t('admin.consola.nombre_sistema') ?></label>
             <input type="text"
                    id="nombre"
                    name="nombre"
@@ -28,17 +28,17 @@
 
         <!-- Fabricante -->
         <div class="form-group">
-            <label for="fabricante">Fabricante</label>
+            <label for="fabricante"><?= t('admin.consola.fabricante') ?></label>
             <input type="text"
                    id="fabricante"
                    name="fabricante"
                    value="<?= htmlspecialchars($_POST['fabricante'] ?? $consola['fabricante'] ?? '') ?>"
-                   placeholder="Ej: Sony, Nintendo, Sega">
+                   placeholder="<?= t('admin.consola.fabricante_placeholder') ?>">
         </div>
 
         <!-- Descripción -->
         <div class="form-group">
-            <label for="descripcion">Descripción</label>
+            <label for="descripcion"><?= t('admin.consola.descripcion') ?></label>
             <textarea id="descripcion"
                       name="descripcion"
                       rows="4"><?= htmlspecialchars($_POST['descripcion'] ?? $consola['descripcion'] ?? '') ?></textarea>
@@ -53,20 +53,20 @@
                    <?= (isset($_POST['emulacion_online']) ? $_POST['emulacion_online'] : $consola['emulacion_online']) ? 'checked' : '' ?>
                    style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;">
             <div>
-                <label for="emulacion_online" style="margin:0;font-weight:600;cursor:pointer;">Emulación online</label>
-                <small style="display:block;color:var(--slate-mid);">Permite jugar los juegos de esta consola en el navegador (EmulatorJS). La descarga siempre sigue disponible.</small>
+                <label for="emulacion_online" style="margin:0;font-weight:600;cursor:pointer;"><?= t('admin.consola.emulacion_online') ?></label>
+                <small style="display:block;color:var(--slate-mid);"><?= t('admin.consola.emulacion_online_ayuda') ?></small>
             </div>
         </div>
 
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">
-                <i data-i="save"></i> Guardar cambios
+                <i data-i="save"></i> <?= t('admin.consola.guardar_cambios') ?>
             </button>
             <a href="/consola/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
-                <i data-i="close"></i> Cancelar
+                <i data-i="close"></i> <?= t('admin.consola.cancelar') ?>
             </a>
             <button type="button"
                     id="btn-eliminar-consola"
@@ -74,7 +74,7 @@
                     style="background:var(--danger, #b00020);color:#fff;box-shadow:3px 3px 0 var(--border-dark);border-color:var(--border-dark);"
                     data-id="<?= (int) $consola['id'] ?>"
                     data-nombre="<?= htmlspecialchars($consola['nombre'], ENT_QUOTES) ?>">
-                <i data-i="trash"></i> Eliminar
+                <i data-i="trash"></i> <?= t('admin.consola.eliminar') ?>
             </button>
         </div>
     </form>
@@ -96,11 +96,10 @@
         const nombre = this.dataset.nombre;
         RVAlerts.confirm({
             tipo:      'danger',
-            titulo:    '¿Eliminar consola?',
-            mensaje:   `Vas a eliminar permanentemente <strong>${nombre}</strong>.<br><br>
-                        <small>Solo puedes eliminar consolas sin juegos asociados.</small>`,
-            btnOk:     'Sí, eliminar',
-            btnCancel: 'Cancelar',
+            titulo:    <?= json_encode(t('admin.consola.confirm_eliminar_titulo')) ?>,
+            mensaje:   <?= json_encode(t('admin.consola.confirm_eliminar', ['nombre' => '{n}'])) ?>.replace('{n}', nombre),
+            btnOk:     <?= json_encode(t('admin.consola.si_eliminar')) ?>,
+            btnCancel: <?= json_encode(t('admin.consola.cancelar')) ?>,
             onOk: () => {
                 document.getElementById('form-eliminar-consola').submit();
             }

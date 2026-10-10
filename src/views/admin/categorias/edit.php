@@ -3,7 +3,7 @@
 
     <!-- Cabecera del formulario -->
     <div class="form-container-header">
-        <h2>Editar Categoría: <?= htmlspecialchars($categoria['nombre']) ?></h2>
+        <h2><?= t('admin.categoria.editar_titulo', ['nombre' => htmlspecialchars($categoria['nombre'])]) ?></h2>
     </div>
 
     <?php if (isset($error)): ?>
@@ -18,7 +18,7 @@
 
         <!-- Nombre -->
         <div class="form-group">
-            <label for="nombre">Nombre de la categoría *</label>
+            <label for="nombre"><?= t('admin.categoria.nombre_categoria') ?></label>
             <input type="text"
                    id="nombre"
                    name="nombre"
@@ -28,7 +28,7 @@
 
         <!-- Descripción -->
         <div class="form-group">
-            <label for="descripcion">Descripción</label>
+            <label for="descripcion"><?= t('admin.categoria.descripcion') ?></label>
             <textarea id="descripcion"
                       name="descripcion"
                       rows="4"><?= htmlspecialchars($_POST['descripcion'] ?? $categoria['descripcion'] ?? '') ?></textarea>
@@ -37,12 +37,12 @@
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">
-                <i data-i="save"></i> Guardar cambios
+                <i data-i="save"></i> <?= t('admin.categoria.guardar_cambios') ?>
             </button>
             <a href="/categoria/index"
                class="btn-primary"
                style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
-                <i data-i="close"></i> Cancelar
+                <i data-i="close"></i> <?= t('admin.categoria.cancelar') ?>
             </a>
             <button type="button"
                     id="btn-eliminar-categoria"
@@ -50,7 +50,7 @@
                     style="background:var(--danger, #b00020);color:#fff;box-shadow:3px 3px 0 var(--border-dark);border-color:var(--border-dark);"
                     data-id="<?= (int) $categoria['id'] ?>"
                     data-nombre="<?= htmlspecialchars($categoria['nombre'], ENT_QUOTES) ?>">
-                <i data-i="trash"></i> Eliminar
+                <i data-i="trash"></i> <?= t('admin.categoria.eliminar') ?>
             </button>
         </div>
     </form>
@@ -72,11 +72,10 @@
         const nombre = this.dataset.nombre;
         RVAlerts.confirm({
             tipo:      'danger',
-            titulo:    '¿Eliminar categoría?',
-            mensaje:   `Vas a eliminar permanentemente <strong>${nombre}</strong>.<br><br>
-                        <small>Solo puedes eliminar categorías sin juegos asociados.</small>`,
-            btnOk:     'Sí, eliminar',
-            btnCancel: 'Cancelar',
+            titulo:    <?= json_encode(t('admin.categoria.confirm_eliminar_titulo')) ?>,
+            mensaje:   <?= json_encode(t('admin.categoria.confirm_eliminar', ['nombre' => '{n}'])) ?>.replace('{n}', nombre),
+            btnOk:     <?= json_encode(t('admin.categoria.si_eliminar')) ?>,
+            btnCancel: <?= json_encode(t('admin.categoria.cancelar')) ?>,
             onOk: () => {
                 document.getElementById('form-eliminar-categoria').submit();
             }
