@@ -260,7 +260,7 @@ if ($emuladorLocal) {
         <div class="howto-local">
             <h3 class="howto-local-title"><i data-i="hard-drive" aria-hidden="true"></i> <?= t('show.en_tu_equipo') ?></h3>
             <p class="howto-local-intro">
-                Esta ROM es de <strong><?= htmlspecialchars($juego['consola_nombre'] ?? t('component.la_consola')) ?></strong>.
+                <?= t('show.esta_rom_es_de') ?> <strong><?= htmlspecialchars($juego['consola_nombre'] ?? t('component.la_consola')) ?></strong>.
                 <?= t('show.emulador_recomendado') ?> <strong><?= htmlspecialchars($emuladorLocal['nombre']) ?></strong>
                 (<span class="howto-platforms">
                     <?php foreach ($emuladorLocal['plataformas'] as $p): ?>

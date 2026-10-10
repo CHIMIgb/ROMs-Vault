@@ -39,7 +39,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
         <p class="proxy-error-msg"><?= $errorMsg /* puede contener <code> */ ?></p>
 
         <div class="proxy-error-tip">
-            <span class="proxy-tip-label"><i data-i="lightbulb"></i> ¿Qué puedo hacer?</span>
+            <span class="proxy-tip-label"><i data-i="lightbulb"></i> <?= t('play.que_puedo_hacer') ?></span>
             <?= htmlspecialchars($consejo) ?>
         </div>
 
@@ -92,9 +92,8 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
     <?php elseif ($core === 'n64'): ?>
         <!-- Aviso experimental N64 -->
         <div class="psp-warning">
-            <strong><i data-i="warning"></i> Nintendo 64 — Soporte experimental:</strong>
-            La emulación de N64 requiere muchos recursos. Algunos juegos pueden presentar
-            caídas de FPS o errores de audio. Se recomienda un equipo potente y usar Chrome o Edge.
+            <strong><i data-i="warning"></i> <?= t('play.n64_soporte') ?></strong>
+            <?= t('play.n64_aviso') ?>
         </div>
     <?php elseif ($core === 'nds'): ?>
         <!-- Aviso experimental NDS -->
@@ -185,9 +184,11 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
             <div class="proxy-streaming-notice">
                 <span class="streaming-icon"><i data-i="wifi"></i></span>
                 <span>
-                    Esta es una ISO grande<?php if (!empty($juego['size_bytes'])): ?>
-                        (<?= number_format($juego['size_bytes'] / 1048576, 0) ?> MB)<?php endif; ?>.
-                    <?= t('play.aviso_streaming') ?>
+                    <?= t('play.aviso_streaming', [
+                        'tamano' => !empty($juego['size_bytes'])
+                            ? number_format($juego['size_bytes'] / 1048576, 0) . ' MB'
+                            : '',
+                    ]) ?>
                 </span>
             </div>
         <?php endif; ?>
@@ -219,16 +220,16 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                 <summary><svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14" height="14">
                         <path
                             d="M17 6H7c-2.8 0-5 2.2-5 5s2.2 5 5 5h10c2.8 0 5-2.2 5-5s-2.2-5-5-5zm-9 7H6v-2h2v-2h2v2h2v2h-2v2H8v-2zm7 1h-2v-2h2v2zm2-3h-2v-2h2v2z" />
-                    </svg> Controles por defecto (teclado)</summary>
+                    </svg> <?= t('play.controles_teclado') ?></summary>
                 <div class="controls-grid">
-                    <div><strong>Mover</strong> — Flechas ↑ ↓ ← →</div>
-                    <div><strong>A / B / X / Y</strong> — Z / X / A / S</div>
-                    <div><strong>Start / Select</strong> — Enter / Shift</div>
-                    <div><strong>L / R</strong> — Q / W</div>
-                    <div><strong>Guardar estado</strong> — F2</div>
-                    <div><strong>Cargar estado</strong> — F4</div>
-                    <div><strong>Velocidad x2</strong> — Espacio (mantener)</div>
-                    <div><strong>Gamepad</strong> — Conecta un mando USB o Bluetooth</div>
+                    <div><strong><?= t('play.control_mover') ?></strong> — <?= t('play.control_mover_teclas') ?></div>
+                    <div><strong><?= t('play.control_abxy') ?></strong> — <?= t('play.control_abxy_teclas') ?></div>
+                    <div><strong><?= t('play.control_start_select') ?></strong> — <?= t('play.control_start_select_teclas') ?></div>
+                    <div><strong><?= t('play.control_lr') ?></strong> — <?= t('play.control_lr_teclas') ?></div>
+                    <div><strong><?= t('play.control_guardar_estado') ?></strong> — <?= t('play.control_guardar_estado_teclas') ?></div>
+                    <div><strong><?= t('play.control_cargar_estado') ?></strong> — <?= t('play.control_cargar_estado_teclas') ?></div>
+                    <div><strong><?= t('play.control_velocidad') ?></strong> — <?= t('play.control_velocidad_teclas') ?></div>
+                    <div><strong><?= t('play.control_gamepad') ?></strong> — <?= t('play.control_gamepad_teclas') ?></div>
                 </div>
             </details>
         </div>
@@ -503,7 +504,7 @@ require_once __DIR__ . '/../components/related_games.php';
             // Método 1: API moderna (requiere HTTPS o localhost)
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text)
-                    .then(() => showToast('<i data-i="check"></i> Enlace copiado al portapapeles'))
+                    .then(() => showToast('<i data-i="check"></i> ' + <?= json_encode(t('play.enlace_copiado')) ?>))
                     .catch(() => legacyCopy(text));
                 return;
             }
@@ -520,9 +521,11 @@ require_once __DIR__ . '/../components/related_games.php';
             ta.select();
             try {
                 const ok = document.execCommand('copy');
-                showToast(ok ? '<i data-i="check"></i> Enlace copiado al portapapeles' : '<i data-i="close"></i> No se pudo copiar');
+                showToast(ok
+                    ? '<i data-i="check"></i> ' + <?= json_encode(t('play.enlace_copiado')) ?>
+                    : '<i data-i="close"></i> ' + <?= json_encode(t('play.no_se_pudo_copiar')) ?>);
             } catch (_) {
-                showToast('<i data-i="close"></i> No se pudo copiar el enlace');
+                showToast('<i data-i="close"></i> ' + <?= json_encode(t('play.no_se_pudo_copiar_enlace')) ?>);
             }
             document.body.removeChild(ta);
         }
