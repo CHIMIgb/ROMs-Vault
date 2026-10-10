@@ -44,9 +44,53 @@
     }
 
     /**
+     * Un nodo "icono" (pixelicons) nunca lleva texto traducible: en el DOM en
+     * vivo es un <svg class="pxi"> (pixelicons reemplaza el marcador con
+     * replaceWith), mientras que en el HTML fetcheado sigue siendo el marcador
+     * <i data-i="..."> o <span class="pxi" data-i="...">. Si no se filtran,
+     * disparan el emparejamiento de syncNode y "roban" la alineación al texto
+     * que les sigue (nav del header, menú del dashboard admin, botones…).
+     */
+    function isIconNode(n) {
+        if (n.nodeType !== 1) return false;
+        if (n.hasAttribute && n.hasAttribute('data-i')) return true;
+        if (n.classList && n.classList.contains('pxi')) return true;
+        return false;
+    }
+
+    // Ventana de lookahead: cuántos nodos del HTML nuevo se miran para
+    // reanudar la alineación tras un nodo runtime extra (modales, grids, etc.)
+    var LOOKAHEAD = 6;
+
+    function alignIndex(node, list, start) {
+        var end = Math.min(start + LOOKAHEAD, list.length);
+        for (var k = start; k < end; k++) {
+            if (sameKind(node, list[k])) return k;
+        }
+        return -1; // no hay equivalente cercano: nodo extra solo en el DOM actual
+    }
+
+    /** Texto solo whitespace: transparente para la alineación. */
+    function wsOnly(n) {
+        return n.nodeType === 3 && /^\s*$/.test(n.data);
+    }
+
+    /** Devuelve los hijos de un elemento ignorando iconos y whitespace. */
+    function kindChildren(el) {
+        var out = [];
+        var kids = el.childNodes;
+        for (var i = 0; i < kids.length; i++) {
+            if (isIconNode(kids[i])) continue;
+            if (wsOnly(kids[i])) continue;
+            out.push(kids[i]);
+        }
+        return out;
+    }
+
+    /**
      * Sincroniza en sitio el nodo actual con su equivalente en el HTML nuevo.
-     * Tolerante a nodos añadidos/eliminados en tiempo de ejecución (empareja por
-     * tipo/etiqueta y avanza; nunca revienta).
+     * Tolerante a nodos añadidos/eliminados en tiempo de ejecución: filtra los
+     * iconos y usa lookahead para reanudar tras un nodo extra; nunca revienta.
      */
     function syncNode(cur, inc) {
         if (!cur || !inc) return;
@@ -68,14 +112,14 @@
             }
         }
 
-        var a = cur.childNodes;
-        var b = inc.childNodes;
+        var a = kindChildren(cur);
+        var b = kindChildren(inc);
         var j = 0;
-        for (var i = 0; i < a.length && j < b.length; i++) {
-            while (j < b.length && !sameKind(a[i], b[j])) j++;
-            if (j >= b.length) break;
-            syncNode(a[i], b[j]);
-            j++;
+        for (var i = 0; i < a.length; i++) {
+            var m = alignIndex(a[i], b, j);
+            if (m < 0) continue; // nodo extra solo en el DOM actual: saltarlo
+            syncNode(a[i], b[m]);
+            j = m + 1;
         }
     }
 
