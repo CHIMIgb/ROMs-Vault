@@ -1,6 +1,6 @@
 # Cambio de idioma sin recarga de página (FASE 5.3)
 
-> Fecha: 2026-10-10 · Commits: `3561a05` (feature) · `a9746e5` (fix iconos/whitespace en syncNode) · `7eb9136` (KPI total_jugadas + orden en.json)
+> Fecha: 2026-10-10 · Commits: `3561a05` (feature) · `a9746e5` (fix iconos/whitespace en syncNode) · `7eb9136` (KPI total_jugadas + orden en.json) · `b24d585` (EJS_language por idioma) · `48d2c5a` (cabecera admin consistente)
 > Relacionado: [`2026-08-05-plan-mejoras-nivel-senior.md`](./2026-08-05-plan-mejoras-nivel-senior.md) (FASE 5) · [`2026-10-10-i18n-idiomas-fr-pt-de-ja.md`](./2026-10-10-i18n-idiomas-fr-pt-de-ja.md)
 
 ## Resumen
@@ -66,6 +66,25 @@ página (filtros, carrusel, EmulatorJS).
 5. **Fallback robusto**: si el POST o el segundo `fetch` fallan, se navega por
    GET a `location.href` con `?lang=…` (el servidor fija la cookie y redirige).
 
+6. **UI del emulador por idioma (FASE 5.3, `b24d585`).** `window.EJS_language`
+   estaba fijo en `'es-ES'`, así que el menú de EmulatorJS salía siempre en
+   español. Ahora `IntlHelper::emulatorLanguage()` lo resuelve desde el idioma
+   activo con una **whitelist** de los códigos que **realmente publica** el CDN
+   (`cdn.emulatorjs.org/stable/data/localization/`): `es→es-ES`, `en→en-US`,
+   `pt→pt-BR`, `de→de-GER`, `ja→ja-JA`. **`fr` cae a `en-US`** porque EmulatorJS
+   no publica francés (`af-FR` es afrikáans, no `fr-FR`) — limitación externa.
+   Se descartó el candidato `str_replace('_','-', getLocale())` porque EmulatorJS
+   usa códigos propios (`de-GER`, `ja-JA`) que no coinciden con los locales Intl
+   (`de_DE`, `ja_JP`).
+
+7. **Cabecera admin consistente entre idiomas (`48d2c5a`).** `dashboard.php`
+   tenía un `<style>` inline que reescribía `.admin-header` con `flex-wrap: wrap`:
+   si título + 6 botones cabían → una línea; si las etiquetas eran largas (de/fr)
+   → los botones bajaban. Resultado: disposición distinta según el idioma. Ahora
+   `.admin-header` (módulo `admin.css`) es **siempre apilada** (título arriba,
+   acciones debajo a la izquierda), y el `<style>` inline se eliminó (además
+   cumple la convención "CSS solo en `public/css/modules/*`").
+
 ## Archivos
 
 | Archivo | Cambio |
@@ -77,6 +96,11 @@ página (filtros, carrusel, EmulatorJS).
 | `src/views/layout/footer.php` | `<script src="public/js/rv-lang.js" defer>` junto a pixelicons/rv-alerts |
 | `public/css/modules/layout.css` | `@keyframes rv-lang-pop` + `.rv-lang-fade` + `prefers-reduced-motion` |
 | `src/i18n/*.json` | Clave KPI `admin.dashboard.total_jugadas` en los 6 idiomas (ver `7eb9136`) |
+| `src/config/IntlHelper.php` | `const EMULATOR_LOCALES` + `emulatorLanguage()` (whitelist CDN) (ver `b24d585`) |
+| `src/views/home/play.php` | `EJS_language` desde `IntlHelper::emulatorLanguage()` (ver `b24d585`) |
+| `tests/bootstrap.php` · `tests/Unit/I18nTest.php` | Carga de `IntlHelper` + tests del mapeo de idioma del emulador (ver `b24d585`) |
+| `public/css/modules/admin.css` | `.admin-header` apilada (título arriba, acciones debajo) (ver `48d2c5a`) |
+| `src/views/admin/dashboard.php` | Eliminado el `<style>` inline duplicado (ver `48d2c5a`) |
 
 ## Verificación
 
@@ -95,14 +119,20 @@ página (filtros, carrusel, EmulatorJS).
   `rv_lang=ja`; SSR siguiente en japonés; `lang=ru` → 400; GET → 405;
   `Sec-Fetch-Site: cross-site` → 403; home carga `rv-lang.js` y el form
   `data-enhance="lang"`.
-- Suite completa: `composer test` **OK (164 tests, 7471 assertions)**.
+- Suite completa: `composer test` **OK (166 tests, 7489 assertions)**.
+- `IntlHelper::emulatorLanguage()` (ítem 5.3): `php -l` OK; `I18nTest` (17/17)
+  cubre el mapeo `es→es-ES / en→en-US / fr→en-US / pt→pt-BR / de→de-GER /
+  ja→ja-JA` y que el código devuelto siempre exista en el CDN.
+- Cabecera admin (ítem `48d2c5a`): `dashboard.php` ya **no** emite `<style>`
+  inline; `.admin-header` sirve `flex-direction: column` desde `admin.css`.
+  Verificación visual final a cargo del usuario en `/admin/dashboard` cambiando
+  de idioma (es/en/fr/de/ja).
 
 ## Pendiente
 
-- `EJS_language` sigue hardcodeado `'es-ES'` en `src/views/home/play.php:266` —
-  parametrizarlo según `IntlHelper::getLocale()` (candidato
-  `str_replace('_','-', …)`).
 - RTL (`ar`/`he`) sigue descartado (sección 5.2).
 - Deuda detectada: `en.json` tiene `play.error_sin_juego` con texto en español
   ("Error: No se especificó el juego a reproducir.") — traducirla en una
   pasada de revisión de traducciones.
+- `fr` recibe la UI de EmulatorJS en inglés porque el CDN no publica francés;
+  si algún día lo hace, añadirlo a `IntlHelper::EMULATOR_LOCALES`.
