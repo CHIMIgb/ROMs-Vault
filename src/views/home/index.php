@@ -90,7 +90,10 @@
                                 <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
                                 <?php if (!empty($juego['imagen'])): ?>
                                     <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async"<?= $i === 1 ? ' fetchpriority="high"' : '' ?> onerror="this.style.display='none';">
-                                <?php endif; ?>
+<?php
+require_once __DIR__ . '/../../config/IntlHelper.php';
+?>
+<?php endif; ?>
                             </div>
                             <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
                         </a>
@@ -109,18 +112,18 @@
                             </div>
                             <div class="game-info-item">
                                 <span class="game-info-label"><?= t('home.tamano') ?></span>
-                                <span class="game-info-value"><?= number_format($juego['size_bytes'] / 1048576, 2) ?> MB</span>
+                                <span class="game-info-value"><?= IntlHelper::formatBytes($juego['size_bytes'] ?? 0) ?></span>
                             </div>
                             <?php if (!empty($juego['downloads_count'])): ?>
                             <div class="game-info-item">
                                 <span class="game-info-label"><?= t('home.descargas') ?></span>
-                                <span class="game-info-value"><?= number_format($juego['downloads_count']) ?></span>
+                                <span class="game-info-value"><?= IntlHelper::formatNumber($juego['downloads_count']) ?></span>
                             </div>
                             <?php endif; ?>
                             <?php if (!empty($juego['plays_count'])): ?>
                             <div class="game-info-item">
                                 <span class="game-info-label"><?= t('home.jugadas') ?></span>
-                                <span class="game-info-value"><?= number_format($juego['plays_count']) ?></span>
+                                <span class="game-info-value"><?= IntlHelper::formatNumber($juego['plays_count']) ?></span>
                             </div>
                             <?php endif; ?>
                         </div>

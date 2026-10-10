@@ -4,15 +4,15 @@
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.consola.total') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= number_format($total) ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($total) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.consola.activas') ?></div>
-        <div class="stat-value" style="color:var(--success);"><?= number_format($totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--success);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.consola.inactivas') ?></div>
-        <div class="stat-value" style="color:var(--text-light);"><?= number_format($total - $totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--text-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
     </div>
 </div>
 
@@ -109,7 +109,7 @@ endif;
                     <td style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--slate-mid);font-size:.88rem;">
                         <?= htmlspecialchars($c['descripcion'] ?? '—') ?>
                     </td>
-                    <td><?= date('d/m/Y', strtotime($c['created_at'])) ?></td>
+                    <td><?= htmlspecialchars(IntlHelper::formatDate($c['created_at'], IntlDateFormatter::MEDIUM)) ?></td>
                     <td>
                         <!-- btn-toggle-active con data-titulo, exactamente igual que el dashboard -->
                         <button class="btn-toggle-active <?= $c['activo'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
@@ -158,7 +158,10 @@ endif;
         'cs'
     );
     ?>
-    <?php endif; ?>
+    <?php
+require_once __DIR__ . '/../../config/IntlHelper.php';
+?>
+<?php endif; ?>
 
 </div><!-- /#consolas-results -->
 

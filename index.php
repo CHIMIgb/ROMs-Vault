@@ -3,6 +3,7 @@
 require_once __DIR__ . '/src/config/AuthMiddleware.php';
 require_once __DIR__ . '/src/config/CsrfService.php';
 require_once __DIR__ . '/src/config/i18n.php';
+require_once __DIR__ . '/src/config/IntlHelper.php';
 
 // ── Selector de idioma (?lang=es|en) — ítem 6.2 ──────────────────────────────
 // Persiste la preferencia en la cookie rv_lang y redirige a la MISMA URL sin el

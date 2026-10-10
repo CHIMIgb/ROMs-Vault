@@ -1,26 +1,30 @@
 <!-- views/admin/dashboard.php -->
 
+<?php
+require_once __DIR__ . '/../../config/IntlHelper.php';
+?>
+
 <!-- ESTADÍSTICAS GLOBALES REALES -->
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_juegos') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total']) ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($stats['total']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.activos') ?></div>
-        <div class="stat-value" style="color:var(--success);"><?= number_format($stats['activos']) ?></div>
+        <div class="stat-value" style="color:var(--success);"><?= IntlHelper::formatNumber($stats['activos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.inactivos') ?></div>
-        <div class="stat-value" style="color:var(--text-light);"><?= number_format($stats['inactivos']) ?></div>
+        <div class="stat-value" style="color:var(--text-light);"><?= IntlHelper::formatNumber($stats['inactivos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_descargas') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total_descargas']) ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($stats['total_descargas']) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label"><?= t('admin.dashboard.total_jugadas_online') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= number_format($stats['total_jugadas']) ?></div>
+        <div class="stat-label"><?= t('admin.dashboard.total_jugadas') ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($stats['total_jugadas']) ?></div>
     </div>
 </div>
 
@@ -41,7 +45,7 @@
                     <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '') ?></span>
                     <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:<?= $pct ?>%"></div></div>
                 </div>
-                <span class="ranking-count"><?= number_format($j['downloads_count']) ?></span>
+                <span class="ranking-count"><?= IntlHelper::formatNumber($j['downloads_count']) ?></span>
             </li>
             <?php endforeach; ?>
         </ol>
@@ -61,7 +65,7 @@
                     <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '') ?></span>
                     <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:<?= $pct ?>%;background:var(--success);"></div></div>
                 </div>
-                <span class="ranking-count"><?= number_format($j['plays_count']) ?></span>
+                <span class="ranking-count"><?= IntlHelper::formatNumber($j['plays_count']) ?></span>
             </li>
             <?php endforeach; ?>
         </ol>
@@ -202,8 +206,8 @@
                             <?= htmlspecialchars($juego['region'] ?? '-') ?>
                         </span>
                     </td>
-                    <td style="text-align:center;font-size:0.85rem;"><?= number_format($juego['downloads_count'] ?? 0) ?></td>
-                    <td style="text-align:center;font-size:0.85rem;"><?= number_format($juego['plays_count'] ?? 0) ?></td>
+                    <td style="text-align:center;font-size:0.85rem;"><?= IntlHelper::formatNumber($juego['downloads_count'] ?? 0) ?></td>
+                    <td style="text-align:center;font-size:0.85rem;"><?= IntlHelper::formatNumber($juego['plays_count'] ?? 0) ?></td>
                     <td>
                         <button class="btn-toggle-active <?= $juego['activo'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
                                 data-id="<?= $juego['id'] ?>"

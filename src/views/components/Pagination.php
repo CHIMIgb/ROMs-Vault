@@ -3,6 +3,7 @@
  * views/components/Pagination.php
  * Componente reutilizable para la paginación de listas.
  */
+require_once __DIR__ . '/../../config/IntlHelper.php';
 
 class Pagination {
     /**
@@ -92,8 +93,8 @@ class Pagination {
         <?php if ($totalItems > 0): ?>
         <div class="pagination-info" style="margin-top:0.75rem;" <?= $idPrefix ? 'id="' . htmlspecialchars($idPrefix) . '-info"' : '' ?>>
             <?= t('component.mostrando', [
-                'mostrados' => number_format($countCurrent),
-                'total'     => number_format($totalItems),
+                'mostrados' => IntlHelper::formatNumber($countCurrent),
+                'total'     => IntlHelper::formatNumber($totalItems),
                 'etiqueta'  => htmlspecialchars($itemLabel),
             ]) ?>
             <?php if ($totalPages > 1): ?>

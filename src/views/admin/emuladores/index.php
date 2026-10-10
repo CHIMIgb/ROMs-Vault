@@ -1,18 +1,22 @@
 <!-- views/admin/emuladores/index.php -->
 
+<?php
+require_once __DIR__ . '/../../config/IntlHelper.php';
+?>
+
 <!-- ESTADÍSTICAS — mismo patrón que consolas/categorías -->
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.total') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= number_format($total) ?></div>
+        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($total) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.activas') ?></div>
-        <div class="stat-value" style="color:var(--success);"><?= number_format($totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--success);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.inactivas') ?></div>
-        <div class="stat-value" style="color:var(--text-light);"><?= number_format($total - $totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--text-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
     </div>
 </div>
 

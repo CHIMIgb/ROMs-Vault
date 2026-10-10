@@ -1,12 +1,11 @@
 <?php
+require_once __DIR__ . '/../../config/IntlHelper.php';
+?>
+<?php
 // Helper de tamaño legible: B / KB / MB / GB según el valor
 if (!function_exists('formatBytes')) {
     function formatBytes($bytes) {
-        $bytes = (float) $bytes;
-        if ($bytes >= 1073741824) { return number_format($bytes / 1073741824, 2) . ' GB'; }
-        if ($bytes >= 1048576)    { return number_format($bytes / 1048576, 2) . ' MB'; }
-        if ($bytes >= 1024)       { return number_format($bytes / 1024, 1) . ' KB'; }
-        return number_format($bytes, 0) . ' B';
+        return IntlHelper::formatBytes($bytes);
     }
 }
 // Badge NUEVO: ROMs añadidas en los últimos 30 días
@@ -92,7 +91,7 @@ if ($emuladorLocal) {
                 <div class="detail-title-row">
                     <h1 class="detail-title"><?= htmlspecialchars($juego['titulo']) ?></h1>
                     <?php if (!empty($juego['fecha_lanzamiento'])): ?>
-                        <span class="detail-year"><?= htmlspecialchars(date('Y', strtotime($juego['fecha_lanzamiento']))) ?></span>
+                        <span class="detail-year"><?= htmlspecialchars(IntlHelper::formatYear($juego['fecha_lanzamiento'])) ?></span>
                     <?php endif; ?>
                 </div>
                 <div class="detail-tags">
@@ -113,12 +112,12 @@ if ($emuladorLocal) {
             <div class="detail-stats-bar">
                 <span class="stat-chip" title="<?= t('show.descargas') ?>">
                     <i data-i="download" aria-hidden="true"></i>
-                    <span class="stat-chip-num"><?= number_format($juego['downloads_count']) ?></span>
+                    <span class="stat-chip-num"><?= htmlspecialchars(IntlHelper::formatNumber($juego['downloads_count'] ?? 0)) ?></span>
                     <span class="stat-chip-label"><?= t('show.descargas_label') ?></span>
                 </span>
                 <span class="stat-chip" title="<?= t('show.partidas_online') ?>">
                     <i data-i="play" aria-hidden="true"></i>
-                    <span class="stat-chip-num"><?= number_format($juego['plays_count']) ?></span>
+                    <span class="stat-chip-num"><?= htmlspecialchars(IntlHelper::formatNumber($juego['plays_count'] ?? 0)) ?></span>
                     <span class="stat-chip-label"><?= t('show.jugadas_label') ?></span>
                 </span>
                 <button type="button" class="stat-chip stat-chip--share" id="btn-share-game" title="<?= t('show.compartir_title') ?>">

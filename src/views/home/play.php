@@ -1,8 +1,6 @@
 <?php
-// views/home/play.php
-// Variables: $juego, $core, $romUrl, $biosUrl, $needsThreads, $modoStreaming, $error
+require_once __DIR__ . '/../../config/IntlHelper.php';
 ?>
-
 <?php
 // ── Determinar si hay cualquier tipo de error que bloquee el emulador ────────
 $hayError = !empty($error) || !empty($proxyError);
@@ -139,7 +137,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                     <div class="emulator-meta-row">
                         <?php if (!empty($juego['size_bytes'])): ?>
                             <span class="emulator-meta-item">
-                                <i data-i="hard-drive"></i> <?= number_format($juego['size_bytes'] / 1048576, 1) ?> MB
+                                <i data-i="hard-drive"></i> <?= IntlHelper::formatBytes($juego['size_bytes']) ?>
                             </span>
                         <?php endif; ?>
                         <?php if (!empty($juego['idiomas'])): ?>
@@ -186,7 +184,7 @@ $errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
                 <span>
                     <?= t('play.aviso_streaming', [
                         'tamano' => !empty($juego['size_bytes'])
-                            ? number_format($juego['size_bytes'] / 1048576, 0) . ' MB'
+                            ? IntlHelper::formatBytes($juego['size_bytes'])
                             : '',
                     ]) ?>
                 </span>
