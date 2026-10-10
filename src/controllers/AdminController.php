@@ -217,8 +217,9 @@ class AdminController {
                 $imagenResult = $this->uploadImage($_FILES['imagen'], $carpetaDestino, 'portada');
                 if ($imagenResult['success']) {
                     // Eliminar la portada anterior si es un archivo distinto
-                    if ($juego['imagen'] && file_exists($juego['imagen']) && $juego['imagen'] !== $imagenResult['filename']) {
-                        @unlink($juego['imagen']);
+                    $rutaVieja = $this->rutaUploadsAbsoluta($juego['imagen']);
+                    if ($rutaVieja && file_exists($rutaVieja) && $juego['imagen'] !== $imagenResult['filename']) {
+                        @unlink($rutaVieja);
                     }
                     $data['imagen'] = $imagenResult['filename'];
                 } else {
@@ -241,8 +242,9 @@ class AdminController {
             $restantes = [];
             foreach ($capturasActuales as $ruta) {
                 if (in_array($ruta, $aEliminar, true)) {
-                    if (file_exists($ruta)) {
-                        @unlink($ruta);
+                    $rutaFisica = $this->rutaUploadsAbsoluta($ruta);
+                    if ($rutaFisica && file_exists($rutaFisica)) {
+                        @unlink($rutaFisica);
                     }
                 } else {
                     $restantes[] = $ruta;
@@ -525,7 +527,23 @@ class AdminController {
         if (count($partes) < 4 || ($partes[0] ?? '') !== 'public' || ($partes[1] ?? '') !== 'uploads') {
             return null; // estructura antigua en la raíz de uploads
         }
-        return __DIR__ . '/../' . implode('/', array_slice($partes, 0, 3));
+        return $this->rutaUploadsAbsoluta(implode('/', array_slice($partes, 0, 3)));
+    }
+
+    /**
+     * Convierte una ruta relativa de la BD (p. ej. "public/uploads/psp/www/x.webp")
+     * en su ruta absoluta dentro de la raíz del proyecto. Independiente del CWD.
+     * Devuelve null ante valores vacíos o con intento de traversal.
+     */
+    private function rutaUploadsAbsoluta(?string $rel): ?string {
+        if (empty($rel)) {
+            return null;
+        }
+        $rel = ltrim(str_replace('\\', '/', $rel), '/');
+        if ($rel === '' || strpos($rel, '..') !== false) {
+            return null;
+        }
+        return __DIR__ . '/../../' . $rel;
     }
 
     /** Devuelve una ruta absoluta libre para la carpeta del juego (agrega -2, -3... si ya existe). */
@@ -547,7 +565,7 @@ class AdminController {
     private function carpetaDestinoJuego(?string $consolaNombre, string $titulo): string {
         $consolaSlug = $this->slugify((string)$consolaNombre);
         $juegoSlug   = $this->slugify($titulo);
-        $dirBase     = __DIR__ . '/../public/uploads/' . $consolaSlug;
+        $dirBase     = __DIR__ . '/../../public/uploads/' . $consolaSlug;
         if (!is_dir($dirBase)) {
             mkdir($dirBase, 0777, true);
         }
@@ -596,8 +614,9 @@ class AdminController {
     /** Elimina los archivos de capturas anteriores referenciados en el JSON. */
     private function eliminarCapturasViejas($juego): void {
         foreach (Juego::parseCapturas($juego['capturas'] ?? null) as $ruta) {
-            if ($ruta && file_exists($ruta)) {
-                @unlink($ruta);
+            $rutaFisica = $this->rutaUploadsAbsoluta($ruta);
+            if ($rutaFisica && file_exists($rutaFisica)) {
+                @unlink($rutaFisica);
             }
         }
     }
@@ -633,9 +652,12 @@ class AdminController {
             $carpeta = $this->carpetaJuegoAbsoluta($juego);
             if ($carpeta && is_dir($carpeta)) {
                 $this->rmdirRecursive($carpeta);
-            } elseif ($juego['imagen'] && file_exists($juego['imagen'])) {
+            } else {
                 // Estructura antigua: solo el archivo de la portada en la raíz de uploads
-                @unlink($juego['imagen']);
+                $rutaPortada = $this->rutaUploadsAbsoluta($juego['imagen']);
+                if ($rutaPortada && file_exists($rutaPortada)) {
+                    @unlink($rutaPortada);
+                }
             }
             $this->eliminarCapturasViejas($juego);
         }
