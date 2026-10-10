@@ -220,8 +220,11 @@ header .subtitle { margin-bottom: 1.2rem; }
 }
 
 /* ── Selector de idioma en el header (FASE 5.3) ── */
-/* Mismo look que los selects de filtros (.filters select / .admin-filter-select),
-   empujado al extremo derecho del nav y con la bandera del idioma activo. */
+/* Desplegable propio: un <select> nativo no admite SVG dentro de <option>,
+   así que usamos un botón disparador (.lang-trigger) + un menú (.lang-menu)
+   con una opción por idioma (bandera + código). Se abre con :focus-within,
+   sin JavaScript: al enfocar el botón aparece el menú y, al pulsar una opción
+   (un <button type="submit" name="lang">), el formulario GET envía el idioma. */
 .lang-switch {
     position: relative;
     display: inline-flex;
@@ -229,11 +232,23 @@ header .subtitle { margin-bottom: 1.2rem; }
     margin-left: auto; /* empuja el selector al lado derecho del nav */
 }
 
-.lang-select {
-    padding: 0.5rem 1.9rem 0.5rem 2.2rem; /* hueco izquierdo para la bandera */
+/* Bandera compartida por el disparador y cada opción del menú */
+.lang-flag {
+    width: 1.25rem;
+    height: auto;
+    display: block;
+    flex: 0 0 auto;
+    border: 1px solid var(--border-mid);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.lang-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.9rem 0.5rem 0.6rem;
     border: 2px solid var(--border-dark);
     border-radius: 0;
-    background: var(--cream-light);
     color: var(--slate);
     font-family: 'Courier Prime', monospace;
     font-size: 0.88rem;
@@ -244,51 +259,80 @@ header .subtitle { margin-bottom: 1.2rem; }
     box-shadow: var(--inset-shadow);
     -webkit-appearance: none;
     appearance: none;
+    background-color: var(--cream-light);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a3a3a'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.6rem center;
-    background-color: var(--cream-light);
     transition: border-color 0.15s;
 }
 
-.lang-select:focus {
+.lang-trigger:focus,
+.lang-trigger:focus-visible {
     outline: none;
     border-color: var(--red);
 }
 
-.lang-flag {
+.lang-code {
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+/* Menú desplegable: oculto hasta que el disparador recibe el foco */
+.lang-menu {
     position: absolute;
-    left: 0.55rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1.25rem;
-    height: auto;
-    display: block;
-    pointer-events: none;
-    border: 1px solid var(--border-mid);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
-}
-
-.lang-submit {
-    margin-left: 0.35rem;
-    padding: 0.4rem 0.7rem;
-    background: var(--slate);
-    color: var(--cream-light);
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 50;
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--cream-light);
     border: 2px solid var(--border-dark);
-    border-radius: 0;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.44rem;
-    cursor: pointer;
     box-shadow: var(--raise-shadow);
-    letter-spacing: 0.04em;
+    display: none;
 }
 
-.lang-submit:hover {
+.lang-switch:focus-within .lang-menu {
+    display: block;
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    background: transparent;
+    color: var(--slate);
+    border: 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lang-option:hover,
+.lang-option:focus {
     background: var(--red);
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 var(--red-dark);
+    color: var(--cream-light);
+    outline: none;
+}
+
+.lang-option[aria-selected="true"] {
+    background: var(--cream-dark);
+}
+
+.lang-option[aria-selected="true"]:hover,
+.lang-option[aria-selected="true"]:focus {
+    background: var(--red);
+    color: var(--cream-light);
 }
 
 @media (max-width: 480px) {
-    .lang-select { min-width: 84px; }
+    .lang-trigger { min-width: 84px; }
 }

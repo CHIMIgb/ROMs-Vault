@@ -96,6 +96,9 @@
                 // la ruta y los parámetros actuales viajan como campos ocultos.
                 // Banderas como SVG inline: renderizado garantizado en todos
                 // los SO (a diferencia de emoji) y compatible con la CSP.
+                // Un <select> nativo no admite SVG dentro de <option>, así que
+                // usamos un desplegable propio (CSS-only vía :focus-within) en
+                // el que cada opción es un <button type="submit" name="lang">.
                 $lang = I18n::getLang();
                 $langPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
                 $langAction = htmlspecialchars($langPath, ENT_QUOTES, 'UTF-8');
@@ -143,15 +146,26 @@
                     <?php foreach ($langHidden as [$hk, $hv]): ?>
                         <input type="hidden" name="<?= htmlspecialchars($hk, ENT_QUOTES, 'UTF-8') ?>" value="<?= htmlspecialchars($hv, ENT_QUOTES, 'UTF-8') ?>">
                     <?php endforeach; ?>
-                    <?= $langFlags[$lang] ?? '' ?>
-                    <select class="lang-select" name="lang"
+                    <button type="button" class="lang-trigger"
+                            aria-haspopup="listbox"
                             aria-label="<?= htmlspecialchars(t('header.seleccionar_idioma')) ?>"
-                            title="<?= htmlspecialchars(t('header.seleccionar_idioma')) ?>"
-                            onchange="this.form.submit()">
-                        <option value="es" <?= $lang === 'es' ? 'selected' : '' ?>>ES</option>
-                        <option value="en" <?= $lang === 'en' ? 'selected' : '' ?>>EN</option>
-                    </select>
-                    <noscript><button type="submit" class="lang-submit">OK</button></noscript>
+                            title="<?= htmlspecialchars(t('header.seleccionar_idioma')) ?>">
+                        <?= $langFlags[$lang] ?? '' ?>
+                        <span class="lang-code"><?= htmlspecialchars(strtoupper($lang), ENT_QUOTES, 'UTF-8') ?></span>
+                    </button>
+                    <ul class="lang-menu" role="listbox"
+                        aria-label="<?= htmlspecialchars(t('header.seleccionar_idioma')) ?>">
+                        <?php foreach ($langFlags as $code => $flag): ?>
+                            <li>
+                                <button type="submit" name="lang" value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>"
+                                        class="lang-option" role="option"
+                                        aria-selected="<?= $lang === $code ? 'true' : 'false' ?>">
+                                    <?= $flag ?>
+                                    <span class="lang-code"><?= htmlspecialchars(strtoupper($code), ENT_QUOTES, 'UTF-8') ?></span>
+                                </button>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
                 </form>
             </nav>
         </header>
