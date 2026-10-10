@@ -37,6 +37,7 @@ $entrypoints = [
     'ajax_categoria.php',
     'ajax_consola.php',
     'ajax_emulador.php',
+    'ajax_lang.php',
 ];
 $entry = basename($path);
 if (in_array($entry, $entrypoints, true)) {

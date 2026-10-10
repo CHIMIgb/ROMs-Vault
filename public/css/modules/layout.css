@@ -336,3 +336,15 @@ header .subtitle { margin-bottom: 1.2rem; }
 @media (max-width: 480px) {
     .lang-trigger { min-width: 84px; }
 }
+
+/* Transición suave al cambiar de idioma sin recargar (enhancement rv-lang.js).
+   Sólo el cambio de clase html.lang-switching dispara la animación; si JS está
+   desactivado, esta regla nunca se activa y el submit GET recarga con normalidad. */
+body {
+    transition: opacity .15s ease-in-out;
+}
+
+html.lang-switching body {
+    opacity: .7;
+    pointer-events: none;
+}

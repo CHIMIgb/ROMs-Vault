@@ -163,7 +163,7 @@
                           . '</svg>',
                 ];
                 ?>
-                <form class="lang-switch" method="get" action="<?= $langAction ?>">
+                <form class="lang-switch" method="get" action="<?= $langAction ?>" data-enhance="lang">
                     <?php foreach ($langHidden as [$hk, $hv]): ?>
                         <input type="hidden" name="<?= htmlspecialchars($hk, ENT_QUOTES, 'UTF-8') ?>" value="<?= htmlspecialchars($hv, ENT_QUOTES, 'UTF-8') ?>">
                     <?php endforeach; ?>

@@ -8,5 +8,6 @@
     </div>
     <script src="public/js/pixelicons.js" defer></script>
     <script src="public/js/rv-alerts.js" defer></script>
+    <script src="public/js/rv-lang.js" defer></script>
 </body>
 </html>
