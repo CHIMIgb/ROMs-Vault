@@ -1,11 +1,27 @@
 <?php
 require_once __DIR__ . '/../../config/IntlHelper.php';
-?>
-<?php
-// ── Determinar si hay cualquier tipo de error que bloquee el emulador ────────
-$hayError = !empty($error) || !empty($proxyError);
-$errorType = $proxyError['type'] ?? 'unsupported';
-$errorMsg = !empty($proxyError) ? $proxyError['message'] : ($error ?? '');
+
+// Valores por defecto para evitar warnings cuando no hay juego cargado
+$juego = $juego ?? null;
+$downloadUrl = $downloadUrl ?? '#';
+$core = $core ?? null;
+$proxyError = $proxyError ?? null;
+$error = $error ?? null;
+$romUrl = $romUrl ?? '';
+$sizeBytes = (int)($sizeBytes ?? ($juego['size_bytes'] ?? 0));
+$needsThreads = $needsThreads ?? false;
+$modoStreaming = $modoStreaming ?? false;
+$biosUrl = $biosUrl ?? null;
+$region = $region ?? ($juego['region'] ?? '');
+$emuladorNombre = $emuladorNombre ?? ($juego['emulador_nombre'] ?? '');
+$errorType = $errorType ?? ($proxyError['type'] ?? 'unsupported');
+$errorMsg = $errorMsg ?? (!empty($proxyError) ? $proxyError['message'] : ($error ?? ''));
+
+$hayError = ($hayError ?? false) || !empty($error) || !empty($proxyError);
+if ($juego === null && empty($error) && empty($proxyError)) {
+    $error = t('play.error_sin_juego') ?: 'Error: No se especificó el juego a reproducir.';
+    $hayError = true;
+}
 ?>
 
 <?php if ($hayError): ?>
