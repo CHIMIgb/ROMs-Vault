@@ -26,18 +26,32 @@ class IntlHelper
     public const NONE   = -1;
 
     /**
+     * Locale Intl por idioma activo (coincide con I18n::LANGUAGES).
+     * Si intl no está disponible, la clave se usa para elegir el formato
+     * del fallback (meses y separadores numéricos).
+     */
+    private const LOCALES = [
+        'es' => 'es_ES',
+        'en' => 'en_US',
+        'fr' => 'fr_FR',
+        'pt' => 'pt_BR',
+        'de' => 'de_DE',
+        'ja' => 'ja_JP',
+    ];
+
+    /**
      * Devuelve el locale para Intl según idioma activo.
-     * @return string 'es_ES' o 'en_US'
+     * @return string p. ej. 'es_ES', 'en_US', 'fr_FR', 'pt_BR', 'de_DE', 'ja_JP'
      */
     public static function getLocale(): string
     {
         if (class_exists('I18n')) {
             $lang = I18n::getLang();
-            if ($lang === 'en') {
-                return 'en_US';
+            if (isset(self::LOCALES[$lang])) {
+                return self::LOCALES[$lang];
             }
         }
-        return 'es_ES';
+        return self::LOCALES['es'];
     }
 
     /**
@@ -139,9 +153,9 @@ class IntlHelper
             }
         }
 
-        // Fallback: es → 1.234.567,89 ; en → 1,234,567.89
-        $isEn = self::getLocale() === 'en_US';
-        return number_format($number, $decimals, $isEn ? '.' : ',', $isEn ? ',' : '.');
+        // Fallback: es/de/pt → 1.234.567,89 ; en/ja → 1,234,567.89 ; fr → 1 234 567,89
+        [$dec, $group] = self::fallbackSeparators();
+        return number_format($number, $decimals, $dec, $group);
     }
 
     /**
@@ -207,31 +221,82 @@ class IntlHelper
     }
 
     /**
-     * Formato de fecha/hora sin la extensión intl, respetando es/en.
+     * Separadores del fallback numérico según locale: [decimal, miles].
+     * Coincide con el formato local de cada idioma cuando intl no está.
+     */
+    private static function fallbackSeparators(): array
+    {
+        switch (self::getLocale()) {
+            case 'en_US':
+            case 'ja_JP':
+                return ['.', ','];
+            case 'fr_FR':
+                return [',', "\u{202f}"]; // espacio fino irrompible
+            case 'de_DE':
+            case 'es_ES':
+            case 'pt_BR':
+            default:
+                return [',', '.'];
+        }
+    }
+
+    /**
+     * Nombres de mes (abreviados) por locale para el fallback sin intl.
+     */
+    private static function fallbackMonths(): array
+    {
+        return [
+            'es_ES' => ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+            'en_US' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            'fr_FR' => ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'],
+            'pt_BR' => ['jan.', 'fev.', 'mar.', 'abr.','mai.','jun.','jul.','ago.','set.','out.','nov.','dez.'],
+            'de_DE' => ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'],
+            'ja_JP' => ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        ];
+    }
+
+    /**
+     * Formato de fecha/hora sin la extensión intl, respetando el idioma activo.
      * Cubre los estilos que usa la aplicación (MEDIUM/SHORT + NONE).
      */
     private static function fallbackDate(\DateTimeImmutable $dt, int $dateStyle, int $timeStyle): string
     {
-        $isEn = self::getLocale() === 'en_US';
-
-        $monthsEs = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-        $monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
+        $locale = self::getLocale();
+        $d = (int) $dt->format('j');
         $m = (int) $dt->format('n');
-        $d = $dt->format('j');
-        $y = $dt->format('Y');
+        $y = (int) $dt->format('Y');
+
+        $months = self::fallbackMonths();
+        $mon = $months[$locale][$m - 1] ?? $months['en_US'][$m - 1];
+
+        // Orden de la fecha larga/media: ja usa y/m/d; en usa "{mes} d, y"; el resto d mes y.
+        switch ($locale) {
+            case 'en_US':
+                $longDate = $mon . ' ' . $d . ', ' . $y;
+                break;
+            case 'ja_JP':
+                $longDate = $y . '/' . $m . '/' . $d;
+                break;
+            default: // es, fr, pt, de
+                $longDate = $d . ' ' . $mon . ' ' . $y;
+        }
+
+        // Fecha corta: en m/d/y, ja y/m/d, el resto d/m/y.
+        $shortDate = match ($locale) {
+            'en_US' => sprintf('%02d/%02d/%04d', $m, $d, $y),
+            'ja_JP' => sprintf('%04d/%02d/%02d', $y, $m, $d),
+            default => sprintf('%02d/%02d/%04d', $d, $m, $y),
+        };
 
         $date = '';
         switch ($dateStyle) {
             case self::FULL:
             case self::LONG:
             case self::MEDIUM:
-                $date = $isEn
-                    ? $monthsEn[$m - 1] . ' ' . $d . ', ' . $y
-                    : $d . ' ' . $monthsEs[$m - 1] . ' ' . $y;
+                $date = $longDate;
                 break;
             case self::SHORT:
-                $date = $isEn ? $dt->format('m/d/Y') : $dt->format('d/m/Y');
+                $date = $shortDate;
                 break;
             case self::NONE:
             default:

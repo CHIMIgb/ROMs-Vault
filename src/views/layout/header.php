@@ -140,6 +140,27 @@
                           . '<circle cx="1.6" cy="6" r="0.34"/><circle cx="4" cy="6" r="0.34"/><circle cx="6.4" cy="6" r="0.34"/>'
                           . '</g>'
                           . '</svg>',
+                    'fr' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#ffffff"/>'
+                          . '<rect width="6.67" height="14" fill="#0055a4"/>'
+                          . '<rect x="13.33" width="6.67" height="14" fill="#ef4135"/>'
+                          . '</svg>',
+                    'pt' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#009c3b"/>'
+                          . '<polygon points="10,1.6 18.4,7 10,12.4 1.6,7" fill="#ffdf00"/>'
+                          . '<circle cx="10" cy="7" r="3" fill="#002776"/>'
+                          . '<path d="M7.2 6.1 A3 3 0 0 0 12.8 6.1" stroke="#ffffff" stroke-width="0.7" fill="none"/>'
+                          . '</svg>',
+                    'de' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="4.67" fill="#000000"/>'
+                          . '<rect y="4.67" width="20" height="4.67" fill="#dd0000"/>'
+                          . '<rect y="9.33" width="20" height="4.67" fill="#ffce00"/>'
+                          . '</svg>',
+                    'ja' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#ffffff"/>'
+                          . '<rect x="0.5" y="0.5" width="19" height="13" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>'
+                          . '<circle cx="10" cy="7" r="4" fill="#bc002d"/>'
+                          . '</svg>',
                 ];
                 ?>
                 <form class="lang-switch" method="get" action="<?= $langAction ?>">

@@ -2,7 +2,7 @@
 /**
  * config/i18n.php — Cargador de diccionarios y traducción (ítem 6.1 del plan).
  *
- * - Diccionarios en JSON bajo src/i18n/{es,en}.json (clave → texto). JSON no
+ * - Diccionarios en JSON bajo src/i18n/{es,en,fr,pt,de,ja}.json (clave → texto). JSON no
  *   ejecuta código: más seguro si algún día se editan desde administración.
  * - Función global t('clave', params) con placeholders {nombre}.
  * - Fallback: clave ausente en el idioma activo → se busca en 'es' → si tampoco,
@@ -17,7 +17,7 @@
 class I18n {
 
     /** Idiomas soportados (whitelist anti path traversal y anti inyección). */
-    public const LANGUAGES = ['es', 'en'];
+    public const LANGUAGES = ['es', 'en', 'fr', 'pt', 'de', 'ja'];
 
     /** Idioma por defecto (fallback universal). */
     public const DEFAULT_LANG = 'es';
@@ -39,7 +39,7 @@ class I18n {
     /**
      * Resuelve el idioma activo de la petición (ítem 6.2):
      *   1. Cookie rv_lang (preferencia persistida por el selector ?lang=)
-     *   2. Cabecera Accept-Language (primer idioma soportado entre es|en)
+     *   2. Cabecera Accept-Language (primer idioma soportado entre los de LANGUAGES)
      *   3. I18N_LANG del entorno (.env) — base del sitio
      *   4. Default 'es'
      */

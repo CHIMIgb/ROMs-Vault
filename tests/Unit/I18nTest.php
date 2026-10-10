@@ -9,7 +9,7 @@
  * - placeholders {nombre}
  * - fallback: clave ausente → devuelve la propia clave
  * - idioma inválido → se rechaza y no corrompe el idioma activo
- * - diccionarios es/en JSON válidos y con claves paritarias
+ * - diccionarios es/en/fr/pt/de/ja JSON válidos y con claves paritarias
  */
 
 namespace Tests\Unit;
@@ -54,35 +54,50 @@ class I18nTest extends TestCase {
 
     public function testIdiomaInvalidoEsRechazado(): void {
         I18n::setLang('es');
-        $this->assertFalse(I18n::setLang('fr'));
+        $this->assertFalse(I18n::setLang('xx'));     // idioma inexistente
         $this->assertFalse(I18n::setLang('../es'));  // intento de path traversal
         // El idioma activo no se corrompe
         $this->assertSame('es', I18n::getLang());
         $this->assertSame('Catálogo', t('nav.catalogo'));
     }
 
+    public function testSwitchIdiomasNuevos(): void {
+        $esperado = [
+            'fr' => 'Catalogue',
+            'pt' => 'Catálogo',
+            'de' => 'Katalog',
+            'ja' => 'カタログ',
+        ];
+        foreach ($esperado as $lang => $valor) {
+            $this->assertTrue(I18n::setLang($lang), "Debe aceptar el idioma '$lang'.");
+            $this->assertSame($lang, I18n::getLang());
+            $this->assertSame($valor, t('nav.catalogo'));
+        }
+    }
+
     public function testDiccionariosJsonValidosYParitarios(): void {
         I18n::setLang('es');
         $es = I18n::dictionary('es');
-        $en = I18n::dictionary('en');
-
         $this->assertNotEmpty($es, 'El diccionario ES no debe estar vacío.');
-        $this->assertNotEmpty($en, 'El diccionario EN no debe estar vacío.');
 
         $esKeys = array_keys($es);
-        $enKeys = array_keys($en);
         sort($esKeys);
-        sort($enKeys);
-        $this->assertSame($esKeys, $enKeys, 'es.json y en.json deben tener exactamente las mismas claves.');
+
+        foreach (I18n::LANGUAGES as $lang) {
+            $dict = I18n::dictionary($lang);
+            $this->assertNotEmpty($dict, "El diccionario '$lang' no debe estar vacío.");
+
+            $keys = array_keys($dict);
+            sort($keys);
+            $this->assertSame($esKeys, $keys, "es.json y $lang.json deben tener exactamente las mismas claves.");
+        }
     }
 
     public function testTodosLosTextosSonStringsNoVacios(): void {
-        $es = I18n::dictionary('es');
-        $en = I18n::dictionary('en');
-        foreach ([$es, $en] as $dict) {
-            foreach ($dict as $key => $value) {
-                $this->assertIsString($value, "El valor de '$key' debe ser string.");
-                $this->assertNotSame('', $value, "El valor de '$key' no debe estar vacío.");
+        foreach (I18n::LANGUAGES as $lang) {
+            foreach (I18n::dictionary($lang) as $key => $value) {
+                $this->assertIsString($value, "El valor de '$key' ($lang) debe ser string.");
+                $this->assertNotSame('', $value, "El valor de '$key' ($lang) no debe estar vacío.");
             }
         }
     }
@@ -109,7 +124,7 @@ class I18nTest extends TestCase {
     }
 
     public function testDetectLangIgnoraCookieInvalida(): void {
-        $_COOKIE['rv_lang'] = 'fr';
+        $_COOKIE['rv_lang'] = 'xx';
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.9';
         $this->assertSame('en', I18n::detectLangFromRequest());
         unset($_COOKIE['rv_lang'], $_SERVER['HTTP_ACCEPT_LANGUAGE']);

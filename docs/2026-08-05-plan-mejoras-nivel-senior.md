@@ -21,6 +21,7 @@
 | 2026-10-07 | **Fase 3.1** — Reorganización de estructura: `src/` (config/controllers/models/views) + `endpoints/` (rom_proxy y ajax_*), requires con `__DIR__`, URLs públicas intactas; `implementation_plan.md` archivado | ✅ Completada | `d39ee37` |
 | 2026-10-09 | **FASE 5 (5.1-5.2)** — i18n: cargador JSON es/en (582 claves paritarias), detección de idioma + cookie, y migración total de la UI pública, admin, controladores, router, servicios de seguridad y endpoints (`ajax_*`, `rom_proxy`) a `t()` en 5 bloques | ✅ Completada (pendiente 5.3 selector, RTL e `Intl`) | `2242c42` + `a3e120f` + `8a4ec97` + `76a2fc4` + `8c009ea` + `3f027f1` + `4f720b0` |
 | 2026-10-09 | **FASE 5 (5.3, 5.4 y 5.2 Intl)** — selector de idioma (ES/EN) en header con banderas SVG; fechas/números con `IntlHelper` (fallback); criterios 5.4 cumplidos (Accept-Language + grep de literales) | ✅ Completada (RTL 5.2 pendiente) | `4102f63` + `44a9cb9` |
+| 2026-10-10 | **FASE 5 — i18n ampliado** — 4 idiomas nuevos (`fr`, `pt` pt-BR, `de`, `ja`) con paridad 585 claves, banderas en selector, fallback Intl multi-idioma y tests actualizados (aceptación de `xx` para "no soportado") | ✅ Completada (RTL 5.2 y `EJS_language` 5.3 pendiente) | `sin hash aún` |
 
 
 ---
@@ -223,7 +224,8 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 ### 5.1 Infraestructura de traducción
 
 - [x] `src/config/i18n.php` — cargador de idiomas, función global `t('clave', params)`
-- [x] `src/i18n/es.json`, `src/i18n/en.json` (implementado como JSON paritario en vez de `lang/*.php`; 582 claves)
+- [x] `src/i18n/es.json`, `src/i18n/en.json` (implementado como JSON paritario en vez de `lang/*.php`; 585 claves)
+- [x] `src/i18n/fr.json`, `src/i18n/pt.json`, `src/i18n/de.json`, `src/i18n/ja.json` (ampliación FASE 5, 2026-10-10)
 - [x] Detección de idioma: header `Accept-Language` → cookie (`?lang=` selector) → default `es`
 - [x] Persistir preferencia en cookie `rv_lang` (selector `?lang=`)
 
@@ -237,7 +239,7 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 
 ### 5.3 Selector de idioma en la UI
 
-- [x] Selector de idioma visible en header (ES/EN) con banderas/abreviaturas.
+- [x] Selector de idioma visible en header (es/en/fr/pt/de/ja) con banderas.
 - [x] Los textos de EmulatorJS ya soportan locales (`EJS_language`) — parametrizarlo según idioma (vía vista)
 
 ### 5.4 Criterio de éxito
@@ -314,7 +316,7 @@ El sitio se ve bien, pero técnicamente es CSS/JS vanilla sin tooling. Para un p
 | "¿Cómo despliegas?" | "Push a Vercel" | "CI verde → auto-deploy; previews por PR" |
 | "¿Por qué sin framework?" | "..." | "ADR-001: decisión fundacional y deliberada — domino HTTP, sesiones, routing y seguridad desde el protocolo, y lo demuestro con código propio" |
 | "¿Cómo mantienes 5k líneas?" | "Con cuidado" | "Autoload PSR-4, DTOs, partials únicos, sin HTML duplicado" |
-| "¿Soporta más idiomas?" | "No" | "i18n con es/en/pt, RTL listo, selector en UI" |
+| "¿Soporta más idiomas?" | "No" | "i18n con es/en/fr/pt/de/ja, selector en UI; RTL pendiente" |
 | "¿Qué pasa en producción si falla?" | "Lo veo en el navegador" | "Logs estructurados, request ID, health checks" |
 | "¿Y las dependencias vulnerables?" | "..." | "Dependabot + CodeQL en cada push" |
 
