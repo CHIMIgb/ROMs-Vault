@@ -1,0 +1,17 @@
+# Configuración de PHPStan — análisis estático (CI, FASE 2 del roadmap)
+#
+# Nivel 5 como punto de partida: el código aún no tiene tipado/DTOs completos
+# (FASE 3 pendiente del roadmap), así que los hallazgos actuales quedan
+# congelados en phpstan-baseline.neon y el nivel se subirá de forma incremental.
+#
+# Ejecutar local:  vendor/bin/phpstan analyse
+# Regenerar baseline: vendor/bin/phpstan analyse --generate-baseline
+
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - endpoints

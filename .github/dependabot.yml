@@ -1,0 +1,21 @@
+version: 2
+# Actualizaciones automáticas de dependencias (FASE 2 / FASE 8 del roadmap).
+updates:
+  # Dependencias PHP (composer)
+  - package-ecosystem: composer
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+
+  # Actions de GitHub utilizadas en el CI
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ci

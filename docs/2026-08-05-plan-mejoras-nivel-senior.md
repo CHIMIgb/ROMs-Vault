@@ -35,6 +35,7 @@
 | 2026-10-10 | **Seguridad §7.1 (ADR)** — routing por convención en `index.php`, sin tabla de rutas en BD (evita superficie RCE; slugs 7.2 como evolución futura) | ✅ Completada | `0fd030c` |
 | 2026-10-11 | **Seguridad §12 (Fase B)** — verificación en producción: `TRUSTED_PROXIES=127.0.0.1` (proxy loopback del edge de Vercel); la auditoría registra la IP pública real del visitante (`153.67.119.76` == `api.ipify.org`); rate limit por IP individual | ✅ Completada | `d5bc923` |
 | 2026-10-11 | **Seguridad §9.2** — `display_errors` en Docker: duplicado de §2.4, ya implementado (`docker/php-production.ini` + `Dockerfile`); cerrado sin cambios de código | ✅ Completada | `f188a79` |
+| 2026-10-11 | **FASE 2 (2.1-2.4)** — CI/CD con GitHub Actions: `.github/workflows/ci.yml` (jobs `lint` `php -l`, `static` PHPStan nivel 5 + baseline y `phpcs` PSR-12 sobre ficheros cambiados, `tests` Unit+Integration+Security con servicio PostgreSQL 16 + esquema, `audit` `composer audit`, `build` `docker build`), `.github/dependabot.yml` y badge CI en README; `Server.php` portado a Linux (`/dev/null`) | ✅ Completada (configurar secrets `TEST_*` en GitHub; pendientes: PHPStan nivel 6, branch protection) | `⟨hash⟩` |
 
 
 ---
@@ -123,26 +124,26 @@ Un proyecto de industria se valida en cada push, no "cuando me acuerdo".
 
 ### 2.1 Workflow CI básico `.github/workflows/ci.yml`
 
-- [ ] Trigger: push a `main` + pull requests
-- [ ] Jobs: `php: 8.2` → `composer install` → **PHPStan** → **PHPUnit**
-- [ ] Caché de Composer (`actions/cache`)
-- [ ] Servicio de PostgreSQL de prueba en el job (para los tests de integración)
+- [x] Trigger: push a `main` + pull requests
+- [x] Jobs: `php: 8.2` → `composer install` → **PHPStan** → **PHPUnit** (jobs separados: `lint`, `static`, `tests`, `audit`, `build`)
+- [x] Caché de Composer (`actions/cache`)
+- [x] Servicio de PostgreSQL de prueba en el job (para los tests de integración) — `postgres:16`, BD `roms-vault-test`, esquema cargado con `psql -f`
 
 ### 2.2 Quality gates
 
-- [ ] PHPStan nivel **6** (empezar con nivel 5 si hay demasiados errores, subir después)
-- [ ] Code style: `phpcs` (PSR-12) o al menos `php-cs-fixer` en modo diff
-- [ ] Fracaso del build si hay tests rojos o nivel de PHPStan no alcanzado
+- [x] PHPStan nivel **6** (empezar con nivel 5 si hay demasiados errores, subir después) — hoy en **nivel 5 + baseline** (`phpstan.dist.neon`); la subida a 6 queda como mejora futura
+- [x] Code style: `phpcs` (PSR-12) o al menos `php-cs-fixer` en modo diff — `phpcs` PSR-12 aplicado a los ficheros PHP **cambiados** en cada PR/push (`phpcs.xml.dist`, `src/views/` excluido)
+- [x] Fracaso del build si hay tests rojos o nivel de PHPStan no alcanzado
 
 ### 2.3 Deploy (opcional, cuando el CI esté verde)
 
-- [ ] Auto-deploy a Vercel en push a `main` (Vercel ya está linkeado: `.vercel/project.json`)
-- [ ] Preview deploys en cada PR (Vercel lo hace gratis)
+- [x] Auto-deploy a Vercel en push a `main` (Vercel ya está linkeado: `.vercel/project.json`) — cubierto por la **integración Git nativa de Vercel**; no se añade job de deploy en Actions (decisión del plan)
+- [x] Preview deploys en cada PR (Vercel lo hace gratis)
 
 ### 2.4 Criterio de éxito
 
-- [ ] Badge de CI en el README ("build passing")
-- [ ] Cualquier PR muestra tests verdes antes de mergearse
+- [x] Badge de CI en el README ("build passing")
+- [ ] Cualquier PR muestra tests verdes antes de mergearse — el workflow publica el estado verde; **falta activar *required status checks* / branch protection en GitHub (acción del usuario)**
 
 ---
 

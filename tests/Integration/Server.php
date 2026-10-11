@@ -82,8 +82,12 @@ class Server {
         // proc_close() y el proceso PHPUnit nunca termina. Con archivos
         // el cierre es limpio.
         self::$logFile = sys_get_temp_dir() . '/rv-integration-' . getmypid() . '.log';
+        // Dispositivo nulo cross-platform: 'NUL' en Windows, '/dev/null' en
+        // Linux/macOS. Necesario para que la suite corra en el runner ubuntu
+        // del CI (en Linux 'NUL' sería un fichero inexistente).
+        $nullDevice = PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
         $descriptors = [
-            0 => ['file', 'NUL', 'r'],          // stdin cerrado (NUL en Windows)
+            0 => ['file', $nullDevice, 'r'],    // stdin cerrado
             1 => ['file', self::$logFile, 'a'], // stdout → log
             2 => ['file', self::$logFile, 'a'], // stderr → log
         ];
