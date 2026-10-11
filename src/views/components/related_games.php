@@ -17,7 +17,9 @@ if (!empty($juego['id']) && !empty($juego['consola_id']) && !empty($juego['categ
         10,
         // Seed de visita: recomendados aleatorios pero ESTABLES por navegador
         // para que sus imágenes se cacheen (misma técnica que el catálogo).
-        Juego::getCatalogSeed()
+        // El controlador la calcula antes de emitir HTML (ítem 9.1); el fallback
+        // solo se usa si la vista se incluye sin controlador.
+        $catalogSeed ?? Juego::getCatalogSeed()
     );
 }
 

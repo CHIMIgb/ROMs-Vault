@@ -109,6 +109,12 @@ class HomeController {
             'inLanguage'  => $juego['idiomas'] ?? null,
         ];
 
+        // Seed de visita para los recomendados del componente related_games: se
+        // calcula ANTES de emitir HTML porque getCatalogSeed() hace setcookie()
+        // y, si se llamase desde la vista tras el header, PHP lanzaría
+        // "headers already sent" (ítem 9.1).
+        $catalogSeed = Juego::getCatalogSeed();
+
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/home/show.php';
         require_once __DIR__ . '/../views/layout/footer.php';
@@ -340,6 +346,11 @@ class HomeController {
             header('Cross-Origin-Opener-Policy: same-origin');
             header('Cross-Origin-Embedder-Policy: credentialless');
         }
+
+        // Seed de visita para los recomendados del componente related_games:
+        // calcular antes de emitir HTML (setcookie dentro de la vista tras el
+        // header daría "headers already sent", ítem 9.1).
+        $catalogSeed = Juego::getCatalogSeed();
 
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/home/play.php';
