@@ -177,7 +177,11 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       → Implementado en `docs/2026-10-10-fix-seed-catalogo-antes-de-html.md`. Corrección:
       el componente también se incluye en `src/views/home/play.php:498`, así que el fix
       cubre show **y** play (`HomeController::show()`/`play()`).
-- [ ] **9.2 `display_errors` sin configurar en Docker** (ver 2.4).
+- [x] **9.2 `display_errors` sin configurar en Docker** (ver 2.4) — cubierto por 2.4
+      (commit `d0ffbc2`): `docker/php-production.ini` (`display_errors=Off`,
+      `error_reporting=E_ALL` a logs, `log_errors=On`, `expose_php=Off`) copiado por el
+      `Dockerfile` (línea 16) a `/usr/local/etc/php/conf.d/zz-production.ini`. Detalle en
+      `docs/2026-10-08-display-errors-produccion.md`.
 - [x] **9.3 No existe `.dockerignore`** — crear excluyendo `tests/`, `scratch/`, `.env*`,
       `data/backup registros DB/`, `docs/` (los tests siguen en git, pero no salen en la
       imagen). *Esfuerzo: bajo.*
@@ -242,6 +246,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-10 | 9.5 `composer audit` (comando nativo; verificado, 0 advisories) | Implementada (dependabot/CI → FASE 2) | `4a947da` |
 | 2026-10-10 | 7.1 ADR — routing por convención, sin tabla de rutas en BD | Implementada (solo doc) | `0fd030c` |
 | 2026-10-11 | 12 (Fase B) Verificación en producción — `TRUSTED_PROXIES=127.0.0.1`; la auditoría registra la IP pública real (rate limit por IP individual) | Implementada | `d5bc923` |
+| 2026-10-11 | 9.2 `display_errors` en Docker — duplicado de 2.4, ya implementado (sin cambios de código) | Implementada | `⟨hash⟩` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
