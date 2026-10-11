@@ -35,7 +35,7 @@
 | 2026-10-10 | **Seguridad §7.1 (ADR)** — routing por convención en `index.php`, sin tabla de rutas en BD (evita superficie RCE; slugs 7.2 como evolución futura) | ✅ Completada | `0fd030c` |
 | 2026-10-11 | **Seguridad §12 (Fase B)** — verificación en producción: `TRUSTED_PROXIES=127.0.0.1` (proxy loopback del edge de Vercel); la auditoría registra la IP pública real del visitante (`153.67.119.76` == `api.ipify.org`); rate limit por IP individual | ✅ Completada | `d5bc923` |
 | 2026-10-11 | **Seguridad §9.2** — `display_errors` en Docker: duplicado de §2.4, ya implementado (`docker/php-production.ini` + `Dockerfile`); cerrado sin cambios de código | ✅ Completada | `f188a79` |
-| 2026-10-11 | **FASE 2 (2.1-2.4)** — CI/CD con GitHub Actions: `.github/workflows/ci.yml` (jobs `lint` `php -l`, `static` PHPStan nivel 5 + baseline y `phpcs` PSR-12 sobre ficheros cambiados, `tests` Unit+Integration+Security con servicio PostgreSQL 16 + esquema, `audit` `composer audit`, `build` `docker build`), `.github/dependabot.yml` y badge CI en README; `Server.php` portado a Linux (`/dev/null`) | ✅ Completada (configurar secrets `TEST_*` en GitHub; pendientes: PHPStan nivel 6, branch protection) | `⟨hash⟩` |
+| 2026-10-11 | **FASE 2 (2.1-2.4)** — CI/CD con GitHub Actions: `.github/workflows/ci.yml` (jobs `lint` `php -l`, `static` PHPStan nivel 5 + baseline y `phpcs` PSR-12 sobre ficheros cambiados, `tests` Unit+Integration+Security con servicio PostgreSQL 16 + esquema, `audit` `composer audit`, `build` `docker build`), `.github/dependabot.yml` y badge CI en README; `Server.php` portado a Linux (`/dev/null`) | ✅ Completada (configurar secrets `TEST_*` en GitHub; pendientes: PHPStan nivel 6, branch protection) | `2347580` |
 
 
 ---
