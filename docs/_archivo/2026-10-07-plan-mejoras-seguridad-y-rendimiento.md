@@ -187,8 +187,11 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       intencional `unsafe-eval`/`blob:` para EmulatorJS → **no apretar**). Añadir
       `Cache-Control: no-store` a páginas de admin si no existe. *Esfuerzo: bajo.*
       → Implementado en `docs/2026-10-10-cache-no-store-admin.md` (commit `420c2f2`).
-- [ ] **9.5 `composer audit`** — `composer.lock` está trackeado ✓; añadir `composer audit`
+- [x] **9.5 `composer audit`** — `composer.lock` está trackeado ✓; añadir `composer audit`
       como paso previo al commit/deploy y dependabot/GitHub Actions (FASE 2 del roadmap). *Esfuerzo: bajo.*
+      → `composer audit` es comando nativo de Composer 2.4+; un script con ese nombre se
+      ignora (decidido con el usuario: sin script, se usa directamente). Pendiente FASE 2:
+      dependabot + job `audit` en GitHub Actions. Doc: `docs/2026-10-10-composer-audit.md`.
 
 ## 10. Priorización
 
