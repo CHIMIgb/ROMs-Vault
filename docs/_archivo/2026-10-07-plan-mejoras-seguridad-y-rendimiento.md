@@ -146,9 +146,12 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       endpoints, config y JS) listos para el 6.3.
       (Decisión: cookie, no subdirectorio `/en/`, para no duplicar URLs; `hreflang` si algún
       día se quiere SEO multidioma.) *Esfuerzo: medio.*
-- [ ] **6.3 Migrar UI por secciones** — header/home/show/play primero; admin y errors
+- [x] **6.3 Migrar UI por secciones** — header/home/show/play primero; admin y errors
       después; mensajes de controladores y errores JSON (CSRF/rate-limit/proxy).
       Los datos (nombres de juegos/consolas/categorías) se quedan sin traducir. *Esfuerzo: alto.*
+      → Migración completada en `docs/2026-10-09-i18n-migracion-ui-t-fase1.md`; residuo
+      (mensajes de `HomeController::play()`) cerrado en
+      `docs/2026-10-10-i18n-residuo-play.md` (commit `2b687b1`).
 
 ## 7. Rutas — decisiones documentadas
 
@@ -225,6 +228,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-09 | 6.1 Cargador de diccionarios i18n (JSON es/en + clase `I18n` + función global `t()`) | Implementada | `2242c42` |
 | 2026-10-09 | 6.2 Detección de idioma (cookie `rv_lang` + `Accept-Language` + `?lang=` + `lang` dinámico) y diccionarios es/en completos (~568 claves, todas las cadenas hardcodeadas) | Implementada | `a3e120f` |
 | 2026-10-10 | 9.1 Warning `setcookie` tras HTML — seed del catálogo calculada en `HomeController::show()`/`play()` | Implementada | `2a76ff0` |
+| 2026-10-10 | 6.3 Residuo i18n — mensajes de `play()` traducidos al idioma activo + limpieza de duplicados (`es.json`, `en.json`) | Implementada | `2b687b1` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
