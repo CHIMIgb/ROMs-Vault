@@ -33,6 +33,7 @@
 | 2026-10-10 | **Seguridad §12 (Fase A)** — `TRUSTED_PROXIES` allowlist en `RateLimiter::clientIp()`: deny-by-default, se elimina el heurístico RFC1918 | ✅ Completada (Fase B: verificación en deploy + activación en Vercel) | `3b40655` |
 | 2026-10-10 | **Seguridad §9.5** — `composer audit` verificado y documentado como paso pre-commit/deploy (comando nativo Composer 2.4+, 0 advisories; sin script por conflicto de nombre). Dependabot/CI → FASE 2 | ✅ Completada | `4a947da` |
 | 2026-10-10 | **Seguridad §7.1 (ADR)** — routing por convención en `index.php`, sin tabla de rutas en BD (evita superficie RCE; slugs 7.2 como evolución futura) | ✅ Completada | `0fd030c` |
+| 2026-10-11 | **Seguridad §12 (Fase B)** — verificación en producción: `TRUSTED_PROXIES=127.0.0.1` (proxy loopback del edge de Vercel); la auditoría registra la IP pública real del visitante (`153.67.119.76` == `api.ipify.org`); rate limit por IP individual | ✅ Completada | `⟨hash⟩` |
 
 
 ---

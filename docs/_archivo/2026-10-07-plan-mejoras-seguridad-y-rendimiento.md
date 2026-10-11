@@ -241,6 +241,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-10 | 12 (Fase A) Allowlist `TRUSTED_PROXIES` — deny-by-default en `clientIp()` | Implementada (Fase B: verificación en deploy) | `3b40655` |
 | 2026-10-10 | 9.5 `composer audit` (comando nativo; verificado, 0 advisories) | Implementada (dependabot/CI → FASE 2) | `4a947da` |
 | 2026-10-10 | 7.1 ADR — routing por convención, sin tabla de rutas en BD | Implementada (solo doc) | `0fd030c` |
+| 2026-10-11 | 12 (Fase B) Verificación en producción — `TRUSTED_PROXIES=127.0.0.1`; la auditoría registra la IP pública real (rate limit por IP individual) | Implementada | `⟨hash⟩` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
@@ -301,6 +302,11 @@ decisión, y blinda el endpoint ante falsos `X-Forwarded-For`). Complementa el �
       `X-Forwarded-For`/`X-Real-IP` si `REMOTE_ADDR` está en la lista. Se
       configuró la propagación en `docker-entrypoint.sh` y los unit tests de la
       allowlist/CIDR v4-v6.
-- [ ] **Fase B — verificación en producción:** ejecutar el check de arriba en el
-      primer despliegue real y fijar `TRUSTED_PROXIES` según el resultado (guía
-      concreta de Vercel en el doc fechado).
+- [x] **Fase B — verificación en producción** (2026-10-11): en el primer despliegue
+      real la auditoría registraba `127.0.0.1` para todos los visitantes
+      (`REMOTE_ADDR` del proxy loopback del edge de Vercel). Se fijó
+      `TRUSTED_PROXIES=127.0.0.1` (solo loopback; Vercel reescribe
+      `X-Forwarded-For` con la IP pública para evitar spoofing) y tras el redeploy
+      la auditoría registra la IP real del visitante (verificado:
+      `153.67.119.76` == `api.ipify.org`). Detalle en
+      `docs/2026-10-11-trusted-proxies-fase-b.md`.
