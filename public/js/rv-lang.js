@@ -266,4 +266,99 @@
         switchLanguage(lang);
     });
 
+    // ── Detección automática del idioma del navegador (opción B) ─────────────
+    // Solo se ejecuta en la PRIMERA visita (sin cookie `rv_lang` válida). La
+    // lista de idiomas soportados se deriva del propio selector, que el
+    // servidor genera desde I18n::LANGUAGES (única fuente de verdad).
+    // Si el idioma del navegador no está soportado, no se hace nada.
+
+    /** Códigos de idioma soportados, leídos del selector renderizado. */
+    function supportedLangs() {
+        var out = [];
+        var btns = document.querySelectorAll('.lang-switch button[name="lang"]');
+        for (var i = 0; i < btns.length; i++) {
+            var v = btns[i].value;
+            if (v && out.indexOf(v) === -1) out.push(v);
+        }
+        return out;
+    }
+
+    /** Idiomas del navegador en orden de preferencia (BCP-47). */
+    function browserLanguages() {
+        var nav = global.navigator || {};
+        var out = [];
+        // navigator.languages ya viene ordenado por preferencia. Solo si no
+        // existe (o está vacío) se usa navigator.language como respaldo.
+        if (nav.languages && nav.languages.length) {
+            for (var i = 0; i < nav.languages.length; i++) out.push(nav.languages[i]);
+            return out;
+        }
+        if (nav.language) out.push(nav.language);
+        if (nav.userLanguage) out.push(nav.userLanguage); // IE/legacy
+        return out;
+    }
+
+    /** 'de-DE' → 'de' (código base). */
+    function baseLang(tag) {
+        return String(tag || '').toLowerCase().split('-')[0];
+    }
+
+    /** Primer idioma del navegador que esté soportado (o '' si ninguno). */
+    function detectBrowserLang() {
+        var supported = supportedLangs();
+        if (!supported.length) return '';
+        var langs = browserLanguages();
+        for (var i = 0; i < langs.length; i++) {
+            var base = baseLang(langs[i]);
+            if (base && supported.indexOf(base) !== -1) return base;
+        }
+        return '';
+    }
+
+    /** ¿Existe ya una preferencia explícita (cookie rv_lang válida)? */
+    function hasValidLangCookie() {
+        var m = document.cookie.match(/(?:^|;\s*)rv_lang=([^;]+)/);
+        if (!m) return false;
+        var val = m[1];
+        try { val = decodeURIComponent(val); } catch (e) { /* valor crudo */ }
+        return supportedLangs().indexOf(val) !== -1;
+    }
+
+    /** Fija la cookie sin recargar (sin re-fetch: no cambia el idioma visible). */
+    function persistLang(lang) {
+        fetch(ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body: new URLSearchParams({ lang: lang }),
+            credentials: 'same-origin',
+            cache: 'no-store'
+        }).catch(function () { /* silencioso: la detección server-side sigue cubriendo */ });
+    }
+
+    var autoDetectDone = false;
+
+    function autoDetectLanguage() {
+        if (autoDetectDone) return; // guard: no repetir si el evento se reemite
+        autoDetectDone = true;
+
+        if (!document.querySelector('.lang-switch[data-enhance="lang"]')) return;
+        if (hasValidLangCookie()) return; // el usuario ya eligió: respetarlo
+
+        var detected = detectBrowserLang();
+        if (!detected) return;
+
+        var current = document.documentElement.getAttribute('lang');
+        if (detected === current) {
+            persistLang(detected); // mismo idioma: solo recordarlo
+        } else {
+            switchLanguage(detected); // distinto: cambiar sin recargar
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', autoDetectLanguage);
+    } else {
+        autoDetectLanguage();
+    }
+
 })(window);
