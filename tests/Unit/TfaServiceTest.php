@@ -87,7 +87,7 @@ class TfaServiceTest extends TestCase {
     }
 
     public function testUsuarioPendienteRechazaFirmaInvalida(): void {
-        $_ENV['JWT_SECRET'] = 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro';
+        $_ENV['JWT_SECRET'] = test_env('TEST_JWT_SECRET', '');
         unset($_COOKIE['rv_tfa_pending']);
         $this->assertNull(TfaService::usuarioPendiente());
 
@@ -97,7 +97,7 @@ class TfaServiceTest extends TestCase {
     }
 
     public function testUsuarioPendienteAceptaFirmaValidaYDesechaExpirada(): void {
-        $key = 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro';
+        $key = test_env('TEST_JWT_SECRET', '');
         $_ENV['JWT_SECRET'] = $key;
         unset($_COOKIE['rv_tfa_pending']);
 

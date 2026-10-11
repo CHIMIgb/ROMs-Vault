@@ -13,7 +13,10 @@ use PHPUnit\Framework\TestCase;
 
 class JWTServiceTest extends TestCase {
 
-    private const SECRET = 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro';
+    /** Secreto HS256 de prueba: sale de tests/.env.test (TEST_JWT_SECRET). */
+    private static function testSecret(): string {
+        return (string) test_env('TEST_JWT_SECRET', '');
+    }
 
     private const USER = [
         'id'       => 7,
@@ -23,7 +26,7 @@ class JWTServiceTest extends TestCase {
 
     protected function setUp(): void {
         parent::setUp();
-        $_ENV['JWT_SECRET'] = self::SECRET;
+        $_ENV['JWT_SECRET'] = self::testSecret();
         $_ENV['JWT_EXPIRATION'] = '3600';
         $_ENV['JWT_REFRESH_THRESHOLD'] = '600';
         unset($_COOKIE['__Host-rv_token']);
@@ -58,7 +61,7 @@ class JWTServiceTest extends TestCase {
             'iat' => $now - 7200,
             'exp' => $now - 3600,
         ]);
-        $token = JWT::encode($expiredPayload, self::SECRET, 'HS256');
+        $token = JWT::encode($expiredPayload, self::testSecret(), 'HS256');
 
         $this->assertNull(JWTService::decode($token));
     }

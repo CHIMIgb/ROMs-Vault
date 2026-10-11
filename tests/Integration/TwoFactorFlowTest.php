@@ -15,9 +15,7 @@ use TfaService;
 
 class TwoFactorFlowTest extends IntegrationTestCase {
 
-    private const TFA_USER   = 'admin_tfa';
-    private const TFA_PASS   = 'admin123';
-    private const TFA_SECRET = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+    private const TFA_USER = 'admin_tfa';
 
     public function testLoginCon2faRedirigeAlSegundoFactorSinEmitirSesion(): void {
         $this->loginPendiente();
@@ -54,7 +52,7 @@ class TwoFactorFlowTest extends IntegrationTestCase {
         $this->loginPendiente();
         $this->get('/auth/twoFactor');
 
-        $code = TfaService::codigo(self::TFA_SECRET);
+        $code = TfaService::codigo(self::tfaSecret());
         $resp = $this->post('/auth/twoFactor', ['code' => $code]);
 
         $this->assertSame(302, $resp['status']);
@@ -81,14 +79,14 @@ class TwoFactorFlowTest extends IntegrationTestCase {
             $this->get('/auth/login');
             $resp = $this->post('/auth/login', [
                 'username' => self::TFA_USER,
-                'password' => self::TFA_PASS,
+                'password' => self::adminPassword(),
             ]);
             $this->assertSame(302, $resp['status']);
             $this->assertNotSame('', Server::sessionToken());
 
             // 3) Reactivar el 2FA: la sesión emitida queda obsoleta
             $pdo->exec(
-                "UPDATE public.usuarios SET tfa_enabled = TRUE, tfa_secret = '" . self::TFA_SECRET . "' "
+                "UPDATE public.usuarios SET tfa_enabled = TRUE, tfa_secret = '" . self::tfaSecret() . "' "
                 . "WHERE username = '" . self::TFA_USER . "'"
             );
 
@@ -99,7 +97,7 @@ class TwoFactorFlowTest extends IntegrationTestCase {
         } finally {
             // Restaurar el estado del seed para no contaminar otros tests
             $pdo->exec(
-                "UPDATE public.usuarios SET tfa_enabled = TRUE, tfa_secret = '" . self::TFA_SECRET . "' "
+                "UPDATE public.usuarios SET tfa_enabled = TRUE, tfa_secret = '" . self::tfaSecret() . "' "
                 . "WHERE username = '" . self::TFA_USER . "'"
             );
             Server::resetCookies();
@@ -115,7 +113,7 @@ class TwoFactorFlowTest extends IntegrationTestCase {
         $this->get('/auth/login');
         $resp = $this->post('/auth/login', [
             'username' => self::TFA_USER,
-            'password' => self::TFA_PASS,
+            'password' => self::adminPassword(),
         ]);
 
         $this->assertSame(302, $resp['status']);

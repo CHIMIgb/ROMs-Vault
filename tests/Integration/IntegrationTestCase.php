@@ -17,9 +17,21 @@ abstract class IntegrationTestCase extends TestCase {
 
     private static bool $booted = false;
 
-    /** @var array|null Credenciales del admin de prueba */
+    /** @var string Usuario admin de prueba (rol_id=1). */
     protected const ADMIN_USER = 'admin';
-    protected const ADMIN_PASS = 'admin123';
+
+    /**
+     * Contraseña del admin de prueba. Se lee de tests/.env.test
+     * (TEST_ADMIN_PASSWORD): nunca se hardcodea en el repo.
+     */
+    protected static function adminPassword(): string {
+        return (string) test_env('TEST_ADMIN_PASSWORD', '');
+    }
+
+    /** Secreto TOTP del usuario admin_tfa (tests/.env.test: TEST_TFA_SECRET). */
+    protected static function tfaSecret(): string {
+        return (string) test_env('TEST_TFA_SECRET', '');
+    }
 
     public static function setUpBeforeClass(): void {
         self::boot();
@@ -62,6 +74,25 @@ abstract class IntegrationTestCase extends TestCase {
         if ($sql === false || trim($sql) === '') {
             throw new \RuntimeException("No se pudo leer el seed: $seedFile");
         }
+
+        // El repo no guarda el hash del admin ni el secreto TOTP: el seed lleva
+        // placeholders que se sustituyen aquí, en runtime, a partir de los
+        // secretos locales (tests/.env.test -> TEST_ADMIN_PASSWORD/TEST_TFA_SECRET).
+        $adminPass = self::adminPassword();
+        $tfaSecret = self::tfaSecret();
+        if ($adminPass === '' || $tfaSecret === '') {
+            throw new \RuntimeException(
+                'Faltan TEST_ADMIN_PASSWORD / TEST_TFA_SECRET. Copia '
+                . 'tests/.env.test.example a tests/.env.test y rellénalos.'
+            );
+        }
+        $sql = str_replace(
+            '__ADMIN_PASSWORD_HASH__',
+            password_hash($adminPass, PASSWORD_BCRYPT),
+            $sql
+        );
+        $sql = str_replace('__TFA_SECRET__', $tfaSecret, $sql);
+
         $pdo->exec($sql);
     }
 
@@ -93,7 +124,7 @@ abstract class IntegrationTestCase extends TestCase {
         // index.php exige CSRF en TODO POST (línea 81).
         return $this->post('/auth/login', [
             'username' => self::ADMIN_USER,
-            'password' => self::ADMIN_PASS,
+            'password' => self::adminPassword(),
         ]);
     }
 

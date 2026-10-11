@@ -22,12 +22,13 @@ require_once dirname(__DIR__, 2) . '/src/config/UrlSigner.php';
 class SecurityTest extends IntegrationTestCase {
 
     /**
-     * Secret del SERVIDOR de integración (tests/Integration/Server.php).
-     * NO usar $_ENV['JWT_SECRET'] aquí: la suite Unit lo deja con otro valor
-     * (UrlSignerTest y TfaServiceTest lo reasignan) y la firma fallaría al
-     * correr la suite completa. La firma la valida el server, no PHPUnit.
+     * Secret del SERVIDOR de integración (tests/Integration/Server.php),
+     * leído de tests/.env.test (TEST_JWT_SECRET). NO usar $_ENV['JWT_SECRET']
+     * aquí: la suite Unit lo reasigna y la firma la valida el server, no PHPUnit.
      */
-    private const SERVER_JWT_SECRET = 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro';
+    private static function serverJwtSecret(): string {
+        return (string) test_env('TEST_JWT_SECRET', '');
+    }
 
     // ── 5.1 Accesos sin sesión ──────────────────────────────────────────────
     public function testAdminDashboardSinSesionRedirigeAlLogin(): void {
@@ -53,7 +54,7 @@ class SecurityTest extends IntegrationTestCase {
         // Server::post directo (sin csrf_token automático a propósito)
         $resp = Server::post('/auth/login', [
             'username' => 'admin',
-            'password' => 'admin123',
+            'password' => self::adminPassword(),
         ]);
         $this->assertSame(403, $resp['status']);
         $this->assertStringContainsString('Token CSRF', $resp['body']);
@@ -64,7 +65,7 @@ class SecurityTest extends IntegrationTestCase {
         $this->get('/auth/login');
         $resp = Server::post('/auth/login', [
             'username'   => 'admin',
-            'password'   => 'admin123',
+            'password'   => self::adminPassword(),
             'csrf_token' => str_repeat('0', 64), // token falso
         ]);
         $this->assertSame(403, $resp['status']);
@@ -80,7 +81,7 @@ class SecurityTest extends IntegrationTestCase {
     public function testProxyFirmaTamperRechazada403(): void {
         Server::resetCookies();
         $t   = time();
-        $sig = hash_hmac('sha256', 'file-tamper|' . $t, self::SERVER_JWT_SECRET);
+        $sig = hash_hmac('sha256', 'file-tamper|' . $t, self::serverJwtSecret());
         $resp = $this->get('/rom_proxy.php?file_id=file-tamper&t=' . $t . '&sig=' . strrev($sig));
         $this->assertSame(403, $resp['status']);
     }
@@ -88,7 +89,7 @@ class SecurityTest extends IntegrationTestCase {
     public function testProxyFirmaVencidaRechazada410(): void {
         Server::resetCookies();
         $t   = time() - 3600; // fuera de TTL (900 s)
-        $sig = hash_hmac('sha256', 'file-vencida|' . $t, self::SERVER_JWT_SECRET);
+        $sig = hash_hmac('sha256', 'file-vencida|' . $t, self::serverJwtSecret());
         $resp = $this->get('/rom_proxy.php?file_id=file-vencida&t=' . $t . '&sig=' . $sig);
         // 410 Gone = enlace expirado (403 = no autorizado/incorrecto, 404 = no existe)
         $this->assertSame(410, $resp['status']);

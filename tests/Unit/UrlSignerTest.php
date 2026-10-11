@@ -33,7 +33,10 @@ class UrlSignerTest extends TestCase {
 
     protected function setUp(): void {
         parent::setUp();
-        $_ENV['JWT_SECRET'] = 'secret-de-prueba-phpunit-2026';
+        // Secreto distinto al del bootstrap a propósito (UrlSigner debe leer
+        // $_ENV['JWT_SECRET'] en tiempo de llamada). La base viene de
+        // tests/.env.test (TEST_JWT_SECRET), nunca hardcodeada.
+        $_ENV['JWT_SECRET'] = test_env('TEST_JWT_SECRET', '') . '-urlsigner';
     }
 
     public function testSignAndVerifyRoundtrip(): void {

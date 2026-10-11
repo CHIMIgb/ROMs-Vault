@@ -44,6 +44,8 @@ class Server {
         // Entorno para el servidor hijo: apunta a la BD de prueba, nunca a
         // producción. Se parte del entorno actual y se sobrescriben las vars.
         // TEST_DB_PASSWORD lo valida y define tests/Integration/bootstrap.php.
+        // El secreto JWT del server sale de tests/.env.test (TEST_JWT_SECRET).
+        $jwtSecret = test_env('TEST_JWT_SECRET', '');
         $env = array_merge(getenv(), [
             'DB_HOST'         => '127.0.0.1',
             'DB_PORT'         => '5432',
@@ -51,7 +53,7 @@ class Server {
             'DB_USER'         => 'postgres',
             'DB_PASSWORD'     => getenv('TEST_DB_PASSWORD') ?: '',
             'DB_SSLMODE'      => 'disable',
-            'JWT_SECRET'      => 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro',
+            'JWT_SECRET'      => $jwtSecret,
             'JWT_EXPIRATION'  => '3600',
             'AUTH_LOG_DIR'    => sys_get_temp_dir() . '/rv_logs_test',
             'LOG_MAX_BYTES'   => '10485760',

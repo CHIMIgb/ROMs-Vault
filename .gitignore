@@ -1,6 +1,7 @@
 .env
 .env.neon
 .env.*
+!tests/.env.test.example
 .vercel
 *.log
 generate_imports.py

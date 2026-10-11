@@ -184,11 +184,11 @@ INSERT INTO `roles` (`nombre`, `descripcion`) VALUES
 INSERT INTO `personas` (`nombre`, `apellido`, `email`, `telefono`) VALUES
 ('Admin', 'Principal', 'admin@romsvault.com', '123456789');
 
--- Insertar usuario admin (contraseña: 'admin123' - deberás cambiarla)
--- IMPORTANTE: La contraseña 'admin123' hasheada con password_hash()
--- El hash de ejemplo es: $2y$10$YourHashedPasswordHere - DEBES GENERAR UNO REAL
+-- Insertar usuario admin SIN contraseña por defecto (no se versiona ningún hash).
+-- Tras importar, asignar una contraseña con password_hash() (PHP) o el flujo de
+-- cambio de contraseña de la app. El placeholder no es un hash bcrypt válido.
 INSERT INTO `usuarios` (`persona_id`, `username`, `password_hash`, `rol_id`, `activo`) VALUES
-(1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, TRUE);
+(1, 'admin', '__CAMBIAR_PASSWORD_HASH__', 1, TRUE);
 
 -- Insertar juegos de ejemplo (basados en tu HTML original)
 INSERT INTO `juegos` (`titulo`, `descripcion`, `consola_id`, `categoria_id`, `region`, `fecha_lanzamiento`, `idiomas`, `formato_imagen`, `game_id_code`, `google_drive_file_id`, `google_drive_view_link`, `size_bytes`, `activo`) VALUES

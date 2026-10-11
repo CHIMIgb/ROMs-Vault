@@ -19,7 +19,7 @@ class CsrfServiceTest extends TestCase {
 
     protected function setUp(): void {
         parent::setUp();
-        $_ENV['JWT_SECRET'] = 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro';
+        $_ENV['JWT_SECRET'] = test_env('TEST_JWT_SECRET', '');
 
         // Resetear el estado estático del servicio
         $prop = new \ReflectionProperty(CsrfService::class, 'token');

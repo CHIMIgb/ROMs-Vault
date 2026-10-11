@@ -1,6 +1,9 @@
 -- Seeds para la BD de prueba (roms-vault-test)
--- Rol admin + usuario de prueba para los tests de integración.
--- Password del usuario: admin123 (solo para pruebas)
+-- Rol admin + usuarios de prueba para los tests de integración.
+--
+-- Los secretos NO se guardan aquí: IntegrationTestCase::resetDatabase()
+-- sustituye los placeholders __ADMIN_PASSWORD_HASH__ y __TFA_SECRET__ en
+-- runtime a partir de tests/.env.test (TEST_ADMIN_PASSWORD / TEST_TFA_SECRET).
 
 INSERT INTO public.roles (id, nombre, descripcion) VALUES
     (1, 'admin', 'Administrador'),
@@ -13,6 +16,6 @@ INSERT INTO public.personas (id, nombre, apellido, email) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.usuarios (id, persona_id, username, password_hash, rol_id, activo, login_failed_attempts, locked_until, tfa_secret, tfa_enabled) VALUES
-    (1, 1, 'admin', '$2y$10$aha7kWQ.0hnOuf56qHUGX.JbZ4jXXeC74.lrYZ.6Mn0YlBDoz479i', 1, TRUE, 0, NULL, NULL, FALSE),
-    (2, 2, 'admin_tfa', '$2y$10$aha7kWQ.0hnOuf56qHUGX.JbZ4jXXeC74.lrYZ.6Mn0YlBDoz479i', 1, TRUE, 0, NULL, 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', TRUE)
+    (1, 1, 'admin', '__ADMIN_PASSWORD_HASH__', 1, TRUE, 0, NULL, NULL, FALSE),
+    (2, 2, 'admin_tfa', '__ADMIN_PASSWORD_HASH__', 1, TRUE, 0, NULL, '__TFA_SECRET__', TRUE)
 ON CONFLICT (id) DO NOTHING;

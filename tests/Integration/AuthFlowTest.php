@@ -141,7 +141,7 @@ class AuthFlowTest extends IntegrationTestCase {
         $this->limpiarRateLimitLogin();
         $resp = $this->post('/auth/login', [
             'username' => self::ADMIN_USER,
-            'password' => self::ADMIN_PASS,
+            'password' => self::adminPassword(),
         ]);
         $this->assertSame(200, $resp['status']);
         $this->assertStringContainsString('Usuario o contraseña incorrectos', $resp['body']);
