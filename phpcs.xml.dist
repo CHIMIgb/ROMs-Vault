@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+  Estándar de código - PHP_CodeSniffer (CI, FASE 2 del roadmap).
+  Reglas PSR-12 sobre el código de aplicación.
+
+  Notas:
+  - PHP_CodeSniffer 3.13/4.0 eliminó el soporte de baseline, así que el gate
+    se aplica en CI solo sobre los ficheros PHP modificados en cada PR/push
+    (ver .github/workflows/ci.yml), evitando reescribir el código legado.
+  - src/views/ queda excluido: son plantillas con HTML embebido, no clases PHP;
+    aplicar PSR-12 estricto ahí genera ruido sin valor.
+
+  Ejecutar local:  vendor/bin/phpcs
+-->
+<ruleset name="ROMs-Vault">
+    <description>PSR-12 para src/ y endpoints/ (excluye plantillas de src/views).</description>
+
+    <file>src</file>
+    <file>endpoints</file>
+
+    <exclude-pattern>*/src/views/*</exclude-pattern>
+
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+    <arg name="basepath" value="."/>
+    <arg name="parallel" value="8"/>
+
+    <rule ref="PSR12"/>
+</ruleset>

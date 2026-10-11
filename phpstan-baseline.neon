@@ -1,0 +1,283 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Variable \$totalPages on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: endpoints/ajax_admin.php
+
+		-
+			message: '#^Ternary operator condition is always true\.$#'
+			identifier: ternary.alwaysTrue
+			count: 1
+			path: endpoints/ajax_catalog.php
+
+		-
+			message: '#^Variable \$totalPages on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: endpoints/ajax_catalog.php
+
+		-
+			message: '#^Variable \$totalPages on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: endpoints/ajax_categoria.php
+
+		-
+			message: '#^Variable \$totalPages on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: endpoints/ajax_consola.php
+
+		-
+			message: '#^Variable \$totalPages on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: endpoints/ajax_emulador.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/config/IntlHelper.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between IntlDateFormatter and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/config/IntlHelper.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between NumberFormatter and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/config/IntlHelper.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between int and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/config/IntlHelper.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/controllers/AdminController.php
+
+		-
+			message: '#^Offset 1 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/controllers/AdminController.php
+
+		-
+			message: '#^Variable \$categorias might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/add.php
+
+		-
+			message: '#^Variable \$consolas might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/add.php
+
+		-
+			message: '#^Variable \$categoria might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: src/views/admin/categorias/edit.php
+
+		-
+			message: '#^Variable \$currentPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/categorias/index.php
+
+		-
+			message: '#^Variable \$total might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/views/admin/categorias/index.php
+
+		-
+			message: '#^Variable \$totalActivas might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/views/admin/categorias/index.php
+
+		-
+			message: '#^Variable \$consola might not be defined\.$#'
+			identifier: variable.undefined
+			count: 6
+			path: src/views/admin/consolas/edit.php
+
+		-
+			message: '#^Variable \$currentPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/consolas/index.php
+
+		-
+			message: '#^Variable \$total might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/views/admin/consolas/index.php
+
+		-
+			message: '#^Variable \$totalActivas might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/views/admin/consolas/index.php
+
+		-
+			message: '#^Variable \$categorias might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/dashboard.php
+
+		-
+			message: '#^Variable \$consolas might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/dashboard.php
+
+		-
+			message: '#^Variable \$currentPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/dashboard.php
+
+		-
+			message: '#^Variable \$stats might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: src/views/admin/dashboard.php
+
+		-
+			message: '#^Variable \$totalJuegos might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/dashboard.php
+
+		-
+			message: '#^Variable \$categorias might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/edit.php
+
+		-
+			message: '#^Variable \$consolas might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/edit.php
+
+		-
+			message: '#^Variable \$juego might not be defined\.$#'
+			identifier: variable.undefined
+			count: 7
+			path: src/views/admin/edit.php
+
+		-
+			message: '#^Variable \$consola might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/emuladores/edit.php
+
+		-
+			message: '#^Variable \$currentPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/emuladores/index.php
+
+		-
+			message: '#^Variable \$total might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/views/admin/emuladores/index.php
+
+		-
+			message: '#^Variable \$totalActivas might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/views/admin/emuladores/index.php
+
+		-
+			message: '#^Variable \$msg might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/tfa.php
+
+		-
+			message: '#^Variable \$msgTipo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/tfa.php
+
+		-
+			message: '#^Variable \$provisionUri might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/tfa.php
+
+		-
+			message: '#^Variable \$secretPendiente might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/tfa.php
+
+		-
+			message: '#^Variable \$tfaActivo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/admin/tfa.php
+
+		-
+			message: '#^Variable \$juego might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/components/game_actions.php
+
+		-
+			message: '#^Variable \$relatedEager in empty\(\) is never defined\.$#'
+			identifier: empty.variable
+			count: 2
+			path: src/views/components/related_games.php
+
+		-
+			message: '#^Variable \$categorias might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/home/index.php
+
+		-
+			message: '#^Variable \$consolas might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/home/index.php
+
+		-
+			message: '#^Variable \$currentPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/home/index.php
+
+		-
+			message: '#^Variable \$totalPages on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/views/home/index.php
+
+		-
+			message: '#^Variable \$emuladorLocal might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/views/home/show.php
+
+		-
+			message: '#^Variable \$juego might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/views/home/show.php

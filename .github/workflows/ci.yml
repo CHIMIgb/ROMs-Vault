@@ -1,0 +1,149 @@
+name: CI
+
+# FASE 2 del roadmap: validar cada push a main y cada pull request.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Permisos mínimos: el CI solo lee el repositorio.
+permissions:
+  contents: read
+
+# Cancelar ejecuciones obsoletas de la misma rama/PR.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1) Lint de sintaxis (rápido, sin dependencias) ─────────────────────────
+  lint:
+    name: Lint (php -l)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: php -l sobre el código de aplicación
+        run: |
+          set -euo pipefail
+          find src endpoints -name '*.php' -print0 | xargs -0 -n1 php -l
+          php -l index.php
+          php -l router.php
+
+  # ── 2) Calidad estática: PHPStan (baseline) + PSR-12 (ficheros cambiados) ──
+  static:
+    name: Static (PHPStan + PSR-12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # necesario para el diff de phpcs
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2
+      - name: Cache de Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - name: Instalar dependencias
+        run: composer install --prefer-dist --no-progress --no-interaction
+      - name: PHPStan (nivel 5 + baseline)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+      - name: PSR-12 (solo ficheros PHP cambiados)
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            echo "Sin SHA base para el diff; se omite phpcs en este run."
+            exit 0
+          fi
+          FILES=$(git diff --name-only --diff-filter=ACMR "$BASE" HEAD -- src endpoints | grep '\.php$' || true)
+          if [ -z "$FILES" ]; then
+            echo "No hay ficheros PHP de src/ o endpoints/ cambiados; phpcs OK."
+            exit 0
+          fi
+          echo "Ficheros a comprobar:"
+          echo "$FILES"
+          vendor/bin/phpcs $FILES
+
+  # ── 3) Tests: Unit + Integration + Security contra PostgreSQL de servicio ──
+  tests:
+    name: Tests (Unit + Integration + Security)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          POSTGRES_DB: roms-vault-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+      TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+      TEST_TFA_SECRET: ${{ secrets.TEST_TFA_SECRET }}
+      TEST_JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_pgsql, pgsql, gd, zip
+          coverage: none
+          tools: composer:v2
+      - name: Cache de Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - name: Instalar dependencias
+        run: composer install --prefer-dist --no-progress --no-interaction
+      - name: Cargar el esquema en la BD de prueba
+        env:
+          PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+        run: psql -h 127.0.0.1 -U postgres -d roms-vault-test -v ON_ERROR_STOP=1 -f data/roms-vaultDB-postgreSQL.sql
+      - name: Ejecutar la suite (composer test)
+        run: composer test
+
+  # ── 4) Auditoría de dependencias ───────────────────────────────────────────
+  audit:
+    name: Audit (composer)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2
+      - name: composer audit
+        run: composer audit --no-interaction
+      - name: composer update --dry-run (informativo)
+        run: composer update --dry-run --no-interaction
+
+  # ── 5) Build de la imagen Docker ───────────────────────────────────────────
+  build:
+    name: Build (docker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker build
+        run: docker build -t roms-vault:ci .

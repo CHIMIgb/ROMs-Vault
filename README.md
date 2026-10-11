@@ -1,5 +1,7 @@
 # ROMs Vault - Catálogo de Videojuegos
 
+![CI](https://github.com/CHIMIgb/ROMs-Vault/actions/workflows/ci.yml/badge.svg)
+
 Aplicación MVC en PHP para gestionar y mostrar un catálogo de ROMs e ISOs de videojuegos, con panel de administración, exportación a Excel, y sistema de descargas desde Google Drive.
 
 ## 📋 Características
