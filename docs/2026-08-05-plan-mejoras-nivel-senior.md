@@ -29,6 +29,7 @@
 | 2026-10-10 | **Seguridad/Rendimiento §9.1** — fix warning `setcookie` tras HTML: seed del catálogo calculada en `HomeController::show()`/`play()` antes de renderizar (afectaba a ficha y emulador) | ✅ Completada | `2a76ff0` |
 | 2026-10-10 | **i18n (residuo 6.3)** — mensajes de error de `HomeController::play()` con `t()` (consola sin core / emulación off / BIOS faltante) respetando el idioma activo; limpieza de duplicado en `es.json` y traducción EN de `play.error_sin_juego` | ✅ Completada | `2b687b1` |
 | 2026-10-10 | **Seguridad §9.4** — `Cache-Control: no-store` en todas las páginas HTML de admin (`index.php`, antes del controlador) | ✅ Completada | `420c2f2` |
+| 2026-10-10 | **Seguridad §9.3** — `.dockerignore` para minimizar el contexto de `docker build` (tests/, docs/, vendor/, .env*, .vercel/, etc.) | ✅ Completada | `8a0aacd` |
 
 
 ---

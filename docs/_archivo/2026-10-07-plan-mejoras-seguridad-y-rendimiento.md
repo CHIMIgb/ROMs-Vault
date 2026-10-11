@@ -177,9 +177,11 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       el componente también se incluye en `src/views/home/play.php:498`, así que el fix
       cubre show **y** play (`HomeController::show()`/`play()`).
 - [ ] **9.2 `display_errors` sin configurar en Docker** (ver 2.4).
-- [ ] **9.3 No existe `.dockerignore`** — crear excluyendo `tests/`, `scratch/`, `.env*`,
+- [x] **9.3 No existe `.dockerignore`** — crear excluyendo `tests/`, `scratch/`, `.env*`,
       `data/backup registros DB/`, `docs/` (los tests siguen en git, pero no salen en la
       imagen). *Esfuerzo: bajo.*
+      → Implementado en `docs/2026-10-10-dockerignore.md` (commit `8a0aacd`); se añadieron
+      además `vendor/`, `.vercel/`, `.agents/`, `.opencode/` y cachés.
 - [x] **9.4 Cabeceras de seguridad** — ya presentes (`X-Content-Type-Options`,
       `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, CSP con excepción
       intencional `unsafe-eval`/`blob:` para EmulatorJS → **no apretar**). Añadir
@@ -231,6 +233,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-10 | 9.1 Warning `setcookie` tras HTML — seed del catálogo calculada en `HomeController::show()`/`play()` | Implementada | `2a76ff0` |
 | 2026-10-10 | 6.3 Residuo i18n — mensajes de `play()` traducidos al idioma activo + limpieza de duplicados (`es.json`, `en.json`) | Implementada | `2b687b1` |
 | 2026-10-10 | 9.4 `Cache-Control: no-store` en páginas de admin (`index.php`) | Implementada | `420c2f2` |
+| 2026-10-10 | 9.3 `.dockerignore` (contexto mínimo de build) | Implementada | `8a0aacd` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
