@@ -5,7 +5,7 @@
         "shuchkin/simplexlsxgen": "^1.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11",
+        "phpunit/phpunit": "^13",
         "phpstan/phpstan": "^2.3",
         "squizlabs/php_codesniffer": "3.13.6"
     },
