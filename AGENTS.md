@@ -13,6 +13,7 @@ PHP 8.1+ vanilla MVC, no framework — custom routing in `index.php` (clean URLs
   - On this machine PHP is on Windows only: `C:\xampp\php\php.exe`, Postgres `C:\Program Files\PostgreSQL\18\bin`. WSL has no `psql`/`php`; invoke via `powershell.exe -NoProfile -Command '$env:PGPASSWORD=...; & "C:\...\psql.exe" ...'`.
 - **DB schema/data import**: `psql -f data/roms-vaultDB-postgreSQL.sql` (schema incl. indexes/triggers), then `data/import_data.sql` (explicit ids + `setval` on sequences), then `data/emuladores.sql`. Order matters (FKs). `data/migrations/*.sql` are idempotent and already merged into the base schema.
 - **Docker**: `docker build -t roms-vault . && docker run -p 8080:80 --env-file .env roms-vault`.
+- **Mantenimiento VCR (Vercel)**: `scripts/prune-vcr-images.ps1` conserva las N imágenes más recientes (`-Keep`, def. 5; `-DryRun` para previsualizar) del repositorio VCR `dockerfile` y borra el resto. Vercel no tiene retención automática y el plan Hobby limita a 50 imágenes/repo (al tope, el deploy falla con `denied: repository has reached the maximum allowed number of images`). Ver `docs/2026-10-11-retencion-imagenes-vercel-vcr.md`.
 - **No lint / typecheck / CI exist** (roadmap FASE 2 plans PHPStan/phpcs/GitHub Actions) — don't invent those commands.
 
 ## Architecture
