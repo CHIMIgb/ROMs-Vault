@@ -180,10 +180,11 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 - [ ] **9.3 No existe `.dockerignore`** — crear excluyendo `tests/`, `scratch/`, `.env*`,
       `data/backup registros DB/`, `docs/` (los tests siguen en git, pero no salen en la
       imagen). *Esfuerzo: bajo.*
-- [ ] **9.4 Cabeceras de seguridad** — ya presentes (`X-Content-Type-Options`,
+- [x] **9.4 Cabeceras de seguridad** — ya presentes (`X-Content-Type-Options`,
       `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, CSP con excepción
       intencional `unsafe-eval`/`blob:` para EmulatorJS → **no apretar**). Añadir
       `Cache-Control: no-store` a páginas de admin si no existe. *Esfuerzo: bajo.*
+      → Implementado en `docs/2026-10-10-cache-no-store-admin.md` (commit `420c2f2`).
 - [ ] **9.5 `composer audit`** — `composer.lock` está trackeado ✓; añadir `composer audit`
       como paso previo al commit/deploy y dependabot/GitHub Actions (FASE 2 del roadmap). *Esfuerzo: bajo.*
 
@@ -229,6 +230,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-09 | 6.2 Detección de idioma (cookie `rv_lang` + `Accept-Language` + `?lang=` + `lang` dinámico) y diccionarios es/en completos (~568 claves, todas las cadenas hardcodeadas) | Implementada | `a3e120f` |
 | 2026-10-10 | 9.1 Warning `setcookie` tras HTML — seed del catálogo calculada en `HomeController::show()`/`play()` | Implementada | `2a76ff0` |
 | 2026-10-10 | 6.3 Residuo i18n — mensajes de `play()` traducidos al idioma activo + limpieza de duplicados (`es.json`, `en.json`) | Implementada | `2b687b1` |
+| 2026-10-10 | 9.4 `Cache-Control: no-store` en páginas de admin (`index.php`) | Implementada | `420c2f2` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
