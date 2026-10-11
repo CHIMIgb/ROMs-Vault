@@ -95,6 +95,10 @@ CREATE TABLE IF NOT EXISTS public.usuarios (
     password_hash VARCHAR(255) NOT NULL,
     rol_id INTEGER REFERENCES public.roles(id) ON DELETE SET NULL,
     activo BOOLEAN DEFAULT TRUE,
+    login_failed_attempts INT NOT NULL DEFAULT 0,
+    locked_until TIMESTAMPTZ,
+    tfa_secret VARCHAR(64),
+    tfa_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     last_login TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -111,6 +115,21 @@ CREATE TABLE IF NOT EXISTS public.descargas (
     user_agent TEXT,
     downloaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed BOOLEAN DEFAULT FALSE
+);
+
+-- =====================================================
+-- Tabla: auditoria (registro de auditoría de autenticación, A09)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.auditoria (
+    id BIGSERIAL PRIMARY KEY,
+    evento VARCHAR(50) NOT NULL,
+    nivel VARCHAR(10) NOT NULL DEFAULT 'info',
+    username VARCHAR(64),
+    user_id INTEGER REFERENCES public.usuarios(id) ON DELETE SET NULL,
+    rol_id INTEGER,
+    ip VARCHAR(45),
+    contexto JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- =====================================================
@@ -132,6 +151,12 @@ CREATE INDEX IF NOT EXISTS idx_descargas_cookie ON public.descargas(cookie_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_fecha ON public.descargas(downloaded_at);
 CREATE INDEX IF NOT EXISTS idx_usuarios_persona ON public.usuarios(persona_id);
 CREATE INDEX IF NOT EXISTS idx_usuarios_rol ON public.usuarios(rol_id);
+CREATE INDEX IF NOT EXISTS idx_usuarios_locked_until ON public.usuarios (locked_until)
+    WHERE locked_until IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON public.auditoria (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_auditoria_evento ON public.auditoria (evento);
+CREATE INDEX IF NOT EXISTS idx_auditoria_username ON public.auditoria (username);
+CREATE INDEX IF NOT EXISTS idx_auditoria_user_id ON public.auditoria (user_id);
 
 -- =====================================================
 -- Función y triggers para updated_at

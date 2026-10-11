@@ -5,17 +5,28 @@
 **Stack actual:** PHP 8.2 vanilla (sin framework), PostgreSQL (Neon, SSL) vía PDO, CSS/JS vanilla, Vercel, servidor local `php -S localhost:8000 router.php`.
 **Criterio rector:** cada fase debe resolver una pregunta que un entrevistador técnico senior haría y que hoy el proyecto no puede responder bien.
 
+> **Planes activos (fechados):** [`_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md`](./_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md) (seguridad OWASP + paginación DB + tests `Security` + i18n) · [`2026-10-07-migrar-imagenes-a-cloudflare-r2.md`](./2026-10-07-migrar-imagenes-a-cloudflare-r2.md) (imágenes a R2) · [`2026-10-07-reorganizacion-estructura-archivos.md`](./2026-10-07-reorganizacion-estructura-archivos.md) (reorganización a `src/` + `endpoints/`).
+
 ---
 
 ## Registro de progreso
 
-> Cada vez que se complete una mejora de este documento, se marca aquí (o en su checkbox) con el commit que la hizo. Mantenido por regla de `.agents/AGENTS.md`.
+> Cada vez que se complete una mejora de este documento, se marca aquí (o en su checkbox) con el commit que la hizo. Mantenido por regla de `AGENTS.md`.
 
 | Fecha | Mejora | Estado | Commit |
 |-------|--------|--------|--------|
 | 2026-08-05 | **Fase 1.1** — Unit tests de seguridad (UrlSigner, JWTService, RateLimiter, CsrfService) + PHPUnit + `composer test` + testdox + README | ✅ Completada | `4610424` |
 | 2026-08-05 | **Fase 3.7** — Higiene del repo: normalización CRLF→LF (20 archivos) + `.gitattributes` + `.editorconfig` | ✅ Completada | `2665a0f` |
 | 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `762066f` |
+| 2026-10-07 | **Fase 3.1** — Reorganización de estructura: `src/` (config/controllers/models/views) + `endpoints/` (rom_proxy y ajax_*), requires con `__DIR__`, URLs públicas intactas; `implementation_plan.md` archivado | ✅ Completada | `d39ee37` |
+| 2026-10-09 | **FASE 5 (5.1-5.2)** — i18n: cargador JSON es/en (582 claves paritarias), detección de idioma + cookie, y migración total de la UI pública, admin, controladores, router, servicios de seguridad y endpoints (`ajax_*`, `rom_proxy`) a `t()` en 5 bloques | ✅ Completada (pendiente 5.3 selector, RTL e `Intl`) | `2242c42` + `a3e120f` + `8a4ec97` + `76a2fc4` + `8c009ea` + `3f027f1` + `4f720b0` |
+| 2026-10-09 | **FASE 5 (5.3, 5.4 y 5.2 Intl)** — selector de idioma (ES/EN) en header con banderas SVG; fechas/números con `IntlHelper` (fallback); criterios 5.4 cumplidos (Accept-Language + grep de literales) | ✅ Completada (RTL 5.2 pendiente) | `4102f63` + `44a9cb9` |
+| 2026-10-10 | **FASE 5 — i18n ampliado** — 4 idiomas nuevos (`fr`, `pt` pt-BR, `de`, `ja`) con paridad 585 claves, banderas en selector, fallback Intl multi-idioma y tests actualizados (aceptación de `xx` para "no soportado") | ✅ Completada (RTL 5.2 y `EJS_language` 5.3 pendiente) | `d521eee` |
+| 2026-10-10 | **FASE 5 (5.3) — cambio de idioma sin recarga** — `endpoints/ajax_lang.php` + `public/js/rv-lang.js` (sincronización in-place sin romper listeners/estado), transición suave CSS y fallback GET nativo | ✅ Completada (queda `EJS_language` y RTL 5.2) | `3561a05` |
+| 2026-10-10 | **FASE 5 (5.3) — refinamientos** — `EJS_language` según idioma activo (`IntlHelper::emulatorLanguage()`), KPI "Total jugadas" en los 6 idiomas, fix de sincronización de texto con iconos pixelicons, transición localizada (solo lo que cambia, excluye media/emulador) y cabecera del panel admin consistente en todos los idiomas | ✅ Completada (RTL 5.2 pendiente) | `a9746e5` + `7eb9136` + `9f3a344` + `b24d585` + `48d2c5a` |
+| 2026-10-10 | **FASE 5 (5.3) — detección automática del idioma** — en la primera visita (sin cookie) `rv-lang.js` detecta el idioma del navegador (`navigator.languages`) y cambia/persiste sin recargar; la detección server-side por `Accept-Language` se mantiene como base | ✅ Completada (RTL 5.2 pendiente) | `84ee20c` |
+| 2026-10-10 | **Seguridad — credenciales hardcodeadas** — hashes del admin (test y producción) y secretos de test fuera del repo: `tests/.env.test` (gitignored) + `tests/.env.test.example`, placeholders `__ADMIN_PASSWORD_HASH__`/`__TFA_SECRET__` resueltos en runtime y `__CAMBIAR_PASSWORD_HASH__` (falla cerrado) en los dumps SQL | ✅ Completada | `f51eab5` |
+
 
 ---
 
@@ -78,7 +89,7 @@ Instalar `phpunit/phpunit` como dependencia de desarrollo y crear `tests/Unit/`:
 - [x] Router: URLs limpias (`/`, `/auth/login`, `/consola/index`, `/home/show/999999`) y retrocompatibilidad (`index.php?controller=...`)
 - [x] `router.php` + `index.php` como integración (servidor `php -S` real contra la BD de prueba `roms-vault-test`)
 
-> **Hecho en `762066f`** — 26 tests de integración + 35 unit = **61 tests, 136 assertions** en verde. Se crea la BD PostgreSQL local `roms-vault-test` (schema importado de `data/roms-vaultDB-postgreSQL.sql` + seeds `data/test_seeds.sql` con admin `admin123`). Helper `tests/Integration/Server.php` levanta `php -S` con `router.php` y gestiona cookies/CSRF (Double Submit Cookie). `config/database.php` gana `DB_SSLMODE` (default `require`; tests `disable`). El servidor hijo corre con `variables_order=EGPCS` para que Dotenv no cargue el `.env` de producción (Neon) en los tests. Quedan como trabajo futuro: CRUD de categoría por HTTP y `HomeController::download()` con mock de Drive.
+> **Hecho en `762066f`** — 26 tests de integración + 35 unit = **61 tests, 136 assertions** en verde. Se crea la BD PostgreSQL local `roms-vault-test` (schema importado de `data/roms-vaultDB-postgreSQL.sql` + seeds `data/test_seeds.sql` con el admin de test). Helper `tests/Integration/Server.php` levanta `php -S` con `router.php` y gestiona cookies/CSRF (Double Submit Cookie). `config/database.php` gana `DB_SSLMODE` (default `require`; tests `disable`). El servidor hijo corre con `variables_order=EGPCS` para que Dotenv no cargue el `.env` de producción (Neon) en los tests. Quedan como trabajo futuro: CRUD de categoría por HTTP y `HomeController::download()` con mock de Drive.
 >
 > **Cómo ejecutar los tests de integración** (requieren la BD local `roms-vault-test` y la contraseña vía entorno, nunca versionada):
 > ```bash
@@ -134,7 +145,7 @@ Hoy los `require_once` son manuales (`require_once 'config/CsrfService.php'`, et
 
 - [ ] Namespace raíz `App\` → `App\Config`, `App\Controllers`, `App\Models`, `App\Services`
 - [ ] `composer.json` → `"autoload": { "psr-4": { "App\\": "src/" } }`
-- [ ] Mover `config/` y `models/` a `src/` (o crear `src/` con estructura lógica)
+- [x] Mover `config/` y `models/` a `src/` (o crear `src/` con estructura lógica)
 - [ ] Eliminar los `require_once` manuales excepto el autoload de Composer
 - [ ] `vendor/` fuera del repo (verificar `.gitignore`)
 
@@ -216,28 +227,31 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 
 ### 5.1 Infraestructura de traducción
 
-- [ ] `config/i18n.php` — cargador de idiomas, función global `t('clave', params)`
-- [ ] `lang/es.php`, `lang/en.php` (y opcional `lang/pt.php`) — arrays `clave → texto`
-- [ ] Detección de idioma: header `Accept-Language` → cookie (`?lang=` selector) → default `es`
-- [ ] Persistir preferencia en cookie (y en el perfil del usuario si existe)
+- [x] `src/config/i18n.php` — cargador de idiomas, función global `t('clave', params)`
+- [x] `src/i18n/es.json`, `src/i18n/en.json` (implementado como JSON paritario en vez de `lang/*.php`; 585 claves)
+- [x] `src/i18n/fr.json`, `src/i18n/pt.json`, `src/i18n/de.json`, `src/i18n/ja.json` (ampliación FASE 5, 2026-10-10)
+- [x] Detección de idioma: header `Accept-Language` → cookie (`?lang=` selector) → default `es`
+- [x] Persistir preferencia en cookie `rv_lang` (selector `?lang=`)
 
 ### 5.2 Aplicación
 
-- [ ] UI estática del catálogo, ficha, play, auth, footer/header
-- [ ] Mensajes de error de validación y alertas (controladores + AJAX)
-- [ ] Mensajes de éxito del admin (`created`, `updated`, `deleted`)
-- [ ] Fechas y moneda con `Intl` según locale
-- [ ] Soporte RTL en CSS (usar logical properties: `margin-inline-start` en vez de `margin-left`) para futuros idiomas
+- [x] UI estática del catálogo, ficha, play, auth, footer/header
+- [x] Mensajes de error de validación y alertas (controladores + AJAX)
+- [x] Mensajes de éxito del admin (`created`, `updated`, `deleted`)
+- [x] Fechas (y números) con `Intl` según locale (sin moneda; RTL pendiente)
+- [ ] Soporte RTL en CSS (usar logical properties: `margin-inline-start` en vez de `margin-left`) para futuros idiomas (pendiente)
 
 ### 5.3 Selector de idioma en la UI
 
-- [ ] Dropdown ES/EN en el header (icono de idioma)
-- [ ] Los textos de EmulatorJS ya soportan locales (`EJS_language`) — parametrizarlo según idioma
+- [x] Selector de idioma visible en header (es/en/fr/pt/de/ja) con banderas.
+- [x] Los textos de EmulatorJS soportan el idioma activo vía `EJS_language` (`IntlHelper::emulatorLanguage()`, whitelist de códigos del CDN) (`b24d585`)
+- [x] El idioma cambia **sin recargar la página**: POST a `endpoints/ajax_lang.php` + sincronización in-place del DOM (`public/js/rv-lang.js`), con fallback GET nativo sin JS (`3561a05`)
+- [x] El idioma se **detecta automáticamente del navegador** en la primera visita (`navigator.languages`) y se recuerda; la elección explícita del usuario siempre manda (`84ee20c`)
 
 ### 5.4 Criterio de éxito
 
-- [ ] Con `Accept-Language: en` la app carga en inglés; el selector cambia sin recargar la sesión
-- [ ] `grep -rn "texto literal"` en las vistas ≈ solo texto de datos (títulos de juegos, etc.)
+- [x] Con `Accept-Language: en` la app carga en inglés; el selector cambia sin recargar la sesión
+- [x] `grep -rn "texto literal"` en las vistas ≈ solo texto de datos (títulos de juegos, etc.)
 
 ---
 
@@ -308,7 +322,7 @@ El sitio se ve bien, pero técnicamente es CSS/JS vanilla sin tooling. Para un p
 | "¿Cómo despliegas?" | "Push a Vercel" | "CI verde → auto-deploy; previews por PR" |
 | "¿Por qué sin framework?" | "..." | "ADR-001: decisión fundacional y deliberada — domino HTTP, sesiones, routing y seguridad desde el protocolo, y lo demuestro con código propio" |
 | "¿Cómo mantienes 5k líneas?" | "Con cuidado" | "Autoload PSR-4, DTOs, partials únicos, sin HTML duplicado" |
-| "¿Soporta más idiomas?" | "No" | "i18n con es/en/pt, RTL listo, selector en UI" |
+| "¿Soporta más idiomas?" | "No" | "i18n con es/en/fr/pt/de/ja, selector en UI; RTL pendiente" |
 | "¿Qué pasa en producción si falla?" | "Lo veo en el navegador" | "Logs estructurados, request ID, health checks" |
 | "¿Y las dependencias vulnerables?" | "..." | "Dependabot + CodeQL en cada push" |
 

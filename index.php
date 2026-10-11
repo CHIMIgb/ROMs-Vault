@@ -1,7 +1,26 @@
 <?php
 // index.php — Router principal
-require_once __DIR__ . '/config/AuthMiddleware.php';
-require_once __DIR__ . '/config/CsrfService.php';
+require_once __DIR__ . '/src/config/AuthMiddleware.php';
+require_once __DIR__ . '/src/config/CsrfService.php';
+require_once __DIR__ . '/src/config/i18n.php';
+require_once __DIR__ . '/src/config/IntlHelper.php';
+
+// ── Selector de idioma (?lang=es|en) — ítem 6.2 ──────────────────────────────
+// Persiste la preferencia en la cookie rv_lang y redirige a la MISMA URL sin el
+// parámetro (no se duplica ninguna URL; SEO y enlaces intactos). Antes de
+// I18n::init() para que la cookie ya exista al detectar el idioma.
+if (isset($_GET['lang']) && in_array($_GET['lang'], I18n::LANGUAGES, true)) {
+    I18n::setLangCookie($_GET['lang']);
+    $parsed = parse_url($_SERVER['REQUEST_URI'] ?? '/');
+    parse_str($parsed['query'] ?? '', $query);
+    unset($query['lang']);
+    $qs = http_build_query($query);
+    $target = ($parsed['path'] ?? '/') . ($qs !== '' ? '?' . $qs : '');
+    header('Location: ' . $target);
+    exit;
+}
+
+I18n::init(); // t() disponible en todas las páginas HTML
 
 // ── Cabeceras de seguridad globales (todas las páginas HTML) ────────────────
 // CSP equilibrada: permite el CDN de EmulatorJS (scripts, estilos, fuentes,
@@ -57,21 +76,21 @@ $id         = $_GET['id']         ?? null;
 // Sanitizar — solo letras y dígitos para controller y action
 if (!preg_match('/^[a-zA-Z0-9]+$/', $controller) || !preg_match('/^[a-zA-Z0-9_]+$/', $action)) {
     http_response_code(404);
-    require_once 'views/layout/header.php';
-    require_once 'views/errors/404.php';
-    require_once 'views/layout/footer.php';
+    require_once __DIR__ . '/src/views/layout/header.php';
+    require_once __DIR__ . '/src/views/errors/404.php';
+    require_once __DIR__ . '/src/views/layout/footer.php';
     exit;
 }
 
-$controllerFile  = 'controllers/' . ucfirst($controller) . 'Controller.php';
+$controllerFile  = 'src/controllers/' . ucfirst($controller) . 'Controller.php';
 $controllerClass = ucfirst($controller) . 'Controller';
 
 if (!file_exists($controllerFile)) {
     http_response_code(404);
-    $errorContext = 'Controlador "' . $controller . '" no encontrado.';
-    require_once 'views/layout/header.php';
-    require_once 'views/errors/404.php';
-    require_once 'views/layout/footer.php';
+    $errorContext = t('msg.controlador_no_encontrado', ['controller' => $controller]);
+    require_once __DIR__ . '/src/views/layout/header.php';
+    require_once __DIR__ . '/src/views/errors/404.php';
+    require_once __DIR__ . '/src/views/layout/footer.php';
     exit;
 }
 
@@ -86,10 +105,10 @@ $controllerInstance = new $controllerClass();
 
 if (!is_callable([$controllerInstance, $action])) {
     http_response_code(404);
-    $errorContext = 'Acción "' . $action . '" no encontrada en el controlador "' . $controller . '".';
-    require_once 'views/layout/header.php';
-    require_once 'views/errors/404.php';
-    require_once 'views/layout/footer.php';
+    $errorContext = t('msg.accion_no_encontrada', ['action' => $action, 'controller' => $controller]);
+    require_once __DIR__ . '/src/views/layout/header.php';
+    require_once __DIR__ . '/src/views/errors/404.php';
+    require_once __DIR__ . '/src/views/layout/footer.php';
     exit;
 }
 

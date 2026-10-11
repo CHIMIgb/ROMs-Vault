@@ -14,9 +14,29 @@ class UrlSignerTest extends TestCase {
 
     private const FILE_ID = '1AbCdEfGh1234567890';
 
+    /** Secret global del bootstrap (tests/bootstrap.php), para restaurarlo al
+     *  final de la clase: estos tests usan otro valor a propósito y NO deben
+     *  dejarlo alterado para las suites Integration/Security del proceso. */
+    private static ?string $bootstrappedSecret = null;
+
+    public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
+        self::$bootstrappedSecret = $_ENV['JWT_SECRET'] ?? null;
+    }
+
+    public static function tearDownAfterClass(): void {
+        if (self::$bootstrappedSecret !== null) {
+            $_ENV['JWT_SECRET'] = self::$bootstrappedSecret;
+        }
+        parent::tearDownAfterClass();
+    }
+
     protected function setUp(): void {
         parent::setUp();
-        $_ENV['JWT_SECRET'] = 'secret-de-prueba-phpunit-2026';
+        // Secreto distinto al del bootstrap a propósito (UrlSigner debe leer
+        // $_ENV['JWT_SECRET'] en tiempo de llamada). La base viene de
+        // tests/.env.test (TEST_JWT_SECRET), nunca hardcodeada.
+        $_ENV['JWT_SECRET'] = test_env('TEST_JWT_SECRET', '') . '-urlsigner';
     }
 
     public function testSignAndVerifyRoundtrip(): void {
@@ -38,10 +58,79 @@ class UrlSignerTest extends TestCase {
     }
 
     public function testVerifyRejectsExpiredSignature(): void {
-        $timestamp = time() - UrlSigner::TTL - 1;
+        $timestamp = time() - UrlSigner::ttl() - 1;
         $sig = hash_hmac('sha256', self::FILE_ID . '|' . $timestamp, $_ENV['JWT_SECRET']);
 
         $this->assertFalse(UrlSigner::verify(self::FILE_ID, $timestamp, $sig));
+    }
+
+    public function testVerifyRejectsExpiredSignatureBeyondCustomTtl(): void {
+        $ttl = 5;
+        $timestamp = time() - $ttl - 1;
+        $sig = hash_hmac('sha256', self::FILE_ID . '|' . $timestamp, $_ENV['JWT_SECRET']);
+
+        // TTL explícito por parámetro (compatibilidad de la firma del método)
+        $this->assertFalse(UrlSigner::verify(self::FILE_ID, $timestamp, $sig, $ttl));
+
+        // Timestamp dentro de ese TTL corto sí pasa
+        $fresh = time() - 1;
+        $sigFresh = hash_hmac('sha256', self::FILE_ID . '|' . $fresh, $_ENV['JWT_SECRET']);
+        $this->assertTrue(UrlSigner::verify(self::FILE_ID, $fresh, $sigFresh, $ttl));
+    }
+
+    public function testTtlDefaultsTo900WithoutEnv(): void {
+        $original = $_ENV['SIGNED_URL_TTL'] ?? null;
+        unset($_ENV['SIGNED_URL_TTL']);
+
+        try {
+            $this->assertSame(900, UrlSigner::ttl());
+        } finally {
+            if ($original !== null) {
+                $_ENV['SIGNED_URL_TTL'] = $original;
+            }
+        }
+    }
+
+    public function testTtlReadsEnvAndSanitizesInvalidValues(): void {
+        $original = $_ENV['SIGNED_URL_TTL'] ?? null;
+
+        try {
+            $_ENV['SIGNED_URL_TTL'] = '120';
+            $this->assertSame(120, UrlSigner::ttl());
+
+            $_ENV['SIGNED_URL_TTL'] = '0';
+            $this->assertSame(900, UrlSigner::ttl());
+
+            $_ENV['SIGNED_URL_TTL'] = '-5';
+            $this->assertSame(900, UrlSigner::ttl());
+
+            $_ENV['SIGNED_URL_TTL'] = 'no-enteros';
+            $this->assertSame(900, UrlSigner::ttl());
+        } finally {
+            if ($original !== null) {
+                $_ENV['SIGNED_URL_TTL'] = $original;
+            } else {
+                unset($_ENV['SIGNED_URL_TTL']);
+            }
+        }
+    }
+
+    public function testVerifyUsesTtlFromEnvAtCallTime(): void {
+        $original = $_ENV['SIGNED_URL_TTL'] ?? null;
+
+        try {
+            // TTL corto desde env: una firma de hace 6 s debe rechazarse
+            $_ENV['SIGNED_URL_TTL'] = '5';
+            $timestamp = time() - 6;
+            $sig = hash_hmac('sha256', self::FILE_ID . '|' . $timestamp, $_ENV['JWT_SECRET']);
+            $this->assertFalse(UrlSigner::verify(self::FILE_ID, $timestamp, $sig));
+        } finally {
+            if ($original !== null) {
+                $_ENV['SIGNED_URL_TTL'] = $original;
+            } else {
+                unset($_ENV['SIGNED_URL_TTL']);
+            }
+        }
     }
 
     public function testVerifyRejectsFutureTimestamp(): void {

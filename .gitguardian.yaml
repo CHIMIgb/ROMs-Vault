@@ -1,0 +1,17 @@
+# Configuración de GitGuardian / ggshield (escaneo de secretos).
+#
+# ALCANCE: este fichero lo lee ggshield (CLI) en escaneos locales y de CI.
+# El check "GitGuardian Security Checks" de los PR de GitHub NO lee este
+# fichero: sus exclusiones se gobiernan desde el dashboard, en
+#   Settings > Secrets detection > Filepath exclusions
+# (acotadas al repositorio CHIMIgb/ROMs-Vault).
+#
+# MOTIVO: los hallazgos que GitGuardian reportó en el PR #7 son fixtures de
+# test (secreto JWT de prueba del servidor de integración, secreto TOTP con el
+# vector conocido de la RFC 6238 y credenciales del seed de test
+# roms-vault-test) — nunca credenciales reales. Se excluye tests/ del escaneo
+# de la herramienta.
+version: 2
+secret:
+  ignored_paths:
+    - 'tests/**'

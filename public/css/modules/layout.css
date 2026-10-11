@@ -218,3 +218,143 @@ header .subtitle { margin-bottom: 1.2rem; }
     gap: .6rem;
     flex-wrap: wrap;
 }
+
+/* ── Selector de idioma en el header (FASE 5.3) ── */
+/* Desplegable propio: un <select> nativo no admite SVG dentro de <option>,
+   así que usamos un botón disparador (.lang-trigger) + un menú (.lang-menu)
+   con una opción por idioma (bandera + código). Se abre con :focus-within,
+   sin JavaScript: al enfocar el botón aparece el menú y, al pulsar una opción
+   (un <button type="submit" name="lang">), el formulario GET envía el idioma. */
+.lang-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto; /* empuja el selector al lado derecho del nav */
+}
+
+/* Bandera compartida por el disparador y cada opción del menú */
+.lang-flag {
+    width: 1.25rem;
+    height: auto;
+    display: block;
+    flex: 0 0 auto;
+    border: 1px solid var(--border-mid);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.lang-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.9rem 0.5rem 0.6rem;
+    border: 2px solid var(--border-dark);
+    border-radius: 0;
+    color: var(--slate);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    min-width: 92px;
+    box-shadow: var(--inset-shadow);
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--cream-light);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a3a3a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    transition: border-color 0.15s;
+}
+
+.lang-trigger:focus,
+.lang-trigger:focus-visible {
+    outline: none;
+    border-color: var(--red);
+}
+
+.lang-code {
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+/* Menú desplegable: oculto hasta que el disparador recibe el foco */
+.lang-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 50;
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--cream-light);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    display: none;
+}
+
+.lang-switch:focus-within .lang-menu {
+    display: block;
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    background: transparent;
+    color: var(--slate);
+    border: 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lang-option:hover,
+.lang-option:focus {
+    background: var(--red);
+    color: var(--cream-light);
+    outline: none;
+}
+
+.lang-option[aria-selected="true"] {
+    background: var(--cream-dark);
+}
+
+.lang-option[aria-selected="true"]:hover,
+.lang-option[aria-selected="true"]:focus {
+    background: var(--red);
+    color: var(--cream-light);
+}
+
+@media (max-width: 480px) {
+    .lang-trigger { min-width: 84px; }
+}
+
+/* Transición localizada al cambiar de idioma sin recargar (rv-lang.js).
+   Sólo los elementos cuyo texto/atributos realmente cambiaron reciben
+   .rv-lang-fade (nunca bloques con imágenes o el canvas del emulador);
+   el resto de la página permanece quieto. Sin JS, el submit GET recarga
+   con normalidad y esta regla ni siquiera se activa. */
+@keyframes rv-lang-pop {
+    0%   { opacity: 1; }
+    15%  { opacity: .45; }
+    85%  { opacity: .45; }
+    100% { opacity: 1; }
+}
+
+.rv-lang-fade {
+    animation: rv-lang-pop .35s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rv-lang-fade {
+        animation: none;
+    }
+}

@@ -3,6 +3,16 @@
 # ── Enrutamiento principal ──────────────────────────────────────────────────
 # Redirigir todo al index.php excepto archivos y directorios reales
 RewriteEngine On
+
+# ── Entrypoints externos (reubicados en /endpoints) ─────────────────────────
+# Las URLs públicas /rom_proxy.php y /ajax_*.php se mantienen idénticas.
+RewriteRule ^rom_proxy\.php$   endpoints/rom_proxy.php [L,QSA]
+RewriteRule ^ajax_[a-z]+\.php$ endpoints/$0            [L,QSA]
+
+# ── Código de la aplicación ─────────────────────────────────────────────────
+# El código bajo /src nunca debe servirse por HTTP.
+RewriteRule ^src/ - [F,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]

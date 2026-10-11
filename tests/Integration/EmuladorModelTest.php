@@ -7,7 +7,7 @@
 
 namespace Tests\Integration;
 
-require_once dirname(__DIR__, 2) . '/models/Emulador.php';
+require_once dirname(__DIR__, 2) . '/src/models/Emulador.php';
 
 class EmuladorModelTest extends IntegrationTestCase {
 

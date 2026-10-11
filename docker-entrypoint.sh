@@ -26,7 +26,13 @@ GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}"
 RATE_LIMIT_MAX="${RATE_LIMIT_MAX:-30}"
 RATE_LIMIT_WINDOW="${RATE_LIMIT_WINDOW:-60}"
 ALLOWED_ORIGINS="${ALLOWED_ORIGINS}"
+AUTH_LOG_DIR="${AUTH_LOG_DIR:-/var/log/roms-vault}"
+LOG_MAX_BYTES="${LOG_MAX_BYTES:-10485760}"
 EOF
+
+# Asegurar un directorio de logs escribible por www-data
+mkdir -p "${AUTH_LOG_DIR:-/var/log/roms-vault}" 2>/dev/null || true
+chown -R www-data:www-data "${AUTH_LOG_DIR:-/var/log/roms-vault}" 2>/dev/null || true
 
 # Iniciar Apache
 apache2-foreground

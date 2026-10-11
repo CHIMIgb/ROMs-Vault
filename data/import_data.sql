@@ -207,5 +207,10 @@ SELECT setval('juegos_id_seq', (SELECT MAX(id) FROM juegos));
 -- ========================
 -- usuarios
 -- ========================
-INSERT INTO usuarios (id, persona_id, username, password_hash, rol_id, activo, last_login, created_at, updated_at) VALUES (1, 1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, TRUE, NULL, '2026-02-27 04:26:22.901873', '2026-02-27 04:26:22.901873') ON CONFLICT (id) DO NOTHING;
+-- El hash del admin NO se versiona (antes era un bcrypt de una contraseña por
+-- defecto conocida). Tras importar, fijar la contraseña con el flujo de cambio
+-- de contraseña de la app o un UPDATE manual con password_hash() en PHP.
+-- El placeholder no es un hash bcrypt válido: el login del admin queda
+-- bloqueado hasta que se asigne una contraseña real.
+INSERT INTO usuarios (id, persona_id, username, password_hash, rol_id, activo, last_login, created_at, updated_at) VALUES (1, 1, 'admin', '__CAMBIAR_PASSWORD_HASH__', 1, TRUE, NULL, '2026-02-27 04:26:22.901873', '2026-02-27 04:26:22.901873') ON CONFLICT (id) DO NOTHING;
 SELECT setval('usuarios_id_seq', (SELECT MAX(id) FROM usuarios));
