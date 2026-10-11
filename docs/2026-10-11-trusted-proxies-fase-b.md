@@ -62,6 +62,23 @@ local del edge de Vercel** (`REMOTE_ADDR = 127.0.0.1`). Con deny-by-default,
 Resultado: la auditoría registra la IP pública real y el rate limiting vuelve a
 ser **por IP individual** (se elimina el riesgo del contador compartido).
 
+## 5b. Prueba diferencial (WiFi vs datos móviles)
+
+Prueba adicional para demostrar que la IP capturada es la **del origen real** (y no
+un valor fijo del proxy): el mismo usuario inició sesión desde dos redes distintas el
+2026-10-11.
+
+| Origen | IP pública registrada en `public.auditoria` |
+|---|---|
+| WiFi (casa) | `153.67.119.76` |
+| Datos móviles (operador) | `200.68.167.185` |
+
+Dos redes distintas → dos IP distintas: `clientIp()` resuelve la IP pública del
+visitante y cada origen real tiene su propio contador de rate limit. Los eventos
+previos con `127.0.0.1` quedan como evidencia del estado anterior al fix. Nota:
+`200.68.167.185` es con alta probabilidad **CGNAT** del operador (compartida entre
+varios clientes móviles), coherente con el comportamiento esperado.
+
 ## 6. Notas y seguimiento
 
 - El `TRUSTED_PROXIES` mínimo (`127.0.0.1`) es fail-closed: si el proxy cambia

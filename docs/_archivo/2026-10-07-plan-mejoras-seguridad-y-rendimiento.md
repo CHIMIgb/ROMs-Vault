@@ -310,3 +310,14 @@ decisión, y blinda el endpoint ante falsos `X-Forwarded-For`). Complementa el �
       la auditoría registra la IP real del visitante (verificado:
       `153.67.119.76` == `api.ipify.org`). Detalle en
       `docs/2026-10-11-trusted-proxies-fase-b.md`.
+
+## 13. Nota sobre identidad por dispositivo (evolución futura — no implementado)
+
+La IP pública **no** identifica dispositivos (NAT/CGNAT/IP dinámica): la sesión se
+distingue por la cookie JWT (`__Host-rv_token`), una por navegador. Si algún día se
+quisiera identidad por dispositivo, habría que añadir algo que hoy no existe:
+
+- **Registro de sesiones en servidor** (guardar el `jti`/token en BD por login) →
+  permitiría ver y revocar sesiones por dispositivo.
+- **Fingerprinting** (User-Agent, etc.) → invasivo en privacidad y poco fiable; no se
+  usa ni se recomienda.
