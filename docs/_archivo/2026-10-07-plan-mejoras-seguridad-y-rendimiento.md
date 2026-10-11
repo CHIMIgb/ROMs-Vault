@@ -238,6 +238,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-10 | 9.4 `Cache-Control: no-store` en páginas de admin (`index.php`) | Implementada | `420c2f2` |
 | 2026-10-10 | 9.3 `.dockerignore` (contexto mínimo de build) | Implementada | `8a0aacd` |
 | 2026-10-10 | 12 (Fase A) Allowlist `TRUSTED_PROXIES` — deny-by-default en `clientIp()` | Implementada (Fase B: verificación en deploy) | `3b40655` |
+| 2026-10-10 | 9.5 `composer audit` (comando nativo; verificado, 0 advisories) | Implementada (dependabot/CI → FASE 2) | `4a947da` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
