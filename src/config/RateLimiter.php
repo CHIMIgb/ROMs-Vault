@@ -59,16 +59,17 @@ class RateLimiter {
      * IP real del cliente.
      *
      * Se confía en REMOTE_ADDR (la IP del peer TCP que Apache/nginx ve).
-     * X-Forwarded-For / X-Real-IP SOLO se tienen en cuenta cuando REMOTE_ADDR
-     * es una IP de red local (típico de un reverse proxy o XAMPP), porque de
-     * lo contrario cualquier cliente podría falsear esas cabeceras y eludir
-     * el rate limiting (y además permitiría llenar el disco de archivos).
+     * X-Forwarded-For / X-Real-IP SOLO se leen cuando REMOTE_ADDR coincide con
+     * la allowlist explícita TRUSTED_PROXIES de .env (IPs sueltas o redes CIDR
+     * v4/v6). Sin variable o vacía = deny-by-default: no se confía en nadie
+     * (§12 del plan de seguridad), así un cliente no puede falsear esas
+     * cabeceras para eludir el rate limiting ni envenenar la auditoría.
      */
     public static function clientIp(): string {
         $remote = trim((string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'));
 
         // Si la conexión viene de un proxy de confianza, leer la cabecera real
-        if (self::esIpProxyConfiable($remote)) {
+        if (self::proxyDeConfianza($remote)) {
             $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? '';
             // Tomar solo la primera IP si hay varias (X-Forwarded-For: ip1, ip2)
             $forwarded = trim((string) explode(',', (string) $forwarded)[0]);
@@ -83,16 +84,70 @@ class RateLimiter {
     }
 
     /**
-     * ¿La IP del peer corresponde a un proxy/reverse-proxy típico?
-     * Rango local: 127.0.0.0/8, ::1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+     * ¿La IP del peer es un proxy de confianza? Allowlist TRUSTED_PROXIES de
+     * .env: lista separada por comas de IPs sueltas y/o redes CIDR (IPv4/IPv6).
+     * Vacío/sin variable → false (deny-by-default).
      */
-    private static function esIpProxyConfiable(string $ip): bool {
-        if (in_array($ip, ['127.0.0.1', '::1', 'localhost'], true)) return true;
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            if (str_starts_with($ip, '10.') || str_starts_with($ip, '192.168.')) return true;
-            if (preg_match('/^172\.(1[6-9]|2\d|3[01])\./', $ip)) return true;
+    private static function proxyDeConfianza(string $ip): bool {
+        foreach (self::trustedProxies() as $entry) {
+            if (self::ipEnRed($ip, $entry)) return true;
         }
         return false;
+    }
+
+    /**
+     * Entradas de TRUSTED_PROXIES parseadas y cacheadas por valor (si el valor
+     * cambia —p. ej. en los tests unitarios— se recalcula).
+     */
+    private static function trustedProxies(): array {
+        static $cacheRaw = null;
+        static $cache    = [];
+
+        $raw = trim((string) ($_ENV['TRUSTED_PROXIES'] ?? (getenv('TRUSTED_PROXIES') ?: '')));
+        if ($cacheRaw === $raw) return $cache;
+
+        $cacheRaw = $raw;
+        $cache    = [];
+        if ($raw !== '') {
+            foreach (explode(',', $raw) as $entry) {
+                $entry = trim($entry);
+                if ($entry !== '') $cache[] = $entry;
+            }
+        }
+        return $cache;
+    }
+
+    /**
+     * ¿La IP cae dentro de la red? Soporta IP suelta o CIDR IPv4/IPv6.
+     */
+    private static function ipEnRed(string $ip, string $cidr): bool {
+        $cidr  = trim($cidr);
+        $slash = strpos($cidr, '/');
+        if ($slash === false) {
+            return $ip === $cidr;
+        }
+
+        $net    = substr($cidr, 0, $slash);
+        $prefix = substr($cidr, $slash + 1);
+        if (!ctype_digit($prefix)) return false;
+        $prefix = (int) $prefix;
+
+        $ipBin  = @inet_pton($ip);
+        $netBin = @inet_pton($net);
+        if ($ipBin === false || $netBin === false) return false;
+
+        $bits = strlen($ipBin) * 8;
+        if ($prefix > $bits) return false;
+
+        $mask = str_repeat("\xff", intdiv($prefix, 8));
+        if ($prefix % 8 !== 0) {
+            $mask .= chr(0xff & (0xff << (8 - ($prefix % 8))));
+        }
+        $mask = str_pad($mask, strlen($ipBin), "\0");
+
+        // Comparar solo la longitud del prefijo (ignorar el padding)
+        return (substr($ipBin, 0, strlen($mask)) & $mask)
+            === (substr($netBin, 0, strlen($mask)) & $mask);
     }
 
     /**
