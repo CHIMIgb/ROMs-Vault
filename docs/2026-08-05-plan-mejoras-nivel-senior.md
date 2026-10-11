@@ -24,6 +24,7 @@
 | 2026-10-10 | **FASE 5 — i18n ampliado** — 4 idiomas nuevos (`fr`, `pt` pt-BR, `de`, `ja`) con paridad 585 claves, banderas en selector, fallback Intl multi-idioma y tests actualizados (aceptación de `xx` para "no soportado") | ✅ Completada (RTL 5.2 y `EJS_language` 5.3 pendiente) | `d521eee` |
 | 2026-10-10 | **FASE 5 (5.3) — cambio de idioma sin recarga** — `endpoints/ajax_lang.php` + `public/js/rv-lang.js` (sincronización in-place sin romper listeners/estado), transición suave CSS y fallback GET nativo | ✅ Completada (queda `EJS_language` y RTL 5.2) | `3561a05` |
 | 2026-10-10 | **FASE 5 (5.3) — refinamientos** — `EJS_language` según idioma activo (`IntlHelper::emulatorLanguage()`), KPI "Total jugadas" en los 6 idiomas, fix de sincronización de texto con iconos pixelicons, transición localizada (solo lo que cambia, excluye media/emulador) y cabecera del panel admin consistente en todos los idiomas | ✅ Completada (RTL 5.2 pendiente) | `a9746e5` + `7eb9136` + `9f3a344` + `b24d585` + `48d2c5a` |
+| 2026-10-10 | **FASE 5 (5.3) — detección automática del idioma** — en la primera visita (sin cookie) `rv-lang.js` detecta el idioma del navegador (`navigator.languages`) y cambia/persiste sin recargar; la detección server-side por `Accept-Language` se mantiene como base | ✅ Completada (RTL 5.2 pendiente) | `84ee20c` |
 
 
 ---
@@ -244,6 +245,7 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 - [x] Selector de idioma visible en header (es/en/fr/pt/de/ja) con banderas.
 - [x] Los textos de EmulatorJS soportan el idioma activo vía `EJS_language` (`IntlHelper::emulatorLanguage()`, whitelist de códigos del CDN) (`b24d585`)
 - [x] El idioma cambia **sin recargar la página**: POST a `endpoints/ajax_lang.php` + sincronización in-place del DOM (`public/js/rv-lang.js`), con fallback GET nativo sin JS (`3561a05`)
+- [x] El idioma se **detecta automáticamente del navegador** en la primera visita (`navigator.languages`) y se recuerda; la elección explícita del usuario siempre manda (`84ee20c`)
 
 ### 5.4 Criterio de éxito
 

@@ -1,6 +1,6 @@
 # Cambio de idioma sin recarga de página (FASE 5.3)
 
-> Fecha: 2026-10-10 · Commits: `3561a05` (feature) · `a9746e5` (fix iconos/whitespace en syncNode) · `7eb9136` (KPI total_jugadas + orden en.json) · `b24d585` (EJS_language por idioma) · `48d2c5a` (cabecera admin consistente)
+> Fecha: 2026-10-10 · Commits: `3561a05` (feature) · `a9746e5` (fix iconos/whitespace en syncNode) · `7eb9136` (KPI total_jugadas + orden en.json) · `9f3a344` (transición localizada) · `b24d585` (EJS_language por idioma) · `48d2c5a` (cabecera admin consistente) · `84ee20c` (detección automática del navegador)
 > Relacionado: [`2026-08-05-plan-mejoras-nivel-senior.md`](./2026-08-05-plan-mejoras-nivel-senior.md) (FASE 5) · [`2026-10-10-i18n-idiomas-fr-pt-de-ja.md`](./2026-10-10-i18n-idiomas-fr-pt-de-ja.md)
 
 ## Resumen
@@ -85,12 +85,29 @@ página (filtros, carrusel, EmulatorJS).
    acciones debajo a la izquierda), y el `<style>` inline se eliminó (además
    cumple la convención "CSS solo en `public/css/modules/*`").
 
+8. **Detección automática del idioma del navegador.** Además de la detección
+   server-side por `Accept-Language` (que se mantiene como base del SSR y para
+   navegadores sin JS), `rv-lang.js` detecta el idioma del navegador en cliente
+   (`navigator.languages`, con respaldo en `navigator.language`/`userLanguage`):
+   - Solo actúa en la **primera visita** (sin cookie `rv_lang` válida): si el
+     usuario ya eligió idioma con el selector, se respeta y no se hace nada.
+   - La lista de idiomas soportados se **deriva del DOM** (`.lang-switch
+     button[name="lang"]`), única fuente = `I18n::LANGUAGES`.
+   - Si el idioma detectado **≠** el renderizado → `switchLanguage()` (POST +
+     sincronización in-place + transición + fallback GET).
+   - Si **coincide** → `persistLang()`: POST silencioso (sin refetch) para fijar
+     la cookie y que el SSR sea estable.
+   - Guard de reentrada `autoDetectDone` (no repetir si `DOMContentLoaded` se
+     reemite) y `browserLanguages()` prioriza `navigator.languages` (que ya viene
+     ordenado) para no colar códigos no deseados.
+   - Idiomas no soportados (p. ej. `ru-RU`) → no se hace nada.
+
 ## Archivos
 
 | Archivo | Cambio |
 |---------|--------|
 | `endpoints/ajax_lang.php` | **Nuevo**: endpoint JSON para fijar la cookie (POST, guard, whitelist) |
-| `public/js/rv-lang.js` | **Nuevo**: IIFE `'use strict'`, delegación de submit, doble `fetch`, `syncNode`/`syncMeta`/`swapLangSwitch`, transición y fallback |
+| `public/js/rv-lang.js` | **Nuevo**: IIFE `'use strict'`, delegación de submit, doble `fetch`, `syncNode`/`syncMeta`/`swapLangSwitch`, transición, detección del idioma del navegador y fallback |
 | `router.php` | `'ajax_lang.php'` añadido a la whitelist `$entrypoints` |
 | `src/views/layout/header.php` | `<form class="lang-switch" … data-enhance="lang">` |
 | `src/views/layout/footer.php` | `<script src="public/js/rv-lang.js" defer>` junto a pixelicons/rv-alerts |
@@ -123,6 +140,12 @@ página (filtros, carrusel, EmulatorJS).
 - `IntlHelper::emulatorLanguage()` (ítem 5.3): `php -l` OK; `I18nTest` (17/17)
   cubre el mapeo `es→es-ES / en→en-US / fr→en-US / pt→pt-BR / de→de-GER /
   ja→ja-JA` y que el código devuelto siempre exista en el CDN.
+- Detección automática del navegador (jsdom, `scratch/langjs/`, solo dev):
+  **16/16** — sin cookie + `de-DE` con SSR `es` → 1 POST `lang=de` + refetch +
+  `<html lang="de">` sincronizado; sin cookie + `en` con SSR `en` → 1 POST
+  silencioso sin refetch; con cookie `rv_lang=fr` → sin POST; `ru-RU` → sin
+  acción; `[ru-RU, pt-BR]` → detecta `pt`; `languages=[]` + `language=ja` →
+  detecta `ja`.
 - Cabecera admin (ítem `48d2c5a`): `dashboard.php` ya **no** emite `<style>`
   inline; `.admin-header` sirve `flex-direction: column` desde `admin.css`.
   Verificación visual final a cargo del usuario en `/admin/dashboard` cambiando
