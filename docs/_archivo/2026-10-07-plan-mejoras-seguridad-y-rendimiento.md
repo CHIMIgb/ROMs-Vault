@@ -155,10 +155,11 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 
 ## 7. Rutas — decisiones documentadas
 
-- [ ] **7.1 No usar tabla de rutas en BD** — el routing por convención
+- [x] **7.1 No usar tabla de rutas en BD** — el routing por convención
       (`controller/action/id` en `index.php`) + regex es más seguro y legible; una tabla de
       rutas en BD añadiría query/caché y superficie de ejecución arbitraria (riesgo RCE).
       Se documenta como ADR. *Esfuerzo: bajo (doc).*
+      → ADR: `docs/2026-10-10-adr-routing-sin-tabla-de-rutas.md`.
 - [ ] **7.2 Slugs de contenido (fase futura)** — `juegos.slug`/`consolas.slug` para URLs
       limpias tipo `/juego/mario-bros` (dato del registro, no tabla de rutas). *Esfuerzo: medio.*
 
