@@ -82,6 +82,13 @@ if (!preg_match('/^[a-zA-Z0-9]+$/', $controller) || !preg_match('/^[a-zA-Z0-9_]+
     exit;
 }
 
+// No almacenar las páginas de admin en cachés (datos de gestión; ítem 9.4). Se
+// emite antes de cargar el controlador para cubrir también redirects 302/403
+// del panel; el resto de páginas públicas no lo llevan.
+if ($controller === 'admin') {
+    header('Cache-Control: no-store');
+}
+
 $controllerFile  = 'src/controllers/' . ucfirst($controller) . 'Controller.php';
 $controllerClass = ucfirst($controller) . 'Controller';
 
