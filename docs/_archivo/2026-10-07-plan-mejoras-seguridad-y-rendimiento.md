@@ -234,6 +234,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-10 | 6.3 Residuo i18n — mensajes de `play()` traducidos al idioma activo + limpieza de duplicados (`es.json`, `en.json`) | Implementada | `2b687b1` |
 | 2026-10-10 | 9.4 `Cache-Control: no-store` en páginas de admin (`index.php`) | Implementada | `420c2f2` |
 | 2026-10-10 | 9.3 `.dockerignore` (contexto mínimo de build) | Implementada | `8a0aacd` |
+| 2026-10-10 | 12 (Fase A) Allowlist `TRUSTED_PROXIES` — deny-by-default en `clientIp()` | Implementada (Fase B: verificación en deploy) | `3b40655` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
@@ -285,3 +286,15 @@ decisión, y blinda el endpoint ante falsos `X-Forwarded-For`). Complementa el �
    en la BD de producción (Neon).
 3. Verificar que la `ip` es la IP pública real del cliente (no la del edge/proxy ni `::1`).
 4. Si aparece la IP del proxy → activar `TRUSTED_PROXIES` en `.env` y re-verificar.
+
+### Estado
+
+- [x] **Fase A — allowlist `TRUSTED_PROXIES` implementada** (commit `3b40655`,
+      doc `docs/2026-10-10-trusted-proxies.md`). Se eliminó el heurístico
+      `esIpProxyConfiable()`; `clientIp()` es **deny-by-default** y solo lee
+      `X-Forwarded-For`/`X-Real-IP` si `REMOTE_ADDR` está en la lista. Se
+      configuró la propagación en `docker-entrypoint.sh` y los unit tests de la
+      allowlist/CIDR v4-v6.
+- [ ] **Fase B — verificación en producción:** ejecutar el check de arriba en el
+      primer despliegue real y fijar `TRUSTED_PROXIES` según el resultado (guía
+      concreta de Vercel en el doc fechado).

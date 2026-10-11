@@ -30,6 +30,7 @@
 | 2026-10-10 | **i18n (residuo 6.3)** — mensajes de error de `HomeController::play()` con `t()` (consola sin core / emulación off / BIOS faltante) respetando el idioma activo; limpieza de duplicado en `es.json` y traducción EN de `play.error_sin_juego` | ✅ Completada | `2b687b1` |
 | 2026-10-10 | **Seguridad §9.4** — `Cache-Control: no-store` en todas las páginas HTML de admin (`index.php`, antes del controlador) | ✅ Completada | `420c2f2` |
 | 2026-10-10 | **Seguridad §9.3** — `.dockerignore` para minimizar el contexto de `docker build` (tests/, docs/, vendor/, .env*, .vercel/, etc.) | ✅ Completada | `8a0aacd` |
+| 2026-10-10 | **Seguridad §12 (Fase A)** — `TRUSTED_PROXIES` allowlist en `RateLimiter::clientIp()`: deny-by-default, se elimina el heurístico RFC1918 | ✅ Completada (Fase B: verificación en deploy + activación en Vercel) | `3b40655` |
 
 
 ---
