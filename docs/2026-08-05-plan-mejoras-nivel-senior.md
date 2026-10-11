@@ -26,6 +26,7 @@
 | 2026-10-10 | **FASE 5 (5.3) — refinamientos** — `EJS_language` según idioma activo (`IntlHelper::emulatorLanguage()`), KPI "Total jugadas" en los 6 idiomas, fix de sincronización de texto con iconos pixelicons, transición localizada (solo lo que cambia, excluye media/emulador) y cabecera del panel admin consistente en todos los idiomas | ✅ Completada (RTL 5.2 pendiente) | `a9746e5` + `7eb9136` + `9f3a344` + `b24d585` + `48d2c5a` |
 | 2026-10-10 | **FASE 5 (5.3) — detección automática del idioma** — en la primera visita (sin cookie) `rv-lang.js` detecta el idioma del navegador (`navigator.languages`) y cambia/persiste sin recargar; la detección server-side por `Accept-Language` se mantiene como base | ✅ Completada (RTL 5.2 pendiente) | `84ee20c` |
 | 2026-10-10 | **Seguridad — credenciales hardcodeadas** — hashes del admin (test y producción) y secretos de test fuera del repo: `tests/.env.test` (gitignored) + `tests/.env.test.example`, placeholders `__ADMIN_PASSWORD_HASH__`/`__TFA_SECRET__` resueltos en runtime y `__CAMBIAR_PASSWORD_HASH__` (falla cerrado) en los dumps SQL | ✅ Completada | `f51eab5` |
+| 2026-10-10 | **Seguridad/Rendimiento §9.1** — fix warning `setcookie` tras HTML: seed del catálogo calculada en `HomeController::show()`/`play()` antes de renderizar (afectaba a ficha y emulador) | ✅ Completada | `2a76ff0` |
 
 
 ---

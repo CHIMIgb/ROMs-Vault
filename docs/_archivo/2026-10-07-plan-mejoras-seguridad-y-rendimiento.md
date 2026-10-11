@@ -166,10 +166,13 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 
 ## 9. Hallazgos adicionales detectados
 
-- [ ] **9.1 Warning preexistente en `/home/show/1`** — `related_games.php` llama
+- [x] **9.1 Warning preexistente en `/home/show/1`** — `related_games.php` llama
       `Juego::getCatalogSeed()` que ejecuta `setcookie()` **después** de emitir HTML
       (`src/views/home/show.php:56`). Fix: calcular la seed en el controlador antes de
       renderizar (o `ob_start()`). No fue introducido por la reorganización. *Esfuerzo: bajo.*
+      → Implementado en `docs/2026-10-10-fix-seed-catalogo-antes-de-html.md`. Corrección:
+      el componente también se incluye en `src/views/home/play.php:498`, así que el fix
+      cubre show **y** play (`HomeController::show()`/`play()`).
 - [ ] **9.2 `display_errors` sin configurar en Docker** (ver 2.4).
 - [ ] **9.3 No existe `.dockerignore`** — crear excluyendo `tests/`, `scratch/`, `.env*`,
       `data/backup registros DB/`, `docs/` (los tests siguen en git, pero no salen en la
@@ -221,6 +224,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | Fix login: TypeError `estaBloqueado()` con usuario inexistente (`findByUsername(): ?array`) + test de regresión | Implementada | `94013b5` |
 | 2026-10-09 | 6.1 Cargador de diccionarios i18n (JSON es/en + clase `I18n` + función global `t()`) | Implementada | `2242c42` |
 | 2026-10-09 | 6.2 Detección de idioma (cookie `rv_lang` + `Accept-Language` + `?lang=` + `lang` dinámico) y diccionarios es/en completos (~568 claves, todas las cadenas hardcodeadas) | Implementada | `a3e120f` |
+| 2026-10-10 | 9.1 Warning `setcookie` tras HTML — seed del catálogo calculada en `HomeController::show()`/`play()` | Implementada | `2a76ff0` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
