@@ -143,11 +143,11 @@ POST /auth/twoFactor { code }
 ## 6. Smoke manual (evidencia en vivo)
 
 Server `php -S 0.0.0.0:8011 router.php` + BD local `roms-vault` (usuario temporal `smoke`,
-rol admin, contraseña `admin123`, creado y **borrado** al terminar; `admin` real intacto):
+rol admin, contraseña del seed de test, creado y **borrado** al terminar; `admin` real intacto):
 
 | Prueba | Resultado |
 |--------|-----------|
-| Login normal `smoke/admin123` | 302 `/admin/dashboard` + JWT (`tfa:false`) → dashboard 200 |
+| Login normal `smoke/<password>` | 302 `/admin/dashboard` + JWT (`tfa:false`) → dashboard 200 |
 | 5 fallos de contraseña | 200 con alerta; 6º con password correcta → **200 rechazo** (cuenta bloqueada); BD: `locked_until` activo, contador reseteado |
 | Login con 2FA habilitado | 302 `/auth/twoFactor` + cookie `rv_tfa_pending` firmada (Max-Age=120, HttpOnly, Strict), sin `rv_token` |
 | GET `/auth/twoFactor` | 200 formulario "Verificación en dos pasos" |

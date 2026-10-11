@@ -51,7 +51,7 @@ vistas/controladores del ítem 6.3.
 
 - `php -l` OK en `src/config/i18n.php`, `index.php`, `header.php`, `I18nTest.php`,
   `I18nFlowTest.php`.
-- Suite completa con `TEST_DB_PASSWORD=admin123`: **161 tests / 2679 assertions OK**
+- Suite completa con `TEST_DB_PASSWORD` (definido en `tests/.env.test`): **161 tests / 2679 assertions OK**
   (Unit 95/2466, Integration 50/167, Security incluida).
 - Smoke con `php -S 0.0.0.0:8017 router.php`:
   - `/?lang=en` → `302` → `/` (sin parámetro).

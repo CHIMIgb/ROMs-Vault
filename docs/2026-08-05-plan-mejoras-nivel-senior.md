@@ -25,6 +25,7 @@
 | 2026-10-10 | **FASE 5 (5.3) — cambio de idioma sin recarga** — `endpoints/ajax_lang.php` + `public/js/rv-lang.js` (sincronización in-place sin romper listeners/estado), transición suave CSS y fallback GET nativo | ✅ Completada (queda `EJS_language` y RTL 5.2) | `3561a05` |
 | 2026-10-10 | **FASE 5 (5.3) — refinamientos** — `EJS_language` según idioma activo (`IntlHelper::emulatorLanguage()`), KPI "Total jugadas" en los 6 idiomas, fix de sincronización de texto con iconos pixelicons, transición localizada (solo lo que cambia, excluye media/emulador) y cabecera del panel admin consistente en todos los idiomas | ✅ Completada (RTL 5.2 pendiente) | `a9746e5` + `7eb9136` + `9f3a344` + `b24d585` + `48d2c5a` |
 | 2026-10-10 | **FASE 5 (5.3) — detección automática del idioma** — en la primera visita (sin cookie) `rv-lang.js` detecta el idioma del navegador (`navigator.languages`) y cambia/persiste sin recargar; la detección server-side por `Accept-Language` se mantiene como base | ✅ Completada (RTL 5.2 pendiente) | `84ee20c` |
+| 2026-10-10 | **Seguridad — credenciales hardcodeadas** — hashes del admin (test y producción) y secretos de test fuera del repo: `tests/.env.test` (gitignored) + `tests/.env.test.example`, placeholders `__ADMIN_PASSWORD_HASH__`/`__TFA_SECRET__` resueltos en runtime y `__CAMBIAR_PASSWORD_HASH__` (falla cerrado) en los dumps SQL | ✅ Completada | `f51eab5` |
 
 
 ---
@@ -88,7 +89,7 @@ Instalar `phpunit/phpunit` como dependencia de desarrollo y crear `tests/Unit/`:
 - [x] Router: URLs limpias (`/`, `/auth/login`, `/consola/index`, `/home/show/999999`) y retrocompatibilidad (`index.php?controller=...`)
 - [x] `router.php` + `index.php` como integración (servidor `php -S` real contra la BD de prueba `roms-vault-test`)
 
-> **Hecho en `762066f`** — 26 tests de integración + 35 unit = **61 tests, 136 assertions** en verde. Se crea la BD PostgreSQL local `roms-vault-test` (schema importado de `data/roms-vaultDB-postgreSQL.sql` + seeds `data/test_seeds.sql` con admin `admin123`). Helper `tests/Integration/Server.php` levanta `php -S` con `router.php` y gestiona cookies/CSRF (Double Submit Cookie). `config/database.php` gana `DB_SSLMODE` (default `require`; tests `disable`). El servidor hijo corre con `variables_order=EGPCS` para que Dotenv no cargue el `.env` de producción (Neon) en los tests. Quedan como trabajo futuro: CRUD de categoría por HTTP y `HomeController::download()` con mock de Drive.
+> **Hecho en `762066f`** — 26 tests de integración + 35 unit = **61 tests, 136 assertions** en verde. Se crea la BD PostgreSQL local `roms-vault-test` (schema importado de `data/roms-vaultDB-postgreSQL.sql` + seeds `data/test_seeds.sql` con el admin de test). Helper `tests/Integration/Server.php` levanta `php -S` con `router.php` y gestiona cookies/CSRF (Double Submit Cookie). `config/database.php` gana `DB_SSLMODE` (default `require`; tests `disable`). El servidor hijo corre con `variables_order=EGPCS` para que Dotenv no cargue el `.env` de producción (Neon) en los tests. Quedan como trabajo futuro: CRUD de categoría por HTTP y `HomeController::download()` con mock de Drive.
 >
 > **Cómo ejecutar los tests de integración** (requieren la BD local `roms-vault-test` y la contraseña vía entorno, nunca versionada):
 > ```bash

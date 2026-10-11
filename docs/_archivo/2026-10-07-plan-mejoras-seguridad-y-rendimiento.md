@@ -55,7 +55,7 @@ firma HMAC de enlaces); este plan cubre las brechas restantes con prioridad en:
       ya `/`) para blindar contra fijación e inyección de cookies en subdominios. *Esfuerzo: bajo.*
       → Implementado en `docs/2026-10-08-cookie-host-segura.md` (`__Host-rv_token`;
       `Secure` siempre; logout forzado único; dev solo `localhost`).
-- [x] **2.6 Revisar credenciales por defecto** — confirmar que `admin/admin123` solo existe
+- [x] **2.6 Revisar credenciales por defecto** — confirmar que el admin de test solo existe
       en `data/test_seeds.sql` (BD local de tests) y que producción usa credenciales
       rotadas y generadas en `.env`. *Esfuerzo: bajo (verificación).*
       → Verificado y CUMPLE en `docs/2026-10-08-credenciales-por-defecto.md`.
@@ -130,7 +130,8 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 **Política de credenciales (decisión):** los tests permanecen **tracked** en el repositorio
 (AGENTS.md exige `composer test`); lo que se blinda son los secretos:
 
-- El seed `admin/admin123` queda **solo** para la BD local de tests (`roms-vault-test`).
+- El seed del admin de test queda **solo** para la BD local de tests (`roms-vault-test`),
+  con la contraseña en `tests/.env.test` (gitignored).
 - `TEST_DB_PASSWORD`, `JWT_SECRET`, etc. se inyectan por entorno; nunca se commitean
   credenciales reales (`.env*` ya en `.gitignore`).
 - Se añade `.dockerignore` (tests/ no viajan al artefacto Docker aunque estén en git).

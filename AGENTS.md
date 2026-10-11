@@ -9,7 +9,7 @@ PHP 8.1+ vanilla MVC, no framework — custom routing in `index.php` (clean URLs
 - **Dev server**: `php -S localhost:8000 router.php` — `router.php` is REQUIRED for clean URLs; bare `php -S` only serves legacy query-string routes.
 - **Install**: `composer install`
 - **Tests**: `composer test` (PHPUnit, testdox). Runs BOTH suites — Integration **throws if `TEST_DB_PASSWORD` is unset**. Unit-only: `vendor/bin/phpunit --testsuite Unit`.
-  - Integration prereqs (local, NOT Neon): DB `roms-vault-test` = `data/roms-vaultDB-postgreSQL.sql` + `data/test_seeds.sql` (admin user `admin`/`admin123`, `rol_id=1` = `AuthMiddleware::ADMIN_ROLE_ID`). Run with `TEST_DB_PASSWORD=<localsuperuser>`.
+  - Integration prereqs (local, NOT Neon): DB `roms-vault-test` = `data/roms-vaultDB-postgreSQL.sql` + `data/test_seeds.sql` (seed con placeholders `__ADMIN_PASSWORD_HASH__`/`__TFA_SECRET__` que `IntegrationTestCase::resetDatabase()` resuelve en runtime; `rol_id=1` = `AuthMiddleware::ADMIN_ROLE_ID`). Copia `tests/.env.test.example` a `tests/.env.test` con `TEST_DB_PASSWORD`, `TEST_ADMIN_PASSWORD`, `TEST_TFA_SECRET`, `TEST_JWT_SECRET`.
   - On this machine PHP is on Windows only: `C:\xampp\php\php.exe`, Postgres `C:\Program Files\PostgreSQL\18\bin`. WSL has no `psql`/`php`; invoke via `powershell.exe -NoProfile -Command '$env:PGPASSWORD=...; & "C:\...\psql.exe" ...'`.
 - **DB schema/data import**: `psql -f data/roms-vaultDB-postgreSQL.sql` (schema incl. indexes/triggers), then `data/import_data.sql` (explicit ids + `setval` on sequences), then `data/emuladores.sql`. Order matters (FKs). `data/migrations/*.sql` are idempotent and already merged into the base schema.
 - **Docker**: `docker build -t roms-vault . && docker run -p 8080:80 --env-file .env roms-vault`.

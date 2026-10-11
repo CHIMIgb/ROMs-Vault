@@ -50,23 +50,24 @@ Ahora los ids no numéricos devuelven **404** limpio, no fatal. El test
 
 `UrlSignerTest` usaba un `JWT_SECRET` propio y lo restauraba a **ese** valor al
 final de la clase. En suite completa, `Security` corría después y firmaba con un
-secret distinto al del servidor de integración (`Server.php` fija
-`secret-de-prueba-phpunit-2026-muy-largo-y-seguro`) → el proxy rechazaba la
+secret distinto al del servidor de integración (`Server.php` fija un `JWT_SECRET`
+falso, hoy leído de `tests/.env.test`) → el proxy rechazaba la
 firma (403) aunque fuera correcta (fallos intermitentes según el orden de
 suites).
 
 Fix en dos capas:
 
-- `tests/Security/SecurityTest.php` — usa `self::SERVER_JWT_SECRET` (constante
-  que DEBE coincidir con el secret del server), inmune al estado de `$_ENV`.
+- `tests/Security/SecurityTest.php` — usa `self::serverJwtSecret()` (leído de
+  `tests/.env.test`), inmune al estado de `$_ENV`.
 - `tests/Unit/UrlSignerTest.php` — captura el secret del bootstrap en
   `setUpBeforeClass()` y lo restaura en `tearDownAfterClass()`, para no dejar
   efecto colateral a las otras suites.
 
 ## Política de credenciales
 
-- El seed `admin/admin123` sigue existiendo **solo** para la BD local de tests
-  (`roms-vault-test`); nunca hay credenciales reales en el repo.
+- El seed del admin de test sigue existiendo **solo** para la BD local de tests
+  (`roms-vault-test`); la contraseña está en `tests/.env.test` (nunca en el repo) y
+  nunca hay credenciales reales versionadas.
 - `TEST_DB_PASSWORD` se inyecta por entorno; `JWT_SECRET` de tests es fijo y
   falso (nunca el de `.env` real).
 - `.dockerignore` evita que `tests/` viaje al artefacto Docker (pendiente de

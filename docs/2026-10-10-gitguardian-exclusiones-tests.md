@@ -2,6 +2,11 @@
 
 > Fecha: 2026-10-10 · Commits: `fa2bd39` (config `.gitguardian.yaml`)
 > Relacionado: PR #7 · [`2026-10-08-suite-security-tests.md`](./2026-10-08-suite-security-tests.md) · [`2026-10-08-credenciales-por-defecto.md`](./2026-10-08-credenciales-por-defecto.md)
+>
+> **Actualización (2026-10-10):** tras la limpieza de credenciales hardcodeadas
+> ([`2026-10-10-eliminacion-credenciales-hardcoded.md`](./2026-10-10-eliminacion-credenciales-hardcoded.md))
+> los literales citados abajo **ya no existen en el repo** (viven en `tests/.env.test`).
+> La configuración de exclusión de `tests/` sigue siendo válida para la CI futura.
 
 ## Resumen
 
@@ -17,15 +22,15 @@ check del PR).
 
 | GitGuardian id | Tipo | Archivo | Qué es realmente |
 | --- | --- | --- | --- |
-| 38036324 | Generic High Entropy Secret | `tests/Integration/TwoFactorFlowTest.php:20` | `TFA_SECRET = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ'` — vector de test **conocido de la RFC 6238** (base32 de `12345678901234567890`), del usuario de prueba `admin_tfa`. |
-| 32401271 | Username Password | `tests/Security/SecurityTest.php:56` | `password => 'admin123'` — credencial del **seed de test** (`data/test_seeds.sql`, BD `roms-vault-test`), nunca de producción. |
-| 35860542 | Generic High Entropy Secret | `tests/Security/SecurityTest.php:30` | `SERVER_JWT_SECRET = 'secret-de-prueba-phpunit-2026-muy-largo-y-seguro'` — secreto JWT **falso** del servidor de integración (`tests/Integration/Server.php`). |
-| 38036325 | Generic Password | `tests/Security/SecurityTest.php:152` | `password => 'cualquier-cosa'` — valor de un test de **inyección SQL** (`username => "' OR '1'='1"`). |
+| 38036324 | Generic High Entropy Secret | `tests/Integration/TwoFactorFlowTest.php` | secreto TOTP del usuario de prueba `admin_tfa` — **vector conocido de la RFC 6238** (base32 de `12345678901234567890`). |
+| 32401271 | Username Password | `tests/Security/SecurityTest.php` | contraseña del **seed de test** (BD `roms-vault-test`), nunca de producción. |
+| 35860542 | Generic High Entropy Secret | `tests/Security/SecurityTest.php` | secreto JWT **falso** del servidor de integración (`tests/Integration/Server.php`). |
+| 38036325 | Generic Password | `tests/Security/SecurityTest.php` | valor de un test de **inyección SQL** (`username => "' OR '1'='1"`). |
 
 **Conclusión:** los cuatro son datos de prueba. El único "credencial" con forma
-de secreto (`admin123`) es el seed documentado de la BD de test, que no existe en
-producción (Neon), y el resto son literales inventados o vectores públicos de
-test. No hay ningún secreto real comprometido.
+de secreto (la contraseña del seed de test) no existe en producción (Neon), y el resto
+son literales inventados o vectores públicos de test. No hay ningún secreto real
+comprometido.
 
 ## Los dos mecanismos de exclusión (no confundirlos)
 
