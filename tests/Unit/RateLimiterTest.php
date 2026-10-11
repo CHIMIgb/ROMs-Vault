@@ -29,9 +29,19 @@ class RateLimiterTest extends TestCase {
             }
             @rmdir($dir);
         }
-        // Limpiar variables de servidor usadas por clientIp()
+        // Limpiar variables de servidor y entorno usadas por clientIp()
         unset($_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP']);
+        unset($_ENV['TRUSTED_PROXIES']);
         parent::tearDown();
+    }
+
+    /** Define la allowlist TRUSTED_PROXIES (null = deny-by-default). */
+    private function setTrustedProxies(?string $value): void {
+        if ($value === null) {
+            unset($_ENV['TRUSTED_PROXIES']);
+        } else {
+            $_ENV['TRUSTED_PROXIES'] = $value;
+        }
     }
 
     public function testAllowsRequestsUpToLimitThenBlocks(): void {
@@ -87,15 +97,55 @@ class RateLimiterTest extends TestCase {
     }
 
     public function testClientIpTrustsForwardedFromLocalProxy(): void {
+        $this->setTrustedProxies('127.0.0.1,::1');
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '200.1.2.3';
         $this->assertSame('200.1.2.3', RateLimiter::clientIp());
     }
 
     public function testClientIpIgnoresSpoofedForwardedFromPublicIp(): void {
+        $this->setTrustedProxies('127.0.0.1');
         $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '6.6.6.6';
         $this->assertSame('8.8.8.8', RateLimiter::clientIp());
+    }
+
+    public function testClientIpDeniesAllWhenTrustedProxiesEmpty(): void {
+        // Sin TRUSTED_PROXIES (deny-by-default) ni siquiera 127.0.0.1 es proxy.
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '200.1.2.3';
+        $this->assertSame('127.0.0.1', RateLimiter::clientIp());
+    }
+
+    public function testClientIpTrustsForwardedFromCidrNetwork(): void {
+        $this->setTrustedProxies('10.0.0.0/8');
+        $_SERVER['REMOTE_ADDR'] = '10.1.2.3';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.5';
+        $this->assertSame('203.0.113.5', RateLimiter::clientIp());
+
+        // IP fuera de la red CIDR → no confía
+        $_SERVER['REMOTE_ADDR'] = '11.0.0.1';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.6';
+        $this->assertSame('11.0.0.1', RateLimiter::clientIp());
+    }
+
+    public function testClientIpTrustsForwardedFromIpv6Allowlist(): void {
+        $this->setTrustedProxies('::1,2001:db8::/32');
+        $_SERVER['REMOTE_ADDR'] = '2001:db8::1';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.7';
+        $this->assertSame('203.0.113.7', RateLimiter::clientIp());
+
+        // IPv6 fuera de la red → no confía
+        $_SERVER['REMOTE_ADDR'] = '2001:db9::1';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.8';
+        $this->assertSame('2001:db9::1', RateLimiter::clientIp());
+    }
+
+    public function testClientIpIgnoresInvalidForwardedFromTrustedProxy(): void {
+        $this->setTrustedProxies('127.0.0.1');
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = 'no-es-una-ip';
+        $this->assertSame('127.0.0.1', RateLimiter::clientIp());
     }
 
     public function testClientIpFallbackWhenRemoteAddrInvalid(): void {

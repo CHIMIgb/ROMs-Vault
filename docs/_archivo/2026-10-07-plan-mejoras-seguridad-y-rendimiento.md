@@ -146,16 +146,20 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       endpoints, config y JS) listos para el 6.3.
       (Decisión: cookie, no subdirectorio `/en/`, para no duplicar URLs; `hreflang` si algún
       día se quiere SEO multidioma.) *Esfuerzo: medio.*
-- [ ] **6.3 Migrar UI por secciones** — header/home/show/play primero; admin y errors
+- [x] **6.3 Migrar UI por secciones** — header/home/show/play primero; admin y errors
       después; mensajes de controladores y errores JSON (CSRF/rate-limit/proxy).
       Los datos (nombres de juegos/consolas/categorías) se quedan sin traducir. *Esfuerzo: alto.*
+      → Migración completada en `docs/2026-10-09-i18n-migracion-ui-t-fase1.md`; residuo
+      (mensajes de `HomeController::play()`) cerrado en
+      `docs/2026-10-10-i18n-residuo-play.md` (commit `2b687b1`).
 
 ## 7. Rutas — decisiones documentadas
 
-- [ ] **7.1 No usar tabla de rutas en BD** — el routing por convención
+- [x] **7.1 No usar tabla de rutas en BD** — el routing por convención
       (`controller/action/id` en `index.php`) + regex es más seguro y legible; una tabla de
       rutas en BD añadiría query/caché y superficie de ejecución arbitraria (riesgo RCE).
       Se documenta como ADR. *Esfuerzo: bajo (doc).*
+      → ADR: `docs/2026-10-10-adr-routing-sin-tabla-de-rutas.md`.
 - [ ] **7.2 Slugs de contenido (fase futura)** — `juegos.slug`/`consolas.slug` para URLs
       limpias tipo `/juego/mario-bros` (dato del registro, no tabla de rutas). *Esfuerzo: medio.*
 
@@ -166,20 +170,29 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 
 ## 9. Hallazgos adicionales detectados
 
-- [ ] **9.1 Warning preexistente en `/home/show/1`** — `related_games.php` llama
+- [x] **9.1 Warning preexistente en `/home/show/1`** — `related_games.php` llama
       `Juego::getCatalogSeed()` que ejecuta `setcookie()` **después** de emitir HTML
       (`src/views/home/show.php:56`). Fix: calcular la seed en el controlador antes de
       renderizar (o `ob_start()`). No fue introducido por la reorganización. *Esfuerzo: bajo.*
+      → Implementado en `docs/2026-10-10-fix-seed-catalogo-antes-de-html.md`. Corrección:
+      el componente también se incluye en `src/views/home/play.php:498`, así que el fix
+      cubre show **y** play (`HomeController::show()`/`play()`).
 - [ ] **9.2 `display_errors` sin configurar en Docker** (ver 2.4).
-- [ ] **9.3 No existe `.dockerignore`** — crear excluyendo `tests/`, `scratch/`, `.env*`,
+- [x] **9.3 No existe `.dockerignore`** — crear excluyendo `tests/`, `scratch/`, `.env*`,
       `data/backup registros DB/`, `docs/` (los tests siguen en git, pero no salen en la
       imagen). *Esfuerzo: bajo.*
-- [ ] **9.4 Cabeceras de seguridad** — ya presentes (`X-Content-Type-Options`,
+      → Implementado en `docs/2026-10-10-dockerignore.md` (commit `8a0aacd`); se añadieron
+      además `vendor/`, `.vercel/`, `.agents/`, `.opencode/` y cachés.
+- [x] **9.4 Cabeceras de seguridad** — ya presentes (`X-Content-Type-Options`,
       `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, CSP con excepción
       intencional `unsafe-eval`/`blob:` para EmulatorJS → **no apretar**). Añadir
       `Cache-Control: no-store` a páginas de admin si no existe. *Esfuerzo: bajo.*
-- [ ] **9.5 `composer audit`** — `composer.lock` está trackeado ✓; añadir `composer audit`
+      → Implementado en `docs/2026-10-10-cache-no-store-admin.md` (commit `420c2f2`).
+- [x] **9.5 `composer audit`** — `composer.lock` está trackeado ✓; añadir `composer audit`
       como paso previo al commit/deploy y dependabot/GitHub Actions (FASE 2 del roadmap). *Esfuerzo: bajo.*
+      → `composer audit` es comando nativo de Composer 2.4+; un script con ese nombre se
+      ignora (decidido con el usuario: sin script, se usa directamente). Pendiente FASE 2:
+      dependabot + job `audit` en GitHub Actions. Doc: `docs/2026-10-10-composer-audit.md`.
 
 ## 10. Priorización
 
@@ -221,6 +234,13 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-08 | Fix login: TypeError `estaBloqueado()` con usuario inexistente (`findByUsername(): ?array`) + test de regresión | Implementada | `94013b5` |
 | 2026-10-09 | 6.1 Cargador de diccionarios i18n (JSON es/en + clase `I18n` + función global `t()`) | Implementada | `2242c42` |
 | 2026-10-09 | 6.2 Detección de idioma (cookie `rv_lang` + `Accept-Language` + `?lang=` + `lang` dinámico) y diccionarios es/en completos (~568 claves, todas las cadenas hardcodeadas) | Implementada | `a3e120f` |
+| 2026-10-10 | 9.1 Warning `setcookie` tras HTML — seed del catálogo calculada en `HomeController::show()`/`play()` | Implementada | `2a76ff0` |
+| 2026-10-10 | 6.3 Residuo i18n — mensajes de `play()` traducidos al idioma activo + limpieza de duplicados (`es.json`, `en.json`) | Implementada | `2b687b1` |
+| 2026-10-10 | 9.4 `Cache-Control: no-store` en páginas de admin (`index.php`) | Implementada | `420c2f2` |
+| 2026-10-10 | 9.3 `.dockerignore` (contexto mínimo de build) | Implementada | `8a0aacd` |
+| 2026-10-10 | 12 (Fase A) Allowlist `TRUSTED_PROXIES` — deny-by-default en `clientIp()` | Implementada (Fase B: verificación en deploy) | `3b40655` |
+| 2026-10-10 | 9.5 `composer audit` (comando nativo; verificado, 0 advisories) | Implementada (dependabot/CI → FASE 2) | `4a947da` |
+| 2026-10-10 | 7.1 ADR — routing por convención, sin tabla de rutas en BD | Implementada (solo doc) | `0fd030c` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
@@ -272,3 +292,15 @@ decisión, y blinda el endpoint ante falsos `X-Forwarded-For`). Complementa el �
    en la BD de producción (Neon).
 3. Verificar que la `ip` es la IP pública real del cliente (no la del edge/proxy ni `::1`).
 4. Si aparece la IP del proxy → activar `TRUSTED_PROXIES` en `.env` y re-verificar.
+
+### Estado
+
+- [x] **Fase A — allowlist `TRUSTED_PROXIES` implementada** (commit `3b40655`,
+      doc `docs/2026-10-10-trusted-proxies.md`). Se eliminó el heurístico
+      `esIpProxyConfiable()`; `clientIp()` es **deny-by-default** y solo lee
+      `X-Forwarded-For`/`X-Real-IP` si `REMOTE_ADDR` está en la lista. Se
+      configuró la propagación en `docker-entrypoint.sh` y los unit tests de la
+      allowlist/CIDR v4-v6.
+- [ ] **Fase B — verificación en producción:** ejecutar el check de arriba en el
+      primer despliegue real y fijar `TRUSTED_PROXIES` según el resultado (guía
+      concreta de Vercel en el doc fechado).

@@ -26,6 +26,13 @@
 | 2026-10-10 | **FASE 5 (5.3) — refinamientos** — `EJS_language` según idioma activo (`IntlHelper::emulatorLanguage()`), KPI "Total jugadas" en los 6 idiomas, fix de sincronización de texto con iconos pixelicons, transición localizada (solo lo que cambia, excluye media/emulador) y cabecera del panel admin consistente en todos los idiomas | ✅ Completada (RTL 5.2 pendiente) | `a9746e5` + `7eb9136` + `9f3a344` + `b24d585` + `48d2c5a` |
 | 2026-10-10 | **FASE 5 (5.3) — detección automática del idioma** — en la primera visita (sin cookie) `rv-lang.js` detecta el idioma del navegador (`navigator.languages`) y cambia/persiste sin recargar; la detección server-side por `Accept-Language` se mantiene como base | ✅ Completada (RTL 5.2 pendiente) | `84ee20c` |
 | 2026-10-10 | **Seguridad — credenciales hardcodeadas** — hashes del admin (test y producción) y secretos de test fuera del repo: `tests/.env.test` (gitignored) + `tests/.env.test.example`, placeholders `__ADMIN_PASSWORD_HASH__`/`__TFA_SECRET__` resueltos en runtime y `__CAMBIAR_PASSWORD_HASH__` (falla cerrado) en los dumps SQL | ✅ Completada | `f51eab5` |
+| 2026-10-10 | **Seguridad/Rendimiento §9.1** — fix warning `setcookie` tras HTML: seed del catálogo calculada en `HomeController::show()`/`play()` antes de renderizar (afectaba a ficha y emulador) | ✅ Completada | `2a76ff0` |
+| 2026-10-10 | **i18n (residuo 6.3)** — mensajes de error de `HomeController::play()` con `t()` (consola sin core / emulación off / BIOS faltante) respetando el idioma activo; limpieza de duplicado en `es.json` y traducción EN de `play.error_sin_juego` | ✅ Completada | `2b687b1` |
+| 2026-10-10 | **Seguridad §9.4** — `Cache-Control: no-store` en todas las páginas HTML de admin (`index.php`, antes del controlador) | ✅ Completada | `420c2f2` |
+| 2026-10-10 | **Seguridad §9.3** — `.dockerignore` para minimizar el contexto de `docker build` (tests/, docs/, vendor/, .env*, .vercel/, etc.) | ✅ Completada | `8a0aacd` |
+| 2026-10-10 | **Seguridad §12 (Fase A)** — `TRUSTED_PROXIES` allowlist en `RateLimiter::clientIp()`: deny-by-default, se elimina el heurístico RFC1918 | ✅ Completada (Fase B: verificación en deploy + activación en Vercel) | `3b40655` |
+| 2026-10-10 | **Seguridad §9.5** — `composer audit` verificado y documentado como paso pre-commit/deploy (comando nativo Composer 2.4+, 0 advisories; sin script por conflicto de nombre). Dependabot/CI → FASE 2 | ✅ Completada | `4a947da` |
+| 2026-10-10 | **Seguridad §7.1 (ADR)** — routing por convención en `index.php`, sin tabla de rutas en BD (evita superficie RCE; slugs 7.2 como evolución futura) | ✅ Completada | `0fd030c` |
 
 
 ---

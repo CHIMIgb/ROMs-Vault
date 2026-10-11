@@ -109,6 +109,12 @@ class HomeController {
             'inLanguage'  => $juego['idiomas'] ?? null,
         ];
 
+        // Seed de visita para los recomendados del componente related_games: se
+        // calcula ANTES de emitir HTML porque getCatalogSeed() hace setcookie()
+        // y, si se llamase desde la vista tras el header, PHP lanzaría
+        // "headers already sent" (ítem 9.1).
+        $catalogSeed = Juego::getCatalogSeed();
+
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/home/show.php';
         require_once __DIR__ . '/../views/layout/footer.php';
@@ -299,22 +305,20 @@ class HomeController {
         $error   = null;
 
         if (!$core) {
-            $error = "La consola «{$juego['consola_nombre']}» aún no está soportada por el emulador en línea.";
+            $error = t('msg.consola_no_soportada', ['consola' => $juego['consola_nombre'] ?? '']);
         } else {
             // El admin puede desactivar la emulación online por consola (CRUD consolas).
             // Fallback true: si el flag no viene, se permite.
             $emulacionOnline = (bool)($juego['consola_emulacion_online'] ?? true);
             if (!$emulacionOnline) {
-                $error = "La emulación online está desactivada para «{$juego['consola_nombre']}». " .
-                         "Puedes descargar el juego, pero no está disponible jugarlo en el navegador.";
+                $error = t('msg.emulacion_desactivada', ['consola' => $juego['consola_nombre'] ?? '']);
             } else {
                 // Buscar BIOS si este core lo requiere
                 $biosUrl = $this->getBiosUrl($core, $juego['region'] ?? '');
 
                 // Si el core requiere BIOS y no está disponible, avisar
                 if ($core === 'psx' && !$biosUrl) {
-                    $error = "El emulador de PlayStation requiere un archivo BIOS en el servidor. " .
-                             "Sube el BIOS a <code>public/bios/ps1/scph1001.bin</code> para habilitar la emulación.";
+                    $error = t('msg.bios_requerida');
                 }
             }
         }
@@ -340,6 +344,11 @@ class HomeController {
             header('Cross-Origin-Opener-Policy: same-origin');
             header('Cross-Origin-Embedder-Policy: credentialless');
         }
+
+        // Seed de visita para los recomendados del componente related_games:
+        // calcular antes de emitir HTML (setcookie dentro de la vista tras el
+        // header daría "headers already sent", ítem 9.1).
+        $catalogSeed = Juego::getCatalogSeed();
 
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/home/play.php';
