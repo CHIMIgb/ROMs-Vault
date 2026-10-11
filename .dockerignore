@@ -1,0 +1,26 @@
+# Contexto minimizado para docker build (ítem 9.3)
+# El Dockerfile hace COPY . .; estos archivos NO entran en la imagen.
+# Los tests/docs/backups siguen en git, pero no se distribuyen.
+
+.git
+.agents
+.opencode
+.vercel
+.gitignore
+.gitattributes
+.editorconfig
+.dockerignore
+.phpunit.cache
+.phpunit.result.cache
+
+.env
+.env.*
+
+tests/
+scratch/
+docs/
+data/backup registros DB/
+vendor/
+
+*.log
+generate_imports.py
