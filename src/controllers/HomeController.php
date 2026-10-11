@@ -305,22 +305,20 @@ class HomeController {
         $error   = null;
 
         if (!$core) {
-            $error = "La consola «{$juego['consola_nombre']}» aún no está soportada por el emulador en línea.";
+            $error = t('msg.consola_no_soportada', ['consola' => $juego['consola_nombre'] ?? '']);
         } else {
             // El admin puede desactivar la emulación online por consola (CRUD consolas).
             // Fallback true: si el flag no viene, se permite.
             $emulacionOnline = (bool)($juego['consola_emulacion_online'] ?? true);
             if (!$emulacionOnline) {
-                $error = "La emulación online está desactivada para «{$juego['consola_nombre']}». " .
-                         "Puedes descargar el juego, pero no está disponible jugarlo en el navegador.";
+                $error = t('msg.emulacion_desactivada', ['consola' => $juego['consola_nombre'] ?? '']);
             } else {
                 // Buscar BIOS si este core lo requiere
                 $biosUrl = $this->getBiosUrl($core, $juego['region'] ?? '');
 
                 // Si el core requiere BIOS y no está disponible, avisar
                 if ($core === 'psx' && !$biosUrl) {
-                    $error = "El emulador de PlayStation requiere un archivo BIOS en el servidor. " .
-                             "Sube el BIOS a <code>public/bios/ps1/scph1001.bin</code> para habilitar la emulación.";
+                    $error = t('msg.bios_requerida');
                 }
             }
         }
