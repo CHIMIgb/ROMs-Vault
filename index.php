@@ -62,10 +62,28 @@ if (!isset($_GET['controller'])) {
     $uriPath  = trim($uriPath, '/');
     $segments = $uriPath === '' ? [] : explode('/', $uriPath);
 
-    $_GET['controller'] = $segments[0] ?? 'home';
-    $_GET['action']     = $segments[1] ?? 'index';
-    if (isset($segments[2]) && $segments[2] !== '') {
-        $_GET['id'] = $segments[2];
+    // Rutas "pretty" con slug (ítem 7.2): /juego/{slug}, /jugar/{slug},
+    // /consolas/{slug}. Se resuelven ANTES de la convención controller/action.
+    // Nota: la página pública de consola usa /consolas (plural) porque
+    // /consola/* es el CRUD de admin (ConsolaController) y debe seguir igual.
+    // El slug viaja en $_GET['id'] para reutilizar el dispatch genérico (se
+    // recibe como primer argumento del método). La validación del slug la hace
+    // el modelo con consultas preparadas.
+    $prettyRoutes = [
+        'juego'    => 'showBySlug',
+        'jugar'    => 'playBySlug',
+        'consolas' => 'consolaBySlug',
+    ];
+    if (isset($prettyRoutes[$segments[0] ?? '']) && !empty($segments[1])) {
+        $_GET['controller'] = 'home';
+        $_GET['action']     = $prettyRoutes[$segments[0]];
+        $_GET['id']         = $segments[1];
+    } else {
+        $_GET['controller'] = $segments[0] ?? 'home';
+        $_GET['action']     = $segments[1] ?? 'index';
+        if (isset($segments[2]) && $segments[2] !== '') {
+            $_GET['id'] = $segments[2];
+        }
     }
 }
 

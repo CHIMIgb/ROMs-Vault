@@ -71,13 +71,42 @@ class HomeController {
         $juego = $juegoModel->findWithDetails($id);
 
         if (!$juego) {
-            http_response_code(404);
-            require_once __DIR__ . '/../views/layout/header.php';
-            require_once __DIR__ . '/../views/errors/404.php';
-            require_once __DIR__ . '/../views/layout/footer.php';
+            $this->renderNotFound();
             return;
         }
 
+        // URL limpia canónica por slug (SEO): 301 desde el enlace legacy por id.
+        // Solo si el juego ya tiene slug (tras el backfill, siempre).
+        if (!empty($juego['slug'])) {
+            header('Location: /juego/' . rawurlencode($juego['slug']), true, 301);
+            exit;
+        }
+
+        $this->renderShow($juego);
+    }
+
+    /**
+     * Ficha de juego por slug (URL limpia /juego/{slug}).
+     */
+    public function showBySlug($slug = null) {
+        if (!$slug) {
+            header('Location: /');
+            exit;
+        }
+
+        $juegoModel = new Juego();
+        $juego = $juegoModel->findBySlug((string) $slug);
+
+        if (!$juego) {
+            $this->renderNotFound();
+            return;
+        }
+
+        $this->renderShow($juego);
+    }
+
+    /** Renderiza la ficha de un juego ya resuelto (por id o por slug). */
+    private function renderShow(array $juego) {
         // ── Emulador local recomendado (PC / Android) para esta consola ──
         $emuladorLocal = $this->emuladorRecomendado((int) ($juego['consola_id'] ?? 0));
 
@@ -95,7 +124,7 @@ class HomeController {
         $pageImage       = !empty($juego['imagen']) && file_exists(ltrim($juego['imagen'], '/'))
             ? $juego['imagen']
             : 'public/uploads/icon.png';
-        $pageUrl         = '/home/show/' . (int) $juego['id'];
+        $pageUrl         = '/juego/' . rawurlencode($juego['slug'] ?? (string) $juego['id']);
         $pageType        = 'video.game';
         $pageJsonLd      = [
             '@context'    => 'https://schema.org',
@@ -117,6 +146,14 @@ class HomeController {
 
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/home/show.php';
+        require_once __DIR__ . '/../views/layout/footer.php';
+    }
+
+    /** Renderiza la página 404 (recurso inexistente). */
+    private function renderNotFound(): void {
+        http_response_code(404);
+        require_once __DIR__ . '/../views/layout/header.php';
+        require_once __DIR__ . '/../views/errors/404.php';
         require_once __DIR__ . '/../views/layout/footer.php';
     }
 
@@ -269,10 +306,7 @@ class HomeController {
         $fileId = $_GET['file_id'] ?? null;
 
         if (!$fileId) {
-            $error = t('play.error_sin_juego') ?: "Error: No se especificó el juego a reproducir.";
-            require_once __DIR__ . '/../views/layout/header.php';
-            require_once __DIR__ . '/../views/home/play.php';
-            require_once __DIR__ . '/../views/layout/footer.php';
+            $this->renderPlayError(t('play.error_sin_juego') ?: "Error: No se especificó el juego a reproducir.");
             return;
         }
 
@@ -280,12 +314,78 @@ class HomeController {
         $juego      = $juegoModel->findByFileId($fileId);
 
         if (!$juego) {
-            $error = t('play.error_juego_no_existe') ?: "Error: El juego solicitado no existe en la base de datos.";
-            require_once __DIR__ . '/../views/layout/header.php';
-            require_once __DIR__ . '/../views/home/play.php';
-            require_once __DIR__ . '/../views/layout/footer.php';
+            $this->renderPlayError(t('play.error_juego_no_existe') ?: "Error: El juego solicitado no existe en la base de datos.");
             return;
         }
+
+        // URL limpia canónica por slug (SEO): 301 desde el enlace legacy por
+        // file_id. Se hace ANTES de contar la jugada para no duplicarla.
+        if (!empty($juego['slug'])) {
+            header('Location: /jugar/' . rawurlencode($juego['slug']), true, 301);
+            exit;
+        }
+
+        $this->renderPlay($juego, (string) $fileId);
+    }
+
+    /**
+     * Reproducir un juego por slug (URL limpia /jugar/{slug}).
+     */
+    public function playBySlug($slug = null) {
+        if (!$slug) {
+            header('Location: /');
+            exit;
+        }
+
+        $juegoModel = new Juego();
+        $juego      = $juegoModel->findBySlug((string) $slug);
+
+        if (!$juego) {
+            $this->renderPlayError(t('play.error_juego_no_existe') ?: "Error: El juego solicitado no existe en la base de datos.");
+            return;
+        }
+
+        $this->renderPlay($juego, (string) $juego['google_drive_file_id']);
+    }
+
+    /**
+     * Catálogo público filtrado por consola (URL limpia /consolas/{slug}).
+     * Reutiliza el listado de la portada (index) fijando el filtro por id.
+     */
+    public function consolaBySlug($slug = null) {
+        if (!$slug) {
+            header('Location: /');
+            exit;
+        }
+
+        $consolaModel = new Consola();
+        $consola      = $consolaModel->findBySlug((string) $slug);
+
+        if (!$consola) {
+            $this->renderNotFound();
+            return;
+        }
+
+        // Filtrar el catálogo por esta consola (el filtro usa el id) y empezar
+        // en la primera página.
+        $_GET['consola'] = (string) $consola['id'];
+        unset($_GET['page']);
+        $this->index();
+    }
+
+    /** Renderiza la página de error del emulador. */
+    private function renderPlayError(string $error): void {
+        require_once __DIR__ . '/../views/layout/header.php';
+        require_once __DIR__ . '/../views/home/play.php';
+        require_once __DIR__ . '/../views/layout/footer.php';
+    }
+
+    /**
+     * Carga y renderiza el emulador para un juego ya resuelto.
+     * $fileId es el google_drive_file_id (del propio registro o del query legacy).
+     */
+    private function renderPlay(array $juego, string $fileId) {
+        $juegoModel = new Juego();
 
         // Registrar jugada online (solo cuando hay core disponible; se incrementa aquí
         // antes de resolver el core para contabilizar también intentos de consolas no soportadas).
@@ -305,13 +405,13 @@ class HomeController {
         $error   = null;
 
         if (!$core) {
-            $error = t('msg.consola_no_soportada', ['consola' => $juego['consola_nombre'] ?? '']);
+            $error = t('msg.consola_no_soportada', ['consola' => $juego['consola_nombre']]);
         } else {
             // El admin puede desactivar la emulación online por consola (CRUD consolas).
             // Fallback true: si el flag no viene, se permite.
             $emulacionOnline = (bool)($juego['consola_emulacion_online'] ?? true);
             if (!$emulacionOnline) {
-                $error = t('msg.emulacion_desactivada', ['consola' => $juego['consola_nombre'] ?? '']);
+                $error = t('msg.emulacion_desactivada', ['consola' => $juego['consola_nombre']]);
             } else {
                 // Buscar BIOS si este core lo requiere
                 $biosUrl = $this->getBiosUrl($core, $juego['region'] ?? '');

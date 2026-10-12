@@ -52,7 +52,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
         <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
             <div class="game-card">
                 <div class="game-card-inner">
-                    <a href="/home/show/<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
+                    <a href="<?= !empty($juego['slug']) ? '/juego/' . rawurlencode($juego['slug']) : '/home/show/' . $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
                         <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
                             <?php if (!empty($juego['imagen'])): ?>
                                 <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async"<?= $i === 1 ? ' fetchpriority="high"' : '' ?>>

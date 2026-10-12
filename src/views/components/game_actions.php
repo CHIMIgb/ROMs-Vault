@@ -17,7 +17,7 @@ $downloadUrl  = UrlSigner::downloadUrl($juego['google_drive_file_id'] ?? '');
     $emulacionOnline = (bool)($juego['consola_emulacion_online'] ?? true);
     if ($emulacionOnline): 
     ?>
-        <a href="/home/play?file_id=<?= urlencode($juego['google_drive_file_id']) ?>" class="<?= $playClass ?>">
+        <a href="<?= htmlspecialchars(!empty($juego['slug']) ? '/jugar/' . rawurlencode($juego['slug']) : '/home/play?file_id=' . urlencode($juego['google_drive_file_id'] ?? '')) ?>" class="<?= $playClass ?>">
             <i data-i="play" aria-hidden="true"></i> <?= t('component.jugar_online') ?>
         </a>
     <?php endif; ?>

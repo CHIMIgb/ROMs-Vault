@@ -83,7 +83,7 @@
             <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
                 <div class="game-card">
                     <div class="game-card-inner">
-                        <a href="/home/show/<?= $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
+                        <a href="<?= !empty($juego['slug']) ? '/juego/' . rawurlencode($juego['slug']) : '/home/show/' . $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
                             <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
                                 <!-- Disco placeholder siempre presente: se ve cuando no hay
                                      imagen o cuando la imagen falla al cargar (onerror) -->
