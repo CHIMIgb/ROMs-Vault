@@ -5,7 +5,7 @@
 **Stack actual:** PHP 8.2 vanilla (sin framework), PostgreSQL (Neon, SSL) vía PDO, CSS/JS vanilla, Vercel, servidor local `php -S localhost:8000 router.php`.
 **Criterio rector:** cada fase debe resolver una pregunta que un entrevistador técnico senior haría y que hoy el proyecto no puede responder bien.
 
-> **Planes activos (fechados):** [`_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md`](./_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md) (seguridad OWASP + paginación DB + tests `Security` + i18n) · [`2026-10-07-migrar-imagenes-a-cloudflare-r2.md`](./2026-10-07-migrar-imagenes-a-cloudflare-r2.md) (imágenes a R2) · [`2026-10-07-reorganizacion-estructura-archivos.md`](./2026-10-07-reorganizacion-estructura-archivos.md) (reorganización a `src/` + `endpoints/`).
+> **Planes activos (fechados):** [`_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md`](./_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md) (seguridad OWASP + paginación DB + tests `Security` + i18n) · [`2026-10-07-migrar-imagenes-a-cloudflare-r2.md`](./2026-10-07-migrar-imagenes-a-cloudflare-r2.md) (imágenes a R2 — **implementado 2026-10-12**, ver [`2026-10-12-migracion-imagenes-r2-implementacion.md`](./2026-10-12-migracion-imagenes-r2-implementacion.md)) · [`2026-10-07-reorganizacion-estructura-archivos.md`](./2026-10-07-reorganizacion-estructura-archivos.md) (reorganización a `src/` + `endpoints/`).
 
 ---
 
@@ -37,6 +37,7 @@
 | 2026-10-11 | **Seguridad §9.2** — `display_errors` en Docker: duplicado de §2.4, ya implementado (`docker/php-production.ini` + `Dockerfile`); cerrado sin cambios de código | Completada | `f188a79` |
 | 2026-10-11 | **FASE 2 (2.1-2.4)** — CI/CD con GitHub Actions: `.github/workflows/ci.yml` (jobs `lint` `php -l`, `static` PHPStan nivel 5 + baseline y `phpcs` PSR-12 sobre ficheros cambiados, `tests` Unit+Integration+Security con servicio PostgreSQL 16 + esquema, `audit` `composer audit`, `build` `docker build`), `.github/dependabot.yml` y badge CI en README; `Server.php` portado a Linux (`/dev/null`) | Completada (configurar secrets `TEST_*` en GitHub; pendientes: PHPStan nivel 6, branch protection) | `2347580` |
 | 2026-10-11 | **FASE 5 (5.1) — i18n Tier 1** — 3 idiomas nuevos (`it`, `ru`, `tr`) con paridad 592 claves, banderas SVG, fallback Intl (`it_IT`/`ru_RU`/`tr_TR`) y `EJS_language` (`it-IT`/`ru-RU`/`tr-TR`); tests actualizados (9 idiomas) | Completada (RTL 5.2 y Tier 2 `zh`/`ko`/`ar` pendientes) | `6c2990d` |
+| 2026-10-12 | **Almacenamiento — imágenes a Cloudflare R2** (plan `2026-10-07-migrar-imagenes-a-cloudflare-r2.md`): cliente SigV4 mínimo (`R2Client`) + `StorageService` con fallback local, admin por prefijos, `Juego::existeImagen()`, CSP con host del CDN y variables de despliegue; script de migración idempotente con 157 archivos / 123 juegos migrados en local | Completada (migración de Neon pendiente tras el deploy) | `e679a0c` + `cdd1947` + `5495acb` + `1758fd6` |
 
 
 ---

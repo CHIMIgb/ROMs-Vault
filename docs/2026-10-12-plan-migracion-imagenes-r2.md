@@ -1,7 +1,7 @@
 # Plan de implementación — Migrar las imágenes de juegos a Cloudflare R2
 
 - **Fecha:** 2026-10-12
-- **Estado:** propuesto (pendiente de aprobación e implementación)
+- **Estado:** aprobado e implementado (ver `docs/2026-10-12-migracion-imagenes-r2-implementacion.md`)
 - **Ámbito:** almacenamiento y entrega de portadas/capturas de juegos
 - **Diseño previo:** `docs/2026-10-07-migrar-imagenes-a-cloudflare-r2.md` (este documento lo concreta y corrige rutas tras la reorg a `src/`)
 
@@ -190,13 +190,14 @@ Dos opciones (se pueden usar por separado):
   smoke real contra R2 (subir/mostrar/borrar + `curl` a la URL pública + consola
   del navegador sin errores de CSP).
 
-## 7. Decisiones pendientes
+## 7. Decisiones tomadas
 
-1. **Acceso público:** `r2.dev` o dominio propio (define `R2_PUBLIC_BASE`/`R2_PUBLIC_HOST`).
-2. **Cliente:** SigV4 mínimo (sin dependencias, como decidió el diseño previo) vs
-   `aws/aws-sdk-php` (más probado, añade paquetes).
-3. **Momento de la migración:** migrar los archivos existentes en este mismo
-   trabajo, o dejar primero el código funcionando y migrar en un paso siguiente.
+1. **Acceso público:** *Public Development URL* (`r2.dev`) como opción rápida
+   (`R2_PUBLIC_BASE`/`R2_PUBLIC_HOST`); migrar a dominio propio no requiere
+   cambios de código.
+2. **Cliente:** **SigV4 mínimo** (sin dependencias), validado contra el bucket real.
+3. **Momento de la migración:** **código primero**, luego migración de archivos
+   (hecha en local; Neon queda para después del deploy).
 
 ## 8. Referencias
 
