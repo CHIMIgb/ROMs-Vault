@@ -584,5 +584,9 @@
     "component.consolas": "コンソール",
     "component.consolas_con_emulador": "エミュレーター付きコンソール",
     "play.error_sin_juego": "エラー: 再生するゲームが指定されていません。",
-    "play.error_juego_no_existe": "エラー: 要求されたゲームはデータベースに存在しません。"
+    "play.error_juego_no_existe": "エラー: 要求されたゲームはデータベースに存在しません。",
+    "admin.juego.slug": "スラッグ (URL)",
+    "admin.juego.slug_placeholder": "タイトルから自動生成されます。編集可能。",
+    "admin.consola.slug": "スラッグ (URL)",
+    "admin.consola.slug_placeholder": "名前から自動生成されます。編集可能。"
 }

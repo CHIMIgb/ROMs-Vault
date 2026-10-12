@@ -584,5 +584,9 @@
     "component.consolas": "consoles",
     "component.consolas_con_emulador": "consoles com emulador",
     "play.error_sin_juego": "Erro: o jogo a reproduzir não foi especificado.",
-    "play.error_juego_no_existe": "Erro: o jogo solicitado não existe no banco de dados."
+    "play.error_juego_no_existe": "Erro: o jogo solicitado não existe no banco de dados.",
+    "admin.juego.slug": "Slug (URL)",
+    "admin.juego.slug_placeholder": "Gerado automaticamente a partir do título. Editável.",
+    "admin.consola.slug": "Slug (URL)",
+    "admin.consola.slug_placeholder": "Gerado automaticamente a partir do nome. Editável."
 }

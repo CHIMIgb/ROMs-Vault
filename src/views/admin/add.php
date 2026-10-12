@@ -21,6 +21,15 @@
                    required
                    placeholder="<?= t('admin.juego.titulo_placeholder') ?>">
         </div>
+
+        <div class="form-group">
+            <label for="slug"><?= t('admin.juego.slug') ?></label>
+            <input type="text"
+                   id="slug"
+                   name="slug"
+                   value="<?= htmlspecialchars($_POST['slug'] ?? '') ?>"
+                   placeholder="<?= t('admin.juego.slug_placeholder') ?>">
+        </div>
         
         <div class="form-group">
             <label for="descripcion"><?= t('admin.juego.descripcion') ?></label>

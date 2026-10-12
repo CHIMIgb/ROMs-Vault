@@ -584,5 +584,9 @@
     "component.consolas": "consoles",
     "component.consolas_con_emulador": "consoles with emulator",
     "play.error_sin_juego": "Error: No game was specified to play.",
-    "play.error_juego_no_existe": "Error: The requested game does not exist in the database."
+    "play.error_juego_no_existe": "Error: The requested game does not exist in the database.",
+    "admin.juego.slug": "Slug (URL)",
+    "admin.juego.slug_placeholder": "Auto-generated from the title. Editable.",
+    "admin.consola.slug": "Slug (URL)",
+    "admin.consola.slug_placeholder": "Auto-generated from the name. Editable."
 }

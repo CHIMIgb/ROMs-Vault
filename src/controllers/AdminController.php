@@ -8,6 +8,7 @@ require_once __DIR__ . '/../config/CsrfService.php';
 require_once __DIR__ . '/../config/TfaService.php';
 require_once __DIR__ . '/../config/LoggerService.php';
 require_once __DIR__ . '/../config/RateLimiter.php';
+require_once __DIR__ . '/../config/Slug.php';
 
 class AdminController {
     // Máximo de capturas por juego (el carrusel ya replica la portada si no hay capturas)
@@ -124,6 +125,7 @@ class AdminController {
 
             if (!isset($error)) {
                 $juegoModel = new Juego();
+                $data['slug'] = $this->resolverSlugJuego($_POST['slug'] ?? '', $data['titulo'], $juegoModel);
                 if ($juegoModel->create($data)) {
                     header('Location: /admin/dashboard');
                     exit;
@@ -281,6 +283,13 @@ class AdminController {
             $data['capturas'] = json_encode($capturasFinales);
 
             if (!isset($error)) {
+                $data['slug'] = $this->resolverSlugJuego(
+                    $_POST['slug'] ?? '',
+                    $data['titulo'],
+                    $juegoModel,
+                    $juego['slug'] ?? null,
+                    (int) $juego['id']
+                );
                 if ($juegoModel->update($id, $data)) {
                     header('Location: /admin/dashboard');
                     exit;
@@ -629,14 +638,32 @@ class AdminController {
 
     /** Slug seguro para carpetas: minúsculas, sin acentos, espacios → guiones. */
     private function slugify(string $s): string {
-        $s = strtolower(trim($s));
-        $conv = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
-        if ($conv !== false) {
-            $s = $conv;
+        return Slug::make($s, 'juego');
+    }
+
+    /**
+     * Resuelve el slug de un juego (URL limpia /juego/{slug}).
+     *  - Si el admin escribe uno a mano, se respeta (slugificado + único).
+     *  - Si no, en edición se conserva el slug actual (estable: editar el
+     *    título NO cambia la URL, decisión D2 del ítem 7.2).
+     *  - Si no hay slug previo, se genera desde el título.
+     * $excludeId evita que el propio registro colisione consigo mismo.
+     */
+    private function resolverSlugJuego(
+        string $manual,
+        string $titulo,
+        Juego $model,
+        ?string $slugActual = null,
+        ?int $excludeId = null
+    ): string {
+        $manual = trim($manual);
+        if ($manual !== '') {
+            return Slug::unique($manual, fn(string $s) => $model->slugExists($s, $excludeId), 'juego');
         }
-        $s = preg_replace('/[^a-z0-9]+/', '-', $s);
-        $s = trim($s, '-');
-        return $s === '' ? 'juego' : $s;
+        if ($slugActual !== null && $slugActual !== '') {
+            return $slugActual;
+        }
+        return Slug::unique($titulo, fn(string $s) => $model->slugExists($s, $excludeId), 'juego');
     }
 
     public function delete($id) {
