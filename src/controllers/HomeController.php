@@ -6,6 +6,7 @@ require_once __DIR__ . '/../models/Categoria.php';
 require_once __DIR__ . '/../models/Emulador.php';
 require_once __DIR__ . '/../config/UrlSigner.php';
 require_once __DIR__ . '/../config/RateLimiter.php';
+require_once __DIR__ . '/../config/StorageService.php';
 
 class HomeController {
     
@@ -123,7 +124,7 @@ class HomeController {
             : 'Ficha de ' . $juego['titulo'] . ' para ' . ($juego['consola_nombre'] ?? 'consola retro') . '.';
         $pageImage       = Juego::existeImagen($juego['imagen'] ?? null)
             ? $juego['imagen']
-            : 'public/uploads/icon.png';
+            : StorageService::iconoUrl();
         $pageUrl         = '/juego/' . rawurlencode($juego['slug'] ?? (string) $juego['id']);
         $pageType        = 'video.game';
         $pageJsonLd      = [

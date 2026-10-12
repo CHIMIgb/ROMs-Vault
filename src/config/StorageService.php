@@ -51,6 +51,21 @@ class StorageService
         return new self();
     }
 
+    /**
+     * URL del icono de la aplicacion para metadatos SEO (JSON-LD / Open Graph).
+     * El favicon y el logo del header se sirven siempre desde el asset estatico
+     * public/img/icon.png; aqui solo se resuelve la URL absoluta del fallback
+     * cuando hay imagen: en R2 apunta a la copia publica del bucket.
+     */
+    public static function iconoUrl(): string
+    {
+        $s = new self();
+        if ($s->isRemote()) {
+            return $s->urlPublica('icon.png');
+        }
+        return 'public/img/icon.png';
+    }
+
     private function env(string $name): string
     {
         $valor = $_ENV[$name] ?? getenv($name);

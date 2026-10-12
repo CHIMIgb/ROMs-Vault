@@ -33,7 +33,7 @@
         <script type="application/ld+json"><?= json_encode($pageJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
     <?php endif; ?>
 
-    <link rel="icon" type="image/png" href="public/uploads/icon.png">
+    <link rel="icon" type="image/png" href="public/img/icon.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,7 +48,7 @@
 
                 <!-- Logo: icono de la aplicación al inicio del título -->
                 <a href="/" class="header-logo-link" title="<?= t('header.inicio_titulo') ?>">
-                    <img src="public/uploads/icon.png"
+                    <img src="public/img/icon.png"
                          alt="<?= t('app.nombre') ?>"
                          class="header-logo"
                          width="56" height="56">

@@ -111,7 +111,9 @@ R2_PUBLIC_HOST=pub-<hash>.r2.dev
 
 - Respaldo de las referencias previas en `scratch/juegos_refs_backup.json`
   (gitignored): 123 filas con `id`, `imagen`, `capturas`.
-- Los archivos originales siguen en `public/uploads/` (no se borraron).
+- Tras la limpieza posterior (commit `Icono en R2, public/img y limpieza de
+  public/uploads`), los archivos originales **ya no están** en `public/uploads/`;
+  su contenido queda en R2 y en el historial de git.
 - Restaurar = ejecutar los `UPDATE` con el JSON del respaldo.
 
 ## 7. Pendiente
@@ -127,3 +129,19 @@ R2_PUBLIC_HOST=pub-<hash>.r2.dev
 - R2 S3-compatible: https://developers.cloudflare.com/r2/get-started/s3/
 - API tokens: https://developers.cloudflare.com/r2/api/tokens/
 - Public buckets: https://developers.cloudflare.com/r2/buckets/public-buckets
+
+## 9. Icono de la aplicacion y limpieza de public/uploads (2026-10-12)
+
+Commit: `Icono en R2, public/img y limpieza de public/uploads`.
+
+- `public/img/icon.png`: asset estatico committeado (favicon, logo del header y
+  fallback de SEO en modo local). El favicon y el logo dejan de depender del CDN.
+- Copia del icono en R2 con clave raiz `icon.png`
+  (`https://pub-<hash>.r2.dev/icon.png`): la usa `StorageService::iconoUrl()`
+  como URL absoluta del fallback de `pageImage` (JSON-LD / Open Graph).
+- `public/uploads/` se vacio: **161 archivos borrados** (solo queda el
+  `.htaccess` de defensa). `.gitignore` ignora `public/uploads/*` salvo
+  `.htaccess`, para que las subidas locales no vuelvan al repo.
+- Verificacion: `php -l` OK; PHPStan `[OK] No errors`; PHPUnit Unit **103 tests,
+  10922 assertions OK**; smoke local con `/` y `/juego/wipeout-pulse` -> HTTP 200
+  (20 imagenes desde `r2.dev`, icono desde `public/img`, portadas desde R2).
