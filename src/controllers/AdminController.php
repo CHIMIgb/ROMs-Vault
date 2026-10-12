@@ -9,13 +9,18 @@ require_once __DIR__ . '/../config/TfaService.php';
 require_once __DIR__ . '/../config/LoggerService.php';
 require_once __DIR__ . '/../config/RateLimiter.php';
 require_once __DIR__ . '/../config/Slug.php';
+require_once __DIR__ . '/../config/StorageService.php';
 
 class AdminController {
     // Máximo de capturas por juego (el carrusel ya replica la portada si no hay capturas)
     private const MAX_CAPTURAS = 7;
 
+    /** Capa de almacenamiento (R2 o disco local según credenciales). */
+    private StorageService $storage;
+
     public function __construct() {
         AuthMiddleware::requireAdmin();
+        $this->storage = StorageService::make();
     }
 
     public function dashboard() {
@@ -80,13 +85,13 @@ class AdminController {
 
             $consolaNombre = $this->obtenerConsolaNombre((int)$data['consola_id']);
 
-            // ── Carpeta del juego: public/uploads/{consola}/{juego}/ ──
-            // Todas las imágenes (portada + capturas) van en esta misma carpeta.
-            $carpetaJuego = $this->carpetaDestinoJuego($consolaNombre, $data['titulo']);
+            // ── Prefijo del juego: {consola}/{juego}/ ──
+            // Todas las imágenes (portada + capturas) van bajo este prefijo.
+            $prefijoJuego = $this->carpetaDestinoJuego($consolaNombre, $data['titulo']);
 
             // ── Portada (un solo archivo) ──
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-                $imagenResult = $this->uploadImage($_FILES['imagen'], $carpetaJuego, 'portada');
+                $imagenResult = $this->uploadImage($_FILES['imagen'], $prefijoJuego, 'portada');
                 if ($imagenResult['success']) {
                     $data['imagen'] = $imagenResult['filename'];
                 } else {
@@ -111,7 +116,7 @@ class AdminController {
                         'error'    => $_FILES['capturas']['error'][$i],
                         'size'     => $_FILES['capturas']['size'][$i],
                     ];
-                    $capResult = $this->uploadImage($file, $carpetaJuego, 'captura-' . (count($rutas) + 1));
+                    $capResult = $this->uploadImage($file, $prefijoJuego, 'captura-' . (count($rutas) + 1));
                     if (!$capResult['success']) {
                         $error = $capResult['error'];
                         break;
@@ -183,48 +188,44 @@ class AdminController {
             $cambioDestino   = $consolaNuevaId !== $consolaAnterior || $data['titulo'] !== $tituloAnterior;
 
             $consolaNombre = $this->obtenerConsolaNombre($consolaNuevaId);
-            $carpetaVieja  = $this->carpetaJuegoAbsoluta($juego);
-            $carpetaDestino = $carpetaVieja;
+            $prefijoViejo   = $this->prefijoJuego($juego);
+            $prefijoDestino = $prefijoViejo;
 
-            // ── Si cambió consola/título: mover la carpeta a su nueva ubicación ──
+            // ── Si cambió consola/título: mover los objetos a su nueva ubicación ──
             if ($cambioDestino) {
-                $carpetaDestino = $this->carpetaDestinoJuego($consolaNombre, $data['titulo']);
-                if ($carpetaVieja && is_dir($carpetaVieja)) {
-                    $this->moverContenido($carpetaVieja, $carpetaDestino);
-                    @rmdir($carpetaVieja);
-                    // Actualizar las rutas viejas → nuevas para operar sobre la nueva ubicación
-                    $baseVieja = 'public/uploads/' . basename(dirname($carpetaVieja)) . '/' . basename($carpetaVieja);
-                    $baseNueva = 'public/uploads/' . basename(dirname($carpetaDestino)) . '/' . basename($carpetaDestino);
-                    if (!empty($juego['imagen'])) {
-                        $juego['imagen'] = str_replace($baseVieja, $baseNueva, $juego['imagen']);
+                $prefijoDestino = $this->carpetaDestinoJuego($consolaNombre, $data['titulo']);
+                if ($prefijoViejo !== null && $prefijoViejo !== $prefijoDestino) {
+                    $this->storage->copiarPrefijo($prefijoViejo, $prefijoDestino);
+                    $this->storage->borrarPrefijo($prefijoViejo);
+                    // Actualizar las referencias viejas → nuevas para operar sobre la nueva ubicación
+                    $juego['imagen']   = $this->reubicarReferencia($juego['imagen'] ?? null, $prefijoDestino);
+                    $nuevasRutas = [];
+                    foreach (Juego::parseCapturas($juego['capturas'] ?? null) as $cap) {
+                        $nuevasRutas[] = $this->reubicarReferencia($cap, $prefijoDestino);
                     }
-                    if (!empty($juego['capturas'])) {
-                        $nuevasRutas = [];
-                        foreach (Juego::parseCapturas($juego['capturas']) as $cap) {
-                            $nuevasRutas[] = str_replace($baseVieja, $baseNueva, $cap);
-                        }
-                        $juego['capturas'] = json_encode($nuevasRutas);
-                    }
-                    // Traducir también las rutas marcadas para eliminar (el formulario envió las viejas)
+                    $juego['capturas'] = json_encode($nuevasRutas);
+                    // Traducir también las referencias marcadas para eliminar (el formulario envió las viejas)
                     if (!empty($_POST['eliminar_capturas']) && is_array($_POST['eliminar_capturas'])) {
-                        $_POST['eliminar_capturas'] = array_map(function ($r) use ($baseVieja, $baseNueva) {
-                            return str_replace($baseVieja, $baseNueva, (string)$r);
-                        }, $_POST['eliminar_capturas']);
+                        $_POST['eliminar_capturas'] = array_map(
+                            fn($r) => $this->reubicarReferencia((string) $r, $prefijoDestino),
+                            $_POST['eliminar_capturas']
+                        );
                     }
                 }
-            } elseif (!$carpetaDestino || !is_dir($carpetaDestino)) {
-                // Estructura antigua (portada en la raíz de uploads): crear carpeta nueva
-                $carpetaDestino = $this->carpetaDestinoJuego($consolaNombre, $data['titulo']);
+            } elseif ($prefijoDestino === null) {
+                // Estructura antigua (portada suelta): crear prefijo nuevo
+                $prefijoDestino = $this->carpetaDestinoJuego($consolaNombre, $data['titulo']);
             }
 
             // ── Portada (un solo archivo) ──
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-                $imagenResult = $this->uploadImage($_FILES['imagen'], $carpetaDestino, 'portada');
+                $imagenResult = $this->uploadImage($_FILES['imagen'], $prefijoDestino, 'portada');
                 if ($imagenResult['success']) {
                     // Eliminar la portada anterior si es un archivo distinto
-                    $rutaVieja = $this->rutaUploadsAbsoluta($juego['imagen']);
-                    if ($rutaVieja && file_exists($rutaVieja) && $juego['imagen'] !== $imagenResult['filename']) {
-                        @unlink($rutaVieja);
+                    $claveVieja = $this->storage->keyDeReferencia($juego['imagen'] ?? null);
+                    $claveNueva = $this->storage->keyDeReferencia($imagenResult['filename']);
+                    if ($claveVieja !== null && $claveVieja !== $claveNueva) {
+                        $this->storage->borrar($claveVieja);
                     }
                     $data['imagen'] = $imagenResult['filename'];
                 } else {
@@ -247,9 +248,9 @@ class AdminController {
             $restantes = [];
             foreach ($capturasActuales as $ruta) {
                 if (in_array($ruta, $aEliminar, true)) {
-                    $rutaFisica = $this->rutaUploadsAbsoluta($ruta);
-                    if ($rutaFisica && file_exists($rutaFisica)) {
-                        @unlink($rutaFisica);
+                    $clave = $this->storage->keyDeReferencia($ruta);
+                    if ($clave !== null) {
+                        $this->storage->borrar($clave);
                     }
                 } else {
                     $restantes[] = $ruta;
@@ -273,7 +274,7 @@ class AdminController {
                         'error'    => $_FILES['capturas']['error'][$i],
                         'size'     => $_FILES['capturas']['size'][$i],
                     ];
-                    $capResult = $this->uploadImage($file, $carpetaDestino, 'captura-' . (count($restantes) + count($nuevas) + 1));
+                    $capResult = $this->uploadImage($file, $prefijoDestino, 'captura-' . (count($restantes) + count($nuevas) + 1));
                     if (!$capResult['success']) {
                         $error = $capResult['error'];
                         break;
@@ -453,17 +454,18 @@ class AdminController {
     }
 
     /**
-     * Sube y convierte una imagen a WebP dentro de la carpeta del juego.
+     * Sube y convierte una imagen a WebP bajo el prefijo del juego.
      *
-     * La carpeta destino ya viene resuelta (carpetaDestinoJuego() o la
-     * carpeta existente del juego); NO se vuelve a resolver aquí, para
-     * que portada y capturas compartan la misma carpeta.
+     * El prefijo destino ya viene resuelto (carpetaDestinoJuego() o el
+     * prefijo existente del juego); NO se vuelve a resolver aquí, para
+     * que portada y capturas compartan el mismo prefijo.
      *
      * @param array  $file       Archivo del formulario ($_FILES['...'])
-     * @param string $carpeta    Ruta absoluta de la carpeta del juego
+     * @param string $prefijo    Prefijo relativo del juego: "{consola}/{juego}"
      * @param string $nombreBase Nombre base del archivo: 'portada' o 'captura-N'
+     * @return array{success: bool, filename?: string, error?: string}
      */
-    private function uploadImage($file, string $carpeta, string $nombreBase) {
+    private function uploadImage($file, string $prefijo, string $nombreBase) {
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!in_array($file['type'], $allowedTypes)) {
             return ['success' => false, 'error' => t('msg.archivo_tipo_no_permitido')];
@@ -476,10 +478,6 @@ class AdminController {
         // Verificar si la librería GD está activa en el servidor
         if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
             return ['success' => false, 'error' => t('msg.gd_no_activada')];
-        }
-
-        if (!is_dir($carpeta)) {
-            mkdir($carpeta, 0777, true);
         }
 
         // Cargar imagen en memoria según formato original
@@ -508,127 +506,79 @@ class AdminController {
             return ['success' => false, 'error' => t('msg.imagen_procesar_error')];
         }
 
-        // Convertir y guardar a WebP con calidad 80
-        $destination = $carpeta . '/' . $nombreBase . '.webp';
-        $result = imagewebp($image, $destination, 80);
+        // Convertir a WebP (calidad 80) en memoria y subir al almacenamiento
+        ob_start();
+        $ok = imagewebp($image, null, 80);
+        $bytes = ob_get_clean();
         imagedestroy($image); // Liberar memoria
 
-        if ($result) {
-            $consolaDir = basename(dirname($carpeta));
-            $juegoDir   = basename($carpeta);
-            return ['success' => true, 'filename' => 'public/uploads/' . $consolaDir . '/' . $juegoDir . '/' . $nombreBase . '.webp'];
-        } else {
+        if (!$ok || !is_string($bytes) || $bytes === '') {
             return ['success' => false, 'error' => t('msg.imagen_webp_error')];
         }
+
+        $key = rtrim($prefijo, '/') . '/' . $nombreBase . '.webp';
+        $referencia = $this->storage->guardar($key, $bytes, 'image/webp');
+        return ['success' => true, 'filename' => $referencia];
     }
 
     /**
-     * Ruta absoluta de la carpeta del juego (public/uploads/{consola}/{juego}/).
-     * Devuelve null si el juego usa la estructura antigua (portada en la raíz de uploads).
+     * Prefijo relativo del juego ("{consola}/{juego}") a partir de sus referencias.
+     * Devuelve null si el juego usa la estructura antigua (archivo suelto en uploads).
      */
-    private function carpetaJuegoAbsoluta($juego): ?string {
-        $rel = $juego['imagen'] ?? null;
-        if (empty($rel) && !empty($juego['capturas'])) {
+    private function prefijoJuego($juego): ?string {
+        $ref = $juego['imagen'] ?? null;
+        if (empty($ref) && !empty($juego['capturas'])) {
             $cap = Juego::parseCapturas($juego['capturas']);
-            $rel = $cap[0] ?? null;
+            $ref = $cap[0] ?? null;
         }
-        if (empty($rel)) {
+        $key = $this->storage->keyDeReferencia($ref);
+        if ($key === null) {
             return null;
         }
-        $partes = explode('/', trim($rel, '/'));
-        if (count($partes) < 4 || ($partes[0] ?? '') !== 'public' || ($partes[1] ?? '') !== 'uploads') {
-            return null; // estructura antigua en la raíz de uploads
+        $partes = explode('/', $key);
+        if (count($partes) < 3) {
+            return null; // estructura antigua: archivo suelto en la raíz
         }
-        return $this->rutaUploadsAbsoluta(implode('/', array_slice($partes, 0, 3)));
+        return implode('/', array_slice($partes, 0, 2));
     }
 
-    /**
-     * Convierte una ruta relativa de la BD (p. ej. "public/uploads/psp/www/x.webp")
-     * en su ruta absoluta dentro de la raíz del proyecto. Independiente del CWD.
-     * Devuelve null ante valores vacíos o con intento de traversal.
-     */
-    private function rutaUploadsAbsoluta(?string $rel): ?string {
-        if (empty($rel)) {
-            return null;
-        }
-        $rel = ltrim(str_replace('\\', '/', $rel), '/');
-        if ($rel === '' || strpos($rel, '..') !== false) {
-            return null;
-        }
-        return __DIR__ . '/../../' . $rel;
-    }
-
-    /** Devuelve una ruta absoluta libre para la carpeta del juego (agrega -2, -3... si ya existe). */
-    private function resolverCarpetaJuego(string $dirBase, string $slug): string {
-        $candidata = $dirBase . '/' . $slug;
+    /** Devuelve un prefijo libre para el juego (agrega -2, -3... si ya está ocupado). */
+    private function resolverPrefijoJuego(string $consolaSlug, string $juegoSlug): string {
+        $candidata = $consolaSlug . '/' . $juegoSlug;
         $n = 2;
-        while (is_dir($candidata)) {
-            $candidata = $dirBase . '/' . $slug . '-' . $n;
+        while ($this->storage->prefijoOcupado($candidata)) {
+            $candidata = $consolaSlug . '/' . $juegoSlug . '-' . $n;
             $n++;
         }
         return $candidata;
     }
 
     /**
-     * Resuelve (una sola vez por operación) y crea la carpeta del juego:
-     * public/uploads/{consola-slug}/{juego-slug}/. Todas las imágenes del
-     * juego (portada + capturas) se guardan dentro de esta misma carpeta.
+     * Resuelve el prefijo del juego: {consola-slug}/{juego-slug}. Todas las
+     * imágenes del juego (portada + capturas) se guardan bajo este prefijo.
      */
     private function carpetaDestinoJuego(?string $consolaNombre, string $titulo): string {
         $consolaSlug = $this->slugify((string)$consolaNombre);
         $juegoSlug   = $this->slugify($titulo);
-        $dirBase     = __DIR__ . '/../../public/uploads/' . $consolaSlug;
-        if (!is_dir($dirBase)) {
-            mkdir($dirBase, 0777, true);
-        }
-        $carpeta = $this->resolverCarpetaJuego($dirBase, $juegoSlug);
-        if (!is_dir($carpeta)) {
-            mkdir($carpeta, 0777, true);
-        }
-        return $carpeta;
+        return $this->resolverPrefijoJuego($consolaSlug, $juegoSlug);
     }
 
-    /** Mueve el contenido de $origen a $destino (creando $destino si hace falta). */
-    private function moverContenido(string $origen, string $destino): void {
-        if (!is_dir($origen)) {
-            return;
+    /** Reescribe una referencia moviéndola al prefijo destino (mismo nombre de archivo). */
+    private function reubicarReferencia(?string $ref, string $prefijoDestino): string {
+        $key = $this->storage->keyDeReferencia($ref);
+        if ($key === null) {
+            return (string) $ref; // no gestionable: se deja igual
         }
-        if (!is_dir($destino)) {
-            mkdir($destino, 0777, true);
-        }
-        foreach (scandir($origen) as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            @rename($origen . '/' . $item, $destino . '/' . $item);
-        }
-    }
-
-    /** Borra recursivamente una carpeta y todo su contenido. */
-    private function rmdirRecursive(string $dir): void {
-        if (!is_dir($dir)) {
-            return;
-        }
-        foreach (scandir($dir) as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            $path = $dir . '/' . $item;
-            if (is_dir($path)) {
-                $this->rmdirRecursive($path);
-            } else {
-                @unlink($path);
-            }
-        }
-        @rmdir($dir);
+        $nuevaKey = rtrim($prefijoDestino, '/') . '/' . basename($key);
+        return $this->storage->referencia($nuevaKey);
     }
 
     /** Elimina los archivos de capturas anteriores referenciados en el JSON. */
     private function eliminarCapturasViejas($juego): void {
         foreach (Juego::parseCapturas($juego['capturas'] ?? null) as $ruta) {
-            $rutaFisica = $this->rutaUploadsAbsoluta($ruta);
-            if ($rutaFisica && file_exists($rutaFisica)) {
-                @unlink($rutaFisica);
+            $key = $this->storage->keyDeReferencia($ruta);
+            if ($key !== null) {
+                $this->storage->borrar($key);
             }
         }
     }
@@ -678,15 +628,15 @@ class AdminController {
         $juegoModel = new Juego();
         $juego = $juegoModel->find($id);
         if ($juego) {
-            // Estructura de carpetas: borrar la carpeta completa del juego
-            $carpeta = $this->carpetaJuegoAbsoluta($juego);
-            if ($carpeta && is_dir($carpeta)) {
-                $this->rmdirRecursive($carpeta);
+            // Estructura nueva: borrar todo el prefijo del juego
+            $prefijo = $this->prefijoJuego($juego);
+            if ($prefijo !== null) {
+                $this->storage->borrarPrefijo($prefijo);
             } else {
-                // Estructura antigua: solo el archivo de la portada en la raíz de uploads
-                $rutaPortada = $this->rutaUploadsAbsoluta($juego['imagen']);
-                if ($rutaPortada && file_exists($rutaPortada)) {
-                    @unlink($rutaPortada);
+                // Estructura antigua: solo el archivo de la portada suelto
+                $clavePortada = $this->storage->keyDeReferencia($juego['imagen'] ?? null);
+                if ($clavePortada !== null) {
+                    $this->storage->borrar($clavePortada);
                 }
             }
             $this->eliminarCapturasViejas($juego);

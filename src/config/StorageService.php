@@ -190,6 +190,19 @@ class StorageService
     }
 
     /**
+     * Referencia lista para guardar en BD a partir de una clave ya existente
+     * en el almacenamiento (URL publica en R2 o ruta local). No escribe nada.
+     */
+    public function referencia(string $key): string
+    {
+        $key = ltrim($this->normalizarKey($key), '/');
+        if ($this->isRemote()) {
+            return $this->publicBase . '/' . $key;
+        }
+        return self::LOCAL_PREFIX . '/' . $key;
+    }
+
+    /**
      * Convierte una referencia guardada en BD (URL publica de R2 o ruta local)
      * en su clave de almacenamiento. Devuelve null si no es gestionable por este
      * servicio (p. ej. URL absoluta de otro host).
