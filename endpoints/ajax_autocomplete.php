@@ -38,7 +38,10 @@ try {
             'imagen'        => $j['imagen'] ?? null,
             'file_id'       => $j['google_drive_file_id'],
             'emulacion_online' => (bool)($j['consola_emulacion_online'] ?? true),
-            'play_url'      => '/home/play?file_id='     . urlencode($j['google_drive_file_id']),
+            'slug'          => $j['slug'] ?? null,
+            'play_url'      => !empty($j['slug'])
+                ? '/jugar/' . rawurlencode($j['slug'])
+                : '/home/play?file_id=' . urlencode($j['google_drive_file_id']),
             'download_url'  => UrlSigner::downloadUrl($j['google_drive_file_id']),
         ];
     }, $resultados);

@@ -21,7 +21,7 @@
                    required
                    placeholder="<?= t('admin.juego.titulo_placeholder') ?>">
         </div>
-        
+
         <div class="form-group">
             <label for="descripcion"><?= t('admin.juego.descripcion') ?></label>
             <textarea id="descripcion"

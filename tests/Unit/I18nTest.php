@@ -9,7 +9,7 @@
  * - placeholders {nombre}
  * - fallback: clave ausente → devuelve la propia clave
  * - idioma inválido → se rechaza y no corrompe el idioma activo
- * - diccionarios es/en/fr/pt/de/ja JSON válidos y con claves paritarias
+ * - diccionarios es/en/fr/pt/de/ja/it/ru/tr JSON válidos y con claves paritarias
  */
 
 namespace Tests\Unit;
@@ -68,6 +68,9 @@ class I18nTest extends TestCase {
             'pt' => 'Catálogo',
             'de' => 'Katalog',
             'ja' => 'カタログ',
+            'it' => 'Catalogo',
+            'ru' => 'Каталог',
+            'tr' => 'Katalog',
         ];
         foreach ($esperado as $lang => $valor) {
             $this->assertTrue(I18n::setLang($lang), "Debe aceptar el idioma '$lang'.");
@@ -193,6 +196,9 @@ class I18nTest extends TestCase {
             'pt' => 'pt-BR',
             'de' => 'de-GER',
             'ja' => 'ja-JA',
+            'it' => 'it-IT',
+            'ru' => 'ru-RU',
+            'tr' => 'tr-TR',
         ];
         foreach ($esperado as $lang => $codigo) {
             $this->assertTrue(I18n::setLang($lang));
@@ -201,7 +207,7 @@ class I18nTest extends TestCase {
     }
 
     public function testEmulatorLanguageSiempreDevuelveUnCodigoPublicado(): void {
-        $publicados = ['es-ES', 'en-US', 'pt-BR', 'de-GER', 'ja-JA'];
+        $publicados = ['es-ES', 'en-US', 'pt-BR', 'de-GER', 'ja-JA', 'it-IT', 'ru-RU', 'tr-TR'];
         foreach (I18n::LANGUAGES as $lang) {
             I18n::setLang($lang);
             $this->assertContains(

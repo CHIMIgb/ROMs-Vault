@@ -342,7 +342,7 @@
     "errors.generico_msg": "Ein unerwarteter Fehler ist aufgetreten.",
     "errors.generico_titulo": "Fehler",
     "errors.ir_catalogo": "Zum Katalog",
-    "errors.ir_catalogo_icono": "🏠 Zum Katalog",
+    "errors.ir_catalogo_icono": "Zum Katalog",
     "errors.not_found": "Seite nicht gefunden",
     "errors.not_found_detalle": "Die von dir eingegebene URL existiert nicht auf diesem Server. Möglicherweise ist der Link defekt, die Seite wurde verschoben oder du hast die Adresse falsch geschrieben.",
     "errors.not_found_msg": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
@@ -584,5 +584,11 @@
     "component.consolas": "Konsolen",
     "component.consolas_con_emulador": "Konsolen mit Emulator",
     "play.error_sin_juego": "Fehler: Das abzuspielende Spiel wurde nicht angegeben.",
-    "play.error_juego_no_existe": "Fehler: Das angeforderte Spiel existiert nicht in der Datenbank."
+    "play.error_juego_no_existe": "Fehler: Das angeforderte Spiel existiert nicht in der Datenbank.",
+    "admin.juego.slug": "Slug (URL)",
+    "admin.juego.slug_placeholder": "Wird automatisch aus dem Titel erzeugt. Bearbeitbar.",
+    "admin.consola.slug": "Slug (URL)",
+    "admin.consola.slug_placeholder": "Wird automatisch aus dem Namen erzeugt. Bearbeitbar.",
+    "admin.juego.slug_ayuda": "Letzter Teil der öffentlichen URL (/juego/…). Wird aus dem Titel erzeugt; nur ändern, wenn eine andere Adresse gewünscht ist (alte Links funktionieren dann nicht mehr).",
+    "admin.consola.slug_ayuda": "Letzter Teil der öffentlichen URL (/consolas/…). Wird aus dem Namen erzeugt; nur ändern, wenn eine andere Adresse gewünscht ist (alte Links funktionieren dann nicht mehr)."
 }

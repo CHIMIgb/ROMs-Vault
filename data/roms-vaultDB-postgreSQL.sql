@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS public.categorias (
 CREATE TABLE IF NOT EXISTS public.consolas (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) UNIQUE NOT NULL,
+    slug VARCHAR(120),
     descripcion TEXT,
     fabricante VARCHAR(100),
     activo BOOLEAN DEFAULT TRUE,
@@ -65,6 +66,7 @@ CREATE TABLE IF NOT EXISTS public.personas (
 CREATE TABLE IF NOT EXISTS public.juegos (
     id SERIAL PRIMARY KEY,
     titulo VARCHAR(200) NOT NULL,
+    slug VARCHAR(220),
     imagen VARCHAR(300),
     capturas TEXT,
     descripcion TEXT,
@@ -139,6 +141,8 @@ CREATE INDEX IF NOT EXISTS idx_juegos_consola ON public.juegos(consola_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_categoria ON public.juegos(categoria_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_activo ON public.juegos(activo);
 CREATE INDEX IF NOT EXISTS idx_juegos_drive_file_id ON public.juegos(google_drive_file_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_juegos_slug   ON public.juegos(slug)   WHERE slug IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_consolas_slug ON public.consolas(slug) WHERE slug IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_juegos_activo_consola   ON public.juegos(activo, consola_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_activo_categoria ON public.juegos(activo, categoria_id);
 CREATE INDEX IF NOT EXISTS idx_juegos_activo_region    ON public.juegos(activo, region);

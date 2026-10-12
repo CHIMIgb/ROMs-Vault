@@ -45,7 +45,7 @@ $renderRel = function (array $items, string $titulo, string $icon, string $varia
         </h2>
         <div class="related-grid">
             <?php foreach ($items as $rel): ?>
-                <a href="/home/show/<?= (int) $rel['id'] ?>"
+                <a href="<?= !empty($rel['slug']) ? '/juego/' . rawurlencode($rel['slug']) : '/home/show/' . (int) $rel['id'] ?>"
                     class="related-card" title="<?= htmlspecialchars($rel['titulo']) ?>">
                     <div class="related-cover <?= empty($rel['imagen']) ? 'no-image' : '' ?>">
                         <!-- Disco placeholder siempre presente: se ve cuando no hay

@@ -4,7 +4,7 @@
 
 Aplicación MVC en PHP para gestionar y mostrar un catálogo de ROMs e ISOs de videojuegos, con panel de administración, exportación a Excel, y sistema de descargas desde Google Drive.
 
-## 📋 Características
+## Características
 
 - Catálogo público de juegos con filtros por plataforma, género y región
 - Paginación de 20 juegos por página (4 columnas × 5 filas)
@@ -24,7 +24,7 @@ Aplicación MVC en PHP para gestionar y mostrar un catálogo de ROMs e ISOs de v
 - Sistema de alertas UI consistentes y modales personalizados
 - Modo Oscuro/Claro nativo
 
-## 🚀 Instalación
+## Instalación
 
 ### Requisitos previos
 
@@ -113,7 +113,7 @@ ALLOWED_ORIGINS=           # Orígenes CORS permitidos (separados por coma). Vac
 chmod 777 public/uploads/
 ```
 
-## 🎮 Ejecutar la aplicación
+## Ejecutar la aplicación
 
 ### Usando el servidor integrado de PHP
 
@@ -140,7 +140,7 @@ docker run -p 8080:80 --env-file .env roms-vault
 
 La aplicación estará disponible en: `http://localhost:8080`
 
-## 🧪 Ejecutar los tests
+## Ejecutar los tests
 
 El proyecto incluye tests automatizados con **PHPUnit** para la lógica de negocio
 crítica (firma HMAC de URLs, tokens JWT, rate limiting y protección CSRF) y para
@@ -201,7 +201,7 @@ tests/
 > Los tests están pensados para ejecutarse también en **CI (GitHub Actions)**,
 > así que son deterministas: no dependen del orden, del estado global ni de la red.
 
-## 🔑 Acceso al panel de administración
+## Acceso al panel de administración
 
 Para acceder al área de administración, utiliza la siguiente URL:
 
@@ -209,7 +209,7 @@ Para acceder al área de administración, utiliza la siguiente URL:
 http://localhost:8000/auth/login
 ```
 
-## 🌐 Despliegue en Vercel
+## Despliegue en Vercel
 
 El proyecto se despliega como **contenedor Docker** (`Dockerfile` + `docker-entrypoint.sh`).
 Dentro del contenedor, Apache + `.htaccess` se encargan de las URLs limpias
@@ -218,14 +218,14 @@ archivo real al front controller `index.php` y reubican `ajax_*.php` y
 `rom_proxy.php` a `endpoints/` (sus URLs públicas siguen siendo la raíz),
 además de servir `public/`, etc.
 
-> ⚠️ **Importante:** no definir `rewrites` en `vercel.json`. Aunque el edge de
+> **Importante:** no definir `rewrites` en `vercel.json`. Aunque el edge de
 > Vercel los aplicaría ANTES de llegar al contenedor, la reescritura
 > (`/home/show/12` → `/index.php?controller=home&action=show&id=12`) pierde el
 > query string al proxyar al contenedor y las URLs limpias devuelven 404
 > (detalle, descargas, paginación). El array `rewrites` se mantiene vacío a
 > propósito; el enrutado real vive en `.htaccess`.
 
-## 📁 Estructura del proyecto principal
+## Estructura del proyecto principal
 
 ```
 roms-vault/
@@ -296,7 +296,7 @@ roms-vault/
 └── docs/                     # Documentación de decisiones/planes (fechada)
 ```
 
-## 🔒 Seguridad del Proxy de ROMs
+## Seguridad del Proxy de ROMs
 
 El archivo `endpoints/rom_proxy.php` actúa como intermediario seguro entre EmulatorJS y Google Drive:
 
@@ -310,14 +310,14 @@ El archivo `endpoints/rom_proxy.php` actúa como intermediario seguro entre Emul
 | **Streaming eficiente** | Transmite en chunks de 256 KB sin cargar el archivo completo en memoria |
 | **Security Headers** | `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` |
 
-## 🎯 Dependencias destacadas
+## Dependencias destacadas
 
 - **vlucas/phpdotenv**: Para el manejo de variables de entorno seguras (`.env`).
 - **firebase/php-jwt**: Implementación segura de JSON Web Tokens.
 - **shuchkin/simplexlsxgen**: Para la exportación ultra-rápida de datos a archivos `.xlsx` sin requerir extensiones pesadas de PHP (como `gd` o `zip`).
 - **phpunit/phpunit**: *(dev)* Framework de testing para los tests unitarios de seguridad (HMAC, JWT, rate limiting, CSRF).
 
-## 🛠 Solución de problemas comunes
+## Solución de problemas comunes
 
 ### Error de JWT o Sesión Expirada al instante
 Comprueba que el timezone de tu servidor de PHP coincida con el esperado o que el `JWT_SECRET` en el archivo `.env` se haya configurado correctamente.

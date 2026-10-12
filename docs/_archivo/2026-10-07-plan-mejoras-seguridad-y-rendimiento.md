@@ -99,15 +99,20 @@ activos) y los exports de administrador.
       usos en `src/`) y `Juego::getDownloadLink()` (construye URL directa de Google Drive
       **sin firma HMAC**, sin usos — anti-patrón si alguien lo reutiliza). *Esfuerzo: bajo.*
       → Eliminados en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md` (0 usos residuales).
-- [x] **4.3 Paginar listados admin restantes** — verificar `Consola::all()` (LIMIT ✓),
-      `Categoria::all()` (LIMIT ✓) y cualquier lista de juegos de dashboard/búsqueda;
+- [x] **4.3 Paginar listados admin restantes** — verificar `Consola::all()` (LIMIT OK),
+      `Categoria::all()` (LIMIT OK) y cualquier lista de juegos de dashboard/búsqueda;
       aplicar LIMIT/OFFSET + COUNT cuando corresponda. *Esfuerzo: medio.*
       → Verificado en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md` (dashboard y panel
       de emuladores ya pagan; dropdowns legítimos). Dead code extra hallado y eliminado:
       `Emulador::getAllWithConsolas()`.
-- [ ] **4.4 Keyset pagination (fase futura)** — para un catálogo grande, sustituir
+- [x] **4.4 Keyset pagination (fase futura)** — para un catálogo grande, sustituir
       OFFSET por keyset (`WHERE j.id < :cursor ORDER BY id DESC LIMIT n`) e índices
       cubrientes. *Esfuerzo: medio-alto.*
+      → **Descartado / diferido (no aplicable).** Benchmark del catálogo a 2.000 y 200.000 juegos:
+      a la escala del proyecto no aporta (todo < 30 ms con 2.000) y, a gran escala, no resuelve los
+      costes dominantes — el orden `random` por defecto (`md5(id||seed)`, no indexable) ni el `COUNT`
+      de la paginación — a cambio de perder la paginación numerada. Evidencia y criterio de
+      reactivación en `docs/2026-10-11-analisis-keyset-pagination-4.4.md`.
 
 ## 5. Tests de integración que miden el nivel de seguridad
 
@@ -160,8 +165,12 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       rutas en BD añadiría query/caché y superficie de ejecución arbitraria (riesgo RCE).
       Se documenta como ADR. *Esfuerzo: bajo (doc).*
       → ADR: `docs/2026-10-10-adr-routing-sin-tabla-de-rutas.md`.
-- [ ] **7.2 Slugs de contenido (fase futura)** — `juegos.slug`/`consolas.slug` para URLs
+- [x] **7.2 Slugs de contenido** — `juegos.slug`/`consolas.slug` para URLs
       limpias tipo `/juego/mario-bros` (dato del registro, no tabla de rutas). *Esfuerzo: medio.*
+      → Implementado: `src/config/Slug.php`, migración `data/migrations/2026-10-11-add-slugs.sql`,
+      backfill `scripts/backfill-slugs.php` (123 juegos + 16 consolas), rutas
+      `/juego/{slug}`, `/jugar/{slug}` y `/consolas/{slug}` (+301 desde legacy),
+      generación/edición de slug en admin. Doc: `docs/2026-10-11-slugs-contenido-7.2.md`.
 
 ## 8. Otras mejoras pendientes (enlace externo)
 
@@ -192,7 +201,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       intencional `unsafe-eval`/`blob:` para EmulatorJS → **no apretar**). Añadir
       `Cache-Control: no-store` a páginas de admin si no existe. *Esfuerzo: bajo.*
       → Implementado en `docs/2026-10-10-cache-no-store-admin.md` (commit `420c2f2`).
-- [x] **9.5 `composer audit`** — `composer.lock` está trackeado ✓; añadir `composer audit`
+- [x] **9.5 `composer audit`** — `composer.lock` está trackeado OK; añadir `composer audit`
       como paso previo al commit/deploy y dependabot/GitHub Actions (FASE 2 del roadmap). *Esfuerzo: bajo.*
       → `composer audit` es comando nativo de Composer 2.4+; un script con ese nombre se
       ignora (decidido con el usuario: sin script, se usa directamente). Pendiente FASE 2:
@@ -247,6 +256,8 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-10 | 7.1 ADR — routing por convención, sin tabla de rutas en BD | Implementada (solo doc) | `0fd030c` |
 | 2026-10-11 | 12 (Fase B) Verificación en producción — `TRUSTED_PROXIES=127.0.0.1`; la auditoría registra la IP pública real (rate limit por IP individual) | Implementada | `d5bc923` |
 | 2026-10-11 | 9.2 `display_errors` en Docker — duplicado de 2.4, ya implementado (sin cambios de código) | Implementada | `f188a79` |
+| 2026-10-11 | 4.4 Keyset pagination — descartado tras benchmark 2.000/200.000 (no aplicable) | Descartado / diferido | `dad02b1` |
+| 2026-10-11 | 7.2 Slugs de contenido (`juegos.slug`/`consolas.slug`, rutas `/juego`/`/jugar`/`/consolas/{slug}`, 301 desde legacy, admin) | Implementada | `0800610` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 

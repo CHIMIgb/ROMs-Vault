@@ -37,13 +37,13 @@ Limpieza manual del registry, conservando solo la imagen de producción:
 | Antes | Después |
 |---|---|
 | 50/50 imágenes → push rechazado | 2/50 imágenes |
-| Deploy Preview `● Error` | `✓ Ready in 1m` |
+| Deploy Preview `Error` | `Ready in 1m` |
 | Imagen `c3b9ccd824d9` rechazada | Imagen `c3b9ccd824d9` empujada |
 
 1. Diagnóstico (`vercel vcr image ls dockerfile --limit 100`).
 2. Borrado de 49 imágenes antiguas (`vercel vcr image rm dockerfile <id> --yes`),
    conservando `image_b4qDkPVAWPQMkcqKUzWTrqQaCE3O` (tag `359356092e16`).
-3. `vercel redeploy <deployment>` → Preview `✓ Ready`.
+3. `vercel redeploy <deployment>` → Preview `Ready`.
 
 ## Herramienta de mantenimiento
 

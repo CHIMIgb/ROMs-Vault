@@ -342,7 +342,7 @@
     "errors.generico_msg": "Ocorreu um erro inesperado.",
     "errors.generico_titulo": "Erro",
     "errors.ir_catalogo": "Ir para o catálogo",
-    "errors.ir_catalogo_icono": "🏠 Ir para o catálogo",
+    "errors.ir_catalogo_icono": "Ir para o catálogo",
     "errors.not_found": "Página não encontrada",
     "errors.not_found_detalle": "A URL que você digitou não existe neste servidor. Pode ser que o link esteja quebrado, que a página tenha sido movida, ou que você tenha digitado o endereço incorretamente.",
     "errors.not_found_msg": "A página que você procura não existe ou foi movida.",
@@ -584,5 +584,11 @@
     "component.consolas": "consoles",
     "component.consolas_con_emulador": "consoles com emulador",
     "play.error_sin_juego": "Erro: o jogo a reproduzir não foi especificado.",
-    "play.error_juego_no_existe": "Erro: o jogo solicitado não existe no banco de dados."
+    "play.error_juego_no_existe": "Erro: o jogo solicitado não existe no banco de dados.",
+    "admin.juego.slug": "Slug (URL)",
+    "admin.juego.slug_placeholder": "Gerado automaticamente a partir do título. Editável.",
+    "admin.consola.slug": "Slug (URL)",
+    "admin.consola.slug_placeholder": "Gerado automaticamente a partir do nome. Editável.",
+    "admin.juego.slug_ayuda": "Parte final da URL pública (/juego/…). Gerada a partir do título; altere apenas se quiser mudar o endereço (os links antigos deixarão de funcionar).",
+    "admin.consola.slug_ayuda": "Parte final da URL pública (/consolas/…). Gerada a partir do nome; altere apenas se quiser mudar o endereço (os links antigos deixarão de funcionar)."
 }

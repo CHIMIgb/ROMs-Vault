@@ -20,6 +20,16 @@
                    value="<?= htmlspecialchars($juego['titulo'] ?? '') ?>" 
                    required>
         </div>
+
+        <div class="form-group">
+            <label for="slug"><?= t('admin.juego.slug') ?></label>
+            <input type="text"
+                   id="slug"
+                   name="slug"
+                   value="<?= htmlspecialchars($juego['slug'] ?? '') ?>"
+                   placeholder="<?= t('admin.juego.slug_placeholder') ?>">
+            <small><?= t('admin.juego.slug_ayuda') ?></small>
+        </div>
         
         <div class="form-group">
             <label for="descripcion"><?= t('admin.juego.descripcion') ?></label>

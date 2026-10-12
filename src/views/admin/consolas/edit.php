@@ -26,6 +26,17 @@
                    required>
         </div>
 
+        <!-- Slug (URL) -->
+        <div class="form-group">
+            <label for="slug"><?= t('admin.consola.slug') ?></label>
+            <input type="text"
+                   id="slug"
+                   name="slug"
+                   value="<?= htmlspecialchars($_POST['slug'] ?? $consola['slug'] ?? '') ?>"
+                   placeholder="<?= t('admin.consola.slug_placeholder') ?>">
+            <small><?= t('admin.consola.slug_ayuda') ?></small>
+        </div>
+
         <!-- Fabricante -->
         <div class="form-group">
             <label for="fabricante"><?= t('admin.consola.fabricante') ?></label>

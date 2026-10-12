@@ -60,7 +60,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                 <th><?= t('admin.juego.tabla_consola') ?></th>
                 <th><?= t('admin.juego.tabla_categoria') ?></th>
                 <th><?= t('admin.juego.tabla_region') ?></th>
-                <th style="text-align:center;" title="<?= t('admin.juego.tabla_descargas') ?>">⬇</th>
+                <th style="text-align:center;" title="<?= t('admin.juego.tabla_descargas') ?>"><?= t('admin.juego.tabla_descargas_abrev') ?></th>
                 <th style="text-align:center;" title="<?= t('admin.juego.tabla_jugadas_online') ?>">▶</th>
                 <th><?= t('admin.juego.tabla_estado') ?></th>
                 <th><?= t('admin.juego.tabla_acciones') ?></th>
@@ -78,7 +78,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                         <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= t('admin.juego.alt_portada') ?>"
                              style="width:40px;height:40px;object-fit:cover;border-radius:4px;">
                     <?php else: ?>
-                        <span style="color:var(--text-light);">📁</span>
+                        <span style="color:var(--text-light);" aria-hidden="true">&mdash;</span>
                     <?php endif; ?>
                 </td>
                 <td><strong><?= htmlspecialchars($juego['titulo']) ?></strong></td>

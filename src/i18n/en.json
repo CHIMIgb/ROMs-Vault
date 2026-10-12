@@ -342,7 +342,7 @@
     "errors.generico_msg": "An unexpected error has occurred.",
     "errors.generico_titulo": "Error",
     "errors.ir_catalogo": "Go to catalog",
-    "errors.ir_catalogo_icono": "🏠 Go to catalog",
+    "errors.ir_catalogo_icono": "Go to catalog",
     "errors.not_found": "Page not found",
     "errors.not_found_detalle": "The URL you entered does not exist on this server. The link may be broken, the page may have been moved, or you may have mistyped the address.",
     "errors.not_found_msg": "The page you are looking for does not exist or has been moved.",
@@ -584,5 +584,11 @@
     "component.consolas": "consoles",
     "component.consolas_con_emulador": "consoles with emulator",
     "play.error_sin_juego": "Error: No game was specified to play.",
-    "play.error_juego_no_existe": "Error: The requested game does not exist in the database."
+    "play.error_juego_no_existe": "Error: The requested game does not exist in the database.",
+    "admin.juego.slug": "Slug (URL)",
+    "admin.juego.slug_placeholder": "Auto-generated from the title. Editable.",
+    "admin.consola.slug": "Slug (URL)",
+    "admin.consola.slug_placeholder": "Auto-generated from the name. Editable.",
+    "admin.juego.slug_ayuda": "Final part of the public URL (/juego/…). Generated from the title; change it only if you want a different address (old links will stop working).",
+    "admin.consola.slug_ayuda": "Final part of the public URL (/consolas/…). Generated from the name; change it only if you want a different address (old links will stop working)."
 }

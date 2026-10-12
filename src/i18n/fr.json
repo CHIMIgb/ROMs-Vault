@@ -342,7 +342,7 @@
     "errors.generico_msg": "Une erreur inattendue s'est produite.",
     "errors.generico_titulo": "Erreur",
     "errors.ir_catalogo": "Aller au catalogue",
-    "errors.ir_catalogo_icono": "🏠 Aller au catalogue",
+    "errors.ir_catalogo_icono": "Aller au catalogue",
     "errors.not_found": "Page introuvable",
     "errors.not_found_detalle": "L'URL que vous avez saisie n'existe pas sur ce serveur. Le lien est peut-être rompu, la page a peut-être été déplacée, ou vous avez mal écrit l'adresse.",
     "errors.not_found_msg": "La page que vous cherchez n'existe pas ou a été déplacée.",
@@ -584,5 +584,11 @@
     "component.consolas": "consoles",
     "component.consolas_con_emulador": "consoles avec émulateur",
     "play.error_sin_juego": "Erreur : le jeu à lire n'a pas été précisé.",
-    "play.error_juego_no_existe": "Erreur : le jeu demandé n'existe pas dans la base de données."
+    "play.error_juego_no_existe": "Erreur : le jeu demandé n'existe pas dans la base de données.",
+    "admin.juego.slug": "Slug (URL)",
+    "admin.juego.slug_placeholder": "Généré automatiquement à partir du titre. Modifiable.",
+    "admin.consola.slug": "Slug (URL)",
+    "admin.consola.slug_placeholder": "Généré automatiquement à partir du nom. Modifiable.",
+    "admin.juego.slug_ayuda": "Dernière partie de l'URL publique (/juego/…). Générée depuis le titre ; modifiez-la seulement pour changer l'adresse (les anciens liens cesseront de fonctionner).",
+    "admin.consola.slug_ayuda": "Dernière partie de l'URL publique (/consolas/…). Générée depuis le nom ; modifiez-la seulement pour changer l'adresse (les anciens liens cesseront de fonctionner)."
 }

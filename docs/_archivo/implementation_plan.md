@@ -1,4 +1,4 @@
-# Página Individual de Detalle de Juego 🎮
+# Página Individual de Detalle de Juego
 
 Crear una página dedicada para cada videojuego del catálogo donde el usuario pueda ver toda la información del juego en detalle: portada grande, galería de capturas de pantalla, sinopsis, ficha técnica completa, botones de descarga/jugar, y una sección de juegos relacionados.
 
@@ -65,7 +65,7 @@ Estructura propuesta de la página:
 │              │  Fecha de lanzamiento        │
 │              │  Idiomas · Tamaño · Game ID  │
 │              │                              │
-│              │  [▶ Jugar Online] [⬇ Descargar]│
+│              │  [▶ Jugar Online] [Descargar]│
 ├──────────────┴──────────────────────────────┤
 │  SINOPSIS                                   │
 │  Lorem ipsum dolor sit amet...              │

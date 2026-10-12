@@ -78,11 +78,11 @@ Los problemas más graves encontrados, en orden:
 
 **Archivo:** index.php, .htaccess
 
-- ✅ `controller`/`action` validados con regex (index.php:13).
-- ⚠️ **Rewriting inconsistente:** el `.htaccess` reescribe todo a `index.php?_url=/$1` (línea 8), pero `index.php` **nunca lee `$_GET['_url']`**: el routing usa `?controller=&action=` por query string. El `_url` es código muerto y confuso.
-- ⚠️ **Sin autoloading PSR-4:** cada controller/model hace `require_once` manual (incluso duplicado: `config/AuthMiddleware.php` se incluye en index.php y de nuevo en controllers). Composer ya existe en el proyecto pero no está configurado para autoload propio.
-- ⚠️ **Sin manejo centralizado de errores:** una excepción no capturada produce white screen; los 404/403 se repiten inline 3 veces en index.php.
-- ⚠️ **Sin router de método HTTP:** no hay validación a nivel de ruta de GET/POST (se hace a mano en cada controller).
+- OK `controller`/`action` validados con regex (index.php:13).
+- Aviso: **Rewriting inconsistente:** el `.htaccess` reescribe todo a `index.php?_url=/$1` (línea 8), pero `index.php` **nunca lee `$_GET['_url']`**: el routing usa `?controller=&action=` por query string. El `_url` es código muerto y confuso.
+- Aviso: **Sin autoloading PSR-4:** cada controller/model hace `require_once` manual (incluso duplicado: `config/AuthMiddleware.php` se incluye en index.php y de nuevo en controllers). Composer ya existe en el proyecto pero no está configurado para autoload propio.
+- Aviso: **Sin manejo centralizado de errores:** una excepción no capturada produce white screen; los 404/403 se repiten inline 3 veces en index.php.
+- Aviso: **Sin router de método HTTP:** no hay validación a nivel de ruta de GET/POST (se hace a mano en cada controller).
 
 ---
 
@@ -90,14 +90,14 @@ Los problemas más graves encontrados, en orden:
 
 **Archivos:** config/database.php, config/JWTService.php, .env.example, docker-entrypoint.sh, Dockerfile
 
-- ✅ dotenv `safeLoad()`, PDO con `ERRMODE_EXCEPTION` y `EMULATE_PREPARES=false` (correcto).
-- ⚠️ **`die()` expone el detalle PDO al cliente** (config/database.php:48). En producción debe loguearse y mostrar un mensaje genérico.
-- ⚠️ **Dotenv se carga dos veces** (database.php y JWTService.php) sin un bootstrap único.
-- ⚠️ **`.env` escrito en disco con credenciales** (docker-entrypoint.sh:14-29): necesario para Apache+PHP en contenedor, pero las credenciales quedan en texto plano en el filesystem del contenedor. Restringir permisos del archivo (chmod 600).
-- ⚠️ **`.htaccess` con sintaxis Apache 2.2** (`Order Allow,Deny`, líneas 18-20). En Apache 2.4 (php:8.2-apache) solo funciona si `mod_access_compat` está activo; por defecto **no protege `.env`, `*.log`, `*.sql`**. Usar `Require all denied` + `<FilesMatch>`.
-- ⚠️ **`public/bios/` y `public/uploads/`** son servidos tal cual. Los BIOS de PS1 (`scph1001.bin`, etc.) son binarios con copyright y quedan descargables por URL. Bloquear `public/bios/` y proteger `public/uploads/` de ejecución PHP.
-- ⚠️ **Dockerfile:** instala `pdo_mysql` que no se usa (la app es solo PostgreSQL).
-- ⚠️ **`bios_debug.log`** se genera en runtime (controllers/HomeController.php:219) y contiene rutas internas del desarrollador (`C:\Users\chimi\...`). Eliminar el `file_put_contents` (es código de debug).
+- OK dotenv `safeLoad()`, PDO con `ERRMODE_EXCEPTION` y `EMULATE_PREPARES=false` (correcto).
+- Aviso: **`die()` expone el detalle PDO al cliente** (config/database.php:48). En producción debe loguearse y mostrar un mensaje genérico.
+- Aviso: **Dotenv se carga dos veces** (database.php y JWTService.php) sin un bootstrap único.
+- Aviso: **`.env` escrito en disco con credenciales** (docker-entrypoint.sh:14-29): necesario para Apache+PHP en contenedor, pero las credenciales quedan en texto plano en el filesystem del contenedor. Restringir permisos del archivo (chmod 600).
+- Aviso: **`.htaccess` con sintaxis Apache 2.2** (`Order Allow,Deny`, líneas 18-20). En Apache 2.4 (php:8.2-apache) solo funciona si `mod_access_compat` está activo; por defecto **no protege `.env`, `*.log`, `*.sql`**. Usar `Require all denied` + `<FilesMatch>`.
+- Aviso: **`public/bios/` y `public/uploads/`** son servidos tal cual. Los BIOS de PS1 (`scph1001.bin`, etc.) son binarios con copyright y quedan descargables por URL. Bloquear `public/bios/` y proteger `public/uploads/` de ejecución PHP.
+- Aviso: **Dockerfile:** instala `pdo_mysql` que no se usa (la app es solo PostgreSQL).
+- Aviso: **`bios_debug.log`** se genera en runtime (controllers/HomeController.php:219) y contiene rutas internas del desarrollador (`C:\Users\chimi\...`). Eliminar el `file_put_contents` (es código de debug).
 
 ---
 
@@ -107,49 +107,49 @@ Los problemas más graves encontrados, en orden:
 
 ### 4.1 Autenticación (JWT)
 
-- ✅ Cookie `httpOnly` + `SameSite=Strict` + `Secure` cuando HTTPS (config/JWTService.php:135-146).
-- ✅ Auto-refresh de token dentro del umbral.
-- ⚠️ **Falta verificación de rol:** `AuthMiddleware::requireAuth()` solo comprueba que exista token (config/AuthMiddleware.php:19-26). El payload trae `rol_id`, pero **no se valida** que sea admin. Cualquier usuario con token válido entra al panel admin.
-- ⚠️ **Login sin protección:** sin rate limiting, sin CAPTCHA, sin bloqueo temporal tras N intentos (controllers/AuthController.php:7-26). Expuesto a brute force.
-- ⚠️ **Sin prefijo `__Secure-`** en el nombre de la cookie.
+- OK Cookie `httpOnly` + `SameSite=Strict` + `Secure` cuando HTTPS (config/JWTService.php:135-146).
+- OK Auto-refresh de token dentro del umbral.
+- Aviso: **Falta verificación de rol:** `AuthMiddleware::requireAuth()` solo comprueba que exista token (config/AuthMiddleware.php:19-26). El payload trae `rol_id`, pero **no se valida** que sea admin. Cualquier usuario con token válido entra al panel admin.
+- Aviso: **Login sin protección:** sin rate limiting, sin CAPTCHA, sin bloqueo temporal tras N intentos (controllers/AuthController.php:7-26). Expuesto a brute force.
+- Aviso: **Sin prefijo `__Secure-`** en el nombre de la cookie.
 
 ### 4.2 CSRF (CRÍTICO)
 
-- ❌ **No existe protección CSRF en ningún formulario**: login, alta/edición de juegos, consolas, categorías, emuladores.
-- ❌ **Cambios de estado y borrados por GET**: `toggleActive`, `toggleActiveAjax`, `delete` (admin, categorías, consolas) se disparan con `index.php?controller=admin&action=delete&id=5` (controllers/AdminController.php:158-205, 268-277; CategoriaController.php:110-131; ConsolaController.php:117-138).
+- No **No existe protección CSRF en ningún formulario**: login, alta/edición de juegos, consolas, categorías, emuladores.
+- No **Cambios de estado y borrados por GET**: `toggleActive`, `toggleActiveAjax`, `delete` (admin, categorías, consolas) se disparan con `index.php?controller=admin&action=delete&id=5` (controllers/AdminController.php:158-205, 268-277; CategoriaController.php:110-131; ConsolaController.php:117-138).
   → Un atacante puede hacer que un admin autenticado borre/desactive contenido con una simple imagen `<img src=".../action=delete&id=5">`.
   → **Fix:** token CSRF por sesión + verificar en cada POST; convertir los mutadores a POST/PATCH; al menos exigir `Origin/Referer` consistente.
 
 ### 4.3 SQL Injection / XSS
 
-- ✅ Prepared statements en el código activo; whitelist de `ORDER BY` (models/Juego.php:128-139).
-- ✅ Escapado con `htmlspecialchars()` en las vistas revisadas.
-- ⚠️ **`Model::create()/update()`** interpolan nombres de columnas (models/Model.php:23-41). Seguro solo si `$data` siempre proviene de claves controladas (hoy sí: los controllers fijan las claves). Mantener esa invariante o whitelist de columnas.
-- ⚠️ En `index.php:88` del catálogo el `src` de la imagen se escapa, correcto.
+- OK Prepared statements en el código activo; whitelist de `ORDER BY` (models/Juego.php:128-139).
+- OK Escapado con `htmlspecialchars()` en las vistas revisadas.
+- Aviso: **`Model::create()/update()`** interpolan nombres de columnas (models/Model.php:23-41). Seguro solo si `$data` siempre proviene de claves controladas (hoy sí: los controllers fijan las claves). Mantener esa invariante o whitelist de columnas.
+- Aviso: En `index.php:88` del catálogo el `src` de la imagen se escapa, correcto.
 
 ### 4.4 Uploads
 
-- ⚠️ **MIME del cliente no es fiable** (controllers/AdminController.php:213-216 usa `$file['type']`). El flujo GD (`imagecreatefrom*`) valida de facto que sea imagen, pero:
+- Aviso: **MIME del cliente no es fiable** (controllers/AdminController.php:213-216 usa `$file['type']`). El flujo GD (`imagecreatefrom*`) valida de facto que sea imagen, pero:
   - `imagecreatefromwebp/png/jpeg` puede consumir mucha memoria con imágenes de dimensiones enormes → validar dimensiones (`getimagesize`) y limitar (p. ej. máx. 4000×4000).
   - Se usa `@` silenciado; si falla, el mensaje no distingue causa.
   - No hay límite de dimensiones ni recompresión a un ancho máximo.
-- ✅ Nombre de archivo seguro (`uniqid()_time().webp`) y conversión a WebP.
+- OK Nombre de archivo seguro (`uniqid()_time().webp`) y conversión a WebP.
 
 ### 4.5 Headers y proxy
 
-- ✅ Firma HMAC de URLs del proxy con TTL 2h y `hash_equals` (rom_proxy.php:92-119).
-- ✅ Rate limiting por IP en el proxy con ventana deslizante.
-- ⚠️ **`X-Forwarded-For` sin validación** (rom_proxy.php:151-156): si el deploy no confía en los proxies intermedios, el atacante manda el header que quiera y **bypassa el rate limit**. En Vercel los headers de proxy se pueden confiar, pero validar contra la lista de proxies o al menos limitar longitud/duplicados.
-- ⚠️ **CORS `*` por defecto** (rom_proxy.php:38-40) si `ALLOWED_ORIGINS` está vacío. En producción debe estar configurado.
-- ⚠️ **`CURLOPT_SSL_VERIFYPEER => false`** en el preflight interno de play (controllers/HomeController.php:319). Quitar si el entorno lo permite.
-- ⚠️ **Faltan headers de seguridad en páginas HTML**: CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` (solo están en el proxy).
-- ⚠️ **Preflight cURL interno al propio servidor** en cada play (controllers/HomeController.php:306-346): doble request (interno + externo) por cada jugada; si el proxy cae, encadena latencia. Considerar validar localmente (con el rate limit y la BD) sin cURL.
+- OK Firma HMAC de URLs del proxy con TTL 2h y `hash_equals` (rom_proxy.php:92-119).
+- OK Rate limiting por IP en el proxy con ventana deslizante.
+- Aviso: **`X-Forwarded-For` sin validación** (rom_proxy.php:151-156): si el deploy no confía en los proxies intermedios, el atacante manda el header que quiera y **bypassa el rate limit**. En Vercel los headers de proxy se pueden confiar, pero validar contra la lista de proxies o al menos limitar longitud/duplicados.
+- Aviso: **CORS `*` por defecto** (rom_proxy.php:38-40) si `ALLOWED_ORIGINS` está vacío. En producción debe estar configurado.
+- Aviso: **`CURLOPT_SSL_VERIFYPEER => false`** en el preflight interno de play (controllers/HomeController.php:319). Quitar si el entorno lo permite.
+- Aviso: **Faltan headers de seguridad en páginas HTML**: CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` (solo están en el proxy).
+- Aviso: **Preflight cURL interno al propio servidor** en cada play (controllers/HomeController.php:306-346): doble request (interno + externo) por cada jugada; si el proxy cae, encadena latencia. Considerar validar localmente (con el rate limit y la BD) sin cURL.
 
 ### 4.6 Miscelánea
 
-- ⚠️ `Export` de `usuarios` incluye `password_hash` (models/Export.php:143) y emails (PII) en un XLSX descargable. No exportar hashes; enmascarar PII.
-- ⚠️ La tabla `descargas` registra `ip_address`, `user_agent`, `cookie_id` (PII). No hay código que la use (feature muerta) — o implementarla con finalidad clara o no recolectar esos datos.
-- ⚠️ `index.php` no fija `display_errors` según entorno (en producción debe estar off).
+- Aviso: `Export` de `usuarios` incluye `password_hash` (models/Export.php:143) y emails (PII) en un XLSX descargable. No exportar hashes; enmascarar PII.
+- Aviso: La tabla `descargas` registra `ip_address`, `user_agent`, `cookie_id` (PII). No hay código que la use (feature muerta) — o implementarla con finalidad clara o no recolectar esos datos.
+- Aviso: `index.php` no fija `display_errors` según entorno (en producción debe estar off).
 
 ---
 
@@ -157,48 +157,48 @@ Los problemas más graves encontrados, en orden:
 
 **Archivos:** models/*, data/roms-vaultDB-postgreSQL.sql
 
-- ✅ FK con `ON DELETE SET NULL/CASCADE` razonables; trigger `updated_at`.
-- ⚠️ **Índices incompletos** (ver sección 1.4). En especial `google_drive_file_id`.
-- ⚠️ **`getRelated()`** (models/Juego.php:392-566) ejecuta hasta 5-6 queries por ficha: `relacionadosPorConsola` + hasta 4 niveles de `queryGenero` + `categoriasRelacionadas()` (que carga TODAS las categorías con `allActivas()` cada vez) + re-`findWithDetails()` en nivel 3. Simplificable a 2-3 queries (una por sección con `CASE`, o cargar las categorías una sola vez por request).
-- ⚠️ **`getCatalogStats()`** (models/Juego.php:707-728): 4 subqueries `COUNT` correlacionadas sobre toda la tabla por ficha de detalle. Con miles de juegos, 4 full scans por visita. Cachear los totales por consola/categoría o calcularlos con una sola query con `COUNT() FILTER`.
-- ⚠️ **`RANDOM()`** en orden default y en `relacionadosPorConsola`/`queryGenero` (models/Juego.php:420,557).
-- ⚠️ `ILIKE '%x%'` sin índice pg_trgm → full scan en cada tecleo del buscador (debounce 380 ms).
-- ⚠️ **Sin connection pooling** para Postgres en la nube (pgbouncer recomendable para Neon bajo muchos requests).
-- ⚠️ `Export.php` consulta **todas** las filas de la tabla (sin límite) — para catálogos grandes puede agotar memoria. Stream del XLSX o límite.
+- OK FK con `ON DELETE SET NULL/CASCADE` razonables; trigger `updated_at`.
+- Aviso: **Índices incompletos** (ver sección 1.4). En especial `google_drive_file_id`.
+- Aviso: **`getRelated()`** (models/Juego.php:392-566) ejecuta hasta 5-6 queries por ficha: `relacionadosPorConsola` + hasta 4 niveles de `queryGenero` + `categoriasRelacionadas()` (que carga TODAS las categorías con `allActivas()` cada vez) + re-`findWithDetails()` en nivel 3. Simplificable a 2-3 queries (una por sección con `CASE`, o cargar las categorías una sola vez por request).
+- Aviso: **`getCatalogStats()`** (models/Juego.php:707-728): 4 subqueries `COUNT` correlacionadas sobre toda la tabla por ficha de detalle. Con miles de juegos, 4 full scans por visita. Cachear los totales por consola/categoría o calcularlos con una sola query con `COUNT() FILTER`.
+- Aviso: **`RANDOM()`** en orden default y en `relacionadosPorConsola`/`queryGenero` (models/Juego.php:420,557).
+- Aviso: `ILIKE '%x%'` sin índice pg_trgm → full scan en cada tecleo del buscador (debounce 380 ms).
+- Aviso: **Sin connection pooling** para Postgres en la nube (pgbouncer recomendable para Neon bajo muchos requests).
+- Aviso: `Export.php` consulta **todas** las filas de la tabla (sin límite) — para catálogos grandes puede agotar memoria. Stream del XLSX o límite.
 
 ---
 
 ## 6. Arquitectura / MVC / calidad de código
 
-- ⚠️ **Sin PSR-4 autoload** y `require_once` manual repetido.
-- ⚠️ **Sin `declare(strict_types=1)`**; tipado inconsistente entre modelos (Categoria/Consola/Emulador sí tipan; Juego/Model/controllers no).
-- ⚠️ Uso de **`die()`** para errores de flujo (play, download, database) en lugar de excepciones + página de error.
-- ⚠️ **Lógica de vista dentro de la vista**: el JS de `views/home/index.php` (300+ líneas) y `views/admin/dashboard.php` (200+ líneas) está inline; `public/js/script.js` está vacío pero se incluye en el footer de todas las páginas (request innecesario).
-- ⚠️ **Duplicación del template del grid** (~50 líneas idénticas) entre `views/home/index.php` y `ajax_catalog.php`. Extraer a `views/components/game_grid.php`.
-- ⚠️ `getWithRelations()` sin paginar es **código muerto**.
-- ⚠️ En `play()` el `incrementPlays()` se ejecuta incluso cuando el core no existe (comentado como intencional) — revisar si contamina métricas.
-- ⚠️ Controllers de admin no validan longitudes máximas (`titulo` hasta 200, `idiomas` 200, etc.) → errores de truncamiento/consistencia.
-- ✅ Buenos patrones: whitelist de orden, builders de WHERE reutilizables (`buildAdminWhere`), transacciones en `Emulador::replaceForConsola`.
+- Aviso: **Sin PSR-4 autoload** y `require_once` manual repetido.
+- Aviso: **Sin `declare(strict_types=1)`**; tipado inconsistente entre modelos (Categoria/Consola/Emulador sí tipan; Juego/Model/controllers no).
+- Aviso: Uso de **`die()`** para errores de flujo (play, download, database) en lugar de excepciones + página de error.
+- Aviso: **Lógica de vista dentro de la vista**: el JS de `views/home/index.php` (300+ líneas) y `views/admin/dashboard.php` (200+ líneas) está inline; `public/js/script.js` está vacío pero se incluye en el footer de todas las páginas (request innecesario).
+- Aviso: **Duplicación del template del grid** (~50 líneas idénticas) entre `views/home/index.php` y `ajax_catalog.php`. Extraer a `views/components/game_grid.php`.
+- Aviso: `getWithRelations()` sin paginar es **código muerto**.
+- Aviso: En `play()` el `incrementPlays()` se ejecuta incluso cuando el core no existe (comentado como intencional) — revisar si contamina métricas.
+- Aviso: Controllers de admin no validan longitudes máximas (`titulo` hasta 200, `idiomas` 200, etc.) → errores de truncamiento/consistencia.
+- OK Buenos patrones: whitelist de orden, builders de WHERE reutilizables (`buildAdminWhere`), transacciones en `Emulador::replaceForConsola`.
 
 ---
 
 ## 7. Observabilidad y operaciones
 
-- ⚠️ Solo `error_log()` plano; sin request ID, sin niveles, sin contexto (usuario/acción).
-- ⚠️ **Sin health checks** (`/healthz`) para el contenedor.
-- ⚠️ Sin métricas (latencia, consultas lentas, tasa de errores del proxy).
-- ⚠️ **`set_time_limit(0)`** en el proxy (rom_proxy.php:65) puede chocar con límites de plataforma (Vercel). Monitorear streams largos.
-- ⚠️ Sin alertas sobre errores del proxy (429/502 de Google Drive).
-- ⚠️ Sin tareas programadas: no hay limpieza de imágenes huérfanas en `public/uploads` cuando se borra un juego (solo se borra la imagen en `AdminController::delete`), ni limpieza de cache del proxy (`sys_get_temp_dir()/romproxy_cache` se limpia solo por TTL).
+- Aviso: Solo `error_log()` plano; sin request ID, sin niveles, sin contexto (usuario/acción).
+- Aviso: **Sin health checks** (`/healthz`) para el contenedor.
+- Aviso: Sin métricas (latencia, consultas lentas, tasa de errores del proxy).
+- Aviso: **`set_time_limit(0)`** en el proxy (rom_proxy.php:65) puede chocar con límites de plataforma (Vercel). Monitorear streams largos.
+- Aviso: Sin alertas sobre errores del proxy (429/502 de Google Drive).
+- Aviso: Sin tareas programadas: no hay limpieza de imágenes huérfanas en `public/uploads` cuando se borra un juego (solo se borra la imagen en `AdminController::delete`), ni limpieza de cache del proxy (`sys_get_temp_dir()/romproxy_cache` se limpia solo por TTL).
 
 ---
 
 ## 8. Testing y CI/CD
 
-- ❌ Sin tests unitarios ni de integración.
-- ❌ Sin linter/static analyzer (PHPStan/Psalm).
-- ⚠️ No hay pipeline CI visible (el deploy es vía Vercel por `.vercel`).
-- ⚠️ No hay base de datos de test ni fixtures.
+- No Sin tests unitarios ni de integración.
+- No Sin linter/static analyzer (PHPStan/Psalm).
+- Aviso: No hay pipeline CI visible (el deploy es vía Vercel por `.vercel`).
+- Aviso: No hay base de datos de test ni fixtures.
 
 ---
 

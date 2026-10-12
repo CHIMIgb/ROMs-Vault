@@ -235,12 +235,6 @@ parameters:
 			path: src/views/admin/tfa.php
 
 		-
-			message: '#^Variable \$juego might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/views/components/game_actions.php
-
-		-
 			message: '#^Variable \$relatedEager in empty\(\) is never defined\.$#'
 			identifier: empty.variable
 			count: 2
