@@ -252,7 +252,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-10 | 7.1 ADR — routing por convención, sin tabla de rutas en BD | Implementada (solo doc) | `0fd030c` |
 | 2026-10-11 | 12 (Fase B) Verificación en producción — `TRUSTED_PROXIES=127.0.0.1`; la auditoría registra la IP pública real (rate limit por IP individual) | Implementada | `d5bc923` |
 | 2026-10-11 | 9.2 `display_errors` en Docker — duplicado de 2.4, ya implementado (sin cambios de código) | Implementada | `f188a79` |
-| 2026-10-11 | 4.4 Keyset pagination — descartado tras benchmark 2.000/200.000 (no aplicable) | Descartado / diferido | `⟨hash⟩` |
+| 2026-10-11 | 4.4 Keyset pagination — descartado tras benchmark 2.000/200.000 (no aplicable) | Descartado / diferido | `dad02b1` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
