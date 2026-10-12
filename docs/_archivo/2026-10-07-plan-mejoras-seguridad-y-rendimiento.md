@@ -165,8 +165,12 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       rutas en BD añadiría query/caché y superficie de ejecución arbitraria (riesgo RCE).
       Se documenta como ADR. *Esfuerzo: bajo (doc).*
       → ADR: `docs/2026-10-10-adr-routing-sin-tabla-de-rutas.md`.
-- [ ] **7.2 Slugs de contenido (fase futura)** — `juegos.slug`/`consolas.slug` para URLs
+- [x] **7.2 Slugs de contenido** — `juegos.slug`/`consolas.slug` para URLs
       limpias tipo `/juego/mario-bros` (dato del registro, no tabla de rutas). *Esfuerzo: medio.*
+      → Implementado: `src/config/Slug.php`, migración `data/migrations/2026-10-11-add-slugs.sql`,
+      backfill `scripts/backfill-slugs.php` (123 juegos + 16 consolas), rutas
+      `/juego/{slug}`, `/jugar/{slug}` y `/consolas/{slug}` (+301 desde legacy),
+      generación/edición de slug en admin. Doc: `docs/2026-10-11-slugs-contenido-7.2.md`.
 
 ## 8. Otras mejoras pendientes (enlace externo)
 
@@ -253,6 +257,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
 | 2026-10-11 | 12 (Fase B) Verificación en producción — `TRUSTED_PROXIES=127.0.0.1`; la auditoría registra la IP pública real (rate limit por IP individual) | Implementada | `d5bc923` |
 | 2026-10-11 | 9.2 `display_errors` en Docker — duplicado de 2.4, ya implementado (sin cambios de código) | Implementada | `f188a79` |
 | 2026-10-11 | 4.4 Keyset pagination — descartado tras benchmark 2.000/200.000 (no aplicable) | Descartado / diferido | `dad02b1` |
+| 2026-10-11 | 7.2 Slugs de contenido (`juegos.slug`/`consolas.slug`, rutas `/juego`/`/jugar`/`/consolas/{slug}`, 301 desde legacy, admin) | Implementada | `0800610` |
 
 ## 12. Verificación pendiente en despliegue — IP real del cliente tras proxy/Vercel
 
