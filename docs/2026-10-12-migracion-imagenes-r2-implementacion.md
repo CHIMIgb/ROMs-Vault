@@ -123,6 +123,11 @@ R2_PUBLIC_HOST=pub-<hash>.r2.dev
 2. **Rotar el secret** de R2 antes de producción (se compartió por chat).
 3. **Comandos usados** (Windows): `C:\xampp\php\php.exe scripts\migrar-imagenes-r2.php --dry-run`
    y `... --yes`.
+4. **Acceso público / dominio propio**: el bucket es público vía `r2.dev` (URL de
+   desarrollo, rate-limited). Cuando exista un dominio propio, conectar un custom
+   domain en la misma cuenta de Cloudflare, desactivar `r2.dev`, activar Hotlink
+   Protection y migrar el prefijo de las URLs en BD (local + Neon). Detalles en
+   `docs/2026-10-12-r2-publico-y-dominio-propio.md`.
 
 ## 8. Referencias
 
