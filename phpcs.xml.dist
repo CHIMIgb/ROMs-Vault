@@ -5,15 +5,19 @@
 
   Notas:
   - PHP_CodeSniffer 3.13/4.0 eliminó el soporte de baseline, así que el gate
-    se aplica en CI solo sobre los ficheros PHP modificados en cada PR/push
+    se aplica en CI solo sobre los ficheros PHP (añadidos) en cada PR/push
     (ver .github/workflows/ci.yml), evitando reescribir el código legado.
+  - PSR-12 se aplica con exclusiones para respetar las convenciones
+    deliberadas del proyecto (ver <rule ref="PSR12"> abajo): sin namespaces
+    en el código de app y llaves en la misma línea. NO se excluye nada más:
+    se conservan espacios, saltos, longitud de línea, etc.
   - src/views/ queda excluido: son plantillas con HTML embebido, no clases PHP;
     aplicar PSR-12 estricto ahí genera ruido sin valor.
 
   Ejecutar local:  vendor/bin/phpcs
 -->
 <ruleset name="ROMs-Vault">
-    <description>PSR-12 para src/ y endpoints/ (excluye plantillas de src/views).</description>
+    <description>PSR-12 (con exclusiones para las convenciones del proyecto) para src/ y endpoints/.</description>
 
     <file>src</file>
     <file>endpoints</file>
@@ -26,5 +30,11 @@
     <arg name="basepath" value="."/>
     <arg name="parallel" value="8"/>
 
-    <rule ref="PSR12"/>
+    <rule ref="PSR12">
+        <!-- El proyecto NO usa namespaces en el código de app (sin PSR-4). -->
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+        <!-- El proyecto usa llaves en la misma línea (K&R), no en línea nueva. -->
+        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+    </rule>
 </ruleset>
