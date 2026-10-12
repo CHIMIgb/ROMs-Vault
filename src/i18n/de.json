@@ -342,7 +342,7 @@
     "errors.generico_msg": "Ein unerwarteter Fehler ist aufgetreten.",
     "errors.generico_titulo": "Fehler",
     "errors.ir_catalogo": "Zum Katalog",
-    "errors.ir_catalogo_icono": "🏠 Zum Katalog",
+    "errors.ir_catalogo_icono": "Zum Katalog",
     "errors.not_found": "Seite nicht gefunden",
     "errors.not_found_detalle": "Die von dir eingegebene URL existiert nicht auf diesem Server. Möglicherweise ist der Link defekt, die Seite wurde verschoben oder du hast die Adresse falsch geschrieben.",
     "errors.not_found_msg": "Die gesuchte Seite existiert nicht oder wurde verschoben.",

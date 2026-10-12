@@ -342,7 +342,7 @@
     "errors.generico_msg": "Une erreur inattendue s'est produite.",
     "errors.generico_titulo": "Erreur",
     "errors.ir_catalogo": "Aller au catalogue",
-    "errors.ir_catalogo_icono": "🏠 Aller au catalogue",
+    "errors.ir_catalogo_icono": "Aller au catalogue",
     "errors.not_found": "Page introuvable",
     "errors.not_found_detalle": "L'URL que vous avez saisie n'existe pas sur ce serveur. Le lien est peut-être rompu, la page a peut-être été déplacée, ou vous avez mal écrit l'adresse.",
     "errors.not_found_msg": "La page que vous cherchez n'existe pas ou a été déplacée.",

@@ -15,27 +15,28 @@
 
 | Fecha | Mejora | Estado | Commit |
 |-------|--------|--------|--------|
-| 2026-08-05 | **Fase 1.1** — Unit tests de seguridad (UrlSigner, JWTService, RateLimiter, CsrfService) + PHPUnit + `composer test` + testdox + README | ✅ Completada | `4610424` |
-| 2026-08-05 | **Fase 3.7** — Higiene del repo: normalización CRLF→LF (20 archivos) + `.gitattributes` + `.editorconfig` | ✅ Completada | `2665a0f` |
-| 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | ✅ Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `762066f` |
-| 2026-10-07 | **Fase 3.1** — Reorganización de estructura: `src/` (config/controllers/models/views) + `endpoints/` (rom_proxy y ajax_*), requires con `__DIR__`, URLs públicas intactas; `implementation_plan.md` archivado | ✅ Completada | `d39ee37` |
-| 2026-10-09 | **FASE 5 (5.1-5.2)** — i18n: cargador JSON es/en (582 claves paritarias), detección de idioma + cookie, y migración total de la UI pública, admin, controladores, router, servicios de seguridad y endpoints (`ajax_*`, `rom_proxy`) a `t()` en 5 bloques | ✅ Completada (pendiente 5.3 selector, RTL e `Intl`) | `2242c42` + `a3e120f` + `8a4ec97` + `76a2fc4` + `8c009ea` + `3f027f1` + `4f720b0` |
-| 2026-10-09 | **FASE 5 (5.3, 5.4 y 5.2 Intl)** — selector de idioma (ES/EN) en header con banderas SVG; fechas/números con `IntlHelper` (fallback); criterios 5.4 cumplidos (Accept-Language + grep de literales) | ✅ Completada (RTL 5.2 pendiente) | `4102f63` + `44a9cb9` |
-| 2026-10-10 | **FASE 5 — i18n ampliado** — 4 idiomas nuevos (`fr`, `pt` pt-BR, `de`, `ja`) con paridad 585 claves, banderas en selector, fallback Intl multi-idioma y tests actualizados (aceptación de `xx` para "no soportado") | ✅ Completada (RTL 5.2 y `EJS_language` 5.3 pendiente) | `d521eee` |
-| 2026-10-10 | **FASE 5 (5.3) — cambio de idioma sin recarga** — `endpoints/ajax_lang.php` + `public/js/rv-lang.js` (sincronización in-place sin romper listeners/estado), transición suave CSS y fallback GET nativo | ✅ Completada (queda `EJS_language` y RTL 5.2) | `3561a05` |
-| 2026-10-10 | **FASE 5 (5.3) — refinamientos** — `EJS_language` según idioma activo (`IntlHelper::emulatorLanguage()`), KPI "Total jugadas" en los 6 idiomas, fix de sincronización de texto con iconos pixelicons, transición localizada (solo lo que cambia, excluye media/emulador) y cabecera del panel admin consistente en todos los idiomas | ✅ Completada (RTL 5.2 pendiente) | `a9746e5` + `7eb9136` + `9f3a344` + `b24d585` + `48d2c5a` |
-| 2026-10-10 | **FASE 5 (5.3) — detección automática del idioma** — en la primera visita (sin cookie) `rv-lang.js` detecta el idioma del navegador (`navigator.languages`) y cambia/persiste sin recargar; la detección server-side por `Accept-Language` se mantiene como base | ✅ Completada (RTL 5.2 pendiente) | `84ee20c` |
-| 2026-10-10 | **Seguridad — credenciales hardcodeadas** — hashes del admin (test y producción) y secretos de test fuera del repo: `tests/.env.test` (gitignored) + `tests/.env.test.example`, placeholders `__ADMIN_PASSWORD_HASH__`/`__TFA_SECRET__` resueltos en runtime y `__CAMBIAR_PASSWORD_HASH__` (falla cerrado) en los dumps SQL | ✅ Completada | `f51eab5` |
-| 2026-10-10 | **Seguridad/Rendimiento §9.1** — fix warning `setcookie` tras HTML: seed del catálogo calculada en `HomeController::show()`/`play()` antes de renderizar (afectaba a ficha y emulador) | ✅ Completada | `2a76ff0` |
-| 2026-10-10 | **i18n (residuo 6.3)** — mensajes de error de `HomeController::play()` con `t()` (consola sin core / emulación off / BIOS faltante) respetando el idioma activo; limpieza de duplicado en `es.json` y traducción EN de `play.error_sin_juego` | ✅ Completada | `2b687b1` |
-| 2026-10-10 | **Seguridad §9.4** — `Cache-Control: no-store` en todas las páginas HTML de admin (`index.php`, antes del controlador) | ✅ Completada | `420c2f2` |
-| 2026-10-10 | **Seguridad §9.3** — `.dockerignore` para minimizar el contexto de `docker build` (tests/, docs/, vendor/, .env*, .vercel/, etc.) | ✅ Completada | `8a0aacd` |
-| 2026-10-10 | **Seguridad §12 (Fase A)** — `TRUSTED_PROXIES` allowlist en `RateLimiter::clientIp()`: deny-by-default, se elimina el heurístico RFC1918 | ✅ Completada (Fase B: verificación en deploy + activación en Vercel) | `3b40655` |
-| 2026-10-10 | **Seguridad §9.5** — `composer audit` verificado y documentado como paso pre-commit/deploy (comando nativo Composer 2.4+, 0 advisories; sin script por conflicto de nombre). Dependabot/CI → FASE 2 | ✅ Completada | `4a947da` |
-| 2026-10-10 | **Seguridad §7.1 (ADR)** — routing por convención en `index.php`, sin tabla de rutas en BD (evita superficie RCE; slugs 7.2 como evolución futura) | ✅ Completada | `0fd030c` |
-| 2026-10-11 | **Seguridad §12 (Fase B)** — verificación en producción: `TRUSTED_PROXIES=127.0.0.1` (proxy loopback del edge de Vercel); la auditoría registra la IP pública real del visitante (`153.67.119.76` == `api.ipify.org`); rate limit por IP individual | ✅ Completada | `d5bc923` |
-| 2026-10-11 | **Seguridad §9.2** — `display_errors` en Docker: duplicado de §2.4, ya implementado (`docker/php-production.ini` + `Dockerfile`); cerrado sin cambios de código | ✅ Completada | `f188a79` |
-| 2026-10-11 | **FASE 2 (2.1-2.4)** — CI/CD con GitHub Actions: `.github/workflows/ci.yml` (jobs `lint` `php -l`, `static` PHPStan nivel 5 + baseline y `phpcs` PSR-12 sobre ficheros cambiados, `tests` Unit+Integration+Security con servicio PostgreSQL 16 + esquema, `audit` `composer audit`, `build` `docker build`), `.github/dependabot.yml` y badge CI en README; `Server.php` portado a Linux (`/dev/null`) | ✅ Completada (configurar secrets `TEST_*` en GitHub; pendientes: PHPStan nivel 6, branch protection) | `2347580` |
+| 2026-08-05 | **Fase 1.1** — Unit tests de seguridad (UrlSigner, JWTService, RateLimiter, CsrfService) + PHPUnit + `composer test` + testdox + README | Completada | `4610424` |
+| 2026-08-05 | **Fase 3.7** — Higiene del repo: normalización CRLF→LF (20 archivos) + `.gitattributes` + `.editorconfig` | Completada | `2665a0f` |
+| 2026-08-05 | **Fase 1.2** — Tests de integración (login→dashboard, CRUD consola/emulador, router) contra BD PostgreSQL local de prueba | Completada (pendiente menor: CRUD categoría y download con mock de Drive → ver §1.2) | `762066f` |
+| 2026-10-07 | **Fase 3.1** — Reorganización de estructura: `src/` (config/controllers/models/views) + `endpoints/` (rom_proxy y ajax_*), requires con `__DIR__`, URLs públicas intactas; `implementation_plan.md` archivado | Completada | `d39ee37` |
+| 2026-10-09 | **FASE 5 (5.1-5.2)** — i18n: cargador JSON es/en (582 claves paritarias), detección de idioma + cookie, y migración total de la UI pública, admin, controladores, router, servicios de seguridad y endpoints (`ajax_*`, `rom_proxy`) a `t()` en 5 bloques | Completada (pendiente 5.3 selector, RTL e `Intl`) | `2242c42` + `a3e120f` + `8a4ec97` + `76a2fc4` + `8c009ea` + `3f027f1` + `4f720b0` |
+| 2026-10-09 | **FASE 5 (5.3, 5.4 y 5.2 Intl)** — selector de idioma (ES/EN) en header con banderas SVG; fechas/números con `IntlHelper` (fallback); criterios 5.4 cumplidos (Accept-Language + grep de literales) | Completada (RTL 5.2 pendiente) | `4102f63` + `44a9cb9` |
+| 2026-10-10 | **FASE 5 — i18n ampliado** — 4 idiomas nuevos (`fr`, `pt` pt-BR, `de`, `ja`) con paridad 585 claves, banderas en selector, fallback Intl multi-idioma y tests actualizados (aceptación de `xx` para "no soportado") | Completada (RTL 5.2 y `EJS_language` 5.3 pendiente) | `d521eee` |
+| 2026-10-10 | **FASE 5 (5.3) — cambio de idioma sin recarga** — `endpoints/ajax_lang.php` + `public/js/rv-lang.js` (sincronización in-place sin romper listeners/estado), transición suave CSS y fallback GET nativo | Completada (queda `EJS_language` y RTL 5.2) | `3561a05` |
+| 2026-10-10 | **FASE 5 (5.3) — refinamientos** — `EJS_language` según idioma activo (`IntlHelper::emulatorLanguage()`), KPI "Total jugadas" en los 6 idiomas, fix de sincronización de texto con iconos pixelicons, transición localizada (solo lo que cambia, excluye media/emulador) y cabecera del panel admin consistente en todos los idiomas | Completada (RTL 5.2 pendiente) | `a9746e5` + `7eb9136` + `9f3a344` + `b24d585` + `48d2c5a` |
+| 2026-10-10 | **FASE 5 (5.3) — detección automática del idioma** — en la primera visita (sin cookie) `rv-lang.js` detecta el idioma del navegador (`navigator.languages`) y cambia/persiste sin recargar; la detección server-side por `Accept-Language` se mantiene como base | Completada (RTL 5.2 pendiente) | `84ee20c` |
+| 2026-10-10 | **Seguridad — credenciales hardcodeadas** — hashes del admin (test y producción) y secretos de test fuera del repo: `tests/.env.test` (gitignored) + `tests/.env.test.example`, placeholders `__ADMIN_PASSWORD_HASH__`/`__TFA_SECRET__` resueltos en runtime y `__CAMBIAR_PASSWORD_HASH__` (falla cerrado) en los dumps SQL | Completada | `f51eab5` |
+| 2026-10-10 | **Seguridad/Rendimiento §9.1** — fix warning `setcookie` tras HTML: seed del catálogo calculada en `HomeController::show()`/`play()` antes de renderizar (afectaba a ficha y emulador) | Completada | `2a76ff0` |
+| 2026-10-10 | **i18n (residuo 6.3)** — mensajes de error de `HomeController::play()` con `t()` (consola sin core / emulación off / BIOS faltante) respetando el idioma activo; limpieza de duplicado en `es.json` y traducción EN de `play.error_sin_juego` | Completada | `2b687b1` |
+| 2026-10-10 | **Seguridad §9.4** — `Cache-Control: no-store` en todas las páginas HTML de admin (`index.php`, antes del controlador) | Completada | `420c2f2` |
+| 2026-10-10 | **Seguridad §9.3** — `.dockerignore` para minimizar el contexto de `docker build` (tests/, docs/, vendor/, .env*, .vercel/, etc.) | Completada | `8a0aacd` |
+| 2026-10-10 | **Seguridad §12 (Fase A)** — `TRUSTED_PROXIES` allowlist en `RateLimiter::clientIp()`: deny-by-default, se elimina el heurístico RFC1918 | Completada (Fase B: verificación en deploy + activación en Vercel) | `3b40655` |
+| 2026-10-10 | **Seguridad §9.5** — `composer audit` verificado y documentado como paso pre-commit/deploy (comando nativo Composer 2.4+, 0 advisories; sin script por conflicto de nombre). Dependabot/CI → FASE 2 | Completada | `4a947da` |
+| 2026-10-10 | **Seguridad §7.1 (ADR)** — routing por convención en `index.php`, sin tabla de rutas en BD (evita superficie RCE; slugs 7.2 como evolución futura) | Completada | `0fd030c` |
+| 2026-10-11 | **Seguridad §12 (Fase B)** — verificación en producción: `TRUSTED_PROXIES=127.0.0.1` (proxy loopback del edge de Vercel); la auditoría registra la IP pública real del visitante (`153.67.119.76` == `api.ipify.org`); rate limit por IP individual | Completada | `d5bc923` |
+| 2026-10-11 | **Seguridad §9.2** — `display_errors` en Docker: duplicado de §2.4, ya implementado (`docker/php-production.ini` + `Dockerfile`); cerrado sin cambios de código | Completada | `f188a79` |
+| 2026-10-11 | **FASE 2 (2.1-2.4)** — CI/CD con GitHub Actions: `.github/workflows/ci.yml` (jobs `lint` `php -l`, `static` PHPStan nivel 5 + baseline y `phpcs` PSR-12 sobre ficheros cambiados, `tests` Unit+Integration+Security con servicio PostgreSQL 16 + esquema, `audit` `composer audit`, `build` `docker build`), `.github/dependabot.yml` y badge CI en README; `Server.php` portado a Linux (`/dev/null`) | Completada (configurar secrets `TEST_*` en GitHub; pendientes: PHPStan nivel 6, branch protection) | `2347580` |
+| 2026-10-11 | **FASE 5 (5.1) — i18n Tier 1** — 3 idiomas nuevos (`it`, `ru`, `tr`) con paridad 592 claves, banderas SVG, fallback Intl (`it_IT`/`ru_RU`/`tr_TR`) y `EJS_language` (`it-IT`/`ru-RU`/`tr-TR`); tests actualizados (9 idiomas) | Completada (RTL 5.2 y Tier 2 `zh`/`ko`/`ar` pendientes) | `6c2990d` |
 
 
 ---
@@ -240,6 +241,7 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 - [x] `src/config/i18n.php` — cargador de idiomas, función global `t('clave', params)`
 - [x] `src/i18n/es.json`, `src/i18n/en.json` (implementado como JSON paritario en vez de `lang/*.php`; 585 claves)
 - [x] `src/i18n/fr.json`, `src/i18n/pt.json`, `src/i18n/de.json`, `src/i18n/ja.json` (ampliación FASE 5, 2026-10-10)
+- [x] `src/i18n/it.json`, `src/i18n/ru.json`, `src/i18n/tr.json` (Tier 1, 2026-10-11; 9 idiomas · candidatos Tier 2 en `docs/_archivo/2026-10-11-idiomas-candidatos-tier2.md`)
 - [x] Detección de idioma: header `Accept-Language` → cookie (`?lang=` selector) → default `es`
 - [x] Persistir preferencia en cookie `rv_lang` (selector `?lang=`)
 
@@ -253,7 +255,7 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 
 ### 5.3 Selector de idioma en la UI
 
-- [x] Selector de idioma visible en header (es/en/fr/pt/de/ja) con banderas.
+- [x] Selector de idioma visible en header (es/en/fr/pt/de/ja/it/ru/tr) con banderas.
 - [x] Los textos de EmulatorJS soportan el idioma activo vía `EJS_language` (`IntlHelper::emulatorLanguage()`, whitelist de códigos del CDN) (`b24d585`)
 - [x] El idioma cambia **sin recargar la página**: POST a `endpoints/ajax_lang.php` + sincronización in-place del DOM (`public/js/rv-lang.js`), con fallback GET nativo sin JS (`3561a05`)
 - [x] El idioma se **detecta automáticamente del navegador** en la primera visita (`navigator.languages`) y se recuerda; la elección explícita del usuario siempre manda (`84ee20c`)
@@ -332,7 +334,7 @@ El sitio se ve bien, pero técnicamente es CSS/JS vanilla sin tooling. Para un p
 | "¿Cómo despliegas?" | "Push a Vercel" | "CI verde → auto-deploy; previews por PR" |
 | "¿Por qué sin framework?" | "..." | "ADR-001: decisión fundacional y deliberada — domino HTTP, sesiones, routing y seguridad desde el protocolo, y lo demuestro con código propio" |
 | "¿Cómo mantienes 5k líneas?" | "Con cuidado" | "Autoload PSR-4, DTOs, partials únicos, sin HTML duplicado" |
-| "¿Soporta más idiomas?" | "No" | "i18n con es/en/fr/pt/de/ja, selector en UI; RTL pendiente" |
+| "¿Soporta más idiomas?" | "No" | "i18n con es/en/fr/pt/de/ja/it/ru/tr, selector en UI; RTL pendiente" |
 | "¿Qué pasa en producción si falla?" | "Lo veo en el navegador" | "Logs estructurados, request ID, health checks" |
 | "¿Y las dependencias vulnerables?" | "..." | "Dependabot + CodeQL en cada push" |
 

@@ -342,7 +342,7 @@
     "errors.generico_msg": "予期しないエラーが発生しました。",
     "errors.generico_titulo": "エラー",
     "errors.ir_catalogo": "カタログへ移動",
-    "errors.ir_catalogo_icono": "🏠 カタログへ移動",
+    "errors.ir_catalogo_icono": "カタログへ移動",
     "errors.not_found": "ページが見つかりません",
     "errors.not_found_detalle": "入力したURLはこのサーバーに存在しません。リンクが壊れているか、ページが移動したか、アドレスを間違って入力した可能性があります。",
     "errors.not_found_msg": "お探しのページは存在しないか、移動しました。",

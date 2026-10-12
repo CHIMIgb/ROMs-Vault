@@ -342,7 +342,7 @@
     "errors.generico_msg": "Ocorreu um erro inesperado.",
     "errors.generico_titulo": "Erro",
     "errors.ir_catalogo": "Ir para o catálogo",
-    "errors.ir_catalogo_icono": "🏠 Ir para o catálogo",
+    "errors.ir_catalogo_icono": "Ir para o catálogo",
     "errors.not_found": "Página não encontrada",
     "errors.not_found_detalle": "A URL que você digitou não existe neste servidor. Pode ser que o link esteja quebrado, que a página tenha sido movida, ou que você tenha digitado o endereço incorretamente.",
     "errors.not_found_msg": "A página que você procura não existe ou foi movida.",

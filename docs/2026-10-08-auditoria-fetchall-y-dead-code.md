@@ -18,13 +18,13 @@ Categoria, Emulador, Usuario, Export). Clasificación:
 | `Consola::allActivas()`, `Categoria::allActivas()` | **Legítimo** — dropdowns |
 | `Emulador::porConsola()`, `withConsole()`, `consolasConEmuladores()`, `sinEmulador()` | **Legítimo** — conjuntos pequeños |
 | `Export::exportJuegos/consolas/categorias/personas/roles/descargas` | **Legítimo** — exports admin (excepción explícita) |
-| `Juego::getAllPaginated` (LIMIT/OFFSET) + `countAll` | ✅ paginado |
-| `Juego::getWithRelationsPaginated` (LIMIT/OFFSET) + `countWithFilters` | ✅ paginado (catálogo público, 20 por página) |
-| `Juego::getAllPaginatedFiltered` (LIMIT/OFFSET) + `countAllFiltered` | ✅ paginado (dashboard admin) |
-| `Juego::getTopByDownloads` / `getTopByPlays` (`LIMIT :n`, default 5) | ✅ limitado |
-| `Juego::relacionadosPorConsola` (`LIMIT :lim`, 8) y `queryGenero` (`LIMIT :lim`, 8) | ✅ limitado |
-| `Juego::autocomplete` (`LIMIT :lim`, 8) | ✅ limitado |
-| `Auditoria::recientes()` (`LIMIT :limite`, 50) y `contarEventos()` (COUNT) | ✅ limitado |
+| `Juego::getAllPaginated` (LIMIT/OFFSET) + `countAll` | OK paginado |
+| `Juego::getWithRelationsPaginated` (LIMIT/OFFSET) + `countWithFilters` | OK paginado (catálogo público, 20 por página) |
+| `Juego::getAllPaginatedFiltered` (LIMIT/OFFSET) + `countAllFiltered` | OK paginado (dashboard admin) |
+| `Juego::getTopByDownloads` / `getTopByPlays` (`LIMIT :n`, default 5) | OK limitado |
+| `Juego::relacionadosPorConsola` (`LIMIT :lim`, 8) y `queryGenero` (`LIMIT :lim`, 8) | OK limitado |
+| `Juego::autocomplete` (`LIMIT :lim`, 8) | OK limitado |
+| `Auditoria::recientes()` (`LIMIT :limite`, 50) y `contarEventos()` (COUNT) | OK limitado |
 | `Juego::getGlobalStats`, `getCatalogStats` | agrupación/1 fila — N/A |
 
 **Conclusión:** no queda ningún `fetchAll()` sin `LIMIT` en listados de UI que deba paginarse.
@@ -53,10 +53,10 @@ Verificado tras la auditoría 4.1 (2026-10-08):
 
 | Listado admin | Estado |
 |---|---|
-| Juegos del dashboard + búsqueda | ✅ ya pagina (`getAllPaginatedFiltered` + `countAllFiltered`) |
-| Consolas con emuladores (panel admin) | ✅ ya pagina (`getConsolasPaginated` + `countConsolas`, usado por `EmuladorController::index` y `ajax_emulador.php`) |
-| Emuladores por consola (`getByConsolaIds`) | ✅ acotado al set de la página (≤ decenas) |
-| Dropdowns: `Consola::all()`, `Categoria::all()`, `getConsolasSinEmulador()`, `getByConsola()` | ✅ legítimos (dropdowns pequeños) |
+| Juegos del dashboard + búsqueda | OK ya pagina (`getAllPaginatedFiltered` + `countAllFiltered`) |
+| Consolas con emuladores (panel admin) | OK ya pagina (`getConsolasPaginated` + `countConsolas`, usado por `EmuladorController::index` y `ajax_emulador.php`) |
+| Emuladores por consola (`getByConsolaIds`) | OK acotado al set de la página (≤ decenas) |
+| Dropdowns: `Consola::all()`, `Categoria::all()`, `getConsolasSinEmulador()`, `getByConsola()` | OK legítimos (dropdowns pequeños) |
 
 **Hallazgo y limpieza:** `Emulador::getAllWithConsolas()` — `SELECT` sin `LIMIT` que repetía la
 vista del panel admin sin paginar; **sin usos** en `src/`, `endpoints/`, `public/js`, vistas ni

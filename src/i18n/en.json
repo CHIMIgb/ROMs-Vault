@@ -342,7 +342,7 @@
     "errors.generico_msg": "An unexpected error has occurred.",
     "errors.generico_titulo": "Error",
     "errors.ir_catalogo": "Go to catalog",
-    "errors.ir_catalogo_icono": "🏠 Go to catalog",
+    "errors.ir_catalogo_icono": "Go to catalog",
     "errors.not_found": "Page not found",
     "errors.not_found_detalle": "The URL you entered does not exist on this server. The link may be broken, the page may have been moved, or you may have mistyped the address.",
     "errors.not_found_msg": "The page you are looking for does not exist or has been moved.",

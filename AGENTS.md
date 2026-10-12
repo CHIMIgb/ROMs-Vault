@@ -33,6 +33,7 @@ PHP 8.1+ vanilla MVC, no framework — custom routing in `index.php` (clean URLs
 - **MVC layering**: DB access in Models, logic/routing in Controllers, UI in Views — no SQL in views, no HTML in models.
 - **CSS**: all styles in `public/css/modules/*`; new styles go in a module file imported by `style.css`, never loose CSS there.
 - **Git**: never `git push`; commit locally with **Spanish** messages.
+- **No emojis**: never use emoji characters anywhere in the repo — code, views, CSS, i18n dictionaries, docs, README or commit messages. Forbidden: Unicode pictographs (ranges `U+1F000–U+1FAFF`, `U+2B00–U+2BFF`), flags (`U+1F1E6–U+1F1FF`), and emoji-presentation dingbats (`U+2705`, `U+274C`, `U+2757`, `U+2764`, or `U+2600–U+27BF` followed by `U+FE0F`). Allowed: typographic arrows (`→ ← ↑ ↓`), UI/math symbols (`✕ ✖ ✓ ✔`) and retro design glyphs (`▶ ▼ ◀ ► ●`). Enforced by `tests/Unit/NoEmojiTest.php`.
 - **Docs**: every task gets a dated file under `docs/` (e.g. `docs/2026-08-05-plan-...md`).
 - **Roadmap**: `docs/2026-08-05-plan-mejoras-nivel-senior.md` is the single source of truth for planned improvements. When implementing one, tick the checkbox, note the commit hash, and update the "Registro de progreso" table **in the same commit**.
 - **Line endings**: LF enforced by `.gitattributes`/`.editorconfig`; don't commit CRLF (Windows checkout).

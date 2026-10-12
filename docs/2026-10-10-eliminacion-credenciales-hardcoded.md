@@ -24,12 +24,12 @@ se fijan tras el despliegue.
 
 | Archivo | Qué había | Veredicto |
 | --- | --- | --- |
-| `data/import_data.sql` | bcrypt de `password` para el admin | 🔴 credencial por defecto conocida, versionada |
-| `data/roms-vaultDB-MySQL.sql` | el mismo bcrypt de `password` | 🔴 idem |
-| `data/test_seeds.sql` | bcrypt de `admin123` + `tfa_secret` | 🟡 solo BD de test, pero versionado |
-| `tests/Security/SecurityTest.php` | `'admin123'`, `SERVER_JWT_SECRET` | 🟡 fixture (GitGuardian lo marcó) |
-| `tests/Integration/TwoFactorFlowTest.php` | `TFA_SECRET` (vector RFC 6238) | 🟡 fixture (GitGuardian lo marcó) |
-| `tests/Unit/*Test.php` | JWT secret de prueba | 🟡 fixture |
+| `data/import_data.sql` | bcrypt de `password` para el admin | ALTA credencial por defecto conocida, versionada |
+| `data/roms-vaultDB-MySQL.sql` | el mismo bcrypt de `password` | ALTA idem |
+| `data/test_seeds.sql` | bcrypt de `admin123` + `tfa_secret` | MEDIA solo BD de test, pero versionado |
+| `tests/Security/SecurityTest.php` | `'admin123'`, `SERVER_JWT_SECRET` | MEDIA fixture (GitGuardian lo marcó) |
+| `tests/Integration/TwoFactorFlowTest.php` | `TFA_SECRET` (vector RFC 6238) | MEDIA fixture (GitGuardian lo marcó) |
+| `tests/Unit/*Test.php` | JWT secret de prueba | MEDIA fixture |
 
 `README.md` no documentaba ninguna de estas credenciales (sin cambios).
 

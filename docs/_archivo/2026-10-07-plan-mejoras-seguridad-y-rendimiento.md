@@ -99,8 +99,8 @@ activos) y los exports de administrador.
       usos en `src/`) y `Juego::getDownloadLink()` (construye URL directa de Google Drive
       **sin firma HMAC**, sin usos — anti-patrón si alguien lo reutiliza). *Esfuerzo: bajo.*
       → Eliminados en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md` (0 usos residuales).
-- [x] **4.3 Paginar listados admin restantes** — verificar `Consola::all()` (LIMIT ✓),
-      `Categoria::all()` (LIMIT ✓) y cualquier lista de juegos de dashboard/búsqueda;
+- [x] **4.3 Paginar listados admin restantes** — verificar `Consola::all()` (LIMIT OK),
+      `Categoria::all()` (LIMIT OK) y cualquier lista de juegos de dashboard/búsqueda;
       aplicar LIMIT/OFFSET + COUNT cuando corresponda. *Esfuerzo: medio.*
       → Verificado en `docs/2026-10-08-auditoria-fetchall-y-dead-code.md` (dashboard y panel
       de emuladores ya pagan; dropdowns legítimos). Dead code extra hallado y eliminado:
@@ -201,7 +201,7 @@ Nueva suite **`Security`** en `phpunit.xml` (además de Unit e Integration). Cas
       intencional `unsafe-eval`/`blob:` para EmulatorJS → **no apretar**). Añadir
       `Cache-Control: no-store` a páginas de admin si no existe. *Esfuerzo: bajo.*
       → Implementado en `docs/2026-10-10-cache-no-store-admin.md` (commit `420c2f2`).
-- [x] **9.5 `composer audit`** — `composer.lock` está trackeado ✓; añadir `composer audit`
+- [x] **9.5 `composer audit`** — `composer.lock` está trackeado OK; añadir `composer audit`
       como paso previo al commit/deploy y dependabot/GitHub Actions (FASE 2 del roadmap). *Esfuerzo: bajo.*
       → `composer audit` es comando nativo de Composer 2.4+; un script con ese nombre se
       ignora (decidido con el usuario: sin script, se usa directamente). Pendiente FASE 2:
