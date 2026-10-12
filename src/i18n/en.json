@@ -588,5 +588,7 @@
     "admin.juego.slug": "Slug (URL)",
     "admin.juego.slug_placeholder": "Auto-generated from the title. Editable.",
     "admin.consola.slug": "Slug (URL)",
-    "admin.consola.slug_placeholder": "Auto-generated from the name. Editable."
+    "admin.consola.slug_placeholder": "Auto-generated from the name. Editable.",
+    "admin.juego.slug_ayuda": "Final part of the public URL (/juego/…). Generated from the title; change it only if you want a different address (old links will stop working).",
+    "admin.consola.slug_ayuda": "Final part of the public URL (/consolas/…). Generated from the name; change it only if you want a different address (old links will stop working)."
 }

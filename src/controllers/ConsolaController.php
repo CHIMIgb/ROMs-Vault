@@ -49,9 +49,12 @@ class ConsolaController {
                 $error = t('msg.consola_nombre_obligatorio');
             } else {
                 $consolaModel = new Consola();
+                // Al crear, el slug se genera siempre desde el nombre (el
+                // formulario de alta no incluye el campo slug). En edición sí
+                // puede fijarse a mano: ver resolverSlugConsola().
                 $ok = $consolaModel->create([
                     'nombre'           => $nombre,
-                    'slug'             => Slug::unique(trim($_POST['slug'] ?? '') ?: $nombre, fn(string $s) => $consolaModel->slugExists($s), 'consola'),
+                    'slug'             => Slug::unique($nombre, fn(string $s) => $consolaModel->slugExists($s), 'consola'),
                     'descripcion'      => $descripcion ?: null,
                     'fabricante'       => $fabricante  ?: null,
                     'activo'           => 1,

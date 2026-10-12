@@ -28,6 +28,7 @@
                    name="slug"
                    value="<?= htmlspecialchars($juego['slug'] ?? '') ?>"
                    placeholder="<?= t('admin.juego.slug_placeholder') ?>">
+            <small><?= t('admin.juego.slug_ayuda') ?></small>
         </div>
         
         <div class="form-group">

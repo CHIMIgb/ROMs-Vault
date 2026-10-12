@@ -18,8 +18,10 @@ Las URLs legacy (`/home/show/{id}`, `/home/play?file_id=…` y sus equivalentes
 ## Decisiones (aprobadas por el usuario)
 
 - **D1** — Se incluye `consolas.slug` y la página pública `/consolas/{slug}`.
-- **D2** — El slug es **estable**: se genera una vez; editar el título/nombre NO
-  cambia la URL; es **editable a mano** desde el admin.
+- **D2** — El slug es **estable**: se genera **automáticamente** al crear (desde
+  el título/nombre); editar el título/nombre NO cambia la URL. El slug **solo es
+  editable a mano desde el formulario de edición** (el de alta ya no incluye el
+  campo), para poder corregir/acortar una URL existente sin que se regenere sola.
 - **D3** — El endurecimiento del `file_id` (firma por slug + proxy) se trata como
   ítem aparte.
 - **Nota de ruta** — Se usa `/consolas` (plural) para la página pública porque
@@ -54,8 +56,10 @@ Las URLs legacy (`/home/show/{id}`, `/home/play?file_id=…` y sus equivalentes
   Canonical/`og:url` → `/juego/{slug}`.
 - Admin (`AdminController`, `ConsolaController`): generación de slug al crear,
   conservación al editar (D2), override manual vía campo `slug`; `slugify()`
-  delega en `Slug::make()`. Campo `slug` añadido a los 4 formularios
-  (`admin/add.php`, `admin/edit.php`, `admin/consolas/{add,edit}.php`).
+  delega en `Slug::make()`. Campo `slug` presente **solo** en los formularios de
+  edición (`admin/edit.php`, `admin/consolas/edit.php`, con texto de ayuda bajo
+  el input); los de alta (`admin/add.php`, `admin/consolas/add.php`) no lo
+  incluyen y el slug se genera siempre desde el título/nombre.
 - Vistas/endpoints: enlaces migrados a slug (con fallback a legacy) en
   `home/index.php`, `components/related_games.php`, `components/game_actions.php`,
   `endpoints/ajax_catalog.php`, `endpoints/ajax_autocomplete.php`.

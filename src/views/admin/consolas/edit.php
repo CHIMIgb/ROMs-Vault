@@ -34,6 +34,7 @@
                    name="slug"
                    value="<?= htmlspecialchars($_POST['slug'] ?? $consola['slug'] ?? '') ?>"
                    placeholder="<?= t('admin.consola.slug_placeholder') ?>">
+            <small><?= t('admin.consola.slug_ayuda') ?></small>
         </div>
 
         <!-- Fabricante -->

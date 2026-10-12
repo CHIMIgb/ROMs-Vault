@@ -125,7 +125,10 @@ class AdminController {
 
             if (!isset($error)) {
                 $juegoModel = new Juego();
-                $data['slug'] = $this->resolverSlugJuego($_POST['slug'] ?? '', $data['titulo'], $juegoModel);
+                // Al crear, el slug se genera siempre desde el título (el
+                // formulario de alta no incluye el campo slug). En edición sí
+                // puede fijarse a mano: ver resolverSlugJuego().
+                $data['slug'] = Slug::unique($data['titulo'], fn(string $s) => $juegoModel->slugExists($s), 'juego');
                 if ($juegoModel->create($data)) {
                     header('Location: /admin/dashboard');
                     exit;
