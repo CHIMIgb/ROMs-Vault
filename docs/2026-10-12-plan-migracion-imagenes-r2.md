@@ -30,7 +30,7 @@ Mover el almacenamiento de **portadas y capturas** de `public/uploads/{consola}/
   mantienen; solo cambia el destino (objeto en R2 en vez de archivo en disco).
 - **Único cambio real:** dónde se almacena. En BD, `juegos.imagen` y
   `juegos.capturas` pasan de ruta relativa (`public/uploads/...`) a **URL pública
-  completa** (`https://pub.<ACCOUNT_ID>.r2.dev/...`). Las vistas ya pintan
+  completa** (`https://pub-<hash>.r2.dev/...`). Las vistas ya pintan
   `src="..."` directo, así que el navegador carga **directo desde R2** sin pasar
   por PHP.
 - **Fallback local:** sin credenciales R2 → modo disco actual (dev y tests
@@ -93,8 +93,8 @@ R2_ACCESS_KEY_ID=
 R2_ACCESS_KEY_SECRET=
 R2_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
 R2_BUCKET=roms-vault-imagenes
-R2_PUBLIC_BASE=https://pub.<ACCOUNT_ID>.r2.dev
-R2_PUBLIC_HOST=pub.<ACCOUNT_ID>.r2.dev
+R2_PUBLIC_BASE=https://pub-<hash>.r2.dev
+R2_PUBLIC_HOST=pub-<hash>.r2.dev
 ```
 
 - Sin estas variables → **modo local** (fallback para dev y tests).
@@ -150,8 +150,8 @@ Dos opciones (se pueden usar por separado):
 - **Opción A — subdominio `r2.dev`** (rápida, para no-producción):
   1. Selecciona el bucket → **Settings → Public access**.
   2. **Enable** el `r2.dev` managed domain.
-  3. La URL resultante es `https://pub.<ACCOUNT_ID>.r2.dev`.
-  4. **Host** para el CSP: `pub.<ACCOUNT_ID>.r2.dev`.
+  3. La URL resultante es `https://pub-<hash>.r2.dev`.
+  4. **Host** para el CSP: `pub-<hash>.r2.dev`.
 
 - **Opción B — dominio propio en Cloudflare** (recomendada para producción:
   caching, HTTP/2, dominio propio):

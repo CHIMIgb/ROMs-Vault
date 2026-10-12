@@ -261,5 +261,5 @@ parameters:
 		-
 			message: '#^Variable \$juego might not be defined\.$#'
 			identifier: variable.undefined
-			count: 2
+			count: 4
 			path: src/views/home/show.php

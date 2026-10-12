@@ -814,4 +814,25 @@ class Juego extends Model {
         return array_values(array_filter($tmp, 'is_string'));
     }
 
+    /**
+     * Indica si una referencia de imagen es utilizable para pintarla en la vista.
+     * - URL http(s) (R2 u otro CDN): se asume disponible (no se consulta la red).
+     * - Ruta local relativa ("public/uploads/..."): existe en disco.
+     * Rechaza vacíos y rutas con intento de traversal.
+     */
+    public static function existeImagen(?string $ruta): bool {
+        if ($ruta === null || trim($ruta) === '') {
+            return false;
+        }
+        $ruta = trim($ruta);
+        if (preg_match('#^https?://#i', $ruta)) {
+            return true;
+        }
+        $rel = ltrim(str_replace('\\', '/', $ruta), '/');
+        if ($rel === '' || strpos($rel, '..') !== false) {
+            return false;
+        }
+        return is_file(dirname(__DIR__, 2) . '/' . $rel);
+    }
+
 }

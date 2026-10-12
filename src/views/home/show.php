@@ -64,7 +64,7 @@ if ($emuladorLocal) {
         <div class="detail-cover-col">
             <div class="detail-cover-frame">
                 <div class="detail-cover-scanlines"></div>
-                <?php if (!empty($juego['imagen']) && file_exists(ltrim($juego['imagen'], '/'))): ?>
+                <?php if (Juego::existeImagen($juego['imagen'] ?? null)): ?>
                     <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" class="detail-cover-img">
                 <?php else: ?>
                     <div class="detail-cover-placeholder">

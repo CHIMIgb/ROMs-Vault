@@ -121,7 +121,7 @@ class HomeController {
         $pageDescription = !empty($juego['descripcion'])
             ? mb_substr(strip_tags($juego['descripcion']), 0, 155)
             : 'Ficha de ' . $juego['titulo'] . ' para ' . ($juego['consola_nombre'] ?? 'consola retro') . '.';
-        $pageImage       = !empty($juego['imagen']) && file_exists(ltrim($juego['imagen'], '/'))
+        $pageImage       = Juego::existeImagen($juego['imagen'] ?? null)
             ? $juego['imagen']
             : 'public/uploads/icon.png';
         $pageUrl         = '/juego/' . rawurlencode($juego['slug'] ?? (string) $juego['id']);
