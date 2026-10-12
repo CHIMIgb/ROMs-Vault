@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/R2Client.php';
 
 /**
  * src/config/StorageService.php
@@ -40,6 +39,9 @@ class StorageService
         $secretKey = $this->env('R2_ACCESS_KEY_SECRET');
 
         if ($endpoint !== '' && $bucket !== '' && $accessKey !== '' && $secretKey !== '' && $this->publicBase !== '') {
+            // Carga perezosa de R2Client dentro del constructor: evita efectos
+            // colaterales en el scope global del archivo (cumple PSR-1/PSR-12).
+            require_once __DIR__ . '/R2Client.php';
             $region       = $this->env('R2_REGION') !== '' ? $this->env('R2_REGION') : 'auto';
             $this->client = new R2Client($endpoint, $bucket, $accessKey, $secretKey, $region);
             $this->mode   = 'r2';
