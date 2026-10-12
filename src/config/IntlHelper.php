@@ -37,6 +37,9 @@ class IntlHelper
         'pt' => 'pt_BR',
         'de' => 'de_DE',
         'ja' => 'ja_JP',
+        'it' => 'it_IT',
+        'ru' => 'ru_RU',
+        'tr' => 'tr_TR',
     ];
 
     /**
@@ -54,11 +57,14 @@ class IntlHelper
         'pt' => 'pt-BR',
         'de' => 'de-GER',
         'ja' => 'ja-JA',
+        'it' => 'it-IT',
+        'ru' => 'ru-RU',
+        'tr' => 'tr-TR',
     ];
 
     /**
      * Devuelve el locale para Intl según idioma activo.
-     * @return string p. ej. 'es_ES', 'en_US', 'fr_FR', 'pt_BR', 'de_DE', 'ja_JP'
+     * @return string p. ej. 'es_ES', 'en_US', 'fr_FR', 'pt_BR', 'de_DE', 'ja_JP', 'it_IT', 'ru_RU', 'tr_TR'
      */
     public static function getLocale(): string
     {
@@ -269,9 +275,13 @@ class IntlHelper
                 return ['.', ','];
             case 'fr_FR':
                 return [',', "\u{202f}"]; // espacio fino irrompible
+            case 'ru_RU':
+                return [',', "\u{00a0}"]; // espacio irrompible como separador de miles
             case 'de_DE':
             case 'es_ES':
             case 'pt_BR':
+            case 'it_IT':
+            case 'tr_TR':
             default:
                 return [',', '.'];
         }
@@ -289,6 +299,9 @@ class IntlHelper
             'pt_BR' => ['jan.', 'fev.', 'mar.', 'abr.','mai.','jun.','jul.','ago.','set.','out.','nov.','dez.'],
             'de_DE' => ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'],
             'ja_JP' => ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            'it_IT' => ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'],
+            'ru_RU' => ['янв.', 'фев.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сен.', 'окт.', 'ноя.', 'дек.'],
+            'tr_TR' => ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
         ];
     }
 
@@ -314,7 +327,7 @@ class IntlHelper
             case 'ja_JP':
                 $longDate = $y . '/' . $m . '/' . $d;
                 break;
-            default: // es, fr, pt, de
+            default: // es, fr, pt, de, it, ru, tr
                 $longDate = $d . ' ' . $mon . ' ' . $y;
         }
 

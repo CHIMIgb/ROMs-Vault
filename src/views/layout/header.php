@@ -161,6 +161,23 @@
                           . '<rect x="0.5" y="0.5" width="19" height="13" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>'
                           . '<circle cx="10" cy="7" r="4" fill="#bc002d"/>'
                           . '</svg>',
+                    'it' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#ffffff"/>'
+                          . '<rect width="6.67" height="14" fill="#009246"/>'
+                          . '<rect x="13.33" width="6.67" height="14" fill="#ce2b37"/>'
+                          . '</svg>',
+                    'ru' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#ffffff"/>'
+                          . '<rect y="4.67" width="20" height="4.67" fill="#0039a6"/>'
+                          . '<rect y="9.33" width="20" height="4.67" fill="#d52b1e"/>'
+                          . '<rect x="0.5" y="0.5" width="19" height="13" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>'
+                          . '</svg>',
+                    'tr' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#e30a17"/>'
+                          . '<circle cx="7.5" cy="7" r="3.5" fill="#ffffff"/>'
+                          . '<circle cx="8.9" cy="7" r="2.8" fill="#e30a17"/>'
+                          . '<polygon points="13,5.1 13.45,6.39 14.81,6.41 13.72,7.23 14.12,8.54 13,7.76 11.88,8.54 12.28,7.23 11.19,6.41 12.55,6.39" fill="#ffffff"/>'
+                          . '</svg>',
                 ];
                 ?>
                 <form class="lang-switch" method="get" action="<?= $langAction ?>" data-enhance="lang">

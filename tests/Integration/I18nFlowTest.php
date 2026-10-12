@@ -59,7 +59,7 @@ class I18nFlowTest extends IntegrationTestCase {
     }
 
     public function testQueryLangNuevosIdiomasEscribeCookie(): void {
-        foreach (['fr', 'pt', 'de', 'ja'] as $lang) {
+        foreach (['fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr'] as $lang) {
             Server::resetCookies();
             $resp = Server::get('/?lang=' . $lang);
             $this->assertSame(302, $resp['status'], "El idioma '$lang' debe redirigir.");
@@ -77,8 +77,8 @@ class I18nFlowTest extends IntegrationTestCase {
 
     public function testAcceptLanguageSoloSoportadosIgnoraResto(): void {
         Server::resetCookies();
-        // ru e it no están en la whitelist → cae al primer soportado (en)
-        $resp = Server::get('/auth/login', ['Accept-Language' => 'ru-RU,it;q=0.9,en;q=0.8']);
+        // pl y nl no están en la whitelist → cae al primer soportado (en)
+        $resp = Server::get('/auth/login', ['Accept-Language' => 'pl-PL,nl;q=0.9,en;q=0.8']);
 
         $this->assertStringContainsString('<html lang="en">', $resp['body']);
     }
