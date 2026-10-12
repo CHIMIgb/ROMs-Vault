@@ -32,6 +32,22 @@ I18n::init(); // t() disponible en todas las páginas HTML
 // vía fetch desde ese blob (connect-src). Sin ello el emulador no arranca.
 // object-src 'none' y frame-ancestors 'self' cierran clickjacking y
 // plugin-based XSS.
+//
+// Si R2 está configurado, se añade su host público a img-src para que el
+// navegador cargue las portadas/capturas directo desde el CDN (sin pasar por PHP).
+
+$r2Raw = $_ENV['R2_PUBLIC_HOST'] ?? getenv('R2_PUBLIC_HOST');
+if (empty($r2Raw)) {
+    $r2Raw = $_ENV['R2_PUBLIC_BASE'] ?? getenv('R2_PUBLIC_BASE');
+}
+$r2ImgSrc = '';
+if (!empty($r2Raw)) {
+    $r2Host = parse_url(strpos((string) $r2Raw, '://') !== false ? (string) $r2Raw : 'https://' . $r2Raw, PHP_URL_HOST);
+    if (!empty($r2Host)) {
+        $r2ImgSrc = ' https://' . $r2Host;
+    }
+}
+
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
@@ -40,7 +56,7 @@ header("Content-Security-Policy: default-src 'self'; "
      . "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.emulatorjs.org; "
      . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.emulatorjs.org; "
      . "font-src 'self' https://fonts.gstatic.com data: https://cdn.emulatorjs.org; "
-     . "img-src 'self' data: blob: https://cdn.emulatorjs.org; "
+     . "img-src 'self' data: blob: https://cdn.emulatorjs.org" . $r2ImgSrc . "; "
      . "media-src 'self' blob: https://cdn.emulatorjs.org; "
      . "connect-src 'self' blob: https://cdn.emulatorjs.org; "
      . "worker-src 'self' blob: https://cdn.emulatorjs.org; "
