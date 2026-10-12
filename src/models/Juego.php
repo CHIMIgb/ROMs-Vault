@@ -46,6 +46,39 @@ class Juego extends Model {
         $stmt->execute([(int) $id]);
         return $stmt->fetch();
     }
+
+    /**
+     * Obtener un juego por slug con detalles de relaciones (URL limpia
+     * /juego/{slug}). Solo juegos activos, igual que findWithDetails().
+     */
+    public function findBySlug(string $slug) {
+        $stmt = $this->pdo->prepare("SELECT j.*, c.nombre as consola_nombre,
+                   c.emulacion_online AS consola_emulacion_online,
+                   cat.nombre as categoria_nombre
+                FROM juegos j
+                LEFT JOIN consolas c ON j.consola_id = c.id
+                LEFT JOIN categorias cat ON j.categoria_id = cat.id
+                WHERE j.slug = ? AND j.activo = true");
+        $stmt->execute([$slug]);
+        return $stmt->fetch();
+    }
+
+    /**
+     * ¿Existe ya ese slug en juegos? Pensado para la generación de slugs únicos
+     * en el admin (Slug::unique). $excludeId permite validar en una edición sin
+     * que el propio registro colisione consigo mismo.
+     */
+    public function slugExists(string $slug, ?int $excludeId = null): bool {
+        if ($excludeId !== null) {
+            $stmt = $this->pdo->prepare("SELECT 1 FROM {$this->table} WHERE slug = ? AND id <> ? LIMIT 1");
+            $stmt->execute([$slug, $excludeId]);
+        } else {
+            $stmt = $this->pdo->prepare("SELECT 1 FROM {$this->table} WHERE slug = ? LIMIT 1");
+            $stmt->execute([$slug]);
+        }
+        return (bool) $stmt->fetchColumn();
+    }
+
     
     // Incrementar contador de descargas
     public function incrementDownloads($id) {
@@ -723,7 +756,7 @@ class Juego extends Model {
      */
     public function autocomplete(string $term, int $limit = 8): array {
         $stmt = $this->pdo->prepare(
-            "SELECT j.id, j.titulo, j.google_drive_file_id, j.imagen,
+            "SELECT j.id, j.titulo, j.slug, j.google_drive_file_id, j.imagen,
                     c.nombre as consola_nombre,
                     c.emulacion_online AS consola_emulacion_online
              FROM juegos j

@@ -45,4 +45,28 @@ class Consola extends Model {
         $stmt = $this->pdo->query("SELECT * FROM {$this->table} WHERE activo = true ORDER BY nombre ASC");
         return $stmt->fetchAll();
     }
+
+    /**
+     * Obtener una consola por slug (URL limpia /consola/{slug}). Solo activas.
+     */
+    public function findBySlug(string $slug): ?array {
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE slug = ? AND activo = true");
+        $stmt->execute([$slug]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    /**
+     * ¿Existe ya ese slug en consolas? Para la generación de slugs únicos.
+     */
+    public function slugExists(string $slug, ?int $excludeId = null): bool {
+        if ($excludeId !== null) {
+            $stmt = $this->pdo->prepare("SELECT 1 FROM {$this->table} WHERE slug = ? AND id <> ? LIMIT 1");
+            $stmt->execute([$slug, $excludeId]);
+        } else {
+            $stmt = $this->pdo->prepare("SELECT 1 FROM {$this->table} WHERE slug = ? LIMIT 1");
+            $stmt->execute([$slug]);
+        }
+        return (bool) $stmt->fetchColumn();
+    }
 }
