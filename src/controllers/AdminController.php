@@ -10,6 +10,7 @@ require_once __DIR__ . '/../config/LoggerService.php';
 require_once __DIR__ . '/../config/RateLimiter.php';
 require_once __DIR__ . '/../config/Slug.php';
 require_once __DIR__ . '/../config/StorageService.php';
+require_once __DIR__ . '/../config/TraduccionService.php';
 
 class AdminController {
     // Máximo de capturas por juego (el carrusel ya replica la portada si no hay capturas)
@@ -135,6 +136,7 @@ class AdminController {
                 // puede fijarse a mano: ver resolverSlugJuego().
                 $data['slug'] = Slug::unique($data['titulo'], fn(string $s) => $juegoModel->slugExists($s), 'juego');
                 if ($juegoModel->create($data)) {
+                    $this->autoTraducirJuego($juegoModel->lastInsertId(), (string) ($data['descripcion'] ?? ''));
                     header('Location: /admin/dashboard');
                     exit;
                 } else {
@@ -295,6 +297,7 @@ class AdminController {
                     (int) $juego['id']
                 );
                 if ($juegoModel->update($id, $data)) {
+                    $this->autoTraducirJuego((int) $id, (string) ($data['descripcion'] ?? ''));
                     header('Location: /admin/dashboard');
                     exit;
                 } else {
@@ -306,6 +309,19 @@ class AdminController {
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/admin/edit.php';
         require_once __DIR__ . '/../views/layout/footer.php';
+    }
+
+    /**
+     * Auto-traduce la descripción de un juego a los idiomas destino (best-effort,
+     * no bloquea el guardado: el registro ya está persistido). Solo se traduce
+     * la descripción: el título es nombre propio y no se traduce (decisión de
+     * diseño). Sin proveedor configurado no hace nada.
+     */
+    private function autoTraducirJuego(int $id, string $descripcion): void {
+        if ($id <= 0 || trim($descripcion) === '') {
+            return;
+        }
+        TraduccionService::traducirEntidad('juego', $id, ['descripcion' => $descripcion]);
     }
 
     public function toggleActive($id) {

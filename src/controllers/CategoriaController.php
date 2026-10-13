@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/Categoria.php';
 require_once __DIR__ . '/../models/Juego.php';
 require_once __DIR__ . '/../config/AuthMiddleware.php';
 require_once __DIR__ . '/../config/CsrfService.php';
+require_once __DIR__ . '/../config/TraduccionService.php';
 
 class CategoriaController {
 
@@ -51,6 +52,7 @@ class CategoriaController {
                 ]);
 
                 if ($ok) {
+                    $this->autoTraducirCategoria($categoriaModel->lastInsertId(), $nombre, $descripcion);
                     header('Location: /categoria/index?created=1');
                     exit;
                 } else {
@@ -94,6 +96,7 @@ class CategoriaController {
                 ]);
 
                 if ($ok) {
+                    $this->autoTraducirCategoria((int) $id, $nombre, $descripcion);
                     header('Location: /categoria/index?updated=1');
                     exit;
                 } else {
@@ -105,6 +108,20 @@ class CategoriaController {
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/admin/categorias/edit.php';
         require_once __DIR__ . '/../views/layout/footer.php';
+    }
+
+    /**
+     * Auto-traduce una categoría al guardar (best-effort, no bloquea el flujo:
+     * el registro ya está persistido). Sin proveedor configurado no hace nada.
+     */
+    private function autoTraducirCategoria(int $id, string $nombre, string $descripcion): void {
+        if ($id <= 0 || $nombre === '') {
+            return;
+        }
+        TraduccionService::traducirEntidad('categoria', $id, [
+            'nombre'      => $nombre,
+            'descripcion' => $descripcion,
+        ]);
     }
 
     // ── Eliminar ──────────────────────────────────────────────────────────
