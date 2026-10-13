@@ -123,9 +123,11 @@ class TraduccionService {
      * @param int    $id      Id de la entidad.
      * @param array  $campos  Campos canónicos en 'es' (p. ej. ['nombre'=>'Acción','descripcion'=>'...'])
      * @param array|null $targets Idiomas destino; null = TRANSLATE_TARGETS o todos menos 'es'.
-     * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,errores?:int,proveedor?:string}
+     * @param bool   $dryRun  Si es true, solo calcula los idiomas pendientes (no llama al
+     *                        proveedor ni escribe). Permite previsualizar el backfill.
+     * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes?:array<int,string>,dry_run?:bool,errores?:int,proveedor?:string}
      */
-    public static function traducirEntidad(string $entidad, int $id, array $campos, ?array $targets = null): array {
+    public static function traducirEntidad(string $entidad, int $id, array $campos, ?array $targets = null, bool $dryRun = false): array {
         $entidad = strtolower($entidad);
         if (!in_array($entidad, ['categoria', 'juego'], true)) {
             return ['ok' => false, 'motivo' => 'entidad_invalida', 'idiomas' => []];
@@ -141,7 +143,8 @@ class TraduccionService {
         }
 
         $proveedor = TranslateProviderFactory::fromEnv();
-        if (!$proveedor->isConfigured()) {
+        // En dry-run no hace falta proveedor: solo se evalúan los pendientes.
+        if (!$dryRun && !$proveedor->isConfigured()) {
             return ['ok' => false, 'motivo' => 'no_configurado', 'idiomas' => [], 'proveedor' => $proveedor->name()];
         }
 
@@ -156,6 +159,7 @@ class TraduccionService {
 
         $hash = self::hash($campos);
         $traducidos = [];
+        $pendientes = [];
         $errores = 0;
 
         foreach ($targets as $target) {
@@ -169,6 +173,11 @@ class TraduccionService {
             if ($prev !== null
                 && ($prev['origen'] ?? '') === 'auto'
                 && (string) ($prev['origen_hash'] ?? '') === $hash) {
+                continue;
+            }
+
+            if ($dryRun) {
+                $pendientes[] = $target;
                 continue;
             }
 
@@ -204,10 +213,12 @@ class TraduccionService {
         }
 
         return [
-            'ok'        => true,
-            'idiomas'   => $traducidos,
-            'errores'   => $errores,
-            'proveedor' => $proveedor->name(),
+            'ok'         => true,
+            'idiomas'    => $traducidos,
+            'pendientes' => $pendientes,
+            'dry_run'    => $dryRun,
+            'errores'    => $errores,
+            'proveedor'  => $proveedor->name(),
         ];
     }
 
