@@ -22,11 +22,16 @@ class HomeController {
             $filters['busqueda'] = $_GET['busqueda'];
         }
 
-        if (isset($_GET['consola']) && $_GET['consola'] !== '') {
-            $filters['consola'] = $_GET['consola'];
+        // Filtros de consola/categoría: solo admiten ids enteros positivos.
+        // Validación defensiva (las consultas usan PARAM_INT): evita que un valor
+        // no numérico llegue al modelo y produzca un 500 por cast de PDO/PostgreSQL.
+        $consolaVal = $_GET['consola'] ?? '';
+        if ($consolaVal !== '' && filter_var($consolaVal, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) !== false) {
+            $filters['consola'] = (int) $consolaVal;
         }
-        if (isset($_GET['categoria']) && $_GET['categoria'] !== '') {
-            $filters['categoria'] = $_GET['categoria'];
+        $categoriaVal = $_GET['categoria'] ?? '';
+        if ($categoriaVal !== '' && filter_var($categoriaVal, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) !== false) {
+            $filters['categoria'] = (int) $categoriaVal;
         }
         if (isset($_GET['region']) && $_GET['region'] !== '') {
             $filters['region'] = $_GET['region'];
