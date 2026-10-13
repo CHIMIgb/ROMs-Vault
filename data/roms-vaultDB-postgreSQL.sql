@@ -10,6 +10,25 @@ CREATE TABLE IF NOT EXISTS public.categorias (
 );
 
 -- =====================================================
+-- Tabla: categorias_traducciones  (i18n bloque 2)
+-- Traducciones de categorias (nombre + descripcion). Solo idiomas != 'es'.
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.categorias_traducciones (
+    categoria_id  INTEGER      NOT NULL REFERENCES public.categorias(id) ON DELETE CASCADE,
+    idioma        VARCHAR(5)   NOT NULL,
+    nombre        VARCHAR(120),
+    descripcion   TEXT,
+    origen        VARCHAR(10)  NOT NULL DEFAULT 'manual',
+    revisado      BOOLEAN      NOT NULL DEFAULT FALSE,
+    origen_hash   CHAR(64),
+    created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (categoria_id, idioma),
+    CONSTRAINT chk_categorias_trad_idioma CHECK (idioma <> 'es'),
+    CONSTRAINT chk_categorias_trad_origen CHECK (origen IN ('auto', 'manual'))
+);
+
+-- =====================================================
 -- Tabla: consolas
 -- =====================================================
 CREATE TABLE IF NOT EXISTS public.consolas (
@@ -88,6 +107,24 @@ CREATE TABLE IF NOT EXISTS public.juegos (
 );
 
 -- =====================================================
+-- Tabla: juegos_traducciones  (i18n bloque 2)
+-- Traducciones de juegos (descripcion). Solo idiomas != 'es'.
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.juegos_traducciones (
+    juego_id      INTEGER      NOT NULL REFERENCES public.juegos(id) ON DELETE CASCADE,
+    idioma        VARCHAR(5)   NOT NULL,
+    descripcion   TEXT,
+    origen        VARCHAR(10)  NOT NULL DEFAULT 'manual',
+    revisado      BOOLEAN      NOT NULL DEFAULT FALSE,
+    origen_hash   CHAR(64),
+    created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (juego_id, idioma),
+    CONSTRAINT chk_juegos_trad_idioma CHECK (idioma <> 'es'),
+    CONSTRAINT chk_juegos_trad_origen CHECK (origen IN ('auto', 'manual'))
+);
+
+-- =====================================================
 -- Tabla: usuarios
 -- =====================================================
 CREATE TABLE IF NOT EXISTS public.usuarios (
@@ -149,6 +186,8 @@ CREATE INDEX IF NOT EXISTS idx_juegos_activo_region    ON public.juegos(activo, 
 CREATE INDEX IF NOT EXISTS idx_juegos_activo_creado    ON public.juegos(activo, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_juegos_activo_descargas ON public.juegos(activo, downloads_count DESC);
 CREATE INDEX IF NOT EXISTS idx_juegos_activo_jugadas   ON public.juegos(activo, plays_count DESC);
+CREATE INDEX IF NOT EXISTS idx_categorias_trad_idioma  ON public.categorias_traducciones(idioma);
+CREATE INDEX IF NOT EXISTS idx_juegos_trad_idioma      ON public.juegos_traducciones(idioma);
 CREATE INDEX IF NOT EXISTS idx_emuladores_consola ON public.emuladores(consola_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_juego ON public.descargas(juego_id);
 CREATE INDEX IF NOT EXISTS idx_descargas_cookie ON public.descargas(cookie_id);
