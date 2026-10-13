@@ -38,6 +38,7 @@
 | 2026-10-11 | **FASE 2 (2.1-2.4)** — CI/CD con GitHub Actions: `.github/workflows/ci.yml` (jobs `lint` `php -l`, `static` PHPStan nivel 5 + baseline y `phpcs` PSR-12 sobre ficheros cambiados, `tests` Unit+Integration+Security con servicio PostgreSQL 16 + esquema, `audit` `composer audit`, `build` `docker build`), `.github/dependabot.yml` y badge CI en README; `Server.php` portado a Linux (`/dev/null`) | Completada (configurar secrets `TEST_*` en GitHub; pendientes: PHPStan nivel 6, branch protection) | `2347580` |
 | 2026-10-11 | **FASE 5 (5.1) — i18n Tier 1** — 3 idiomas nuevos (`it`, `ru`, `tr`) con paridad 592 claves, banderas SVG, fallback Intl (`it_IT`/`ru_RU`/`tr_TR`) y `EJS_language` (`it-IT`/`ru-RU`/`tr-TR`); tests actualizados (9 idiomas) | Completada (RTL 5.2 y Tier 2 `zh`/`ko`/`ar` pendientes) | `6c2990d` |
 | 2026-10-12 | **Almacenamiento — imágenes a Cloudflare R2** (plan `2026-10-07-migrar-imagenes-a-cloudflare-r2.md`): cliente SigV4 mínimo (`R2Client`) + `StorageService` con fallback local, admin por prefijos, `Juego::existeImagen()`, CSP con host del CDN y variables de despliegue; script de migración idempotente con 157 archivos / 123 juegos migrados en local | Completada (migración de Neon pendiente tras el deploy) | `e679a0c` + `cdd1947` + `5495acb` + `1758fd6` |
+| 2026-10-12 | **FASE 5 (5.1 y 5.2) — i18n Tier 2 + RTL** — 3 idiomas nuevos (`zh`, `ko`, `ar`) con paridad 592 claves y banderas SVG; `RTL_LANGS` + `I18n::isRtl()`, `dir` en `<html>`, sincronización en `rv-lang.js`; CSS migrado a logical properties en los 7 módulos; fallback Intl (`zh_CN`/`ko_KR`/`ar_AR`) y `EJS_language` (`zh-CN`/`ko-KO`/`ar-AR`); tests actualizados (12 idiomas) | Completada (pendiente: verificación visual manual en navegador) | `e288816` |
 
 
 ---
@@ -243,6 +244,7 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 - [x] `src/i18n/es.json`, `src/i18n/en.json` (implementado como JSON paritario en vez de `lang/*.php`; 585 claves)
 - [x] `src/i18n/fr.json`, `src/i18n/pt.json`, `src/i18n/de.json`, `src/i18n/ja.json` (ampliación FASE 5, 2026-10-10)
 - [x] `src/i18n/it.json`, `src/i18n/ru.json`, `src/i18n/tr.json` (Tier 1, 2026-10-11; 9 idiomas · candidatos Tier 2 en `docs/_archivo/2026-10-11-idiomas-candidatos-tier2.md`)
+- [x] `src/i18n/zh.json`, `src/i18n/ko.json`, `src/i18n/ar.json` (Tier 2, 2026-10-12; 12 idiomas · doc `docs/2026-10-12-idiomas-tier2-zh-ko-ar.md`)
 - [x] Detección de idioma: header `Accept-Language` → cookie (`?lang=` selector) → default `es`
 - [x] Persistir preferencia en cookie `rv_lang` (selector `?lang=`)
 
@@ -251,12 +253,12 @@ Pocos proyectos de portafolio lo tienen. Y en el mundo real (productos globales)
 - [x] UI estática del catálogo, ficha, play, auth, footer/header
 - [x] Mensajes de error de validación y alertas (controladores + AJAX)
 - [x] Mensajes de éxito del admin (`created`, `updated`, `deleted`)
-- [x] Fechas (y números) con `Intl` según locale (sin moneda; RTL pendiente)
-- [ ] Soporte RTL en CSS (usar logical properties: `margin-inline-start` en vez de `margin-left`) para futuros idiomas (pendiente)
+- [x] Fechas (y números) con `Intl` según locale (sin moneda)
+- [x] Soporte RTL en CSS (logical properties: `margin-inline-start` en vez de `margin-left`), `dir` en `<html>` (`I18n::isRtl()`) y sincronización en `rv-lang.js` para `ar` (2026-10-12)
 
 ### 5.3 Selector de idioma en la UI
 
-- [x] Selector de idioma visible en header (es/en/fr/pt/de/ja/it/ru/tr) con banderas.
+- [x] Selector de idioma visible en header (es/en/fr/pt/de/ja/it/ru/tr/zh/ko/ar) con banderas.
 - [x] Los textos de EmulatorJS soportan el idioma activo vía `EJS_language` (`IntlHelper::emulatorLanguage()`, whitelist de códigos del CDN) (`b24d585`)
 - [x] El idioma cambia **sin recargar la página**: POST a `endpoints/ajax_lang.php` + sincronización in-place del DOM (`public/js/rv-lang.js`), con fallback GET nativo sin JS (`3561a05`)
 - [x] El idioma se **detecta automáticamente del navegador** en la primera visita (`navigator.languages`) y se recuerda; la elección explícita del usuario siempre manda (`84ee20c`)
@@ -335,7 +337,7 @@ El sitio se ve bien, pero técnicamente es CSS/JS vanilla sin tooling. Para un p
 | "¿Cómo despliegas?" | "Push a Vercel" | "CI verde → auto-deploy; previews por PR" |
 | "¿Por qué sin framework?" | "..." | "ADR-001: decisión fundacional y deliberada — domino HTTP, sesiones, routing y seguridad desde el protocolo, y lo demuestro con código propio" |
 | "¿Cómo mantienes 5k líneas?" | "Con cuidado" | "Autoload PSR-4, DTOs, partials únicos, sin HTML duplicado" |
-| "¿Soporta más idiomas?" | "No" | "i18n con es/en/fr/pt/de/ja/it/ru/tr, selector en UI; RTL pendiente" |
+| "¿Soporta más idiomas?" | "No" | "i18n con 12 idiomas (es/en/fr/pt/de/ja/it/ru/tr/zh/ko/ar), selector en UI y soporte RTL (árabe)" |
 | "¿Qué pasa en producción si falla?" | "Lo veo en el navegador" | "Logs estructurados, request ID, health checks" |
 | "¿Y las dependencias vulnerables?" | "..." | "Dependabot + CodeQL en cada push" |
 
