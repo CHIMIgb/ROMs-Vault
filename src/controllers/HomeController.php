@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/Emulador.php';
 require_once __DIR__ . '/../config/UrlSigner.php';
 require_once __DIR__ . '/../config/RateLimiter.php';
 require_once __DIR__ . '/../config/StorageService.php';
+require_once __DIR__ . '/../config/TraduccionService.php';
 
 class HomeController {
     
@@ -57,6 +58,13 @@ class HomeController {
         // Obtener datos para filtros
         $consolas = $consolaModel->all();
         $categorias = $categoriaModel->all();
+
+        // Traducción del contenido editorial al idioma activo (fallback a 'es').
+        // En lote, sin N+1. Los nombres de consola no se traducen (decisión de
+        // diseño: son marcas/nombres propios).
+        TraduccionService::resolverCategorias($categorias);
+        TraduccionService::resolverCategoriasVinculadas($juegos);
+        TraduccionService::resolverJuegos($juegos);
 
         // PASAR TODAS LAS VARIABLES A LA VISTA
         require_once __DIR__ . '/../views/layout/header.php';
@@ -113,6 +121,14 @@ class HomeController {
 
     /** Renderiza la ficha de un juego ya resuelto (por id o por slug). */
     private function renderShow(array $juego) {
+        // Traducción del contenido editorial al idioma activo (fallback a 'es'),
+        // antes de calcular el SEO: el title/description/de JSON-LD usan el texto
+        // ya traducido.
+        $filas = [$juego];
+        TraduccionService::resolverJuegos($filas);
+        TraduccionService::resolverCategoriasVinculadas($filas);
+        $juego = $filas[0];
+
         // ── Emulador local recomendado (PC / Android) para esta consola ──
         $emuladorLocal = $this->emuladorRecomendado((int) ($juego['consola_id'] ?? 0));
 
@@ -403,6 +419,13 @@ class HomeController {
             $consola                  = $consolaModel->find($juego['consola_id']);
             $juego['consola_nombre']  = $consola['nombre'] ?? '';
         }
+
+        // Traducción del contenido editorial al idioma activo (fallback a 'es'):
+        // la vista muestra descripción y categoría del juego.
+        $filas = [$juego];
+        TraduccionService::resolverJuegos($filas);
+        TraduccionService::resolverCategoriasVinculadas($filas);
+        $juego = $filas[0];
 
         $core    = $this->getEmulatorCore($juego['consola_nombre']);
         $romUrl  = $this->signProxyUrl($fileId);
