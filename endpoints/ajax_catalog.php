@@ -20,8 +20,17 @@ $juegoModel = new Juego();
 
 $filters = [];
 if (isset($_GET['busqueda'])  && $_GET['busqueda']  !== '') $filters['busqueda']  = $_GET['busqueda'];
-if (isset($_GET['consola'])   && $_GET['consola']   !== '') $filters['consola']   = $_GET['consola'];
-if (isset($_GET['categoria']) && $_GET['categoria'] !== '') $filters['categoria'] = $_GET['categoria'];
+// Validación estricta: consola y categoria solo admiten ids enteros positivos.
+// Un valor no numérico (p. ej. ?consola=abc) no debe llegar al modelo: el cast
+// de PDO/PostgreSQL podría producir un 500 en lugar de un listado sin resultados.
+$consolaVal = $_GET['consola'] ?? '';
+if ($consolaVal !== '' && filter_var($consolaVal, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) !== false) {
+    $filters['consola'] = (int) $consolaVal;
+}
+$categoriaVal = $_GET['categoria'] ?? '';
+if ($categoriaVal !== '' && filter_var($categoriaVal, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) !== false) {
+    $filters['categoria'] = (int) $categoriaVal;
+}
 if (isset($_GET['region'])    && $_GET['region']    !== '') $filters['region']    = $_GET['region'];
 if (isset($_GET['orden'])     && $_GET['orden']     !== '') $filters['orden']     = $_GET['orden'];
 // Orden por defecto: aleatorio (como el usuario prefiere para la carga del catálogo)
@@ -103,7 +112,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <?php 
 require_once __DIR__ . '/../src/views/components/Pagination.php';
 $extra = !empty($filters['busqueda']) 
-    ? t('home.paginacion_busqueda', ['valor' => $filters['busqueda']]) 
+    ? t('home.paginacion_busqueda', ['valor' => htmlspecialchars($filters['busqueda'])]) 
     : '';
 
 Pagination::render(

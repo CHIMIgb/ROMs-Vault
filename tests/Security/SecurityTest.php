@@ -145,6 +145,29 @@ class SecurityTest extends IntegrationTestCase {
         $this->assertStringNotContainsString('Fatal error', $resp['body']);
     }
 
+    public function testAjaxCatalogEscapaBusquedaEnPaginacion(): void {
+        Server::resetCookies();
+        // Siembra una consola y un juego cuyo título contiene caracteres HTML.
+        // La búsqueda ILIKE coincide con el título real y el valor se refleja en
+        // la caja de paginación ("Búsqueda: {valor}"): debe aparecer escapado
+        // (htmlspecialchars), nunca crudo, porque el JS lo inyecta con innerHTML.
+        $this->pdo()->exec(
+            "INSERT INTO public.consolas (id, nombre, slug, activo, emulacion_online) "
+            . "VALUES (901, 'Consola XSS', 'consola-xss', TRUE, TRUE)"
+        );
+        $this->pdo()->exec(
+            "INSERT INTO public.juegos (id, titulo, slug, consola_id, google_drive_file_id, activo) "
+            . "VALUES (901, 'Juego <b>&</b> XSS', 'juego-xss', 901, 'file-xss-test', TRUE)"
+        );
+
+        $resp = $this->get('/ajax_catalog.php?busqueda=' . urlencode('Juego <b>&</b> XSS'));
+        $this->assertSame(200, $resp['status']);
+        // El valor debe reflejarse ESCAPADO...
+        $this->assertStringContainsString('Juego &lt;b&gt;&amp;&lt;/b&gt; XSS', $resp['body']);
+        // ...y la versión cruda nunca debe aparecer en el HTML servido.
+        $this->assertStringNotContainsString('Juego <b>&</b> XSS', $resp['body']);
+    }
+
     public function testLoginSqlInjectionNoAutoriza(): void {
         Server::resetCookies();
         $this->get('/auth/login'); // captura cookie rv_csrf
