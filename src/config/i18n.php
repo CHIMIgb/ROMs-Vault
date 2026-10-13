@@ -10,8 +10,11 @@
  * - El idioma activo por defecto es 'es' (I18N_LANG). La detección por cookie /
  *   Accept-Language (ítem 6.2) usará setLang() sin tocar este cargador.
  *
- * Los datos de la BD (títulos de juegos, consolas, categorías) NO se traducen:
- * son contenido, no interfaz (decisión documentada en el plan i18n).
+ * Contenido de la BD: desde el bloque 2 de i18n, los campos editoriales de la
+ * BD (categorias.nombre/descripcion, juegos.descripcion) SÍ se traducen, vía
+ * TraduccionService + tablas *_traducciones, con fallback a 'es'. Este cargador
+ * solo cubre la INTERFAZ. Los nombres propios (juegos.titulo, consolas.*,
+ * emuladores.nombre) siguen sin traducirse.
  */
 
 class I18n {
