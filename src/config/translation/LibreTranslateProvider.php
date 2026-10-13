@@ -39,6 +39,15 @@ class LibreTranslateProvider extends AbstractTranslateProvider {
         return $this->url !== '';
     }
 
+    /**
+     * LibreTranslate usa códigos BCP-47 en algunos idiomas: expone el chino
+     * simplificado como 'zh-Hans' (no 'zh'). Sin este mapeo, es→zh fallaría
+     * con "target language not supported".
+     */
+    protected function mapCode(string $codigo): string {
+        return $codigo === 'zh' ? 'zh-Hans' : $codigo;
+    }
+
     protected function request(array $textos, string $source, string $target): array {
         if (!$this->isConfigured()) {
             throw new RuntimeException('LibreTranslate no configurado (falta TRANSLATE_LIBRE_URL).');
