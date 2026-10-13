@@ -19,7 +19,9 @@
 
 .search-input {
     width: 100%;
-    padding: 0.75rem 3rem 0.75rem 1rem;
+    padding-block: 0.75rem;
+    padding-inline-start: 1rem;
+    padding-inline-end: 3rem;
     border: 3px solid var(--border-dark);
     border-radius: 0;
     font-family: 'Courier Prime', monospace;
@@ -44,13 +46,13 @@
 
 .search-button {
     position: absolute;
-    right: 0;
+    inset-inline-end: 0;
     top: 0;
     height: 100%;
     width: 3rem;
     background: var(--slate);
     border: none;
-    border-left: 3px solid var(--border-dark);
+    border-inline-start: 3px solid var(--border-dark);
     cursor: pointer;
     color: var(--cream);
     font-size: 1rem;
@@ -79,7 +81,9 @@
 }
 
 .filters select {
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    padding-block: 0.5rem;
+    padding-inline-start: 0.75rem;
+    padding-inline-end: 2rem;
     border: 2px solid var(--border-dark);
     border-radius: 0;
     background: var(--cream-light);
@@ -95,6 +99,11 @@
     background-repeat: no-repeat;
     background-position: right 0.6rem center;
     background-color: var(--cream-light);
+}
+
+/* RTL: la flecha del select se refleja al lado de inicio */
+[dir="rtl"] .filters select {
+    background-position: left 0.6rem center;
 }
 
 .filters select:focus {
@@ -230,7 +239,7 @@
     font-size: 0.42rem;
     border: 2px solid #1e4266;
     box-shadow: 2px 2px 0 #1e4266;
-    margin-right: 0.4rem;
+    margin-inline-end: 0.4rem;
     display: inline-block;
     transition: transform 0.1s, box-shadow 0.1s;
 }
@@ -292,7 +301,7 @@
     font-family: 'Courier Prime', monospace;
     font-size: 0.9rem;
     border: 2px solid;
-    border-left-width: 5px;
+    border-inline-start-width: 5px;
 }
 .alert-error, .alert-danger {
     background: var(--rv-danger-bg);
@@ -350,12 +359,12 @@
     gap: 0.75rem;
     padding: 1rem 1.25rem 0.85rem;
     border-bottom: 3px solid var(--border-dark);
-    border-left: 6px solid transparent;
+    border-inline-start: 6px solid transparent;
 }
-.rv-modal--warning .rv-modal-header { background: var(--rv-warning-bg); border-left-color: var(--rv-warning-brd); }
-.rv-modal--danger  .rv-modal-header { background: var(--rv-danger-bg);  border-left-color: var(--rv-danger-brd);  }
-.rv-modal--success .rv-modal-header { background: var(--rv-success-bg); border-left-color: var(--rv-success-brd); }
-.rv-modal--info    .rv-modal-header { background: var(--rv-info-bg);    border-left-color: var(--rv-info-brd);    }
+.rv-modal--warning .rv-modal-header { background: var(--rv-warning-bg); border-inline-start-color: var(--rv-warning-brd); }
+.rv-modal--danger  .rv-modal-header { background: var(--rv-danger-bg);  border-inline-start-color: var(--rv-danger-brd);  }
+.rv-modal--success .rv-modal-header { background: var(--rv-success-bg); border-inline-start-color: var(--rv-success-brd); }
+.rv-modal--info    .rv-modal-header { background: var(--rv-info-bg);    border-inline-start-color: var(--rv-info-brd);    }
 
 .rv-modal-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
 .rv-modal--warning .rv-modal-icon { color: var(--rv-warning-brd); }
@@ -435,7 +444,7 @@
 .rv-toast-container {
     position: fixed;
     bottom: 1.5rem;
-    right: 1.5rem;
+    inset-inline-end: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.55rem;
@@ -464,10 +473,10 @@
 .rv-toast--visible { opacity: 1; transform: translateX(0); }
 .rv-toast--hide    { opacity: 0; transform: translateX(30px); }
 
-.rv-toast--success { border-left: 5px solid var(--rv-success-brd); }
-.rv-toast--warning { border-left: 5px solid var(--rv-warning-brd); }
-.rv-toast--danger  { border-left: 5px solid var(--rv-danger-brd);  }
-.rv-toast--info    { border-left: 5px solid var(--rv-info-brd);    }
+.rv-toast--success { border-inline-start: 5px solid var(--rv-success-brd); }
+.rv-toast--warning { border-inline-start: 5px solid var(--rv-warning-brd); }
+.rv-toast--danger  { border-inline-start: 5px solid var(--rv-danger-brd);  }
+.rv-toast--info    { border-inline-start: 5px solid var(--rv-info-brd);    }
 
 .rv-toast-icon { font-size: 1.05rem; flex-shrink: 0; }
 .rv-toast--success .rv-toast-icon { color: #6fcf7a; }
@@ -500,7 +509,7 @@
     font-family: 'Courier Prime', monospace;
     font-size: 0.88rem;
     border: 2px solid;
-    border-left-width: 5px;
+    border-inline-start-width: 5px;
     line-height: 1.5;
     opacity: 0;
     transform: translateY(-6px);
@@ -534,7 +543,7 @@
     .rv-modal-box       { max-width: 98vw; }
     .rv-modal-title     { font-size: 0.55rem; }
     .rv-btn             { font-size: 0.48rem; padding: 0.5rem 0.8rem; }
-    .rv-toast-container { right: 0.5rem; bottom: 0.5rem; }
+    .rv-toast-container { inset-inline-end: 0.5rem; bottom: 0.5rem; }
     .rv-toast           { min-width: unset; max-width: calc(100vw - 1rem); }
 }
 
@@ -735,7 +744,7 @@
     height: 0.85em;
     position: relative;
     top: -1px;
-    margin-right: 0.25em;
+    margin-inline-end: 0.25em;
 }
 
 /* ── game-cover placeholder centrado ─────────────── */
@@ -794,7 +803,7 @@
 nav a svg.pxi {
     width: 14px;
     height: 14px;
-    margin-right: 0.4em;
+    margin-inline-end: 0.4em;
     position: relative;
     top: -1px;
 }
@@ -841,7 +850,7 @@ nav a svg.pxi {
     width: 14px;
     height: 14px;
     vertical-align: middle;
-    margin-right: 0.3em;
+    margin-inline-end: 0.3em;
 }
 
 /* ── emulator meta icons ─────────────────────────── */
@@ -849,7 +858,7 @@ nav a svg.pxi {
     width: 14px;
     height: 14px;
     vertical-align: middle;
-    margin-right: 0.3em;
+    margin-inline-end: 0.3em;
     flex-shrink: 0;
 }
 
@@ -868,7 +877,7 @@ nav a svg.pxi {
     width: 12px;
     height: 12px;
     vertical-align: middle;
-    margin-right: 0.3em;
+    margin-inline-end: 0.3em;
     flex-shrink: 0;
     position: relative;
     top: -1px;
@@ -878,7 +887,7 @@ nav a svg.pxi {
 .file-input-btn svg.pxi {
     width: 13px;
     height: 13px;
-    margin-right: 0.35em;
+    margin-inline-end: 0.35em;
     vertical-align: middle;
 }
 
@@ -912,7 +921,7 @@ p svg.pxi {
     width: 14px;
     height: 14px;
     vertical-align: middle;
-    margin-right: 0.25em;
+    margin-inline-end: 0.25em;
 }
 
 /* ── paginación icons ────────────────────────────── */
@@ -927,5 +936,5 @@ p svg.pxi {
     width: 14px;
     height: 14px;
     vertical-align: middle;
-    margin-right: 0.3em;
+    margin-inline-end: 0.3em;
 }

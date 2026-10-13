@@ -17,7 +17,13 @@
 class I18n {
 
     /** Idiomas soportados (whitelist anti path traversal y anti inyección). */
-    public const LANGUAGES = ['es', 'en', 'fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr'];
+    public const LANGUAGES = ['es', 'en', 'fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr', 'zh', 'ko', 'ar'];
+
+    /**
+     * Idiomas con escritura de derecha a izquierda (RTL).
+     * El atributo dir="rtl" se aplica solo para estos idiomas (FASE 5.2).
+     */
+    public const RTL_LANGS = ['ar'];
 
     /** Idioma por defecto (fallback universal). */
     public const DEFAULT_LANG = 'es';
@@ -120,6 +126,15 @@ class I18n {
             self::init();
         }
         return self::$lang;
+    }
+
+    /**
+     * Indica si el idioma indicado (o el activo) usa escritura RTL.
+     * @param string|null $lang Código de idioma; null = idioma activo.
+     */
+    public static function isRtl(?string $lang = null): bool {
+        $code = $lang ?? self::getLang();
+        return in_array($code, self::RTL_LANGS, true);
     }
 
     /**

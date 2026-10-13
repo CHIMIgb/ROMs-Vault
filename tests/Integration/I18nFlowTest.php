@@ -47,7 +47,7 @@ class I18nFlowTest extends IntegrationTestCase {
         $resp = Server::get('/');
 
         $this->assertSame(200, $resp['status']);
-        $this->assertStringContainsString('<html lang="en">', $resp['body']);
+        $this->assertStringContainsString('<html lang="en"', $resp['body']);
     }
 
     public function testLangInvalidoSeIgnoraSinCookie(): void {
@@ -59,7 +59,7 @@ class I18nFlowTest extends IntegrationTestCase {
     }
 
     public function testQueryLangNuevosIdiomasEscribeCookie(): void {
-        foreach (['fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr'] as $lang) {
+        foreach (['fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr', 'zh', 'ko', 'ar'] as $lang) {
             Server::resetCookies();
             $resp = Server::get('/?lang=' . $lang);
             $this->assertSame(302, $resp['status'], "El idioma '$lang' debe redirigir.");
@@ -72,7 +72,7 @@ class I18nFlowTest extends IntegrationTestCase {
         $resp = Server::get('/auth/login', ['Accept-Language' => 'en-US,en;q=0.9,es;q=0.8']);
 
         $this->assertSame(200, $resp['status']);
-        $this->assertStringContainsString('<html lang="en">', $resp['body']);
+        $this->assertStringContainsString('<html lang="en"', $resp['body']);
     }
 
     public function testAcceptLanguageSoloSoportadosIgnoraResto(): void {
@@ -80,18 +80,18 @@ class I18nFlowTest extends IntegrationTestCase {
         // pl y nl no están en la whitelist → cae al primer soportado (en)
         $resp = Server::get('/auth/login', ['Accept-Language' => 'pl-PL,nl;q=0.9,en;q=0.8']);
 
-        $this->assertStringContainsString('<html lang="en">', $resp['body']);
+        $this->assertStringContainsString('<html lang="en"', $resp['body']);
     }
 
     public function testAcceptLanguageDetectaIdiomaRegional(): void {
         // El código base se extrae de la variante regional: fr-CA → fr, pt-BR → pt
         Server::resetCookies();
         $respFr = Server::get('/auth/login', ['Accept-Language' => 'fr-CA,fr;q=0.9']);
-        $this->assertStringContainsString('<html lang="fr">', $respFr['body']);
+        $this->assertStringContainsString('<html lang="fr"', $respFr['body']);
 
         Server::resetCookies();
         $respPt = Server::get('/auth/login', ['Accept-Language' => 'pt-BR,pt;q=0.9']);
-        $this->assertStringContainsString('<html lang="pt">', $respPt['body']);
+        $this->assertStringContainsString('<html lang="pt"', $respPt['body']);
     }
 
     public function testSinIndiciosUsaBaseEspanol(): void {
@@ -99,6 +99,25 @@ class I18nFlowTest extends IntegrationTestCase {
         $resp = Server::get('/');
 
         $this->assertSame(200, $resp['status']);
-        $this->assertStringContainsString('<html lang="es">', $resp['body']);
+        $this->assertStringContainsString('<html lang="es"', $resp['body']);
+    }
+
+    // ── RTL (FASE 5.2) ───────────────────────────────────────────────────────
+
+    public function testIdiomaLtrLlevaDirLtr(): void {
+        Server::resetCookies();
+        $resp = Server::get('/?lang=en');
+        $resp = Server::get('/');
+
+        $this->assertStringContainsString('<html lang="en" dir="ltr">', $resp['body']);
+    }
+
+    public function testIdiomaArabeLlevaDirRtl(): void {
+        Server::resetCookies();
+        $resp = Server::get('/?lang=ar');
+        $resp = Server::get('/');
+
+        $this->assertSame(200, $resp['status']);
+        $this->assertStringContainsString('<html lang="ar" dir="rtl">', $resp['body']);
     }
 }

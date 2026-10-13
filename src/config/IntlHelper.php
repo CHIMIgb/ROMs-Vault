@@ -40,6 +40,9 @@ class IntlHelper
         'it' => 'it_IT',
         'ru' => 'ru_RU',
         'tr' => 'tr_TR',
+        'zh' => 'zh_CN',
+        'ko' => 'ko_KR',
+        'ar' => 'ar_AR',
     ];
 
     /**
@@ -60,11 +63,14 @@ class IntlHelper
         'it' => 'it-IT',
         'ru' => 'ru-RU',
         'tr' => 'tr-TR',
+        'zh' => 'zh-CN',
+        'ko' => 'ko-KO',
+        'ar' => 'ar-AR',
     ];
 
     /**
      * Devuelve el locale para Intl según idioma activo.
-     * @return string p. ej. 'es_ES', 'en_US', 'fr_FR', 'pt_BR', 'de_DE', 'ja_JP', 'it_IT', 'ru_RU', 'tr_TR'
+     * @return string p. ej. 'es_ES', 'en_US', 'fr_FR', 'pt_BR', 'de_DE', 'ja_JP', 'it_IT', 'ru_RU', 'tr_TR', 'zh_CN', 'ko_KR', 'ar_AR'
      */
     public static function getLocale(): string
     {
@@ -272,6 +278,9 @@ class IntlHelper
         switch (self::getLocale()) {
             case 'en_US':
             case 'ja_JP':
+            case 'zh_CN':
+            case 'ko_KR':
+            case 'ar_AR':
                 return ['.', ','];
             case 'fr_FR':
                 return [',', "\u{202f}"]; // espacio fino irrompible
@@ -302,6 +311,9 @@ class IntlHelper
             'it_IT' => ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'],
             'ru_RU' => ['янв.', 'фев.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сен.', 'окт.', 'ноя.', 'дек.'],
             'tr_TR' => ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
+            'zh_CN' => ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            'ko_KR' => ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            'ar_AR' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
         ];
     }
 
@@ -319,22 +331,26 @@ class IntlHelper
         $months = self::fallbackMonths();
         $mon = $months[$locale][$m - 1] ?? $months['en_US'][$m - 1];
 
-        // Orden de la fecha larga/media: ja usa y/m/d; en usa "{mes} d, y"; el resto d mes y.
+        // Orden de la fecha larga/media: ja/zh/ko usan y/m/d; en usa "{mes} d, y"; el resto d mes y.
         switch ($locale) {
             case 'en_US':
                 $longDate = $mon . ' ' . $d . ', ' . $y;
                 break;
             case 'ja_JP':
+            case 'zh_CN':
+            case 'ko_KR':
                 $longDate = $y . '/' . $m . '/' . $d;
                 break;
-            default: // es, fr, pt, de, it, ru, tr
+            default: // es, fr, pt, de, it, ru, tr, ar
                 $longDate = $d . ' ' . $mon . ' ' . $y;
         }
 
-        // Fecha corta: en m/d/y, ja y/m/d, el resto d/m/y.
+        // Fecha corta: en m/d/y, ja/zh/ko y/m/d, el resto d/m/y.
         $shortDate = match ($locale) {
             'en_US' => sprintf('%02d/%02d/%04d', $m, $d, $y),
             'ja_JP' => sprintf('%04d/%02d/%02d', $y, $m, $d),
+            'zh_CN' => sprintf('%04d/%02d/%02d', $y, $m, $d),
+            'ko_KR' => sprintf('%04d/%02d/%02d', $y, $m, $d),
             default => sprintf('%02d/%02d/%04d', $d, $m, $y),
         };
 

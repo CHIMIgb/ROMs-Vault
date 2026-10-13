@@ -192,6 +192,10 @@
         fadeTargets = new Set();
         var newLang = parsed.documentElement.getAttribute('lang') || lang;
         document.documentElement.setAttribute('lang', newLang);
+        // RTL (FASE 5.2): el atributo dir del <html> también debe sincronizarse
+        // al cambiar de idioma sin recarga (p. ej. es → ar).
+        var newDir = parsed.documentElement.getAttribute('dir') || 'ltr';
+        document.documentElement.setAttribute('dir', newDir);
         if (parsed.title) document.title = parsed.title;
         syncMeta(parsed);
         if (parsed.body) syncNode(document.body, parsed.body);
