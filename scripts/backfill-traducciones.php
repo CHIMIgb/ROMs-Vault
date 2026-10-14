@@ -5,7 +5,7 @@
  * de traducciones (i18n, bloque 2 / Fase 3).
  *
  *   - categorias_traducciones : categorias.nombre + categorias.descripcion
- *   - juegos_traducciones     : juegos.descripcion
+ *   - juegos_traducciones     : juegos.descripcion + juegos.idiomas
  *
  * Requiere un proveedor configurado en .env para el modo REAL:
  *   TRANSLATE_PROVIDER=libretranslate  + TRANSLATE_LIBRE_URL=http://localhost:5000
@@ -127,8 +127,9 @@ try {
 
     $juegos = ($solo === null || $solo === 'juegos')
         ? $pdo->query(
-            "SELECT id, descripcion FROM juegos
-             WHERE descripcion IS NOT NULL AND btrim(descripcion) <> ''
+            "SELECT id, descripcion, idiomas FROM juegos
+             WHERE (descripcion IS NOT NULL AND btrim(descripcion) <> '')
+                OR (idiomas      IS NOT NULL AND btrim(idiomas)      <> '')
              ORDER BY id{$limitSql}"
           )->fetchAll()
         : [];
@@ -201,6 +202,7 @@ $rc = $procesar('categoria', $categorias, static fn(array $f): array => [
 
 $rj = $procesar('juego', $juegos, static fn(array $f): array => [
     'descripcion' => (string) ($f['descripcion'] ?? ''),
+    'idiomas'     => (string) ($f['idiomas'] ?? ''),
 ], $destino, $dryRun);
 
 // ── Resumen ───────────────────────────────────────────────────────────────

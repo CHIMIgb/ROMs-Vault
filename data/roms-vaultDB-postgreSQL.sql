@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS public.juegos_traducciones (
     juego_id      INTEGER      NOT NULL REFERENCES public.juegos(id) ON DELETE CASCADE,
     idioma        VARCHAR(5)   NOT NULL,
     descripcion   TEXT,
+    idiomas       TEXT,
     origen        VARCHAR(10)  NOT NULL DEFAULT 'manual',
     revisado      BOOLEAN      NOT NULL DEFAULT FALSE,
     origen_hash   CHAR(64),

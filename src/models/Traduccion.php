@@ -98,7 +98,7 @@ class Traduccion extends Model {
     }
 
     /**
-     * Inserta o actualiza la traducción de un juego.
+     * Inserta o actualiza la traducción de un juego (descripción e idiomas).
      * No pisa una traducción manual salvo que la nueva también sea manual.
      */
     public function upsertJuego(
@@ -107,13 +107,15 @@ class Traduccion extends Model {
         ?string $descripcion,
         string $origen = 'auto',
         bool $revisado = false,
-        ?string $hash = null
+        ?string $hash = null,
+        ?string $idiomas = null
     ): bool {
         $sql = "INSERT INTO juegos_traducciones
-                    (juego_id, idioma, descripcion, origen, revisado, origen_hash, created_at, updated_at)
-                VALUES (:entidad_id, :idioma, :descripcion, :origen, :revisado, :hash, now(), now())
+                    (juego_id, idioma, descripcion, idiomas, origen, revisado, origen_hash, created_at, updated_at)
+                VALUES (:entidad_id, :idioma, :descripcion, :idiomas, :origen, :revisado, :hash, now(), now())
                 ON CONFLICT (juego_id, idioma) DO UPDATE SET
                     descripcion  = EXCLUDED.descripcion,
+                    idiomas      = EXCLUDED.idiomas,
                     origen       = EXCLUDED.origen,
                     revisado     = EXCLUDED.revisado,
                     origen_hash  = EXCLUDED.origen_hash,
@@ -125,6 +127,7 @@ class Traduccion extends Model {
             ':entidad_id'  => [$juegoId, PDO::PARAM_INT],
             ':idioma'      => [$idioma, PDO::PARAM_STR],
             ':descripcion' => [$descripcion, PDO::PARAM_STR],
+            ':idiomas'     => [$idiomas, PDO::PARAM_STR],
             ':origen'      => [$origen, PDO::PARAM_STR],
             ':revisado'    => [$revisado, PDO::PARAM_BOOL],
             ':hash'        => [$hash, PDO::PARAM_STR],

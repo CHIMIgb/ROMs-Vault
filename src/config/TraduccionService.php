@@ -58,7 +58,8 @@ class TraduccionService {
     }
 
     /**
-     * Reemplaza la descripción de juegos por la traducción del idioma activo.
+     * Reemplaza la descripción y los idiomas de juegos por la traducción del
+     * idioma activo. Los campos sin traducción conservan su valor en 'es'.
      */
     public static function resolverJuegos(array &$filas, ?string $idioma = null): void {
         $idioma = self::idiomaEfectivo($idioma);
@@ -73,7 +74,7 @@ class TraduccionService {
         foreach ($filas as &$fila) {
             $id = (int) ($fila['id'] ?? 0);
             if (isset($trad[$id])) {
-                $fila = self::aplicarCampos($fila, $trad[$id], ['descripcion']);
+                $fila = self::aplicarCampos($fila, $trad[$id], ['descripcion', 'idiomas']);
             }
         }
         unset($fila);
@@ -206,7 +207,8 @@ class TraduccionService {
                 self::model()->upsertJuego(
                     $id, $target,
                     $resultado['descripcion'] ?? null,
-                    'auto', false, $hash
+                    'auto', false, $hash,
+                    self::normalizarListaIdiomas($resultado['idiomas'] ?? null)
                 );
             }
             $traducidos[] = $target;
@@ -298,6 +300,21 @@ class TraduccionService {
             }
         }
         return $fila;
+    }
+
+    /**
+     * Normaliza la lista de idiomas traducida a un formato estable para las
+     * vistas: separadores tipo lista de otros idiomas (、，；،, ;) pasan a "," y
+     * las partes se limpian y unen con ", ". Así el catálogo y la ficha pintan
+     * los chips igual en todos los idiomas.
+     */
+    private static function normalizarListaIdiomas(?string $texto): ?string {
+        if ($texto === null || trim($texto) === '') {
+            return null;
+        }
+        $texto   = str_replace(['、', '，', '；', '،', ';'], ',', $texto);
+        $partes  = array_filter(array_map('trim', explode(',', $texto)), static fn($p) => $p !== '');
+        return $partes === [] ? null : implode(', ', $partes);
     }
 
     /**

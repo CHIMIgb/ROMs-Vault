@@ -11,6 +11,7 @@ require_once __DIR__ . '/../config/RateLimiter.php';
 require_once __DIR__ . '/../config/Slug.php';
 require_once __DIR__ . '/../config/StorageService.php';
 require_once __DIR__ . '/../config/TraduccionService.php';
+require_once __DIR__ . '/../config/IdiomasNormalizer.php';
 
 class AdminController {
     // Máximo de capturas por juego (el carrusel ya replica la portada si no hay capturas)
@@ -84,6 +85,10 @@ class AdminController {
                 'activo' => 1,
             ];
 
+            // Normaliza la lista de idiomas a nombres canónicos antes de guardar
+            // (evita re-ensuciar el campo y que la traducción reciba erratas).
+            $data['idiomas'] = IdiomasNormalizer::normalizar($data['idiomas'] ?? null);
+
             $consolaNombre = $this->obtenerConsolaNombre((int)$data['consola_id']);
 
             // ── Prefijo del juego: {consola}/{juego}/ ──
@@ -136,7 +141,11 @@ class AdminController {
                 // puede fijarse a mano: ver resolverSlugJuego().
                 $data['slug'] = Slug::unique($data['titulo'], fn(string $s) => $juegoModel->slugExists($s), 'juego');
                 if ($juegoModel->create($data)) {
-                    $this->autoTraducirJuego($juegoModel->lastInsertId(), (string) ($data['descripcion'] ?? ''));
+                    $this->autoTraducirJuego(
+                        (int) $juegoModel->lastInsertId(),
+                        (string) ($data['descripcion'] ?? ''),
+                        (string) ($data['idiomas'] ?? '')
+                    );
                     header('Location: /admin/dashboard');
                     exit;
                 } else {
@@ -183,6 +192,9 @@ class AdminController {
                 'size_bytes' => $_POST['size_bytes'] ?: 0,
                 'activo' => $juego['activo'] ? 1 : 0,
             ];
+
+            // Normaliza la lista de idiomas a nombres canónicos antes de guardar.
+            $data['idiomas'] = IdiomasNormalizer::normalizar($data['idiomas'] ?? null);
 
             $consolaAnterior = (int)$juego['consola_id'];
             $tituloAnterior  = $juego['titulo'];
@@ -297,7 +309,11 @@ class AdminController {
                     (int) $juego['id']
                 );
                 if ($juegoModel->update($id, $data)) {
-                    $this->autoTraducirJuego((int) $id, (string) ($data['descripcion'] ?? ''));
+                    $this->autoTraducirJuego(
+                        (int) $id,
+                        (string) ($data['descripcion'] ?? ''),
+                        (string) ($data['idiomas'] ?? '')
+                    );
                     header('Location: /admin/dashboard');
                     exit;
                 } else {
@@ -312,16 +328,20 @@ class AdminController {
     }
 
     /**
-     * Auto-traduce la descripción de un juego a los idiomas destino (best-effort,
-     * no bloquea el guardado: el registro ya está persistido). Solo se traduce
-     * la descripción: el título es nombre propio y no se traduce (decisión de
-     * diseño). Sin proveedor configurado no hace nada.
+     * Auto-traduce la descripción y los idiomas de un juego a los idiomas
+     * destino (best-effort, no bloquea el guardado: el registro ya está
+     * persistido). Solo se traducen la descripción y la lista de idiomas: el
+     * título es nombre propio y no se traduce (decisión de diseño). Sin
+     * proveedor configurado no hace nada.
      */
-    private function autoTraducirJuego(int $id, string $descripcion): void {
-        if ($id <= 0 || trim($descripcion) === '') {
+    private function autoTraducirJuego(int $id, string $descripcion, string $idiomas = ''): void {
+        if ($id <= 0 || (trim($descripcion) === '' && trim($idiomas) === '')) {
             return;
         }
-        TraduccionService::traducirEntidad('juego', $id, ['descripcion' => $descripcion]);
+        TraduccionService::traducirEntidad('juego', $id, [
+            'descripcion' => $descripcion,
+            'idiomas'     => $idiomas,
+        ]);
     }
 
     public function toggleActive($id) {
