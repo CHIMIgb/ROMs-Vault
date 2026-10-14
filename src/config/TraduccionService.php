@@ -3,6 +3,7 @@ require_once __DIR__ . '/../models/Traduccion.php';
 require_once __DIR__ . '/translation/TranslateProviderFactory.php';
 require_once __DIR__ . '/LoggerService.php';
 require_once __DIR__ . '/i18n.php';
+require_once __DIR__ . '/IdiomasNormalizer.php';
 
 /**
  * config/TraduccionService.php
@@ -135,18 +136,9 @@ class TraduccionService {
         }
 
         // Solo se traduce lo que tiene contenido (no gastar llamadas en vacíos).
-        $campos = array_filter(
-            $campos,
-            static fn($v) => is_string($v) && trim($v) !== ''
-        );
+        $campos = self::limpiarCampos($campos);
         if ($campos === []) {
             return ['ok' => false, 'motivo' => 'sin_texto', 'idiomas' => []];
-        }
-
-        $proveedor = TranslateProviderFactory::fromEnv();
-        // En dry-run no hace falta proveedor: solo se evalúan los pendientes.
-        if (!$dryRun && !$proveedor->isConfigured()) {
-            return ['ok' => false, 'motivo' => 'no_configurado', 'idiomas' => [], 'proveedor' => $proveedor->name()];
         }
 
         $targets = self::targets($targets);
@@ -158,70 +150,76 @@ class TraduccionService {
             ? self::model()->idiomasDeCategoria($id)
             : self::model()->idiomasDeJuego($id);
 
-        $hash = self::hash($campos);
-        $traducidos = [];
-        $pendientes = [];
-        $errores = 0;
-
-        foreach ($targets as $target) {
-            $prev = $existentes[$target] ?? null;
-
-            // Nunca pisar una corrección manual.
-            if ($prev !== null && ($prev['origen'] ?? '') === 'manual') {
-                continue;
+        return self::generar(
+            $entidad,
+            $id,
+            $existentes,
+            $campos,   // hash sobre el conjunto canónico completo
+            $campos,   // se traducen todos los campos
+            $targets,
+            $dryRun,
+            static function (string $target, array $resultado, string $hash) use ($entidad, $id): void {
+                if ($entidad === 'categoria') {
+                    self::model()->upsertCategoria(
+                        $id, $target,
+                        $resultado['nombre'] ?? null,
+                        $resultado['descripcion'] ?? null,
+                        'auto', false, $hash
+                    );
+                } else {
+                    self::model()->upsertJuego(
+                        $id, $target,
+                        $resultado['descripcion'] ?? null,
+                        'auto', false, $hash,
+                        self::normalizarListaIdiomas($resultado['idiomas'] ?? null)
+                    );
+                }
             }
-            // Sin cambios en el texto canónico: nada que hacer (incremental por hash).
-            if ($prev !== null
-                && ($prev['origen'] ?? '') === 'auto'
-                && (string) ($prev['origen_hash'] ?? '') === $hash) {
-                continue;
-            }
+        );
+    }
 
-            if ($dryRun) {
-                $pendientes[] = $target;
-                continue;
-            }
-
-            try {
-                $resultado = $proveedor->translateBatch($campos, I18n::DEFAULT_LANG, $target);
-            } catch (\Throwable $e) {
-                $errores++;
-                LoggerService::write('traduccion_error', [
-                    'entidad'   => $entidad,
-                    'id'        => $id,
-                    'idioma'    => $target,
-                    'proveedor' => $proveedor->name(),
-                    'error'     => $e->getMessage(),
-                ], 'warning');
-                continue;
-            }
-
-            if ($entidad === 'categoria') {
-                self::model()->upsertCategoria(
-                    $id, $target,
-                    $resultado['nombre'] ?? null,
-                    $resultado['descripcion'] ?? null,
-                    'auto', false, $hash
-                );
-            } else {
-                self::model()->upsertJuego(
-                    $id, $target,
-                    $resultado['descripcion'] ?? null,
-                    'auto', false, $hash,
-                    self::normalizarListaIdiomas($resultado['idiomas'] ?? null)
-                );
-            }
-            $traducidos[] = $target;
+    /**
+     * Re-genera SOLO el campo `idiomas` de las traducciones de un juego, sin
+     * re-traducir la descripción ya guardada (backfill de idiomas).
+     *
+     * Recibe los campos canónicos COMPLETOS (descripcion + idiomas) para que el
+     * `origen_hash` sea el mismo que usa la vía unificada (traducirEntidad /
+     * guardado desde el admin): así la fila queda marcada como sincronizada y
+     * las re-ejecuciones son idempotentes. La descripción NO se toca.
+     *
+     * @param array $campos Campos canónicos en 'es' (['descripcion'=>..., 'idiomas'=>...]).
+     * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes?:array<int,string>,dry_run?:bool,errores?:int,proveedor?:string}
+     */
+    public static function traducirIdiomasJuego(int $id, array $campos, ?array $targets = null, bool $dryRun = false): array {
+        $campos  = self::limpiarCampos($campos);
+        $idiomas = trim((string) ($campos['idiomas'] ?? ''));
+        if ($idiomas === '') {
+            return ['ok' => false, 'motivo' => 'sin_texto', 'idiomas' => []];
         }
 
-        return [
-            'ok'         => true,
-            'idiomas'    => $traducidos,
-            'pendientes' => $pendientes,
-            'dry_run'    => $dryRun,
-            'errores'    => $errores,
-            'proveedor'  => $proveedor->name(),
-        ];
+        $targets = self::targets($targets);
+        if ($targets === []) {
+            return ['ok' => false, 'motivo' => 'sin_idiomas', 'idiomas' => []];
+        }
+
+        $existentes = self::model()->idiomasDeJuego($id);
+
+        return self::generar(
+            'juego',
+            $id,
+            $existentes,
+            $campos,                 // hash sobre el conjunto canónico completo
+            ['idiomas' => $idiomas], // solo se traduce (y escribe) `idiomas`
+            $targets,
+            $dryRun,
+            static function (string $target, array $resultado, string $hash) use ($id): void {
+                self::model()->upsertJuegoIdiomas(
+                    $id, $target,
+                    self::normalizarListaIdiomas($resultado['idiomas'] ?? null),
+                    'auto', false, $hash
+                );
+            }
+        );
     }
 
     /** Nombre del proveedor configurado (para la UI del admin). */
@@ -257,6 +255,66 @@ class TraduccionService {
         return hash('sha256', $json === false ? '' : $json);
     }
 
+    /**
+     * Traduce un conjunto de campos canónicos a un idioma destino.
+     *
+     * El campo `idiomas` (lista de idiomas disponibles) se envía como UNA sola
+     * cadena con los tokens unidos por " / ". Así el proveedor traduce con
+     * contexto (calidad alta en todos los idiomas: enviar cada idioma aislado
+     * produce errores como "Inglés" -> "日本語 English" o "联合国") y, verificado
+     * contra LibreTranslate, conserva el delimitador "/" en los 11 idiomas. Al
+     * volver, se divide por "/" y se re-une con ", " para que las vistas pinten
+     * los chips separados en todos los idiomas (evita además el problema del
+     * separador propio de ja/zh `、` y del árabe, que une con `و`).
+     *
+     * Todo se envía en el MISMO lote: sigue siendo UNA sola petición.
+     *
+     * @internal Expuesto (estático) para poder testearlo con un proveedor falso.
+     *
+     * @param array<string,string> $campos Campos en 'es' (p. ej. descripcion, idiomas).
+     * @return array<string,string> Mismos campos con los valores traducidos.
+     */
+    public static function traducirCampos(TranslationProvider $proveedor, array $campos, string $target): array {
+        $tokens = [];
+        $enviar = [];
+        foreach ($campos as $clave => $valor) {
+            if ($clave === 'idiomas') {
+                $tokens = IdiomasNormalizer::tokens((string) $valor);
+                if ($tokens !== []) {
+                    $enviar['idiomas'] = implode(' / ', $tokens);
+                }
+            } else {
+                $enviar[$clave] = $valor;
+            }
+        }
+
+        $res = $proveedor->translateBatch($enviar, I18n::DEFAULT_LANG, $target);
+
+        $salida = $campos;
+        foreach ($campos as $clave => $valor) {
+            if ($clave === 'idiomas') {
+                if ($tokens === []) {
+                    continue;
+                }
+                $traducido = $res['idiomas'] ?? null;
+                if (!is_string($traducido) || trim($traducido) === '') {
+                    // Sin respuesta: conservar el original normalizado (fallback).
+                    $salida['idiomas'] = self::normalizarListaIdiomas($valor);
+                    continue;
+                }
+                // Re-separa por el delimitador (y normaliza separadores locales).
+                $partes = array_filter(
+                    array_map('trim', explode('/', $traducido)),
+                    static fn($p) => $p !== ''
+                );
+                $salida['idiomas'] = self::normalizarListaIdiomas(implode(', ', $partes));
+            } elseif (isset($res[$clave]) && is_string($res[$clave]) && $res[$clave] !== '') {
+                $salida[$clave] = $res[$clave];
+            }
+        }
+        return $salida;
+    }
+
     /** Limpia las cachés en memoria (uso exclusivo en tests). */
     public static function resetCache(): void {
         self::$cache     = [];
@@ -271,6 +329,103 @@ class TraduccionService {
             self::$model = new Traduccion();
         }
         return self::$model;
+    }
+
+    /** Descarta campos vacíos o no-string (no gastar llamadas en vacíos). */
+    private static function limpiarCampos(array $campos): array {
+        return array_filter(
+            $campos,
+            static fn($v) => is_string($v) && trim($v) !== ''
+        );
+    }
+
+    /**
+     * Núcleo de GENERACIÓN: recorre los idiomas destino saltando lo manual y lo
+     * ya sincronizado (origen='auto' con el mismo hash), traduce e invoca
+     * $escribir. Compartido por traducirEntidad() (todos los campos) y
+     * traducirIdiomasJuego() (solo `idiomas`), para no duplicar la lógica de
+     * incrementalidad ni la de respeto a las correcciones manuales.
+     *
+     * @param array<string,array> $existentes        idioma => fila de traducción actual.
+     * @param array<string,string> $camposCanonicos   Campos fuente para el hash.
+     * @param array<string,string> $camposTraducir    Campos que realmente se traducen.
+     * @param callable(string,array,string):void $escribir (target, resultado, hash)
+     * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes:array<int,string>,dry_run:bool,errores:int,proveedor:string}
+     */
+    private static function generar(
+        string $entidad,
+        int $id,
+        array $existentes,
+        array $camposCanonicos,
+        array $camposTraducir,
+        array $targets,
+        bool $dryRun,
+        callable $escribir
+    ): array {
+        $proveedor = TranslateProviderFactory::fromEnv();
+        // En dry-run no hace falta proveedor: solo se evalúan los pendientes.
+        if (!$dryRun && !$proveedor->isConfigured()) {
+            return [
+                'ok'         => false,
+                'motivo'     => 'no_configurado',
+                'idiomas'    => [],
+                'pendientes' => [],
+                'dry_run'    => $dryRun,
+                'errores'    => 0,
+                'proveedor'  => $proveedor->name(),
+            ];
+        }
+
+        $hash       = self::hash($camposCanonicos);
+        $traducidos = [];
+        $pendientes = [];
+        $errores    = 0;
+
+        foreach ($targets as $target) {
+            $prev = $existentes[$target] ?? null;
+
+            // Nunca pisar una corrección manual.
+            if ($prev !== null && ($prev['origen'] ?? '') === 'manual') {
+                continue;
+            }
+            // Sin cambios en el texto canónico: nada que hacer (incremental por hash).
+            if ($prev !== null
+                && ($prev['origen'] ?? '') === 'auto'
+                && (string) ($prev['origen_hash'] ?? '') === $hash) {
+                continue;
+            }
+
+            if ($dryRun) {
+                $pendientes[] = $target;
+                continue;
+            }
+
+            try {
+                $resultado = self::traducirCampos($proveedor, $camposTraducir, $target);
+            } catch (\Throwable $e) {
+                $errores++;
+                LoggerService::write('traduccion_error', [
+                    'entidad'   => $entidad,
+                    'id'        => $id,
+                    'idioma'    => $target,
+                    'proveedor' => $proveedor->name(),
+                    'error'     => $e->getMessage(),
+                ], 'warning');
+                continue;
+            }
+
+            $escribir($target, $resultado, $hash);
+            $traducidos[] = $target;
+        }
+
+        return [
+            'ok'         => true,
+            'idiomas'    => $traducidos,
+            'pendientes' => $pendientes,
+            'dry_run'    => $dryRun,
+            'errores'    => $errores,
+            'proveedor'  => $proveedor->name(),
+        ];
     }
 
     /** Idioma efectivo: el indicado o el activo, validado contra la whitelist. */
@@ -304,7 +459,7 @@ class TraduccionService {
 
     /**
      * Normaliza la lista de idiomas traducida a un formato estable para las
-     * vistas: separadores tipo lista de otros idiomas (、，；،, ;) pasan a "," y
+     * vistas: separadores tipo lista de otros idiomas (、，；،, ; /) pasan a "," y
      * las partes se limpian y unen con ", ". Así el catálogo y la ficha pintan
      * los chips igual en todos los idiomas.
      */
@@ -312,7 +467,7 @@ class TraduccionService {
         if ($texto === null || trim($texto) === '') {
             return null;
         }
-        $texto   = str_replace(['、', '，', '；', '،', ';'], ',', $texto);
+        $texto   = str_replace(['、', '，', '；', '،', ';', '/'], ',', $texto);
         $partes  = array_filter(array_map('trim', explode(',', $texto)), static fn($p) => $p !== '');
         return $partes === [] ? null : implode(', ', $partes);
     }

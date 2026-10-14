@@ -134,6 +134,46 @@ class Traduccion extends Model {
         ]);
     }
 
+    /**
+     * Inserta o actualiza SOLO el campo `idiomas` de la traducción de un juego,
+     * SIN tocar la descripción ya traducida. Se usa en el backfill de idiomas,
+     * que no debe re-traducir descripciones.
+     *
+     * En un INSERT nuevo la descripción queda NULL (la rellena la vía unificada
+     * al guardar/backfill completo). En un UPDATE (ON CONFLICT) la columna
+     * `descripcion` no aparece en el SET, por lo que se conserva intacta.
+     * No pisa una traducción manual salvo que la nueva también sea manual.
+     */
+    public function upsertJuegoIdiomas(
+        int $juegoId,
+        string $idioma,
+        ?string $idiomas,
+        string $origen = 'auto',
+        bool $revisado = false,
+        ?string $hash = null
+    ): bool {
+        $sql = "INSERT INTO juegos_traducciones
+                    (juego_id, idioma, idiomas, origen, revisado, origen_hash, created_at, updated_at)
+                VALUES (:entidad_id, :idioma, :idiomas, :origen, :revisado, :hash, now(), now())
+                ON CONFLICT (juego_id, idioma) DO UPDATE SET
+                    idiomas      = EXCLUDED.idiomas,
+                    origen       = EXCLUDED.origen,
+                    revisado     = EXCLUDED.revisado,
+                    origen_hash  = EXCLUDED.origen_hash,
+                    updated_at   = now()
+                WHERE juegos_traducciones.origen <> 'manual'
+                   OR EXCLUDED.origen = 'manual'";
+
+        return $this->ejecutarUpsert($sql, [
+            ':entidad_id' => [$juegoId, PDO::PARAM_INT],
+            ':idioma'     => [$idioma, PDO::PARAM_STR],
+            ':idiomas'    => [$idiomas, PDO::PARAM_STR],
+            ':origen'     => [$origen, PDO::PARAM_STR],
+            ':revisado'   => [$revisado, PDO::PARAM_BOOL],
+            ':hash'       => [$hash, PDO::PARAM_STR],
+        ]);
+    }
+
     // ── Internos ──────────────────────────────────────────────────────────
 
     /**

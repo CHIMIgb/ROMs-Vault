@@ -24,6 +24,8 @@
  * Opciones:
  *   --dry-run            Previsualiza lo pendiente sin llamar al proveedor.
  *   --solo=categorias    Solo categorías (o --solo=juegos).
+ *   --campo=idiomas      Solo el campo `idiomas` de los juegos (no re-traduce la
+ *                        descripción ya guardada). Fuerza --solo=juegos.
  *   --idioma=en,fr,ja    Limita los idiomas destino (coma-separados).
  *   --limite=50          Máximo de entidades por tipo.
  *   --ayuda              Muestra esta ayuda.
@@ -44,6 +46,7 @@ require_once $root . '/src/config/i18n.php';
 // ── Argumentos ────────────────────────────────────────────────────────────
 $dryRun  = false;
 $solo    = null;          // 'categorias' | 'juegos' | null (ambos)
+$campo   = null;          // null (todos) | 'idiomas' (solo el campo idiomas de juegos)
 $idiomas = null;          // array<int,string> | null
 $limite  = null;          // int | null
 
@@ -55,6 +58,7 @@ Uso: php scripts/backfill-traducciones.php [opciones]
 
   --dry-run            Previsualiza lo pendiente sin llamar al proveedor.
   --solo=categorias    Solo categorías (o --solo=juegos).
+  --campo=idiomas      Solo el campo idiomas de los juegos (no re-traduce la descripción).
   --idioma=en,fr,ja    Limita los idiomas destino (coma-separados).
   --limite=50          Máximo de entidades por tipo.
   --ayuda              Muestra esta ayuda.
@@ -75,6 +79,13 @@ foreach (array_slice($argv ?? [], 1) as $arg) {
             exit(2);
         }
         $solo = $valor;
+    } elseif (str_starts_with($arg, '--campo=')) {
+        $valor = strtolower(trim(substr($arg, 8)));
+        if ($valor !== 'idiomas') {
+            fwrite(STDERR, "Valor inválido para --campo (solo se admite 'idiomas').\n");
+            exit(2);
+        }
+        $campo = $valor;
     } elseif (str_starts_with($arg, '--idioma=')) {
         $idiomas = array_values(array_filter(
             array_map('trim', explode(',', substr($arg, 9))),
@@ -90,6 +101,15 @@ foreach (array_slice($argv ?? [], 1) as $arg) {
         fwrite(STDERR, "Opción desconocida: {$arg}\n");
         exit(2);
     }
+}
+
+// --campo=idiomas solo aplica a juegos (las categorías no tienen ese campo).
+if ($campo === 'idiomas') {
+    if ($solo === 'categorias') {
+        fwrite(STDERR, "--campo=idiomas no es compatible con --solo=categorias.\n");
+        exit(2);
+    }
+    $solo = 'juegos';
 }
 
 // ── Conexión y configuración ──────────────────────────────────────────────
@@ -144,12 +164,14 @@ try {
 /**
  * @param array<int,array>       $filas
  * @param callable(array):array  $campos
+ * @param callable(string,int,array):array $traducir
  * @return array{con_pendientes:int,escritas:int,errores:int,con_error:int}
  */
 $procesar = static function (
     string $entidad,
     array $filas,
     callable $campos,
+    callable $traducir,
     array $destino,
     bool $dryRun
 ): array {
@@ -160,7 +182,7 @@ $procesar = static function (
 
     foreach ($filas as $fila) {
         $id  = (int) $fila['id'];
-        $res = TraduccionService::traducirEntidad($entidad, $id, $campos($fila), $destino, $dryRun);
+        $res = $traducir($entidad, $id, $campos($fila));
 
         if (!($res['ok'] ?? false)) {
             continue; // p. ej. sin_texto
@@ -195,15 +217,21 @@ $procesar = static function (
     ];
 };
 
+// Traductores: por defecto, todos los campos; con --campo=idiomas, solo idiomas.
+$traducirTodo = static fn(string $entidad, int $id, array $campos): array
+    => TraduccionService::traducirEntidad($entidad, $id, $campos, $destino, $dryRun);
+$traducirIdiomas = static fn(string $entidad, int $id, array $campos): array
+    => TraduccionService::traducirIdiomasJuego($id, $campos, $destino, $dryRun);
+
 $rc = $procesar('categoria', $categorias, static fn(array $f): array => [
     'nombre'      => (string) ($f['nombre'] ?? ''),
     'descripcion' => (string) ($f['descripcion'] ?? ''),
-], $destino, $dryRun);
+], $traducirTodo, $destino, $dryRun);
 
 $rj = $procesar('juego', $juegos, static fn(array $f): array => [
     'descripcion' => (string) ($f['descripcion'] ?? ''),
     'idiomas'     => (string) ($f['idiomas'] ?? ''),
-], $destino, $dryRun);
+], $campo === 'idiomas' ? $traducirIdiomas : $traducirTodo, $destino, $dryRun);
 
 // ── Resumen ───────────────────────────────────────────────────────────────
 echo "\n--- Resumen ---\n";
