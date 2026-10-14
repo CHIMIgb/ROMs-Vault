@@ -8,7 +8,11 @@
 `src/controllers/AdminController.php`,
 `src/controllers/CategoriaController.php`,
 `docs/2026-10-13-idiomas-tabla-determinista.md`,
-`docs/planificado/2026-10-14-migracion-libretranslate-a-servidor.md`
+`docs/planificado/2026-10-14-proveedor-deepl-traduccion.md`
+
+> Nota: con el proveedor **DeepL** (ver el plan enlazado) la traducción funciona
+> desde Vercel sin worker, por lo que este plan (cola + worker) pasa a ser una
+> mejora **opcional**.
 
 ---
 
