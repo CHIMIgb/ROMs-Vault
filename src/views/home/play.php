@@ -176,7 +176,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                             <i data-i="share"></i> <?= t('play.compartir') ?>
                         </button>
                     </div>
-                    <div id="share-toast" class="share-toast" aria-live="polite"></div>
+                    <div id="share-toast" class="share-toast" aria-live="polite" data-lang-skip></div>
                 </div>
             </div>
         </div>

@@ -102,20 +102,31 @@
                 $lang = I18n::getLang();
                 $langPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
                 $langAction = htmlspecialchars($langPath, ENT_QUOTES, 'UTF-8');
-                // Conserva los parámetros GET actuales (excepto lang) como campos ocultos.
+                // Conserva los parámetros que el visitante envió de verdad en la
+                // URL (filtros, y en las URLs legacy controller/action/id),
+                // excepto lang. Se lee de QUERY_STRING y no de $_GET porque el
+                // router añade a $_GET los de la ruta limpia: en
+                // /juego/power-rangers-ninja-storm el formulario reenviaría
+                // ?controller=home&action=showBySlug&id=power-rangers-ninja-storm,
+                // duplicando en la query lo que ya va en la ruta.
                 $langHidden = [];
-                foreach ($_GET as $key => $value) {
-                    if ($key === 'lang') {
-                        continue;
-                    }
-                    if (is_array($value)) {
-                        foreach ($value as $v) {
-                            if (is_scalar($v)) {
-                                $langHidden[] = [$key . '[]', (string)$v];
-                            }
+                $langQueryString = (string) ($_SERVER['QUERY_STRING'] ?? '');
+                if ($langQueryString !== '') {
+                    $langQueryParams = [];
+                    parse_str($langQueryString, $langQueryParams);
+                    foreach ($langQueryParams as $key => $value) {
+                        if ($key === 'lang') {
+                            continue;
                         }
-                    } elseif (is_scalar($value)) {
-                        $langHidden[] = [$key, (string)$value];
+                        if (is_array($value)) {
+                            foreach ($value as $v) {
+                                if (is_scalar($v)) {
+                                    $langHidden[] = [$key . '[]', (string)$v];
+                                }
+                            }
+                        } elseif (is_scalar($value)) {
+                            $langHidden[] = [$key, (string)$value];
+                        }
                     }
                 }
                 $langFlags = [

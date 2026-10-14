@@ -96,8 +96,23 @@
 
     var MEDIA_SELECTOR = 'img, video, canvas, audio, iframe, .emulator, .ejs_container';
 
+    /**
+     * Un elemento que ahora mismo no se está pintando (sin caja, `opacity:0` o
+     * `visibility:hidden`) no debe recibir la animación. Al animar la opacidad,
+     * la regla de `animation` SOBRESCRIBE el estado oculto y el elemento
+     * parpadea en pantalla: es lo que hacía aparecer el toast "Enlace copiado"
+     * (oculto a la espera de pulsar Compartir) al cambiar de idioma.
+     */
+    function isInvisible(el) {
+        if (el.getClientRects && el.getClientRects().length === 0) return true;
+        if (!global.getComputedStyle) return false;
+        var cs = global.getComputedStyle(el);
+        return cs.visibility === 'hidden' || cs.opacity === '0';
+    }
+
     function safeToFade(el) {
         if (el.nodeType !== 1) return false;
+        if (isInvisible(el)) return false;
         if (el.matches && el.matches(MEDIA_SELECTOR)) return false;
         if (el.querySelector && el.querySelector(MEDIA_SELECTOR)) return false;
         return true;
