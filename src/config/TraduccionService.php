@@ -4,6 +4,7 @@ require_once __DIR__ . '/translation/TranslateProviderFactory.php';
 require_once __DIR__ . '/LoggerService.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/IdiomasNormalizer.php';
+require_once __DIR__ . '/IdiomasTranslations.php';
 
 /**
  * config/TraduccionService.php
@@ -127,9 +128,10 @@ class TraduccionService {
      * @param array|null $targets Idiomas destino; null = TRANSLATE_TARGETS o todos menos 'es'.
      * @param bool   $dryRun  Si es true, solo calcula los idiomas pendientes (no llama al
      *                        proveedor ni escribe). Permite previsualizar el backfill.
+     * @param bool   $forzar  Si es true, ignora el hash e re-genera (respeta `manual`).
      * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes?:array<int,string>,dry_run?:bool,errores?:int,proveedor?:string}
      */
-    public static function traducirEntidad(string $entidad, int $id, array $campos, ?array $targets = null, bool $dryRun = false): array {
+    public static function traducirEntidad(string $entidad, int $id, array $campos, ?array $targets = null, bool $dryRun = false, bool $forzar = false): array {
         $entidad = strtolower($entidad);
         if (!in_array($entidad, ['categoria', 'juego'], true)) {
             return ['ok' => false, 'motivo' => 'entidad_invalida', 'idiomas' => []];
@@ -174,7 +176,8 @@ class TraduccionService {
                         self::normalizarListaIdiomas($resultado['idiomas'] ?? null)
                     );
                 }
-            }
+            },
+            $forzar
         );
     }
 
@@ -188,9 +191,10 @@ class TraduccionService {
      * las re-ejecuciones son idempotentes. La descripción NO se toca.
      *
      * @param array $campos Campos canónicos en 'es' (['descripcion'=>..., 'idiomas'=>...]).
+     * @param bool $forzar Si es true, ignora el hash e re-genera (respeta `manual`).
      * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes?:array<int,string>,dry_run?:bool,errores?:int,proveedor?:string}
      */
-    public static function traducirIdiomasJuego(int $id, array $campos, ?array $targets = null, bool $dryRun = false): array {
+    public static function traducirIdiomasJuego(int $id, array $campos, ?array $targets = null, bool $dryRun = false, bool $forzar = false): array {
         $campos  = self::limpiarCampos($campos);
         $idiomas = trim((string) ($campos['idiomas'] ?? ''));
         if ($idiomas === '') {
@@ -218,7 +222,8 @@ class TraduccionService {
                     self::normalizarListaIdiomas($resultado['idiomas'] ?? null),
                     'auto', false, $hash
                 );
-            }
+            },
+            $forzar
         );
     }
 
@@ -258,16 +263,11 @@ class TraduccionService {
     /**
      * Traduce un conjunto de campos canónicos a un idioma destino.
      *
-     * El campo `idiomas` (lista de idiomas disponibles) se envía como UNA sola
-     * cadena con los tokens unidos por " / ". Así el proveedor traduce con
-     * contexto (calidad alta en todos los idiomas: enviar cada idioma aislado
-     * produce errores como "Inglés" -> "日本語 English" o "联合国") y, verificado
-     * contra LibreTranslate, conserva el delimitador "/" en los 11 idiomas. Al
-     * volver, se divide por "/" y se re-une con ", " para que las vistas pinten
-     * los chips separados en todos los idiomas (evita además el problema del
-     * separador propio de ja/zh `、` y del árabe, que une con `و`).
-     *
-     * Todo se envía en el MISMO lote: sigue siendo UNA sola petición.
+     * El campo `idiomas` es un vocabulario CERRADO: se resuelve con la tabla
+     * determinista `IdiomasTranslations` (NO con el proveedor, que alucina,
+     * duplica o reordena con nombres cortos). El resto de campos se envían al
+     * proveedor en UN solo lote; si no queda nada que enviar (p. ej. el backfill
+     * de solo `idiomas`), no se llama al proveedor.
      *
      * @internal Expuesto (estático) para poder testearlo con un proveedor falso.
      *
@@ -275,40 +275,26 @@ class TraduccionService {
      * @return array<string,string> Mismos campos con los valores traducidos.
      */
     public static function traducirCampos(TranslationProvider $proveedor, array $campos, string $target): array {
-        $tokens = [];
+        $salida = $campos;
         $enviar = [];
         foreach ($campos as $clave => $valor) {
             if ($clave === 'idiomas') {
-                $tokens = IdiomasNormalizer::tokens((string) $valor);
-                if ($tokens !== []) {
-                    $enviar['idiomas'] = implode(' / ', $tokens);
+                $traducido = IdiomasTranslations::traducir((string) $valor, $target);
+                if ($traducido !== null) {
+                    $salida['idiomas'] = $traducido;
                 }
             } else {
                 $enviar[$clave] = $valor;
             }
         }
 
-        $res = $proveedor->translateBatch($enviar, I18n::DEFAULT_LANG, $target);
+        if ($enviar === []) {
+            return $salida; // nada que traducir con el proveedor
+        }
 
-        $salida = $campos;
-        foreach ($campos as $clave => $valor) {
-            if ($clave === 'idiomas') {
-                if ($tokens === []) {
-                    continue;
-                }
-                $traducido = $res['idiomas'] ?? null;
-                if (!is_string($traducido) || trim($traducido) === '') {
-                    // Sin respuesta: conservar el original normalizado (fallback).
-                    $salida['idiomas'] = self::normalizarListaIdiomas($valor);
-                    continue;
-                }
-                // Re-separa por el delimitador (y normaliza separadores locales).
-                $partes = array_filter(
-                    array_map('trim', explode('/', $traducido)),
-                    static fn($p) => $p !== ''
-                );
-                $salida['idiomas'] = self::normalizarListaIdiomas(implode(', ', $partes));
-            } elseif (isset($res[$clave]) && is_string($res[$clave]) && $res[$clave] !== '') {
+        $res = $proveedor->translateBatch($enviar, I18n::DEFAULT_LANG, $target);
+        foreach ($enviar as $clave => $_) {
+            if (isset($res[$clave]) && is_string($res[$clave]) && $res[$clave] !== '') {
                 $salida[$clave] = $res[$clave];
             }
         }
@@ -340,6 +326,20 @@ class TraduccionService {
     }
 
     /**
+     * ¿Alguno de los campos a traducir depende del proveedor de traducción?
+     * `idiomas` se resuelve con la tabla determinista; el resto sí requiere
+     * proveedor. Permite ejecutar el backfill de solo `idiomas` sin red.
+     */
+    private static function requiereProveedor(array $camposTraducir): bool {
+        foreach (array_keys($camposTraducir) as $clave) {
+            if ($clave !== 'idiomas') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Núcleo de GENERACIÓN: recorre los idiomas destino saltando lo manual y lo
      * ya sincronizado (origen='auto' con el mismo hash), traduce e invoca
      * $escribir. Compartido por traducirEntidad() (todos los campos) y
@@ -349,6 +349,8 @@ class TraduccionService {
      * @param array<string,array> $existentes        idioma => fila de traducción actual.
      * @param array<string,string> $camposCanonicos   Campos fuente para el hash.
      * @param array<string,string> $camposTraducir    Campos que realmente se traducen.
+     * @param bool $forzar  Si es true, ignora el hash e re-genera aunque esté
+     *                      sincronizado (sigue respetando `origen='manual'`).
      * @param callable(string,array,string):void $escribir (target, resultado, hash)
      * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes:array<int,string>,dry_run:bool,errores:int,proveedor:string}
      */
@@ -360,11 +362,13 @@ class TraduccionService {
         array $camposTraducir,
         array $targets,
         bool $dryRun,
-        callable $escribir
+        callable $escribir,
+        bool $forzar = false
     ): array {
         $proveedor = TranslateProviderFactory::fromEnv();
-        // En dry-run no hace falta proveedor: solo se evalúan los pendientes.
-        if (!$dryRun && !$proveedor->isConfigured()) {
+        // Solo se exige proveedor si hay campos que dependan de él: `idiomas` se
+        // resuelve con la tabla determinista y no necesita red.
+        if (!$dryRun && self::requiereProveedor($camposTraducir) && !$proveedor->isConfigured()) {
             return [
                 'ok'         => false,
                 'motivo'     => 'no_configurado',
@@ -389,7 +393,8 @@ class TraduccionService {
                 continue;
             }
             // Sin cambios en el texto canónico: nada que hacer (incremental por hash).
-            if ($prev !== null
+            if (!$forzar
+                && $prev !== null
                 && ($prev['origen'] ?? '') === 'auto'
                 && (string) ($prev['origen_hash'] ?? '') === $hash) {
                 continue;

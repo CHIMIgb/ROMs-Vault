@@ -25,7 +25,10 @@
  *   --dry-run            Previsualiza lo pendiente sin llamar al proveedor.
  *   --solo=categorias    Solo categorías (o --solo=juegos).
  *   --campo=idiomas      Solo el campo `idiomas` de los juegos (no re-traduce la
- *                        descripción ya guardada). Fuerza --solo=juegos.
+ *                        descripción ya guardada). Fuerza --solo=juegos. No
+ *                        necesita proveedor: usa la tabla determinista.
+ *   --forzar             Re-genera aunque el origen_hash ya coincida (para
+ *                        corregir filas ya escritas). Respeta origen='manual'.
  *   --idioma=en,fr,ja    Limita los idiomas destino (coma-separados).
  *   --limite=50          Máximo de entidades por tipo.
  *   --ayuda              Muestra esta ayuda.
@@ -45,6 +48,7 @@ require_once $root . '/src/config/i18n.php';
 
 // ── Argumentos ────────────────────────────────────────────────────────────
 $dryRun  = false;
+$forzar  = false;         // re-generar aunque el hash coincida
 $solo    = null;          // 'categorias' | 'juegos' | null (ambos)
 $campo   = null;          // null (todos) | 'idiomas' (solo el campo idiomas de juegos)
 $idiomas = null;          // array<int,string> | null
@@ -59,6 +63,7 @@ Uso: php scripts/backfill-traducciones.php [opciones]
   --dry-run            Previsualiza lo pendiente sin llamar al proveedor.
   --solo=categorias    Solo categorías (o --solo=juegos).
   --campo=idiomas      Solo el campo idiomas de los juegos (no re-traduce la descripción).
+  --forzar             Re-genera aunque el hash ya coincida (para corregir filas escritas).
   --idioma=en,fr,ja    Limita los idiomas destino (coma-separados).
   --limite=50          Máximo de entidades por tipo.
   --ayuda              Muestra esta ayuda.
@@ -69,6 +74,8 @@ TXT;
 foreach (array_slice($argv ?? [], 1) as $arg) {
     if ($arg === '--dry-run') {
         $dryRun = true;
+    } elseif ($arg === '--forzar') {
+        $forzar = true;
     } elseif ($arg === '--ayuda' || $arg === '--help' || $arg === '-h') {
         $ayuda();
         exit(0);
@@ -125,7 +132,10 @@ if ($destino === []) {
     exit(1);
 }
 
-if (!$dryRun && !TraduccionService::proveedorConfigurado()) {
+// El campo `idiomas` se resuelve con una tabla determinista (sin red), así que
+// en ese modo no se exige proveedor configurado.
+$usaProveedor = $campo !== 'idiomas';
+if (!$dryRun && $usaProveedor && !TraduccionService::proveedorConfigurado()) {
     fwrite(STDERR, "No hay proveedor de traducción configurado.\n");
     fwrite(STDERR, "Configura TRANSLATE_PROVIDER=libretranslate + TRANSLATE_LIBRE_URL en .env,\n");
     fwrite(STDERR, "o previsualiza primero con --dry-run.\n");
@@ -133,9 +143,9 @@ if (!$dryRun && !TraduccionService::proveedorConfigurado()) {
 }
 
 echo "== Backfill de traducciones (i18n, bloque 2) ==\n";
-printf("Proveedor : %s\n", $dryRun ? 'n/a (dry-run)' : TraduccionService::nombreProveedor());
+printf("Proveedor : %s\n", $dryRun ? 'n/a (dry-run)' : ($usaProveedor ? TraduccionService::nombreProveedor() : 'n/a (tabla idiomas)'));
 printf("Destino   : %s (%d)\n", implode(', ', $destino), count($destino));
-printf("Modo      : %s\n\n", $dryRun ? 'DRY-RUN (sin escribir)' : 'REAL');
+printf("Modo      : %s%s\n\n", $dryRun ? 'DRY-RUN (sin escribir)' : 'REAL', $forzar ? ' + FORZAR' : '');
 
 // ── Carga del catálogo ────────────────────────────────────────────────────
 $limitSql = $limite !== null ? ' LIMIT ' . (int) $limite : '';
@@ -219,9 +229,9 @@ $procesar = static function (
 
 // Traductores: por defecto, todos los campos; con --campo=idiomas, solo idiomas.
 $traducirTodo = static fn(string $entidad, int $id, array $campos): array
-    => TraduccionService::traducirEntidad($entidad, $id, $campos, $destino, $dryRun);
+    => TraduccionService::traducirEntidad($entidad, $id, $campos, $destino, $dryRun, $forzar);
 $traducirIdiomas = static fn(string $entidad, int $id, array $campos): array
-    => TraduccionService::traducirIdiomasJuego($id, $campos, $destino, $dryRun);
+    => TraduccionService::traducirIdiomasJuego($id, $campos, $destino, $dryRun, $forzar);
 
 $rc = $procesar('categoria', $categorias, static fn(array $f): array => [
     'nombre'      => (string) ($f['nombre'] ?? ''),

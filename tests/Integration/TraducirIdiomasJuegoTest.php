@@ -108,4 +108,44 @@ class TraducirIdiomasJuegoTest extends IntegrationTestCase {
         $this->assertFalse($res['ok']);
         $this->assertSame('sin_texto', $res['motivo']);
     }
+
+    public function testRealSinProveedorEscribeIdiomasConLaTabla(): void {
+        $id = $this->crearJuego('Inglés');
+        TraduccionService::resetCache();
+
+        $res = TraduccionService::traducirIdiomasJuego(
+            $id,
+            ['descripcion' => 'Texto', 'idiomas' => 'Inglés'],
+            ['fr', 'tr', 'ja'],
+            false
+        );
+
+        $this->assertTrue($res['ok']);
+        $this->assertSame(['fr', 'tr', 'ja'], $res['idiomas']);
+
+        $model = new Traduccion();
+        $this->assertSame('Anglais', $model->getJuegos([$id], 'fr')[$id]['idiomas']);
+        $this->assertSame('İngilizce', $model->getJuegos([$id], 'tr')[$id]['idiomas']);
+        $this->assertSame('英語', $model->getJuegos([$id], 'ja')[$id]['idiomas']);
+    }
+
+    public function testForzarRegeneraAunqueElHashCoincida(): void {
+        $id     = $this->crearJuego('Inglés');
+        $campos = ['descripcion' => 'Texto', 'idiomas' => 'Inglés'];
+        $hash   = TraduccionService::hash($campos);
+
+        // Fila ya sincronizada pero con un valor antiguo/incorrecto.
+        (new Traduccion())->upsertJuegoIdiomas($id, 'fr', 'ValorAntiguo', 'auto', false, $hash);
+        TraduccionService::resetCache();
+
+        // Sin --forzar: se salta por hash.
+        $res = TraduccionService::traducirIdiomasJuego($id, $campos, ['fr'], false, false);
+        $this->assertSame([], $res['idiomas']);
+        $this->assertSame('ValorAntiguo', (new Traduccion())->getJuegos([$id], 'fr')[$id]['idiomas']);
+
+        // Con --forzar: reescribe con la tabla.
+        $res2 = TraduccionService::traducirIdiomasJuego($id, $campos, ['fr'], false, true);
+        $this->assertSame(['fr'], $res2['idiomas']);
+        $this->assertSame('Anglais', (new Traduccion())->getJuegos([$id], 'fr')[$id]['idiomas']);
+    }
 }
