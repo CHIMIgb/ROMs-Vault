@@ -338,3 +338,104 @@ Las URLs del proxy expiran después de 2 horas. Recarga la página del juego par
 
 ### Error 429 "Demasiadas peticiones"
 El rate limiting está bloqueando tu IP. Espera el tiempo configurado en `RATE_LIMIT_WINDOW` (por defecto 60 segundos) o ajusta los valores en `.env`.
+
+## Internacionalización (i18n) y traducción automática de contenido
+
+El proyecto incluye soporte para internacionalización de la interfaz (`es` como base) y **traducción automática del contenido editorial guardado en BD** (categorías y descripciones de juegos) mediante proveedores externos.
+
+### Arquitectura
+
+- **Proveedores**: `src/config/translation/` (interfaz, `NullTranslateProvider`, `LibreTranslateProvider`, `GoogleTranslateProvider`, `TranslateProviderFactory`).
+- **Servicio**: `src/config/TraduccionService.php` — resuelve traducciones por lote (caché por request), genera `origen_hash`, crea/actualiza con UPSERT.
+- **Modelo**: `src/models/Traduccion.php` — nunca pisa traducciones `origen='manual'`; busca por `(entidad_id, idioma)`; incremental.
+- **Lectura**: HomeController resuelve categorías/vínculos/descripciones en lote (nunca desde vistas). Auto-traducción al guardar en `CategoriaController` y `AdminController` (best-effort, fail-open).
+- **Fallback**: `idioma activo → es → vacío`.
+
+### Configuración con LibreTranslate (local, gratuito)
+
+Para traducir contenido de BD localmente se recomienda **LibreTranslate** vía Docker.
+
+**Requisitos**: Docker Desktop (Windows), 4–6 GB RAM mínimo (recomendado ≥6 GB).
+
+**Arranque rápido (estable con 1 worker)**:
+
+```powershell
+# Preservando modelos ya descargados (si existe romv-libretranslate:models)
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "scripts\libretranslate-start.ps1"
+```
+
+**Comandos manuales**:
+
+```powershell
+$docker = 'C:\Users\chimi\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe'
+# Con imagen que contiene modelos precargados
+& $docker run -d --name libretranslate -p 5000:5000 `
+  -e LT_LOAD_ONLY=es,en,fr,pt,de,ja,it,ru,tr,zh,ko,ar `
+  -e LT_THREADS=1 `
+  romv-libretranslate:models
+```
+
+**Notas de rendimiento/memoria** (ver `docs/2026-10-13-configuracion-libretranslate-memoria-y-backfill.md`):
+
+- **Con 4 workers**: ~3.6 GiB RAM → riesgo `SIGKILL` (OOM). **NO recomendado**.
+- **Con 1 worker**: ~140–480 MiB RAM → **estable**. Traducción ~0.2 s (modelo caliente).
+- Los 24 modelos ocupan **2.8 GB** en disco (dentro de la imagen con modelos).
+- Cuidado con espacio en C: imagen `romv-libretranslate:models` pesa **6.5 GB**.
+
+### Variables de entorno (.env)
+
+```env
+TRANSLATE_PROVIDER=none        # none | libretranslate | google
+TRANSLATE_LIBRE_URL=http://localhost:5000
+TRANSLATE_API_KEY=             # opcional (LibreTranslate público suele no requerir)
+# TRANSLATE_LIBRE_API_KEY=     # alias para compatibilidad
+TRANSLATE_TARGETS=             # vacío = todos los idiomas de i18n menos 'es'
+TRANSLATE_TIMEOUT=8
+```
+
+### Backfill de traducciones (BD local/Neon)
+
+Cuando hay contenido nuevo o se quiere traducir en lote lo ya existente:
+
+```powershell
+cd C:\Users\chimi\Documents\GitHub\ROMs-Vault
+
+# 1) Dry-run: ver totales pendientes
+$env:TRANSLATE_PROVIDER='libretranslate'
+$env:TRANSLATE_LIBRE_URL='http://localhost:5000'
+C:\xampp\php\php.exe scripts\backfill-traducciones.php --dry-run
+
+# 2) Ejecutar (idempotente). Respeta traducciones manuales.
+$env:TRANSLATE_PROVIDER='libretranslate'
+$env:TRANSLATE_LIBRE_URL='http://localhost:5000'
+C:\xampp\php\php.exe scripts\backfill-traducciones.php 2>> scratch\backfill-err.log | Tee-Object -FilePath scratch\backfill-out.log
+```
+
+**Filtros útiles:**
+
+```powershell
+--solo=categorias        # solo categorías
+--solo=juegos            # solo juegos
+--idioma=en,fr,de        # solo esos idiomas
+--limite=10              # probar con 10 entidades
+```
+
+### Notas importantes
+
+- **Nunca pisa manual**: si `origen='manual'`, el backfill/auto-traducción no lo reemplaza.
+- **Incremental**: compara por `origen_hash` (contenido `es` canonizado). Re-ejecutar es seguro.
+- **Fail-open**: si el proveedor falla, el guardado no se bloquea; el error queda en `auditoria` (`accion='traduccion_error'`).
+- **Códigos chino**: LibreTranslate devuelve `zh-Hans` → se mapea a `zh` internamente.
+- **CLI-only**: `scripts/backfill-traducciones.php` solo se ejecuta desde línea de comandos.
+- **Migración aplicada**: `data/migrations/2026-10-12-traducciones-contenido.sql` (tablas `categorias_traducciones`, `juegos_traducciones`, índices y CHECK).
+
+### Verificación rápida
+
+```powershell
+# Salud
+Invoke-RestMethod -Uri 'http://localhost:5000/languages'
+
+# Test traducción
+$body = @{ q='Juego de carreras futurista'; source='es'; target='en'; format='text' } | ConvertTo-Json
+Invoke-RestMethod -Uri 'http://localhost:5000/translate' -Method Post -ContentType 'application/json' -Body $body
+```
