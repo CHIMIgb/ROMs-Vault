@@ -8,7 +8,7 @@
  *   - juegos_traducciones     : juegos.descripcion + juegos.idiomas
  *
  * Requiere un proveedor configurado en .env para el modo REAL:
- *   TRANSLATE_PROVIDER=libretranslate  + TRANSLATE_LIBRE_URL=http://localhost:5000
+ *   TRANSLATE_PROVIDER=deepl + TRANSLATE_API_KEY=<clave DeepL>
  * (o TRANSLATE_PROVIDER=google + TRANSLATE_API_KEY=...).
  * El modo --dry-run NO necesita proveedor: solo previsualiza lo pendiente.
  *
@@ -137,7 +137,7 @@ if ($destino === []) {
 $usaProveedor = $campo !== 'idiomas';
 if (!$dryRun && $usaProveedor && !TraduccionService::proveedorConfigurado()) {
     fwrite(STDERR, "No hay proveedor de traducción configurado.\n");
-    fwrite(STDERR, "Configura TRANSLATE_PROVIDER=libretranslate + TRANSLATE_LIBRE_URL en .env,\n");
+    fwrite(STDERR, "Configura TRANSLATE_PROVIDER=deepl + TRANSLATE_API_KEY en .env,\n");
     fwrite(STDERR, "o previsualiza primero con --dry-run.\n");
     exit(1);
 }
