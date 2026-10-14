@@ -1,17 +1,19 @@
 <?php
 require_once __DIR__ . '/TranslationProvider.php';
 require_once __DIR__ . '/NullTranslateProvider.php';
-require_once __DIR__ . '/LibreTranslateProvider.php';
+require_once __DIR__ . '/DeepLTranslateProvider.php';
 require_once __DIR__ . '/GoogleTranslateProvider.php';
 
 /**
  * config/translation/TranslateProviderFactory.php
  * Construye el proveedor de traducción a partir del entorno (.env).
  *
- *   TRANSLATE_PROVIDER    none | libretranslate | google   (default: none)
- *   TRANSLATE_LIBRE_URL   URL del servicio LibreTranslate (default http://localhost:5000)
- *   TRANSLATE_API_KEY     API key (LibreTranslate con auth, o Google)
+ *   TRANSLATE_PROVIDER    none | deepl | google   (default: none)
+ *   TRANSLATE_API_KEY     clave del proveedor (DeepL o Google)
  *   TRANSLATE_TIMEOUT     segundos (default 8)
+ *
+ * DeepL no necesita servidor ni URL: basta TRANSLATE_API_KEY (plan Free con el
+ * endpoint api-free.deepl.com).
  *
  * Cualquier valor desconocido o variable ausente degrada a NullTranslateProvider,
  * de modo que el guardado del contenido nunca se bloquea por falta de proveedor.
@@ -31,9 +33,8 @@ class TranslateProviderFactory {
             case 'google':
                 return new GoogleTranslateProvider($apiKey, $timeout);
 
-            case 'libretranslate':
-                $url = self::env('TRANSLATE_LIBRE_URL', 'http://localhost:5000');
-                return new LibreTranslateProvider($url, $apiKey, $timeout);
+            case 'deepl':
+                return new DeepLTranslateProvider($apiKey, $timeout);
 
             case 'none':
             default:
@@ -43,7 +44,7 @@ class TranslateProviderFactory {
 
     /** Nombres admitidos por TRANSLATE_PROVIDER (para validación en admin/UI). */
     public static function soportados(): array {
-        return ['none', 'libretranslate', 'google'];
+        return ['none', 'deepl', 'google'];
     }
 
     /** Lee una variable de entorno desde $_ENV o getenv(), con valor por defecto. */

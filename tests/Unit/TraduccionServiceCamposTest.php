@@ -9,7 +9,7 @@
  * con nombres cortos). El resto de campos (p. ej. `descripcion`) sí van al
  * proveedor, y si no queda nada que enviar, no se llama.
  *
- * Se usa un proveedor falso (sin red): no se toca LibreTranslate ni la BD.
+ * Se usa un proveedor falso (sin red): no se toca el proveedor real ni la BD.
  */
 
 namespace Tests\Unit;

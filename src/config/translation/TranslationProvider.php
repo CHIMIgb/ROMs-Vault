@@ -12,7 +12,7 @@
 
 interface TranslationProvider {
 
-    /** Nombre corto del proveedor (para logs y UI): none | libretranslate | google. */
+    /** Nombre corto del proveedor (para logs y UI): none | deepl | google. */
     public function name(): string;
 
     /** true si el proveedor tiene lo mínimo para operar (URL o API key). */

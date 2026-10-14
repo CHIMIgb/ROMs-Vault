@@ -6,10 +6,10 @@ require_once __DIR__ . '/AbstractTranslateProvider.php';
  * Proveedor de Google Cloud Translation (API v2 Basic, autenticada por API key).
  *
  * ALTERNATIVO. El 2026-10-13 Google bloqueó el alta de facturación de este
- * proyecto (filtro antifraude), por lo que hoy NO se usa: el proveedor por
- * defecto es LibreTranslate (gratis). Este adaptador queda listo para
- * activarse con TRANSLATE_PROVIDER=google + TRANSLATE_API_KEY cuando se
- * resuelva el bloqueo; la abstracción evita tocar el resto del código.
+ * proyecto (filtro antifraude), por lo que hoy NO se usa: el proveedor
+ * recomendado es DeepL. Este adaptador queda listo para activarse con
+ * TRANSLATE_PROVIDER=google + TRANSLATE_API_KEY cuando se resuelva el bloqueo;
+ * la abstracción evita tocar el resto del código.
  *
  * La API key es SOLO servidor (nunca se expone al frontend).
  *

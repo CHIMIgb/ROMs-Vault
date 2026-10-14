@@ -3,7 +3,7 @@ require_once __DIR__ . '/TranslationProvider.php';
 
 /**
  * config/translation/AbstractTranslateProvider.php
- * Base común de los proveedores HTTP (LibreTranslate, Google).
+ * Base común de los proveedores HTTP (DeepL, Google).
  *
  * Centraliza el POST JSON con cURL, el manejo de textos vacíos y la
  * reasignación de resultados por posición. Cada proveedor solo implementa
@@ -67,6 +67,17 @@ abstract class AbstractTranslateProvider implements TranslationProvider {
     }
 
     /**
+     * Cabeceras HTTP adicionales del proveedor (p. ej. Authorization).
+     * El Content-Type JSON lo añade siempre postJson(); aquí solo van las
+     * extra. Por defecto no hay ninguna.
+     *
+     * @return string[]
+     */
+    protected function extraHeaders(): array {
+        return [];
+    }
+
+    /**
      * POST JSON con cURL. Lanza RuntimeException si no hay respuesta válida.
      */
     protected function postJson(string $url, array $payload): array {
@@ -83,7 +94,10 @@ abstract class AbstractTranslateProvider implements TranslationProvider {
         curl_setopt_array($ch, [
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => $cuerpo,
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_HTTPHEADER     => array_merge(
+                ['Content-Type: application/json'],
+                $this->extraHeaders()
+            ),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => $this->timeout,
             CURLOPT_CONNECTTIMEOUT => min(5, $this->timeout),
