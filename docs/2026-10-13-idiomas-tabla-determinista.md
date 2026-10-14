@@ -7,7 +7,7 @@
 ## 1. Motivación
 
 El backfill de `juegos_traducciones.idiomas` (doc `2026-10-13-backfill-idiomas-juegos.md`)
-usaba el **proveedor de traducción** (LibreTranslate) enviando la lista de idiomas
+usaba el **proveedor de traducción** enviando la lista de idiomas
 como una cadena con delimitador `" / "`. Verificado en producción, ese enfoque
 produce **dos clases de error** en un vocabulario corto y cerrado:
 
@@ -84,7 +84,7 @@ CLI `scripts/backfill-traducciones.php`: nueva opción **`--forzar`**.
   reescrito (idiomas no viaja al proveedor).
 - **Integration: 78 OK** (antes 76): +`Real sin proveedor escribe idiomas con la tabla`,
   +`Forzar regenera aunque el hash coincida`.
-- Regeneración real **offline** (sin LibreTranslate):
+- Regeneración real **offline** (sin proveedor de traducción):
   `php scripts/backfill-traducciones.php --campo=idiomas --forzar`
   -> **1331 filas escritas, 0 errores** (121 juegos x 11 idiomas).
 - Comprobación en BD tras el backfill:

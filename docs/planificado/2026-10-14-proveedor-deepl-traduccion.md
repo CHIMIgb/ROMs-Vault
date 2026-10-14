@@ -1,15 +1,14 @@
 # Proveedor de traducción DeepL (API Free) en lugar de LibreTranslate
 
 **Fecha:** 2026-10-14
-**Estado:** planificado (pendiente de implementación y aprobación)
+**Estado:** implementado (2026-10-14) — pendiente: alta en DeepL y activación en producción
 **Ámbito:** i18n (traducción de contenido, bloque 2)
 **Sustituye a:** `docs/planificado/2026-10-14-migracion-libretranslate-a-servidor.md`
 (descartado: Oracle bloqueó la verificación de tarjeta y los PaaS gratuitos no
 sirven para LibreTranslate por disco efímero + modelos).
 **Documentos relacionados:**
 `src/config/translation/TranslateProviderFactory.php`,
-`src/config/TraduccionService.php`,
-`docs/2026-10-13-configuracion-libretranslate-memoria-y-backfill.md`,
+`src/config/translation/TraduccionService.php`,
 `docs/planificado/2026-10-14-guardado-asincrono-cola-bd-worker.md`
 
 ---
@@ -139,16 +138,17 @@ traducirla a 11 idiomas cuesta ~3.300 caracteres por juego.
 
 ---
 
-## 7. ¿Se sigue necesitando la imagen Docker de LibreTranslate?
+## 7. Retiro de LibreTranslate
 
-**No.** Con DeepL la traducción sale por HTTPS a la nube, así que:
+Con DeepL la traducción sale por HTTPS a la nube, así que la infraestructura de
+LibreTranslate **se elimina por completo** (decisión del 2026-10-14):
 
-- **No** necesitas el contenedor ni la imagen `romv-libretranslate:models`
-  (puedes borrarla: libera ~6.5 GB).
-- **No** necesitas ningún worker ni servidor.
-- El código de `LibreTranslateProvider` **se conserva** (no se borra): sigue
-  disponible como respaldo si algún día quieres volver a LT local (p. ej. si se
-  agota la cuota de DeepL, cambiando `TRANSLATE_PROVIDER=libretranslate`).
+- **No** se necesita el contenedor ni la imagen `romv-libretranslate:models`
+  (se borró: libera ~6.5 GB).
+- **No** se necesita servidor ni worker.
+- `LibreTranslateProvider` y `scripts/libretranslate-start.ps1` **se
+  eliminaron**; `TRANSLATE_LIBRE_URL` y `TRANSLATE_LIBRE_API_KEY` ya no existen.
+  Detalle en el Anexo A.
 
 ---
 
@@ -156,7 +156,7 @@ traducirla a 11 idiomas cuesta ~3.300 caracteres por juego.
 
 - `.env` / Vercel: `TRANSLATE_PROVIDER=deepl`, `TRANSLATE_API_KEY=<clave>`,
   `TRANSLATE_TIMEOUT=8` (opcional: `TRANSLATE_TARGETS`).
-- `TRANSLATE_LIBRE_URL` deja de usarse (puede quedar vacío).
+- `TRANSLATE_LIBRE_URL` **se elimina** (ya no existe en `.env`/`.env.example`).
 - **Sin dependencias nuevas** (se usa cURL, ya presente).
 - La **clave de DeepL es un secreto**: solo en `.env` local y en las variables
   de entorno de Vercel; jamás en el repo.
@@ -206,17 +206,61 @@ traducirla a 11 idiomas cuesta ~3.300 caracteres por juego.
 - `456` = cuota agotada: no reintentar; avisar en logs.
 - **Los textos salen de tu infraestructura** (privacidad) y dependes de un
   tercero: era el compromiso aceptado de la Opción 2.
-- La API key Free de DeepL es un secreto (no confundir con `TRANSLATE_LIBRE_API_KEY`).
+- La API key Free de DeepL es un secreto y **nunca** se commitea.
 
 ---
 
 ## 13. Estado
 
-- [ ] Crear `DeepLTranslateProvider` + `mapCode()`.
-- [ ] Extender `AbstractTranslateProvider` (cabeceras).
-- [ ] Registrar `deepl` en la factory.
-- [ ] `docker-entrypoint.sh` + `.env.example`.
-- [ ] Test unitario.
-- [ ] Alta en DeepL + API key en Vercel.
+Implementación de código **completada** (2026-10-14). Quedan solo los pasos
+externos (alta de cuenta y activación en producción), que corresponden al
+usuario.
+
+- [x] Crear `DeepLTranslateProvider` + `mapCode()`.
+- [x] Extender `AbstractTranslateProvider` (cabeceras).
+- [x] Registrar `deepl` en la factory.
+- [x] `docker-entrypoint.sh` + `.env.example`.
+- [x] Test unitario.
+- [ ] Alta en DeepL + API key en Vercel (acción del usuario).
 - [ ] Activar y probar en producción.
-- [ ] Eliminar el doc de LibreTranslate y actualizar docs.
+- [x] Eliminar LibreTranslate y actualizar docs (ver Anexo A).
+
+### Registro de progreso
+
+- `php -l` sin errores en todos los archivos PHP tocados.
+- `phpunit --testsuite Unit` en verde: **140 tests** (7 nuevos de DeepL).
+- `bash -n docker-entrypoint.sh` sin errores.
+- Smoke de factory: `TRANSLATE_PROVIDER=deepl` → `name()=deepl`,
+  `isConfigured()=true`; valor desconocido → degrada a `none`.
+- Traducción real end-to-end con la API key Free (2026-10-14): endpoint
+  `api-free.deepl.com` responde `200` y traduce «Juego de carreras futurista`
+  a `en`/`zh`/`ja` desde la app (factory + `.env` real).
+
+---
+
+## Anexo A. Retiro de LibreTranslate (2026-10-14)
+
+Al pasar a DeepL, LibreTranslate dejó de usarse y se eliminó su rastro del
+proyecto.
+
+**Borrado:**
+
+- `src/config/translation/LibreTranslateProvider.php`
+- `scripts/libretranslate-start.ps1`
+- `docs/2026-10-13-configuracion-libretranslate-memoria-y-backfill.md`
+
+**Variables eliminadas:** `TRANSLATE_LIBRE_URL` y `TRANSLATE_LIBRE_API_KEY`
+(también del `.env` local y de `docker-entrypoint.sh`).
+
+**Referencias limpiadas:** `TranslateProviderFactory` (require, `case` y
+`soportados()`), `scripts/backfill-traducciones.php`, `README.md`,
+`docs/despliegue/README.md`, `docs/2026-10-13-traduccion-idiomas-juegos.md`,
+`docs/2026-10-13-backfill-idiomas-juegos.md` y
+`docs/planificado/2026-10-14-guardado-asincrono-cola-bd-worker.md`.
+
+**Infra local:** se eliminó el contenedor `libretranslate` y la imagen
+`romv-libretranslate:models` (~6.5 GB).
+
+**Proveedores activos:** `none` (default), `deepl` (recomendado) y `google`.
+No hay respaldo local: si se agota la cuota de DeepL, la traducción degrada
+(fail-open) y queda registrada como `traduccion_error`.

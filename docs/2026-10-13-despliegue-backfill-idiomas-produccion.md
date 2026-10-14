@@ -12,7 +12,7 @@
 
 La traducción de `juegos_traducciones.idiomas` se genera con una **tabla
 determinista** (`src/config/IdiomasTranslations.php`), no con el proveedor ML.
-Es **offline**: no necesita `TRANSLATE_*` ni LibreTranslate. En local ya se
+Es **offline**: no necesita proveedor de traducción. En local ya se
 ejecutó y quedó corregida; **en producción (Neon) queda pendiente** tras el
 despliegue del código que incluye la tabla determinista.
 

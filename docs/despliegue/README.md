@@ -35,7 +35,7 @@ verificar ROMs Vault, con los runbooks de cada operación puntual referenciados.
 | Local (dev) | PHP 8.1+, PostgreSQL 16+, Composer |
 | Contenedor | Docker |
 | Deploy | Vercel linkeado (`.vercel/project.json`) o self-hosted |
-| Traducción | LibreTranslate (Docker) o Google Cloud Translation |
+| Traducción | DeepL API (Free) o Google Cloud Translation |
 
 ---
 
@@ -110,19 +110,17 @@ base; se listan en `AGENTS.md`). Aplicar en orden por fecha.
 
 ---
 
-## 6. LibreTranslate (traducción de contenido)
+## 6. Traducción de contenido (DeepL)
 
-Ver `docs/2026-10-13-configuracion-libretranslate-memoria-y-backfill.md`.
+La traducción usa **DeepL API** (servicio en la nube): no requiere servidor,
+contenedor ni worker.
 
-- **1 worker (`LT_THREADS=1`)** obligatorio: con 4 workers (~3.6 GiB) sufre
-  `SIGKILL` por OOM. Con 1 worker: ~140-480 MiB.
-- `LT_LOAD_ONLY=es,en,fr,pt,de,ja,it,ru,tr,zh,ko,ar` limita idiomas cargados.
-- Imagen con modelos precargados (`romv-libretranslate:models`, ~6.5 GB) o
-  volumen persistente `-v lt_models:/home/libretranslate/.local`.
-- La app apunta con `TRANSLATE_PROVIDER` + `TRANSLATE_LIBRE_URL`.
-- Health check: `GET /languages` y `POST /translate`.
-- En Vercel, `TRANSLATE_*` no entra en el `.env` regenerado; el valor por
-  defecto del runbook es **por defecto, no lo sobrescribas**.
+- Variables: `TRANSLATE_PROVIDER=deepl` + `TRANSLATE_API_KEY` (la clave del
+  plan Free termina en `:fx`; 500.000 caracteres/mes).
+- La app apunta con `TRANSLATE_PROVIDER` + `TRANSLATE_API_KEY` (sin URL).
+- Google Cloud Translation queda disponible (`TRANSLATE_PROVIDER=google`).
+- En Vercel, `TRANSLATE_*` no entra en el `.env` regenerado; si se traduce en
+  runtime, define esas variables en el entorno del deploy.
 
 ---
 
@@ -133,7 +131,8 @@ se ejecutan **desde el clon del repo**, no dentro del contenedor.
 
 - **Backfill de idiomas de juegos (paso pendiente en producción):**
   `docs/2026-10-13-despliegue-backfill-idiomas-produccion.md`.
-- Traducciones de contenido: `docs/2026-10-13-configuracion-libretranslate-memoria-y-backfill.md`.
+- Traducciones de contenido: `scripts/backfill-traducciones.php` con
+  `TRANSLATE_PROVIDER=deepl` + `TRANSLATE_API_KEY`.
 - Normalizar idiomas: `php scripts/normalizar-idiomas.php`.
 - Migrar imágenes a R2: `docs/2026-10-12-migracion-imagenes-r2-implementacion.md`.
 
@@ -204,5 +203,4 @@ imágenes desde R2.
 - `docs/2026-10-13-despliegue-backfill-idiomas-produccion.md`
 - `docs/2026-10-11-ci-cd-github-actions.md`
 - `docs/2026-10-11-trusted-proxies-fase-b.md`
-- `docs/2026-10-13-configuracion-libretranslate-memoria-y-backfill.md`
 - `docs/2026-10-12-migracion-imagenes-r2-implementacion.md`

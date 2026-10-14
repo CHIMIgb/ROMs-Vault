@@ -90,8 +90,8 @@ traducido, se muestran los idiomas localizados automáticamente.
    `data/migrations/2026-10-13-idiomas-en-juegos-traducciones.sql`.
 2. Normalizar el origen ya registrado (idempotente):
    `php scripts/normalizar-idiomas.php` (con `.env` apuntando a producción).
-3. Con el proveedor de traducción configurado (`TRANSLATE_PROVIDER=libretranslate`
-   + `TRANSLATE_LIBRE_URL`), generar las traducciones:
+3. Con el proveedor de traducción configurado (`TRANSLATE_PROVIDER=deepl`
+   + `TRANSLATE_API_KEY`), generar las traducciones:
    `php scripts/backfill-traducciones.php --solo=juegos`.
    También se generan automáticamente al guardar cada juego desde el admin.
 

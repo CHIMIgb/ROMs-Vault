@@ -165,9 +165,9 @@ UPDATE traduccion_cola
 [MODIFICAR] src/views/admin/... (opcional)
   - Indicador "traducción pendiente/ok" por entidad
 
-[MODIFICAR] deploy/libretranslate/docker-compose.yml (doc de migración)
+[MODIFICAR] infra del worker (docker-compose de la VM de deploy, doc de migración)
   - Servicio `worker` (misma imagen de la app, comando
-    `php scripts/worker-traducciones.php`) en la VM, para que LT siga interno
+    `php scripts/worker-traducciones.php`) para no traducir en el request web
 
 [CREAR] docs/planificado/2026-10-14-guardado-asincrono-cola-bd-worker.md
   - Este documento
@@ -215,8 +215,9 @@ UPDATE traduccion_cola
 - **No** cambia URLs públicas, CSP ni `vercel.json`.
 - Requiere **una migración** nueva (aditiva, idempotente) en Neon.
 - Con `TRANSLATE_MODE=sync` (default) el comportamiento actual no cambia.
-- El **worker** necesita: acceso a la BD (Neon) y a LibreTranslate; si vive en la
-  VM de LT, **LT deja de necesitar exposición pública** (se puede cerrar el 443).
+- El **worker** necesita: acceso a la BD (Neon) y al proveedor de traducción
+  (DeepL, salida HTTPS); al no traducir en el request web, la latencia de
+  guardado desaparece.
 
 ---
 

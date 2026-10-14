@@ -16,7 +16,7 @@ con idiomas (2 sin idiomas) → **1331 filas** a rellenar.
 
 ## 2. Decisión de diseño: delimitador `" / "` (enfoque híbrido)
 
-Se probaron tres estrategias contra LibreTranslate:
+Se probaron tres estrategias contra el proveedor de traducción:
 
 | Estrategia | Calidad en ja/zh/ar/ko | Chips separados |
 |---|---|---|
@@ -89,7 +89,7 @@ primer ítem en varios idiomas).
   (6 nuevos de `TraducirIdiomasJuegoTest`: preservación de `descripcion`,
   respeto a `manual`, dry-run de pendientes, salto por `origen_hash` y por
   `manual`, y `sin_texto`). Suite completa: **212 tests OK**.
-- **Backfill real** (`TRANSLATE_PROVIDER=libretranslate`):
+- **Backfill real** (con el proveedor de traducción configurado en `.env`):
   `php scripts/backfill-traducciones.php --campo=idiomas` →
   **1301 escritas + 30 de una prueba acotada previa = 1331**, **0 errores**,
   ~7 min. Segunda ejecución (`--dry-run` y real): **0 pendientes** (idempotente).
@@ -103,7 +103,7 @@ primer ítem en varios idiomas).
 
 1. Aplicar la migración `data/migrations/2026-10-13-idiomas-en-juegos-traducciones.sql`.
 2. Normalizar el origen (idempotente): `php scripts/normalizar-idiomas.php`.
-3. Con el proveedor configurado (`TRANSLATE_PROVIDER` + `TRANSLATE_LIBRE_URL`),
+3. Con el proveedor configurado (`TRANSLATE_PROVIDER=deepl` + `TRANSLATE_API_KEY`),
    generar las traducciones de idiomas:
    `php scripts/backfill-traducciones.php --campo=idiomas`.
    También se mantienen al guardar cada juego desde el admin (`traducirEntidad`).
