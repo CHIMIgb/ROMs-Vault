@@ -173,6 +173,30 @@ CREATE TABLE IF NOT EXISTS public.auditoria (
 );
 
 -- =====================================================
+-- Tabla: traduccion_cola (cola de traducciones asíncronas, sin broker)
+-- =====================================================
+-- Cola basada en PostgreSQL: se reclama con SELECT ... FOR UPDATE SKIP LOCKED,
+-- así que varios workers pueden correr en paralelo sin pisarse. La alimenta el
+-- admin al guardar (modo async) y la drena scripts/worker-traducciones.php.
+-- Ojo: usa la columna `actualizado_en` (no `updated_at`), por lo que NO puede
+-- reutilizar update_updated_at_column() y define su propia función más abajo.
+CREATE TABLE IF NOT EXISTS public.traduccion_cola (
+    id             BIGSERIAL PRIMARY KEY,
+    entidad        VARCHAR(20)  NOT NULL CHECK (entidad IN ('categoria','juego')),
+    entidad_id     INTEGER      NOT NULL,
+    campos         JSONB        NOT NULL,
+    estado         VARCHAR(20)  NOT NULL DEFAULT 'pendiente'
+                   CHECK (estado IN ('pendiente','en_proceso','ok','fallido')),
+    intentos       SMALLINT     NOT NULL DEFAULT 0,
+    max_intentos   SMALLINT     NOT NULL DEFAULT 5,
+    disponible_en  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    bloqueado_en   TIMESTAMPTZ,
+    error          TEXT,
+    creado_en      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    actualizado_en TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+-- =====================================================
 -- Índices
 -- =====================================================
 CREATE INDEX IF NOT EXISTS idx_juegos_consola ON public.juegos(consola_id);
@@ -202,6 +226,14 @@ CREATE INDEX IF NOT EXISTS idx_auditoria_evento ON public.auditoria (evento);
 CREATE INDEX IF NOT EXISTS idx_auditoria_username ON public.auditoria (username);
 CREATE INDEX IF NOT EXISTS idx_auditoria_user_id ON public.auditoria (user_id);
 
+-- Cola de traducciones: los workers solo buscan jobs vencidos en 'pendiente'.
+CREATE INDEX IF NOT EXISTS idx_traduccion_cola_pendientes
+    ON public.traduccion_cola (estado, disponible_en);
+-- Dedupe: un único job activo por entidad (el guardado reescribe el existente).
+CREATE UNIQUE INDEX IF NOT EXISTS uq_traduccion_cola_activa
+    ON public.traduccion_cola (entidad, entidad_id)
+    WHERE estado IN ('pendiente','en_proceso');
+
 -- =====================================================
 -- Función y triggers para updated_at
 -- =====================================================
@@ -218,3 +250,27 @@ CREATE TRIGGER update_juegos_updated_at BEFORE UPDATE ON public.juegos
 
 CREATE TRIGGER update_usuarios_updated_at BEFORE UPDATE ON public.usuarios
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- traduccion_cola: su columna es `actualizado_en`, así que necesita su propia
+-- función (update_updated_at_column() escribe NEW.updated_at y fallaría).
+CREATE OR REPLACE FUNCTION fn_traduccion_cola_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.actualizado_en = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_trigger
+        WHERE tgname = 'trg_traduccion_cola_updated_at'
+          AND tgrelid = 'public.traduccion_cola'::regclass
+    ) THEN
+        CREATE TRIGGER trg_traduccion_cola_updated_at
+            BEFORE UPDATE ON public.traduccion_cola
+            FOR EACH ROW EXECUTE FUNCTION fn_traduccion_cola_updated_at();
+    END IF;
+END;
+$$;
