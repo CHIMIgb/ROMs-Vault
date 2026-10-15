@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "Select a valid console with no emulator configured.",
     "msg.emulador_guardar_error": "Error saving the emulator. Check the data and try again.",
     "msg.emulador_nombre_largo": "The emulator name cannot exceed 100 characters.",
+    "msg.campo_largo": "The {campo} field cannot exceed {limite} characters.",
     "msg.emulador_nombre_obligatorio": "The emulator name is required.",
     "msg.emulador_plataforma_obligatoria": "Select at least one platform (PC or Android).",
     "msg.emulador_url_invalida": "The emulator URL must be a valid address (include http:// or https://).",

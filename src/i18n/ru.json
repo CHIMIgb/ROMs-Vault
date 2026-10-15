@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "Выберите допустимую консоль без настроенного эмулятора.",
     "msg.emulador_guardar_error": "Ошибка при сохранении эмулятора. Проверьте данные и повторите попытку.",
     "msg.emulador_nombre_largo": "Название эмулятора не может превышать 100 символов.",
+    "msg.campo_largo": "Поле «{campo}» не может превышать {limite} символов.",
     "msg.emulador_nombre_obligatorio": "Название эмулятора обязательно.",
     "msg.emulador_plataforma_obligatoria": "Выберите хотя бы одну платформу (ПК или Android).",
     "msg.emulador_url_invalida": "URL эмулятора должен быть допустимым адресом (включите http:// или https://).",

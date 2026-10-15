@@ -42,7 +42,7 @@ if (PHP_SAPI !== 'cli') {
 
 $root = dirname(__DIR__);
 require_once $root . '/src/config/database.php';
-require_once $root . '/src/config/TraduccionService.php';
+require_once $root . '/src/config/TraduccionWorker.php';
 
 // ── Argumentos ────────────────────────────────────────────────────────────
 $unaVez   = false;
@@ -112,7 +112,7 @@ if (!TraduccionService::proveedorConfigurado()) {
 
 @set_time_limit(0);
 
-$cola = new TraduccionCola();
+$worker = new TraduccionWorker();
 
 echo "== Worker de traducciones (cola en BD) ==\n";
 printf("Proveedor : %s\n", TraduccionService::nombreProveedor());
@@ -124,9 +124,6 @@ printf("Límite    : %s trabajos / %s ciclos\n\n",
     $ciclos > 0 ? (string) $ciclos : 'sin límite'
 );
 
-// Motivos permanentes: reintentarlos no cambia el resultado.
-const MOTIVOS_PERMANENTES = ['entidad_invalida', 'sin_texto', 'sin_idiomas'];
-
 $procesados = 0;
 $okCount    = 0;
 $errCount   = 0;
@@ -135,9 +132,9 @@ $salir      = false;
 
 while (!$salir) {
     $nCiclos++;
-    $job = $cola->reclamar($entidad);
+    $r = $worker->procesarUno($entidad);
 
-    if ($job === null) {
+    if ($r === null) {
         if ($unaVez || ($ciclos > 0 && $nCiclos >= $ciclos)) {
             break;
         }
@@ -145,46 +142,40 @@ while (!$salir) {
         continue;
     }
 
-    $id       = $job['id'];
-    $ent      = $job['entidad'];
-    $entId    = $job['entidad_id'];
-    $intentos = $job['intentos'];
-    $maxInt   = $job['max_intentos'];
-    $campos   = $job['campos'];
-
     if ($verbose) {
-        printf("[job %d] %s#%d (intento %d/%d)\n", $id, $ent, $entId, $intentos, $maxInt);
+        printf(
+            "[job %d] %s#%d (intento %d/%d)\n",
+            $r['id'],
+            $r['entidad'],
+            $r['entidad_id'],
+            $r['intentos'],
+            $r['max_intentos']
+        );
     }
 
-    $res = TraduccionService::traducirEntidad($ent, $entId, $campos);
-    $ok  = !empty($res['ok']);
-    $err = (int) ($res['errores'] ?? 0);
-
-    if ($ok && $err === 0) {
-        $cola->marcarOk($id);
+    if ($r['ok']) {
         $okCount++;
         if ($verbose) {
-            printf("         ok -> %s\n", implode(', ', $res['idiomas'] ?? []));
+            printf("         ok -> %s\n", implode(', ', $r['idiomas']));
         }
     } else {
-        $motivo = $ok
-            ? ($err . ' idioma(s) con error')
-            : (string) ($res['motivo'] ?? 'error');
-
-        if (!$ok && in_array($motivo, MOTIVOS_PERMANENTES, true)) {
-            $cola->marcarFallido($id, $motivo);
-            $errCount++;
-            printf("[job %d] %s#%d FALLIDO (permanente: %s)\n", $id, $ent, $entId, $motivo);
+        $errCount++;
+        if ($r['permanente']) {
+            printf(
+                "[job %d] %s#%d FALLIDO (permanente: %s)\n",
+                $r['id'],
+                $r['entidad'],
+                $r['entidad_id'],
+                $r['motivo']
+            );
         } else {
-            $cola->marcarError($id, $intentos, $maxInt, $motivo);
-            $errCount++;
-            $restantes = $maxInt - $intentos;
+            $restantes = $r['max_intentos'] - $r['intentos'];
             printf(
                 "[job %d] %s#%d error (%s); %s\n",
-                $id,
-                $ent,
-                $entId,
-                $motivo,
+                $r['id'],
+                $r['entidad'],
+                $r['entidad_id'],
+                $r['motivo'],
                 $restantes > 0
                     ? "reintento en {$restantes} intento(s) más"
                     : 'dead-letter (sin reintentos)'

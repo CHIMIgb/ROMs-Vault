@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "에뮬레이터가 설정되지 않은 유효한 콘솔을 선택하세요.",
     "msg.emulador_guardar_error": "에뮬레이터를 저장하는 중 오류가 발생했습니다. 데이터를 확인하고 다시 시도하세요.",
     "msg.emulador_nombre_largo": "에뮬레이터 이름은 100자를 초과할 수 없습니다.",
+    "msg.campo_largo": "{campo}은(는) {limite}자를 초과할 수 없습니다.",
     "msg.emulador_nombre_obligatorio": "에뮬레이터 이름은 필수입니다.",
     "msg.emulador_plataforma_obligatoria": "플랫폼을 하나 이상 선택하세요(PC 또는 Android).",
     "msg.emulador_url_invalida": "에뮬레이터 URL은 유효한 주소여야 합니다(http:// 또는 https:// 포함).",

@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "Emülatörü yapılandırılmamış geçerli bir konsol seçin.",
     "msg.emulador_guardar_error": "Emülatör kaydedilirken hata oluştu. Verileri kontrol edip tekrar deneyin.",
     "msg.emulador_nombre_largo": "Emülatör adı 100 karakteri aşamaz.",
+    "msg.campo_largo": "{campo} alanı {limite} karakteri aşamaz.",
     "msg.emulador_nombre_obligatorio": "Emülatör adı zorunludur.",
     "msg.emulador_plataforma_obligatoria": "En az bir platform seçin (PC veya Android).",
     "msg.emulador_url_invalida": "Emülatör URL'si geçerli bir adres olmalıdır (http:// veya https:// ekleyin).",

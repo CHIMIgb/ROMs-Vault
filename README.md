@@ -354,7 +354,9 @@ El proyecto incluye soporte para internacionalización de la interfaz (`es` como
 ### Configuración con DeepL (API Free)
 
 La traducción de contenido usa **DeepL** (servicio en la nube): no requiere
-servidor, contenedor ni worker.
+servidor ni contenedor. En modo `async` la app drena la cola ella misma tras
+cada guardado (drenado oportunista, ver más abajo); un worker/cron es opcional
+como red de seguridad.
 
 1. Crea una cuenta en DeepL y genera una **API key** (plan Free: 500.000
    caracteres/mes, sin tarjeta; la clave termina en `:fx`).
@@ -373,7 +375,27 @@ TRANSLATE_PROVIDER=none        # none | deepl | google
 TRANSLATE_API_KEY=             # DeepL API key (plan Free: termina en ':fx')
 TRANSLATE_TARGETS=             # vacío = todos los idiomas de i18n menos 'es'
 TRANSLATE_TIMEOUT=8
+TRANSLATE_MODE=async           # async (cola + drenado oportunista) | sync
+TRANSLATE_OPORTUNISTA_MAX=3    # trabajos de la cola drenados tras cada guardado
+TRANSLATE_OPORTUNISTA_PRESUPUESTO=5   # segundos de presupuesto para ese drenado
 ```
+
+### Traducción al guardar (modo async)
+
+Al guardar en el admin, el trabajo se **encola** en `traduccion_cola` y el
+guardado responde al instante. La cola se drena de dos formas:
+
+- **Drenado oportunista (Opción A)**: tras responder el `302`, el propio proceso
+  procesa hasta `TRANSLATE_OPORTUNISTA_MAX` trabajos con un presupuesto de
+  `TRANSLATE_OPORTUNISTA_PRESUPUESTO` segundos. Las traducciones aparecen en
+  segundos sin depender del cron y sin bloquear al usuario. Es fail-open: sin
+  proveedor configurado no toca la cola.
+- **Worker/cron (red de seguridad)**: `scripts/worker-traducciones.php --una-vez`
+  (proceso persistente o cron; ver `.github/workflows/worker-traducciones.yml`).
+
+El procesamiento de cada trabajo vive en `src/config/TraduccionWorker.php` y lo
+comparten el admin y el worker CLI. Con `TRANSLATE_MODE=sync` se traduce dentro de
+la misma petición y no se usa la cola.
 
 ### Backfill de traducciones (BD local/Neon)
 

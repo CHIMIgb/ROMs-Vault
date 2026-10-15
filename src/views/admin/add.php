@@ -18,6 +18,7 @@
                    id="titulo"
                    name="titulo" 
                    value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>" 
+                   maxlength="200"
                    required
                    placeholder="<?= t('admin.juego.titulo_placeholder') ?>">
         </div>
@@ -89,6 +90,7 @@
                        id="idiomas"
                        name="idiomas" 
                        value="<?= htmlspecialchars($_POST['idiomas'] ?? '') ?>"
+                       maxlength="200"
                        placeholder="<?= t('admin.juego.idiomas_placeholder') ?>">
             </div>
             
@@ -98,6 +100,7 @@
                        id="formato_imagen"
                        name="formato_imagen" 
                        value="<?= htmlspecialchars($_POST['formato_imagen'] ?? '') ?>"
+                       maxlength="50"
                        placeholder="<?= t('admin.juego.formato_placeholder') ?>">
             </div>
         </div>
@@ -109,6 +112,7 @@
                    id="game_id_code"
                    name="game_id_code" 
                    value="<?= htmlspecialchars($_POST['game_id_code'] ?? '') ?>"
+                   maxlength="50"
                    placeholder="<?= t('admin.juego.game_id_code_placeholder') ?>">
         </div>
         
@@ -119,6 +123,7 @@
                    id="google_drive_file_id"
                    name="google_drive_file_id" 
                    value="<?= htmlspecialchars($_POST['google_drive_file_id'] ?? '') ?>" 
+                   maxlength="100"
                    required
                    placeholder="<?= t('admin.juego.google_drive_file_id_placeholder') ?>">
             <small><?= t('admin.juego.google_drive_file_id_ayuda') ?></small>
@@ -130,6 +135,7 @@
                    id="google_drive_view_link"
                    name="google_drive_view_link" 
                    value="<?= htmlspecialchars($_POST['google_drive_view_link'] ?? '') ?>"
+                   maxlength="500"
                    placeholder="<?= t('admin.juego.google_drive_view_link_placeholder') ?>">
         </div>
         
