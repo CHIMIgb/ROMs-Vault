@@ -338,10 +338,17 @@ class AdminController {
         if ($id <= 0 || (trim($descripcion) === '' && trim($idiomas) === '')) {
             return;
         }
-        TraduccionService::traducirEntidad('juego', $id, [
+        $campos = [
             'descripcion' => $descripcion,
             'idiomas'     => $idiomas,
-        ]);
+        ];
+        // Con TRANSLATE_MODE=async el trabajo se encola y el worker CLI lo
+        // traduce en segundo plano (el admin no espera a las 11 llamadas).
+        if (TraduccionService::modo() === 'async') {
+            TraduccionService::encolar('juego', $id, $campos);
+            return;
+        }
+        TraduccionService::traducirEntidad('juego', $id, $campos);
     }
 
     public function toggleActive($id) {

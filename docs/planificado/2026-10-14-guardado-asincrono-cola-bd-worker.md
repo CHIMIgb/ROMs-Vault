@@ -1,7 +1,10 @@
 # Guardado asíncrono de traducciones: cola en BD + worker CLI PHP
 
 **Fecha:** 2026-10-14
-**Estado:** planificado (pendiente de implementación y aprobación)
+**Estado:** implementado (2026-10-14) — migración aplicada en Neon (endpoint directo);
+default `TRANSLATE_MODE=async` por decisión del 2026-10-14 (el plan preveía `sync`);
+pendiente en producción: ejecutar el worker (cron/VM) o poner `TRANSLATE_MODE=sync` en Vercel.
+Detalle y evidencia: `docs/2026-10-14-cola-traducciones-asincronas.md`.
 **Ámbito:** i18n (traducción de contenido, bloque 2)
 **Documentos relacionados:**
 `src/config/TraduccionService.php`,

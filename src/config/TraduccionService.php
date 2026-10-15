@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../models/TraduccionCola.php';
 require_once __DIR__ . '/../models/Traduccion.php';
 require_once __DIR__ . '/translation/TranslateProviderFactory.php';
 require_once __DIR__ . '/LoggerService.php';
@@ -511,4 +512,56 @@ class TraduccionService {
         }
         return $salida;
     }
+
+    /**
+     * Modo de traducción al guardar desde el admin:
+     *
+     *   - 'async' (por defecto): se encola el trabajo (tabla traduccion_cola) y
+     *     el admin responde al instante; el worker CLI
+     *     (scripts/worker-traducciones.php) traduce en segundo plano con
+     *     reintentos y backoff.
+     *   - 'sync': se traduce dentro de la misma request, antes del redirect
+     *     (comportamiento histórico). Solo se usa si se pide explícitamente.
+     *
+     * Se configura con TRANSLATE_MODE en el .env. Solo el valor exacto 'sync'
+     * activa el modo síncrono; cualquier otro valor (incluido vacío/ausente) usa
+     * el modo asíncrono.
+     *
+     * IMPORTANTE: en 'async' es imprescindible que ALGÚN worker drene la cola
+     * (proceso persistente o cron). Sin worker, el contenido guardado se queda
+     * en 'es' (el sitio público hace fallback) hasta que el worker se ejecute.
+     */
+    public static function modo(): string {
+        $modo = strtolower(trim((string) ($_ENV['TRANSLATE_MODE'] ?? getenv('TRANSLATE_MODE') ?: 'async')));
+        return $modo === 'sync' ? 'sync' : 'async';
+    }
+
+    /**
+     * Encola un trabajo de traducción asíncrona.
+     * Devuelve el ID del job en la cola (0 si no se pudo encolar).
+     *
+     * Fail-open, igual que el resto del servicio: si la cola falla (p. ej. la
+     * migración no está aplicada) el guardado del contenido no se rompe; se
+     * registra el error y el contenido se queda en 'es' hasta poder traducirlo.
+     */
+    public static function encolar(string $entidad, int $id, array $campos): int
+    {
+        $entidad = strtolower($entidad);
+        $campos  = self::limpiarCampos($campos);
+        if ($campos === []) {
+            return 0;
+        }
+        try {
+            $cola = new TraduccionCola();
+            return $cola->encolar($entidad, $id, $campos);
+        } catch (\Throwable $e) {
+            LoggerService::write('traduccion_cola_error', [
+                'entidad' => $entidad,
+                'id'      => $id,
+                'error'   => $e->getMessage(),
+            ], 'warning');
+            return 0;
+        }
+    }
+
 }

@@ -61,6 +61,11 @@ class Server {
             // El guardado se sigue probando igual; solo se apaga la red.
             'TRANSLATE_PROVIDER' => 'none',
             'TRANSLATE_API_KEY'  => '',
+            // Los tests de integración ejercitan la vía de guardado ASÍNCRONA
+            // (encolar en traduccion_cola), que es la que escribe en BD y por
+            // tanto puede romper el guardado. Con el proveedor apagado no hay
+            // red ni traducciones: solo un job pendiente por entidad.
+            'TRANSLATE_MODE'     => 'async',
             'JWT_SECRET'      => $jwtSecret,
             'JWT_EXPIRATION'  => '3600',
             'AUTH_LOG_DIR'    => sys_get_temp_dir() . '/rv_logs_test',

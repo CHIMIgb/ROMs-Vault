@@ -118,10 +118,17 @@ class CategoriaController {
         if ($id <= 0 || $nombre === '') {
             return;
         }
-        TraduccionService::traducirEntidad('categoria', $id, [
+        $campos = [
             'nombre'      => $nombre,
             'descripcion' => $descripcion,
-        ]);
+        ];
+        // Con TRANSLATE_MODE=async el trabajo se encola y el worker CLI lo
+        // traduce en segundo plano (el admin no espera a las 11 llamadas).
+        if (TraduccionService::modo() === 'async') {
+            TraduccionService::encolar('categoria', $id, $campos);
+            return;
+        }
+        TraduccionService::traducirEntidad('categoria', $id, $campos);
     }
 
     // ── Eliminar ──────────────────────────────────────────────────────────
