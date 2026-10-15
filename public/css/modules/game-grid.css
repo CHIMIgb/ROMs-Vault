@@ -226,7 +226,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: right;
+    text-align: end;
     min-width: 0;
     max-width: 55%;
 }
@@ -240,7 +240,7 @@
     margin-bottom: 0.4rem;
     color: var(--slate);
     border: 1px solid var(--amber);
-    border-left: 4px solid var(--amber);
+    border-inline-start: 4px solid var(--amber);
     flex-shrink: 0;
     overflow: hidden;
     white-space: nowrap;
@@ -313,7 +313,7 @@
 }
 
 .game-download span {
-    margin-right: 0.35rem;
+    margin-inline-end: 0.35rem;
     font-size: 0.85rem;
 }
 

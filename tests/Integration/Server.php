@@ -53,6 +53,19 @@ class Server {
             'DB_USER'         => 'postgres',
             'DB_PASSWORD'     => getenv('TEST_DB_PASSWORD') ?: '',
             'DB_SSLMODE'      => 'disable',
+            // Tests herméticos: guardar un juego o una categoría dispara
+            // TraduccionService. Sin esto el servidor hijo hereda el
+            // TRANSLATE_PROVIDER real del .env y cada POST /admin/add hace
+            // llamadas de red al proveedor (lentas, con cuota y no
+            // deterministas) hasta agotar el timeout de 10 s de request().
+            // El guardado se sigue probando igual; solo se apaga la red.
+            'TRANSLATE_PROVIDER' => 'none',
+            'TRANSLATE_API_KEY'  => '',
+            // Los tests de integración ejercitan la vía de guardado ASÍNCRONA
+            // (encolar en traduccion_cola), que es la que escribe en BD y por
+            // tanto puede romper el guardado. Con el proveedor apagado no hay
+            // red ni traducciones: solo un job pendiente por entidad.
+            'TRANSLATE_MODE'     => 'async',
             'JWT_SECRET'      => $jwtSecret,
             'JWT_EXPIRATION'  => '3600',
             'AUTH_LOG_DIR'    => sys_get_temp_dir() . '/rv_logs_test',

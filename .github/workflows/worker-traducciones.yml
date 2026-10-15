@@ -1,0 +1,73 @@
+name: Worker traducciones
+
+# Drena la cola `traduccion_cola` ejecutando el worker CLI contra Neon.
+# Ejecutor gratuito y sin servidor persistente: el repo es publico, asi que los
+# minutos de Actions son gratuitos. El worker reclama con FOR UPDATE SKIP LOCKED,
+# por lo que dos runs solapados no se pisan (aunque igualmente se serializan).
+#
+# AVISO: `schedule` solo se evalua en la rama por defecto (main) y GitHub puede
+# retrasarlo varios minutos o saltarselo bajo carga. Ademas desactiva el cron
+# tras 60 dias sin actividad en el repositorio. Es "en unos minutos", no un
+# cronometro exacto.
+on:
+  schedule:
+    # Cada 5 minutos: el minimo que acepta GitHub Actions.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      max:
+        description: 'Maximo de jobs a procesar en este disparo manual'
+        required: false
+        default: '10'
+
+# Permisos minimos: el worker solo necesita leer el repositorio.
+permissions:
+  contents: read
+
+# Un unico worker a la vez, para no solapar cron y disparos manuales.
+# cancel-in-progress: false -> el run en curso termina; el siguiente espera.
+concurrency:
+  group: worker-traducciones
+  cancel-in-progress: false
+
+jobs:
+  worker:
+    name: Drenar la cola de traducciones
+    runs-on: ubuntu-latest
+    # Margen amplio a proposito: si se matara el proceso a mitad de un job, este
+    # quedaria en 'en_proceso' sin worker que lo rescate (no hay rescate de jobs
+    # colgados). Mejor dejar que termine.
+    timeout-minutes: 15
+    env:
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_SSLMODE: ${{ secrets.DB_SSLMODE }}
+      TRANSLATE_PROVIDER: ${{ secrets.TRANSLATE_PROVIDER }}
+      TRANSLATE_API_KEY: ${{ secrets.TRANSLATE_API_KEY }}
+      TRANSLATE_TARGETS: ${{ secrets.TRANSLATE_TARGETS }}
+      TRANSLATE_TIMEOUT: ${{ secrets.TRANSLATE_TIMEOUT }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          # curl es obligatorio: AbstractTranslateProvider usa curl_init().
+          extensions: pdo_pgsql, curl
+          coverage: none
+          tools: composer:v2
+      - name: Cache de Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - name: Instalar dependencias
+        run: composer install --prefer-dist --no-progress --no-interaction
+      - name: Drenar la cola (una pasada)
+        # Sin .env: database.php usa safeLoad() y las variables de entorno reales
+        # tienen prioridad sobre el fichero.
+        run: php scripts/worker-traducciones.php --una-vez --max=${{ github.event.inputs.max || 10 }}

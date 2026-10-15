@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<?= htmlspecialchars((string) I18n::getLang()) ?>">
+<html lang="<?= htmlspecialchars((string) I18n::getLang()) ?>" dir="<?= I18n::isRtl() ? 'rtl' : 'ltr' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,20 +102,31 @@
                 $lang = I18n::getLang();
                 $langPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
                 $langAction = htmlspecialchars($langPath, ENT_QUOTES, 'UTF-8');
-                // Conserva los parámetros GET actuales (excepto lang) como campos ocultos.
+                // Conserva los parámetros que el visitante envió de verdad en la
+                // URL (filtros, y en las URLs legacy controller/action/id),
+                // excepto lang. Se lee de QUERY_STRING y no de $_GET porque el
+                // router añade a $_GET los de la ruta limpia: en
+                // /juego/power-rangers-ninja-storm el formulario reenviaría
+                // ?controller=home&action=showBySlug&id=power-rangers-ninja-storm,
+                // duplicando en la query lo que ya va en la ruta.
                 $langHidden = [];
-                foreach ($_GET as $key => $value) {
-                    if ($key === 'lang') {
-                        continue;
-                    }
-                    if (is_array($value)) {
-                        foreach ($value as $v) {
-                            if (is_scalar($v)) {
-                                $langHidden[] = [$key . '[]', (string)$v];
-                            }
+                $langQueryString = (string) ($_SERVER['QUERY_STRING'] ?? '');
+                if ($langQueryString !== '') {
+                    $langQueryParams = [];
+                    parse_str($langQueryString, $langQueryParams);
+                    foreach ($langQueryParams as $key => $value) {
+                        if ($key === 'lang') {
+                            continue;
                         }
-                    } elseif (is_scalar($value)) {
-                        $langHidden[] = [$key, (string)$value];
+                        if (is_array($value)) {
+                            foreach ($value as $v) {
+                                if (is_scalar($v)) {
+                                    $langHidden[] = [$key . '[]', (string)$v];
+                                }
+                            }
+                        } elseif (is_scalar($value)) {
+                            $langHidden[] = [$key, (string)$value];
+                        }
                     }
                 }
                 $langFlags = [
@@ -177,6 +188,45 @@
                           . '<circle cx="7.5" cy="7" r="3.5" fill="#ffffff"/>'
                           . '<circle cx="8.9" cy="7" r="2.8" fill="#e30a17"/>'
                           . '<polygon points="13,5.1 13.45,6.39 14.81,6.41 13.72,7.23 14.12,8.54 13,7.76 11.88,8.54 12.28,7.23 11.19,6.41 12.55,6.39" fill="#ffffff"/>'
+                          . '</svg>',
+                    'zh' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#de2910"/>'
+                          . '<polygon points="4.3,2.2 4.85,3.6 6.3,3.6 5.1,4.5 5.55,5.9 4.3,5.05 3.05,5.9 3.5,4.5 2.3,3.6 3.75,3.6" fill="#ffde00"/>'
+                          . '<circle cx="8.4" cy="5.2" r="0.9" fill="#ffde00"/>'
+                          . '<circle cx="9.55" cy="6.9" r="0.6" fill="#ffde00"/>'
+                          . '<circle cx="8.1" cy="8.35" r="0.55" fill="#ffde00"/>'
+                          . '<circle cx="6.85" cy="6.95" r="0.55" fill="#ffde00"/>'
+                          . '</svg>',
+                    'ko' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#ffffff"/>'
+                          . '<rect x="0.5" y="0.5" width="19" height="13" fill="none" stroke="#cdcdcd" stroke-width="0.5"/>'
+                          . '<g stroke="#000000" stroke-width="0.9">'
+                          . '<path d="M10 1.8 Q11.8 4 10 6.2" fill="none"/>'
+                          . '<path d="M10 6.2 Q8.2 8.4 10 10.6" fill="none"/>'
+                          . '<path d="M10 10.6 Q11.8 12.8 10 15" fill="none"/>'
+                          . '</g>'
+                          . '<g stroke="#000000" stroke-width="0.5">'
+                          . '<rect x="3.4" y="3.3" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="3.4" y="4.7" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="3.4" y="3.3" width="0.6" height="2" fill="#000000" stroke="none"/>'
+                          . '<rect x="15" y="8.3" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="15" y="9.7" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="15" y="8.3" width="0.6" height="2" fill="#000000" stroke="none"/>'
+                          . '<rect x="3.4" y="8.3" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="3.4" y="9.7" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="3.4" y="8.3" width="0.6" height="2" fill="#000000" stroke="none"/>'
+                          . '<rect x="15" y="3.3" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="15" y="4.7" width="1.6" height="0.6" fill="#000000" stroke="none"/>'
+                          . '<rect x="15" y="3.3" width="0.6" height="2" fill="#000000" stroke="none"/>'
+                          . '</g>'
+                          . '<circle cx="10" cy="7" r="1.7" fill="#cd2e3a"/>'
+                          . '<path d="M10 5.3 Q12.5 7 10 8.7 Z" fill="#0047a0"/>'
+                          . '<path d="M10 5.3 Q7.5 7 10 8.7 Z" fill="#cd2e3a"/>'
+                          . '</svg>',
+                    'ar' => '<svg class="lang-flag" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+                          . '<rect width="20" height="14" fill="#165d31"/>'
+                          . '<path d="M5.7 5.6 Q10 2.8 14.3 5.6 L14.3 8.4 Q10 11.2 5.7 8.4 Z" fill="none" stroke="#ffffff" stroke-width="1.1"/>'
+                          . '<path d="M5.2 3.6 L7.9 5.7 L8.3 5.3 L5.9 3.4 L7.2 2.3 L6.6 1.9 L5.6 2.8 L4.6 1.6 L4.1 2 L5.4 3.2 L3.5 4.4 L3.9 4.9 Z" fill="#ffffff"/>'
                           . '</svg>',
                 ];
                 ?>

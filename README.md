@@ -338,3 +338,86 @@ Las URLs del proxy expiran después de 2 horas. Recarga la página del juego par
 
 ### Error 429 "Demasiadas peticiones"
 El rate limiting está bloqueando tu IP. Espera el tiempo configurado en `RATE_LIMIT_WINDOW` (por defecto 60 segundos) o ajusta los valores en `.env`.
+
+## Internacionalización (i18n) y traducción automática de contenido
+
+El proyecto incluye soporte para internacionalización de la interfaz (`es` como base) y **traducción automática del contenido editorial guardado en BD** (categorías y descripciones de juegos) mediante proveedores externos.
+
+### Arquitectura
+
+- **Proveedores**: `src/config/translation/` (interfaz, `NullTranslateProvider`, `DeepLTranslateProvider`, `GoogleTranslateProvider`, `TranslateProviderFactory`).
+- **Servicio**: `src/config/TraduccionService.php` — resuelve traducciones por lote (caché por request), genera `origen_hash`, crea/actualiza con UPSERT.
+- **Modelo**: `src/models/Traduccion.php` — nunca pisa traducciones `origen='manual'`; busca por `(entidad_id, idioma)`; incremental.
+- **Lectura**: HomeController resuelve categorías/vínculos/descripciones en lote (nunca desde vistas). Auto-traducción al guardar en `CategoriaController` y `AdminController` (best-effort, fail-open).
+- **Fallback**: `idioma activo → es → vacío`.
+
+### Configuración con DeepL (API Free)
+
+La traducción de contenido usa **DeepL** (servicio en la nube): no requiere
+servidor, contenedor ni worker.
+
+1. Crea una cuenta en DeepL y genera una **API key** (plan Free: 500.000
+   caracteres/mes, sin tarjeta; la clave termina en `:fx`).
+2. Ponla en `.env` (local) y en las variables de entorno de Vercel:
+   `TRANSLATE_PROVIDER=deepl` y `TRANSLATE_API_KEY=<clave>`.
+3. Traduce el contenido con el backfill (ver más abajo) o automáticamente al
+   guardar en el panel de admin.
+
+Google Cloud Translation sigue disponible como alternativa
+(`TRANSLATE_PROVIDER=google` + `TRANSLATE_API_KEY`).
+
+### Variables de entorno (.env)
+
+```env
+TRANSLATE_PROVIDER=none        # none | deepl | google
+TRANSLATE_API_KEY=             # DeepL API key (plan Free: termina en ':fx')
+TRANSLATE_TARGETS=             # vacío = todos los idiomas de i18n menos 'es'
+TRANSLATE_TIMEOUT=8
+```
+
+### Backfill de traducciones (BD local/Neon)
+
+Cuando hay contenido nuevo o se quiere traducir en lote lo ya existente:
+
+```powershell
+cd C:\Users\chimi\Documents\GitHub\ROMs-Vault
+
+# 1) Dry-run: ver totales pendientes
+$env:TRANSLATE_PROVIDER='deepl'
+$env:TRANSLATE_API_KEY='<tu clave DeepL>'
+C:\xampp\php\php.exe scripts\backfill-traducciones.php --dry-run
+
+# 2) Ejecutar (idempotente). Respeta traducciones manuales.
+$env:TRANSLATE_PROVIDER='deepl'
+$env:TRANSLATE_API_KEY='<tu clave DeepL>'
+C:\xampp\php\php.exe scripts\backfill-traducciones.php 2>> scratch\backfill-err.log | Tee-Object -FilePath scratch\backfill-out.log
+```
+
+**Filtros útiles:**
+
+```powershell
+--solo=categorias        # solo categorías
+--solo=juegos            # solo juegos
+--idioma=en,fr,de        # solo esos idiomas
+--limite=10              # probar con 10 entidades
+```
+
+### Notas importantes
+
+- **Nunca pisa manual**: si `origen='manual'`, el backfill/auto-traducción no lo reemplaza.
+- **Incremental**: compara por `origen_hash` (contenido `es` canonizado). Re-ejecutar es seguro.
+- **Fail-open**: si el proveedor falla, el guardado no se bloquea; el error queda en `auditoria` (`accion='traduccion_error'`).
+- **Códigos chino**: DeepL usa `ZH-HANS` para el chino simplificado (`DeepLTranslateProvider::mapCode()`).
+- **CLI-only**: `scripts/backfill-traducciones.php` solo se ejecuta desde línea de comandos.
+- **Migración aplicada**: `data/migrations/2026-10-12-traducciones-contenido.sql` (tablas `categorias_traducciones`, `juegos_traducciones`, índices y CHECK).
+
+### Verificación rápida
+
+Prueba la clave de DeepL (sin imprimir el secreto):
+
+```powershell
+$key = (Get-Content .env | Select-String '^TRANSLATE_API_KEY=').ToString().Split('=',2)[1]
+$body = @{ text=@('Juego de carreras futurista'); target_lang='EN'; source_lang='ES' } | ConvertTo-Json
+Invoke-RestMethod -Uri 'https://api-free.deepl.com/v2/translate' -Method Post `
+  -Headers @{ Authorization = "DeepL-Auth-Key $key" } -ContentType 'application/json' -Body $body
+```

@@ -71,6 +71,9 @@ class I18nTest extends TestCase {
             'it' => 'Catalogo',
             'ru' => 'Каталог',
             'tr' => 'Katalog',
+            'zh' => '目录',
+            'ko' => '카탈로그',
+            'ar' => 'الكتالوج',
         ];
         foreach ($esperado as $lang => $valor) {
             $this->assertTrue(I18n::setLang($lang), "Debe aceptar el idioma '$lang'.");
@@ -199,6 +202,9 @@ class I18nTest extends TestCase {
             'it' => 'it-IT',
             'ru' => 'ru-RU',
             'tr' => 'tr-TR',
+            'zh' => 'zh-CN',
+            'ko' => 'ko-KO',
+            'ar' => 'ar-AR',
         ];
         foreach ($esperado as $lang => $codigo) {
             $this->assertTrue(I18n::setLang($lang));
@@ -207,7 +213,10 @@ class I18nTest extends TestCase {
     }
 
     public function testEmulatorLanguageSiempreDevuelveUnCodigoPublicado(): void {
-        $publicados = ['es-ES', 'en-US', 'pt-BR', 'de-GER', 'ja-JA', 'it-IT', 'ru-RU', 'tr-TR'];
+        $publicados = [
+            'es-ES', 'en-US', 'pt-BR', 'de-GER', 'ja-JA', 'it-IT', 'ru-RU', 'tr-TR',
+            'zh-CN', 'ko-KO', 'ar-AR',
+        ];
         foreach (I18n::LANGUAGES as $lang) {
             I18n::setLang($lang);
             $this->assertContains(
@@ -216,5 +225,22 @@ class I18nTest extends TestCase {
                 "El código para '$lang' debe existir en el CDN de EmulatorJS."
             );
         }
+    }
+
+    // ── RTL: idiomas de escritura derecha-a-izquierda (FASE 5.2) ────────────
+
+    public function testIsRtlSoloParaIdiomasRtl(): void {
+        $this->assertTrue(I18n::isRtl('ar'), "'ar' debe ser RTL.");
+        foreach (['es', 'en', 'fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr', 'zh', 'ko'] as $lang) {
+            $this->assertFalse(I18n::isRtl($lang), "'$lang' no debe ser RTL.");
+        }
+    }
+
+    public function testIsRtlSinArgumentoUsaIdiomaActivo(): void {
+        I18n::setLang('ar');
+        $this->assertTrue(I18n::isRtl());
+
+        I18n::setLang('es');
+        $this->assertFalse(I18n::isRtl());
     }
 }

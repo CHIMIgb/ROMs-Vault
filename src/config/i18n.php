@@ -10,14 +10,23 @@
  * - El idioma activo por defecto es 'es' (I18N_LANG). La detección por cookie /
  *   Accept-Language (ítem 6.2) usará setLang() sin tocar este cargador.
  *
- * Los datos de la BD (títulos de juegos, consolas, categorías) NO se traducen:
- * son contenido, no interfaz (decisión documentada en el plan i18n).
+ * Contenido de la BD: desde el bloque 2 de i18n, los campos editoriales de la
+ * BD (categorias.nombre/descripcion, juegos.descripcion) SÍ se traducen, vía
+ * TraduccionService + tablas *_traducciones, con fallback a 'es'. Este cargador
+ * solo cubre la INTERFAZ. Los nombres propios (juegos.titulo, consolas.*,
+ * emuladores.nombre) siguen sin traducirse.
  */
 
 class I18n {
 
     /** Idiomas soportados (whitelist anti path traversal y anti inyección). */
-    public const LANGUAGES = ['es', 'en', 'fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr'];
+    public const LANGUAGES = ['es', 'en', 'fr', 'pt', 'de', 'ja', 'it', 'ru', 'tr', 'zh', 'ko', 'ar'];
+
+    /**
+     * Idiomas con escritura de derecha a izquierda (RTL).
+     * El atributo dir="rtl" se aplica solo para estos idiomas (FASE 5.2).
+     */
+    public const RTL_LANGS = ['ar'];
 
     /** Idioma por defecto (fallback universal). */
     public const DEFAULT_LANG = 'es';
@@ -120,6 +129,15 @@ class I18n {
             self::init();
         }
         return self::$lang;
+    }
+
+    /**
+     * Indica si el idioma indicado (o el activo) usa escritura RTL.
+     * @param string|null $lang Código de idioma; null = idioma activo.
+     */
+    public static function isRtl(?string $lang = null): bool {
+        $code = $lang ?? self::getLang();
+        return in_array($code, self::RTL_LANGS, true);
     }
 
     /**

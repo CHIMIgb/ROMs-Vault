@@ -43,6 +43,16 @@ class Database {
             
             // Establecer codificación UTF-8
             $this->pdo->exec("SET NAMES 'UTF8'");
+
+            // Fijar el search_path al valor por defecto de PostgreSQL
+            // ("$user", public). El pooler de Neon reutiliza conexiones de
+            // servidor entre clientes, así que un SET de sesión dejado por
+            // otra herramienta (por ejemplo el search_path vacío que un
+            // pg_dump restaurado propaga con set_config) rompería cualquier
+            // consulta sin esquema con "relation ... does not exist".
+            // Fijarlo en cada conexión hace la app inmune a ese estado
+            // heredado.
+            $this->pdo->exec('SET search_path TO "$user", public');
             
         } catch (PDOException $e) {
             // Log del error a nivel general (no expuesto al usuario). Se omite

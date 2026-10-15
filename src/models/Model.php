@@ -57,6 +57,15 @@ abstract class Model {
     }
 
     /**
+     * Id generado por el último INSERT. Lo usan los flujos que necesitan el id
+     * recién creado (p. ej. la auto-traducción de contenido al guardar).
+     * Devuelve 0 si no aplica.
+     */
+    public function lastInsertId(): int {
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    /**
      * Filtra las claves de $data para que solo pasen nombres de columna
      * válidos (letras, dígitos y guion bajo). Elimina así cualquier intento
      * de inyección SQL a través de los nombres de columna interpolados en

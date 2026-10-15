@@ -104,7 +104,7 @@
     align-items: center;
     gap: 0.4rem;
     transition: background 0.1s;
-    border-right: 2px solid var(--border-dark);
+    border-inline-end: 2px solid var(--border-dark);
     user-select: none;
 }
 
@@ -274,8 +274,13 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a3a3a'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
-    padding-right: 2.25rem;
+    padding-inline-end: 2.25rem;
     background-color: var(--cream-light);
+}
+
+/* RTL: la flecha del select se refleja al lado de inicio */
+[dir="rtl"] .form-group select {
+    background-position: left 0.75rem center;
 }
 
 .form-checkbox {
@@ -352,7 +357,9 @@
 .password-wrapper input[type="password"],
 .password-wrapper input[type="text"] {
     width: 100%;
-    padding: 0.65rem 3rem 0.65rem 0.75rem;
+    padding-block: 0.65rem;
+    padding-inline-start: 0.75rem;
+    padding-inline-end: 3rem;
     border: 2px solid var(--border-dark);
     border-radius: 0;
     font-family: 'Courier Prime', monospace;
@@ -371,13 +378,13 @@
 
 .password-toggle {
     position: absolute;
-    right: 0;
+    inset-inline-end: 0;
     top: 0;
     height: 100%;
     width: 2.75rem;
     background: var(--cream-dark);
     border: none;
-    border-left: 2px solid var(--border-dark);
+    border-inline-start: 2px solid var(--border-dark);
     cursor: pointer;
     color: var(--slate-mid);
     display: flex;

@@ -12,6 +12,7 @@ require_once __DIR__ . '/../src/models/Model.php';
 require_once __DIR__ . '/../src/models/Juego.php';
 require_once __DIR__ . '/../src/models/Consola.php';
 require_once __DIR__ . '/../src/models/Categoria.php';
+require_once __DIR__ . '/../src/config/TraduccionService.php';
 
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store');
@@ -43,6 +44,12 @@ $offset       = ($currentPage - 1) * $itemsPerPage;
 $juegos      = $juegoModel->getWithRelationsPaginated($filters, $offset, $itemsPerPage, Juego::getCatalogSeed());
 $totalJuegos = $juegoModel->countWithFilters($filters);
 $totalPages  = (int)ceil($totalJuegos / $itemsPerPage);
+
+// Traducción del contenido editorial al idioma activo (fallback a 'es'): sin
+// esto, las tarjetas que reemplaza el AJAX mostrarían categoría, descripción e
+// idiomas en español aunque la UI esté en otro idioma.
+TraduccionService::resolverCategoriasVinculadas($juegos);
+TraduccionService::resolverJuegos($juegos);
 
 $qParts = [];
 foreach (['busqueda','consola','categoria','region','orden'] as $p) {

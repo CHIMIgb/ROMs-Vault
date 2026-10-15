@@ -301,7 +301,7 @@ if ($emuladorLocal) {
 </div>
 
 <!-- Toast de compartir (reutiliza el sistema existente) -->
-<div class="share-toast" id="share-toast" role="status" aria-live="polite"><?= t('show.enlace_copiado') ?></div>
+<div class="share-toast" id="share-toast" role="status" aria-live="polite" data-lang-skip><?= t('show.enlace_copiado') ?></div>
 
 <script>
 (function () {

@@ -137,7 +137,7 @@
     color: var(--slate-light);
     width: 1.4rem;
     flex-shrink: 0;
-    text-align: right;
+    text-align: end;
 }
 
 .ranking-info {
@@ -176,7 +176,7 @@
 .ranking-bar-fill {
     height: 100%;
     background: var(--red);
-    border-right: 1px solid var(--red-dark);
+    border-inline-end: 1px solid var(--red-dark);
 }
 
 .ranking-count {
@@ -200,7 +200,9 @@
 }
 
 .admin-filter-select {
-    padding: 0.55rem 2rem 0.55rem 0.75rem;
+    padding-block: 0.55rem;
+    padding-inline-start: 0.75rem;
+    padding-inline-end: 2rem;
     border: 2px solid var(--border-dark);
     border-radius: 0;
     background: var(--cream-light);
@@ -221,6 +223,11 @@
 .admin-filter-select:focus {
     outline: none;
     border-color: var(--red);
+}
+
+/* RTL: la flecha del select se refleja al lado de inicio */
+[dir="rtl"] .admin-filter-select {
+    background-position: left 0.6rem center;
 }
 
 @media (max-width: 900px) {
@@ -252,15 +259,15 @@
 
 .admin-table th {
     padding: 0.85rem 1rem;
-    text-align: left;
+    text-align: start;
     font-family: 'Press Start 2P', monospace;
     font-size: 0.42rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    border-right: 1px solid rgba(255,255,255,0.1);
+    border-inline-end: 1px solid rgba(255,255,255,0.1);
 }
 
-.admin-table th:last-child { border-right: none; }
+.admin-table th:last-child { border-inline-end: none; }
 
 .admin-table td {
     padding: 0.85rem 1rem;

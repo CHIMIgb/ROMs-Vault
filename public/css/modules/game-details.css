@@ -123,9 +123,9 @@
 .proxy-error-tip {
     background: var(--cream-dark);
     border: 2px solid var(--border-mid);
-    border-left: 4px solid var(--amber);
+    border-inline-start: 4px solid var(--amber);
     padding: 0.75rem 1rem;
-    text-align: left;
+    text-align: start;
     font-family: 'Courier Prime', monospace;
     font-size: 0.85rem;
     color: var(--slate);
@@ -192,7 +192,7 @@
 }
 
 .proxy-error-details {
-    text-align: left;
+    text-align: start;
     border: 2px solid var(--border-light);
     padding: 0.5rem 0.75rem;
     background: var(--cream-dark);
@@ -361,8 +361,7 @@
     line-height: 1.7;
     margin-bottom: 2rem;
     max-width: 420px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-inline: auto;
 }
 
 .error-404-actions {
@@ -413,7 +412,7 @@
 }
 
 .error-404-details {
-    text-align: left;
+    text-align: start;
     max-width: 480px;
     margin: 0 auto;
     border: 2px solid var(--border-light);
@@ -728,7 +727,7 @@
     font-size: 0.6rem;
     color: var(--red);
     min-width: 3.5ch;
-    text-align: right;
+    text-align: end;
 }
 
 .proxy-load-track {
@@ -893,7 +892,7 @@
     font-size: 0.58rem;
     color: var(--red);
     min-width: 3.5ch;
-    text-align: right;
+    text-align: end;
 }
 
 /* El contenedor se centra solo con el JS,
@@ -1280,14 +1279,18 @@
     outline: 3px solid var(--red);
     outline-offset: 2px;
 }
-.screenshot-nav--prev { left: -16px; }
-.screenshot-nav--next { right: -16px; }
+.screenshot-nav--prev { inset-inline-start: -16px; }
+.screenshot-nav--next { inset-inline-end: -16px; }
+
+/* RTL: las flechas se colocan solas al lado correcto (inline-start/end);
+   sus iconos se invierten para seguir apuntando en la dirección correcta */
+[dir="rtl"] .screenshot-nav svg.pxi { transform: scaleX(-1); }
 
 /* Contador estilo etiqueta de caja */
 .screenshot-counter {
     position: absolute;
     top: 18px;
-    right: 18px;
+    inset-inline-end: 18px;
     z-index: 3;
     font-family: 'Press Start 2P', monospace;
     font-size: 0.6rem;
@@ -1366,7 +1369,7 @@
 }
 .screenshot-open .pxi {
     position: absolute;
-    right: 10px;
+    inset-inline-end: 10px;
     bottom: 10px;
     width: 32px;
     height: 32px;
@@ -1428,7 +1431,7 @@
 .screenshot-lightbox-close {
     position: absolute;
     top: -3.2rem;
-    right: 0;
+    inset-inline-end: 0;
     z-index: 5;
     width: 44px;
     height: 44px;
@@ -1654,7 +1657,7 @@
 /* ── Sello de región + ribbon Hack sobre el cover ── */
 .detail-region-seal {
     position: absolute;
-    right: 0.55rem;
+    inset-inline-end: 0.55rem;
     bottom: 0.55rem;
     z-index: 4;
     font-family: 'Press Start 2P', monospace;
@@ -1672,7 +1675,7 @@
 .detail-hack-ribbon {
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     z-index: 4;
     display: inline-flex;
     align-items: center;
@@ -1682,9 +1685,11 @@
     letter-spacing: 0.06em;
     color: var(--cream-light);
     background: var(--amber);
-    border-right: 3px solid var(--border-dark);
+    border-inline-end: 3px solid var(--border-dark);
     border-bottom: 3px solid var(--border-dark);
-    padding: 0.4rem 0.7rem 0.4rem 0.85rem;
+    padding-block: 0.4rem;
+    padding-inline-start: 0.85rem;
+    padding-inline-end: 0.7rem;
     box-shadow: 3px 3px 0 rgba(0,0,0,0.25);
     pointer-events: none;
 }
@@ -1698,7 +1703,7 @@
     white-space: normal;
     overflow-wrap: anywhere;
     max-width: 62%;
-    text-align: right;
+    text-align: end;
 }
 
 /* ── Stats: número destacado ── */
@@ -1751,8 +1756,9 @@
     font-size: 2.3rem;
     line-height: 1;
     color: var(--red);
-    float: left;
-    padding: 0.18rem 0.45rem 0 0;
+    float: inline-start;
+    padding-block-start: 0.18rem;
+    padding-inline-end: 0.45rem;
     text-shadow: 2px 2px 0 var(--border-mid);
 }
 
@@ -1769,7 +1775,7 @@
     border: 2px solid var(--amber);
     background: var(--cream-light);
     padding: 0.18rem 0.5rem;
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 .synopsis-hack-badge svg.pxi {
     width: 12px;
@@ -1806,15 +1812,15 @@
 
 /* ── Responsive de las mejoras ── */
 @media (max-width: 576px) {
-    .detail-region-seal { right: 0.4rem; bottom: 0.4rem; font-size: 0.42rem; padding: 0.25rem 0.4rem; }
-    .detail-hack-ribbon { font-size: 0.36rem; padding: 0.3rem 0.55rem 0.3rem 0.65rem; }
+    .detail-region-seal { inset-inline-end: 0.4rem; bottom: 0.4rem; font-size: 0.42rem; padding: 0.25rem 0.4rem; }
+    .detail-hack-ribbon { font-size: 0.36rem; padding-block: 0.3rem; padding-inline-start: 0.65rem; padding-inline-end: 0.55rem; }
     .detail-hack-ribbon svg.pxi { width: 10px; height: 10px; }
-    .detail-new-badge { font-size: 0.36rem; padding: 0.3rem 0.65rem 0.3rem 0.55rem; }
+    .detail-new-badge { font-size: 0.36rem; padding-block: 0.3rem; padding-inline-start: 0.55rem; padding-inline-end: 0.65rem; }
     .detail-new-badge svg.pxi { width: 10px; height: 10px; }
     .stat-chip-num { font-size: 0.42rem; }
     .stat-chip-label { font-size: 0.7rem; }
     .stat-chip--share { font-size: 0.72rem; padding: 0.3rem 0.6rem; }
-    .synopsis-hack-badge { margin-left: 0; }
+    .synopsis-hack-badge { margin-inline-start: 0; }
 }
 
 /* =====================================================
@@ -1825,7 +1831,7 @@
 .detail-new-badge {
     position: absolute;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     z-index: 4;
     display: inline-flex;
     align-items: center;
@@ -1835,9 +1841,11 @@
     letter-spacing: 0.06em;
     color: var(--cream-light);
     background: var(--red);
-    border-left: 3px solid var(--border-dark);
+    border-inline-start: 3px solid var(--border-dark);
     border-bottom: 3px solid var(--border-dark);
-    padding: 0.4rem 0.85rem 0.4rem 0.7rem;
+    padding-block: 0.4rem;
+    padding-inline-start: 0.7rem;
+    padding-inline-end: 0.85rem;
     box-shadow: -3px 3px 0 rgba(0,0,0,0.25);
     pointer-events: none;
 }
@@ -2022,7 +2030,7 @@
     color: var(--blue-btn);
     text-decoration: none;
     border-bottom: 2px solid transparent;
-    margin-left: 0.4rem;
+    margin-inline-start: 0.4rem;
     transition: color 0.15s, border-color 0.15s;
 }
 .howto-dl-link:hover {
@@ -2117,8 +2125,8 @@
     /* Carrusel de capturas en móvil: flechas dentro del marco */
     .screenshot-viewport { padding: 8px; }
     .screenshot-nav { width: 34px; height: 34px; }
-    .screenshot-nav--prev { left: 6px; }
-    .screenshot-nav--next { right: 6px; }
-    .screenshot-counter { top: 14px; right: 14px; font-size: 0.5rem; }
+    .screenshot-nav--prev { inset-inline-start: 6px; }
+    .screenshot-nav--next { inset-inline-end: 6px; }
+    .screenshot-counter { top: 14px; inset-inline-end: 14px; font-size: 0.5rem; }
     .screenshot-thumb { width: 60px; }
 }

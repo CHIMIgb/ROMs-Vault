@@ -57,7 +57,7 @@
     /* ─── Búsqueda ─── */
     .search-section { margin-bottom: 0.75rem; }
     .search-wrapper { max-width: 100%; }
-    .search-input { font-size: 0.85rem; padding: 0.55rem 2.5rem 0.55rem 0.65rem; }
+    .search-input { font-size: 0.85rem; padding-block: 0.55rem; padding-inline-start: 0.65rem; padding-inline-end: 2.5rem; }
 
     /* ─── Filtros ─── */
     .filters { padding: 0.5rem; margin-bottom: 0.75rem; }
@@ -65,7 +65,9 @@
     .filters select {
         width: 100%;
         font-size: 0.82rem;
-        padding: 0.4rem 2rem 0.4rem 0.55rem;
+        padding-block: 0.4rem;
+        padding-inline-start: 0.55rem;
+        padding-inline-end: 2rem;
         min-width: unset;
     }
     .filters button { width: 100%; font-size: 0.4rem; }
@@ -121,7 +123,7 @@
     /* Botones */
     .game-play { font-size: 0.36rem; padding: 0.38rem 0.3rem; }
     .game-download { font-size: 0.32rem; padding: 0.3rem 0.3rem; }
-    .game-download span { font-size: 0.7rem; margin-right: 0.08rem; }
+    .game-download span { font-size: 0.7rem; margin-inline-end: 0.08rem; }
     .game-actions { gap: 0.28rem; }
 
     /* ─── Paginación ─── */
