@@ -12,6 +12,7 @@ require_once __DIR__ . '/../config/Slug.php';
 require_once __DIR__ . '/../config/StorageService.php';
 require_once __DIR__ . '/../config/TraduccionService.php';
 require_once __DIR__ . '/../config/TraduccionWorker.php';
+require_once __DIR__ . '/../config/DrenadoTrigger.php';
 require_once __DIR__ . '/../config/IdiomasNormalizer.php';
 
 class AdminController {
@@ -411,41 +412,23 @@ class AdminController {
     }
 
     /**
-     * Opción A — «drenado oportunista»: responde al navegador con el redirect y,
-     * ya sin conexión que deba esperar, procesa unos pocos trabajos de la cola
-     * de traducciones (best-effort, con un presupuesto corto).
+     * Opción B — cierra el guardado al instante y dispara el drenado de la cola
+     * de traducciones en segundo plano.
      *
-     * Así el contenido queda traducido en segundos sin depender del cron (que en
-     * GitHub Actions se dispara de forma irregular) y sin bloquear al usuario.
-     * Sin proveedor configurado, TraduccionWorker::drenarOportunista() no toca
-     * la cola.
+     * El guardado responde el redirect YA (sin esperar las ~11 llamadas al
+     * proveedor) y DrenadoTrigger envía una petición interna «fire-and-forget»
+     * a endpoints/drain_traducciones.php, que procesa unos pocos trabajos.
+     *
+     * En este stack (php:8.2-apache, mod_php, sin fastcgi_finish_request) NO se
+     * puede responder y seguir trabajando dentro de la misma petición: por eso
+     * el drenado vive en una segunda petición que tampoco se espera.
+     *
+     * Fail-open: sin secreto, sin proveedor o si la conexión falla, el guardado
+     * sigue igual y el cron/worker retoma la cola.
      */
     private function responderYDrenar(): void {
         header('Location: /admin/dashboard');
-        header('Content-Length: 0');
-
-        // La respuesta ya está decidida: el drenado no debe retrasar al usuario
-        // ni abortarse si el cliente cierra la conexión.
-        ignore_user_abort(true);
-
-        // Liberar el lock de sesión: el drenado ocurre DESPUÉS de responder, pero
-        // dentro del mismo proceso; sin esto, la siguiente petición del admin
-        // esperaría a que termine.
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-
-        // Enviar la respuesta y seguir ejecutando (patrón best-effort).
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        } else {
-            while (ob_get_level() > 0) {
-                @ob_end_flush();
-            }
-            flush();
-        }
-
-        TraduccionWorker::drenarOportunista();
+        DrenadoTrigger::disparar();
     }
 
     /**

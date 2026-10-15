@@ -11,10 +11,10 @@ require_once __DIR__ . '/LoggerService.php';
  * (scripts/worker-traducciones.php) para poder reutilizarla en dos sitios:
  *
  *   1. El worker CLI (proceso persistente / cron).
- *   2. El «drenado oportunista» tras guardar en el admin (Opción A): se
- *      responde al navegador y, ya sin conexión abierta, se procesan unos
- *      pocos trabajos. Así las traducciones aparecen en segundos sin depender
- *      de que el cron se dispare.
+ *   2. El «drenado oportunista» tras guardar en el admin: el endpoint interno
+ *      endpoints/drain_traducciones.php procesa unos pocos trabajos en una
+ *      petición aparte (fire-and-forget) disparada por DrenadoTrigger. Así las
+ *      traducciones aparecen en segundos sin depender de que el cron se dispare.
  *
  * Reutiliza `TraduccionService::traducirEntidad()`, por lo que conserva sus
  * garantías: incremental por `origen_hash`, nunca pisa correcciones manuales
@@ -139,10 +139,12 @@ class TraduccionWorker
     }
 
     /**
-     * Drenado oportunista tras un guardado en el admin (Opción A).
+     * Drenado oportunista tras un guardado en el admin.
      *
-     * Best-effort y muy acotado. Solo actúa si hay proveedor configurado: sin
-     * él, `traducirEntidad()` devolvería error y quemaría intentos de la cola
+     * Lo ejecuta el endpoint interno endpoints/drain_traducciones.php (petición
+     * aparte, fire-and-forget, disparada por DrenadoTrigger). Best-effort y muy
+     * acotado. Solo actúa si hay proveedor configurado: sin él,
+     * `traducirEntidad()` devolvería error y quemaría intentos de la cola
      * (nunca tocamos la cola en ese caso).
      *
      * El tamaño se puede ajustar con TRANSLATE_OPORTUNISTA_MAX (trabajos) y

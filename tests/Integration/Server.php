@@ -66,6 +66,12 @@ class Server {
             // tanto puede romper el guardado. Con el proveedor apagado no hay
             // red ni traducciones: solo un job pendiente por entidad.
             'TRANSLATE_MODE'     => 'async',
+            // Secreto del endpoint interno de drenado (DrenadoTrigger ->
+            // endpoints/drain_traducciones.php). Con el proveedor apagado el
+            // disparo es no-op, así que el guardado nunca abre un socket en
+            // los tests; el valor fijo solo sirve para ejercitar el endpoint
+            // directamente en DrainEndpointTest.
+            'INTERNAL_DRAIN_SECRET' => 'secreto-de-prueba-drenado',
             'JWT_SECRET'      => $jwtSecret,
             'JWT_EXPIRATION'  => '3600',
             'AUTH_LOG_DIR'    => sys_get_temp_dir() . '/rv_logs_test',

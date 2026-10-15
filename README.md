@@ -354,7 +354,7 @@ El proyecto incluye soporte para internacionalización de la interfaz (`es` como
 ### Configuración con DeepL (API Free)
 
 La traducción de contenido usa **DeepL** (servicio en la nube): no requiere
-servidor ni contenedor. En modo `async` la app drena la cola ella misma tras
+servidor ni contenedor. En modo `async` la app dispara el drenado de la cola tras
 cada guardado (drenado oportunista, ver más abajo); un worker/cron es opcional
 como red de seguridad.
 
@@ -378,6 +378,8 @@ TRANSLATE_TIMEOUT=8
 TRANSLATE_MODE=async           # async (cola + drenado oportunista) | sync
 TRANSLATE_OPORTUNISTA_MAX=3    # trabajos de la cola drenados tras cada guardado
 TRANSLATE_OPORTUNISTA_PRESUPUESTO=5   # segundos de presupuesto para ese drenado
+INTERNAL_DRAIN_SECRET=         # secreto del endpoint interno de drenado
+INTERNAL_DRAIN_URL=            # [opcional] URL interna del endpoint (se deriva del puerto)
 ```
 
 ### Traducción al guardar (modo async)
@@ -385,17 +387,24 @@ TRANSLATE_OPORTUNISTA_PRESUPUESTO=5   # segundos de presupuesto para ese drenado
 Al guardar en el admin, el trabajo se **encola** en `traduccion_cola` y el
 guardado responde al instante. La cola se drena de dos formas:
 
-- **Drenado oportunista (Opción A)**: tras responder el `302`, el propio proceso
-  procesa hasta `TRANSLATE_OPORTUNISTA_MAX` trabajos con un presupuesto de
-  `TRANSLATE_OPORTUNISTA_PRESUPUESTO` segundos. Las traducciones aparecen en
-  segundos sin depender del cron y sin bloquear al usuario. Es fail-open: sin
-  proveedor configurado no toca la cola.
+- **Drenado oportunista**: el guardado responde el `302` de inmediato y
+  `DrenadoTrigger` lanza una **segunda petición interna** (fire-and-forget) a
+  `endpoints/drain_traducciones.php`, que procesa hasta `TRANSLATE_OPORTUNISTA_MAX`
+  trabajos con un presupuesto de `TRANSLATE_OPORTUNISTA_PRESUPUESTO` segundos.
+  Como el drenado vive en otra petición, el formulario no espera: las
+  traducciones aparecen en segundos sin depender del cron. Es fail-open: sin
+  proveedor configurado no toca la cola, y sin `INTERNAL_DRAIN_SECRET` se omite
+  el disparo. El endpoint solo acepta peticiones con la cabecera
+  `X-Internal-Drain` correcta (comparada en tiempo constante).
 - **Worker/cron (red de seguridad)**: `scripts/worker-traducciones.php --una-vez`
   (proceso persistente o cron; ver `.github/workflows/worker-traducciones.yml`).
 
 El procesamiento de cada trabajo vive en `src/config/TraduccionWorker.php` y lo
-comparten el admin y el worker CLI. Con `TRANSLATE_MODE=sync` se traduce dentro de
-la misma petición y no se usa la cola.
+comparten el endpoint de drenado y el worker CLI. Con `TRANSLATE_MODE=sync` se
+traduce dentro de la misma petición y no se usa la cola.
+
+Genera el secreto con `php -r "echo bin2hex(random_bytes(32));"` y ponlo en `.env`
+y en las variables de entorno de Vercel como `INTERNAL_DRAIN_SECRET`.
 
 ### Backfill de traducciones (BD local/Neon)
 
