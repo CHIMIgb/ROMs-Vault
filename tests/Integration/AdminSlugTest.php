@@ -1,11 +1,11 @@
 <?php
 /**
  * tests/Integration/AdminSlugTest.php
- * Generación y edición de slugs desde el panel admin (ítem 7.2):
+ * Generación de slugs desde el panel admin (ítem 7.2):
  *  - al crear una consola/juego, el slug se deriva del nombre/título
- *    (el formulario de alta ya no incluye el campo slug; uno enviado se ignora);
- *  - al editar, el admin puede fijar el slug a mano;
- *  - al editar sin tocar el slug, este se conserva (estable, decisión D2).
+ *    (el formulario ya no incluye el campo slug; uno enviado se ignora);
+ *  - al editar, se conserva el slug actual (estable, decisión D2) y un slug
+ *    enviado por POST se ignora.
  */
 
 namespace Tests\Integration;
@@ -58,10 +58,9 @@ class AdminSlugTest extends IntegrationTestCase {
         $this->assertNotSame('mi-slug-manual', $slug);
     }
 
-    public function testEditarConsolaRespetaSlugManual(): void {
+    public function testEditarConsolaConservaSlugActual(): void {
         $this->login();
-        $nombre     = self::unique('Editar Slug');
-        $slugManual = self::unique('slug-a-mano');
+        $nombre = self::unique('Editar Slug');
 
         // Crear la consola (el slug se autogenera)
         $this->get('/consola/add');
@@ -71,15 +70,18 @@ class AdminSlugTest extends IntegrationTestCase {
             'fabricante'       => '',
             'emulacion_online' => '1',
         ]);
-        $stmt = $this->pdo()->prepare('SELECT id FROM consolas WHERE nombre = ?');
+        $stmt = $this->pdo()->prepare('SELECT id, slug FROM consolas WHERE nombre = ?');
         $stmt->execute([$nombre]);
-        $id = (int) $stmt->fetch()['id'];
+        $row          = $stmt->fetch();
+        $id           = (int) $row['id'];
+        $slugOriginal = (string) $row['slug'];
 
-        // Editar fijando el slug a mano (permitido en edición)
+        // Al editar se ignora cualquier slug enviado y se conserva el actual
+        // (estable: editar NO cambia la URL, decisión D2 del ítem 7.2).
         $this->get('/consola/edit/' . $id);
         $resp = $this->post('/consola/edit/' . $id, [
             'nombre'           => $nombre,
-            'slug'             => $slugManual,
+            'slug'             => self::unique('slug-a-mano'),
             'descripcion'      => '',
             'fabricante'       => '',
             'emulacion_online' => '1',
@@ -88,7 +90,7 @@ class AdminSlugTest extends IntegrationTestCase {
 
         $stmt = $this->pdo()->prepare('SELECT slug FROM consolas WHERE id = ?');
         $stmt->execute([$id]);
-        $this->assertSame($slugManual, $stmt->fetch()['slug']);
+        $this->assertSame($slugOriginal, $stmt->fetch()['slug']);
     }
 
     public function testCrearJuegoGeneraSlugDesdeTitulo(): void {

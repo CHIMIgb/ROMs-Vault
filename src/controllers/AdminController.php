@@ -302,7 +302,6 @@ class AdminController {
 
             if (!isset($error)) {
                 $data['slug'] = $this->resolverSlugJuego(
-                    $_POST['slug'] ?? '',
                     $data['titulo'],
                     $juegoModel,
                     $juego['slug'] ?? null,
@@ -645,23 +644,17 @@ class AdminController {
 
     /**
      * Resuelve el slug de un juego (URL limpia /juego/{slug}).
-     *  - Si se recibe un slug manual (POST), se respeta (slugificado + único).
-     *  - Si no, en edición se conserva el slug actual (estable: editar el
-     *    título NO cambia la URL, decisión D2 del ítem 7.2).
+     *  - En edición se conserva el slug actual (estable: editar el título
+     *    NO cambia la URL, decisión D2 del ítem 7.2).
      *  - Si no hay slug previo, se genera desde el título.
      * $excludeId evita que el propio registro colisione consigo mismo.
      */
     private function resolverSlugJuego(
-        string $manual,
         string $titulo,
         Juego $model,
         ?string $slugActual = null,
         ?int $excludeId = null
     ): string {
-        $manual = trim($manual);
-        if ($manual !== '') {
-            return Slug::unique($manual, fn(string $s) => $model->slugExists($s, $excludeId), 'juego');
-        }
         if ($slugActual !== null && $slugActual !== '') {
             return $slugActual;
         }
