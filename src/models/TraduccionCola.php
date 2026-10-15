@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Modelo para la cola de traducciones asíncronas.
  * Usa raw PDO, sin ORM.
@@ -141,7 +142,7 @@ class TraduccionCola
                 'entidad_id'  => (int) $row['entidad_id'],
                 'campos'      => $campos,
                 'intentos'    => (int) $row['intentos'],
-                'max_intentos'=> (int) $row['max_intentos'],
+                'max_intentos' => (int) $row['max_intentos'],
             ];
         } catch (Exception $e) {
             try {

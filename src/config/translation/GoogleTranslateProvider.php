@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/AbstractTranslateProvider.php';
 
 /**
@@ -19,7 +20,6 @@ require_once __DIR__ . '/AbstractTranslateProvider.php';
  */
 
 class GoogleTranslateProvider extends AbstractTranslateProvider {
-
     private const ENDPOINT = 'https://translation.googleapis.com/language/translate/v2';
 
     /** Códigos de la app -> BCP-47 de Google. */

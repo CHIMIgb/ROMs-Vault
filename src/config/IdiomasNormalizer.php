@@ -1,4 +1,5 @@
 <?php
+
 /**
  * config/IdiomasNormalizer.php
  * Normaliza el campo `juegos.idiomas` (texto libre en español con erratas) a
@@ -23,7 +24,6 @@
  * No depende de iconv ni del locale: usa un mapa explícito y determinista.
  */
 class IdiomasNormalizer {
-
     /** Variante normalizada (minúsculas, sin acentos) => nombre canónico en español. */
     private const MAP = [
         'espanol'   => 'Español',

@@ -31,6 +31,11 @@
     <arg name="parallel" value="8"/>
 
     <rule ref="PSR12">
+        <!-- El proyecto NO usa autoloader ni PSR-4: cada fichero carga sus
+             dependencias con require_once, lo que dispara PSR1.Files.SideEffects
+             (aviso estructural, no un fallo de estilo). Se excluye para que el
+             gate de ficheros nuevos pueda pasar. -->
+        <exclude name="PSR1.Files.SideEffects"/>
         <!-- El proyecto NO usa namespaces en el código de app (sin PSR-4). -->
         <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
         <!-- El proyecto usa llaves en la misma línea (K&R), no en línea nueva. -->

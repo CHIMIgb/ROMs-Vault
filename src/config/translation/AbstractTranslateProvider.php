@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/TranslationProvider.php';
 
 /**
@@ -14,7 +15,6 @@ require_once __DIR__ . '/TranslationProvider.php';
  */
 
 abstract class AbstractTranslateProvider implements TranslationProvider {
-
     /** Tiempo máximo de espera de cada llamada, en segundos. */
     protected int $timeout;
 
@@ -26,7 +26,7 @@ abstract class AbstractTranslateProvider implements TranslationProvider {
         // Solo se envía lo que tiene contenido; los vacíos se devuelven tal cual.
         $enviar = [];
         foreach ($textos as $clave => $texto) {
-            if (is_string($texto) && trim($texto) !== '') {
+            if (trim($texto) !== '') {
                 $enviar[$clave] = $texto;
             }
         }
@@ -44,7 +44,7 @@ abstract class AbstractTranslateProvider implements TranslationProvider {
         $salida = $textos;
         $i = 0;
         foreach (array_keys($enviar) as $clave) {
-            if (isset($traducidos[$i]) && is_string($traducidos[$i]) && $traducidos[$i] !== '') {
+            if (isset($traducidos[$i]) && $traducidos[$i] !== '') {
                 $salida[$clave] = $traducidos[$i];
             }
             $i++;

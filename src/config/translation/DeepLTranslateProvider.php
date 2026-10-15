@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/AbstractTranslateProvider.php';
 
 /**
@@ -19,7 +20,6 @@ require_once __DIR__ . '/AbstractTranslateProvider.php';
  */
 
 class DeepLTranslateProvider extends AbstractTranslateProvider {
-
     /** Endpoint del plan Free (default). */
     public const DEFAULT_ENDPOINT = 'https://api-free.deepl.com/v2/translate';
 

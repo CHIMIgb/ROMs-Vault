@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/IdiomasNormalizer.php';
 require_once __DIR__ . '/i18n.php';
 
@@ -24,7 +25,6 @@ require_once __DIR__ . '/i18n.php';
  * "(parche)".
  */
 class IdiomasTranslations {
-
     /**
      * Nombre canónico en español => nombre localizado por idioma de la UI.
      * Estilo de etiqueta (inicial en mayúscula) para que los chips sean
@@ -132,11 +132,12 @@ class IdiomasTranslations {
             $nombre = self::MAP[$token][$target] ?? $token;
 
             if ($parche) {
-                $nombre .= ' (' . (self::PARCHE[$target] ?? 'parche') . ')';
+                // PARCHE cubre todos los idiomas de I18n::LANGUAGES; si se añade uno, PHPStan falla.
+                $nombre .= ' (' . self::PARCHE[$target] . ')';
             }
             $salida[] = $nombre;
         }
 
-        return $salida === [] ? null : implode(', ', $salida);
+        return implode(', ', $salida);
     }
 }

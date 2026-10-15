@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/TranslationProvider.php';
 
 /**
@@ -10,7 +11,6 @@ require_once __DIR__ . '/TranslationProvider.php';
  */
 
 class NullTranslateProvider implements TranslationProvider {
-
     public function name(): string {
         return 'none';
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * config/translation/TranslationProvider.php
  * Contrato común de los proveedores de traducción automática (i18n, bloque 2).
@@ -11,7 +12,6 @@
  */
 
 interface TranslationProvider {
-
     /** Nombre corto del proveedor (para logs y UI): none | deepl | google. */
     public function name(): string;
 

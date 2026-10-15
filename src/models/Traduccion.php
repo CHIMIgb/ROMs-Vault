@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/Model.php';
 
 /**
@@ -18,7 +19,6 @@ require_once __DIR__ . '/Model.php';
  * traductor automático (`auto`). La guarda vive en el ON CONFLICT (WHERE ...).
  */
 class Traduccion extends Model {
-
     /** @var string Tabla por defecto (no usada por los métodos propios). */
     protected $table = 'juegos_traducciones';
 

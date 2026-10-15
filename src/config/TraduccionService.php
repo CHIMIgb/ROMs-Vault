@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../models/TraduccionCola.php';
 require_once __DIR__ . '/../models/Traduccion.php';
 require_once __DIR__ . '/translation/TranslateProviderFactory.php';
@@ -26,7 +27,6 @@ require_once __DIR__ . '/IdiomasTranslations.php';
  * contenido continúa y este queda en 'es' hasta que se pueda traducir.
  */
 class TraduccionService {
-
     private static ?Traduccion $model = null;
 
     /** @var array<string,array> Caché por request: "tabla:idioma" => [id => fila]. */
@@ -48,8 +48,12 @@ class TraduccionService {
             return;
         }
 
-        $trad = self::mapa('categorias_traducciones', $idioma, $ids,
-            static fn(array $faltan) => self::model()->getCategorias($faltan, $idioma));
+        $trad = self::mapa(
+            'categorias_traducciones',
+            $idioma,
+            $ids,
+            static fn(array $faltan) => self::model()->getCategorias($faltan, $idioma)
+        );
 
         foreach ($filas as &$fila) {
             $id = (int) ($fila['id'] ?? 0);
@@ -71,8 +75,12 @@ class TraduccionService {
             return;
         }
 
-        $trad = self::mapa('juegos_traducciones', $idioma, $ids,
-            static fn(array $faltan) => self::model()->getJuegos($faltan, $idioma));
+        $trad = self::mapa(
+            'juegos_traducciones',
+            $idioma,
+            $ids,
+            static fn(array $faltan) => self::model()->getJuegos($faltan, $idioma)
+        );
 
         foreach ($filas as &$fila) {
             $id = (int) ($fila['id'] ?? 0);
@@ -104,8 +112,12 @@ class TraduccionService {
             return;
         }
 
-        $trad = self::mapa('categorias_traducciones', $idioma, array_keys($ids),
-            static fn(array $faltan) => self::model()->getCategorias($faltan, $idioma));
+        $trad = self::mapa(
+            'categorias_traducciones',
+            $idioma,
+            array_keys($ids),
+            static fn(array $faltan) => self::model()->getCategorias($faltan, $idioma)
+        );
 
         foreach ($filas as &$fila) {
             $id = (int) ($fila['categoria_id'] ?? 0);
@@ -132,7 +144,14 @@ class TraduccionService {
      * @param bool   $forzar  Si es true, ignora el hash e re-genera (respeta `manual`).
      * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes?:array<int,string>,dry_run?:bool,errores?:int,proveedor?:string}
      */
-    public static function traducirEntidad(string $entidad, int $id, array $campos, ?array $targets = null, bool $dryRun = false, bool $forzar = false): array {
+    public static function traducirEntidad(
+        string $entidad,
+        int $id,
+        array $campos,
+        ?array $targets = null,
+        bool $dryRun = false,
+        bool $forzar = false
+    ): array {
         $entidad = strtolower($entidad);
         if (!in_array($entidad, ['categoria', 'juego'], true)) {
             return ['ok' => false, 'motivo' => 'entidad_invalida', 'idiomas' => []];
@@ -164,16 +183,22 @@ class TraduccionService {
             static function (string $target, array $resultado, string $hash) use ($entidad, $id): void {
                 if ($entidad === 'categoria') {
                     self::model()->upsertCategoria(
-                        $id, $target,
+                        $id,
+                        $target,
                         $resultado['nombre'] ?? null,
                         $resultado['descripcion'] ?? null,
-                        'auto', false, $hash
+                        'auto',
+                        false,
+                        $hash
                     );
                 } else {
                     self::model()->upsertJuego(
-                        $id, $target,
+                        $id,
+                        $target,
                         $resultado['descripcion'] ?? null,
-                        'auto', false, $hash,
+                        'auto',
+                        false,
+                        $hash,
                         self::normalizarListaIdiomas($resultado['idiomas'] ?? null)
                     );
                 }
@@ -195,7 +220,13 @@ class TraduccionService {
      * @param bool $forzar Si es true, ignora el hash e re-genera (respeta `manual`).
      * @return array{ok:bool,motivo?:string,idiomas:array<int,string>,pendientes?:array<int,string>,dry_run?:bool,errores?:int,proveedor?:string}
      */
-    public static function traducirIdiomasJuego(int $id, array $campos, ?array $targets = null, bool $dryRun = false, bool $forzar = false): array {
+    public static function traducirIdiomasJuego(
+        int $id,
+        array $campos,
+        ?array $targets = null,
+        bool $dryRun = false,
+        bool $forzar = false
+    ): array {
         $campos  = self::limpiarCampos($campos);
         $idiomas = trim((string) ($campos['idiomas'] ?? ''));
         if ($idiomas === '') {
@@ -219,9 +250,12 @@ class TraduccionService {
             $dryRun,
             static function (string $target, array $resultado, string $hash) use ($id): void {
                 self::model()->upsertJuegoIdiomas(
-                    $id, $target,
+                    $id,
+                    $target,
                     self::normalizarListaIdiomas($resultado['idiomas'] ?? null),
-                    'auto', false, $hash
+                    'auto',
+                    false,
+                    $hash
                 );
             },
             $forzar
@@ -295,7 +329,7 @@ class TraduccionService {
 
         $res = $proveedor->translateBatch($enviar, I18n::DEFAULT_LANG, $target);
         foreach ($enviar as $clave => $_) {
-            if (isset($res[$clave]) && is_string($res[$clave]) && $res[$clave] !== '') {
+            if (isset($res[$clave]) && $res[$clave] !== '') {
                 $salida[$clave] = $res[$clave];
             }
         }
@@ -394,10 +428,12 @@ class TraduccionService {
                 continue;
             }
             // Sin cambios en el texto canónico: nada que hacer (incremental por hash).
-            if (!$forzar
+            if (
+                !$forzar
                 && $prev !== null
                 && ($prev['origen'] ?? '') === 'auto'
-                && (string) ($prev['origen_hash'] ?? '') === $hash) {
+                && (string) ($prev['origen_hash'] ?? '') === $hash
+            ) {
                 continue;
             }
 
@@ -563,5 +599,4 @@ class TraduccionService {
             return 0;
         }
     }
-
 }
