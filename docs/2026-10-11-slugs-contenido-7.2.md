@@ -1,7 +1,25 @@
 # Ítem 7.2 — Slugs de contenido y URLs limpias
 
 **Fecha:** 2026-10-11
+**Actualizado:** 2026-10-15 (slug 100 % automático)
 **Plan de origen:** `docs/_archivo/2026-10-07-plan-mejoras-seguridad-y-rendimiento.md` (§7.2)
+
+## Actualización (2026-10-15)
+
+El slug pasó a ser **100 % automático**:
+
+- Se eliminó el campo `slug` de los formularios de **edición** (`admin/edit.php`,
+  `admin/consolas/edit.php`); ya no se expone en ningún formulario.
+- Se quitó la rama de "slug manual" de `resolverSlugJuego()` /
+  `resolverSlugConsola()`: el slug se **genera** al crear y se **conserva** al
+  editar (D2).
+- Se borraron las claves i18n `admin.juego.slug*` y `admin.consola.slug*` de los
+  12 idiomas.
+- `AdminSlugTest`: la prueba de edición ahora verifica que se **conserva** el
+  slug actual (un `slug` enviado por POST se ignora).
+
+Los apartados siguientes (Decisiones, Código, i18n, Tests) describen el estado
+original del 2026-10-11.
 
 ## Objetivo
 
@@ -19,9 +37,10 @@ Las URLs legacy (`/home/show/{id}`, `/home/play?file_id=…` y sus equivalentes
 
 - **D1** — Se incluye `consolas.slug` y la página pública `/consolas/{slug}`.
 - **D2** — El slug es **estable**: se genera **automáticamente** al crear (desde
-  el título/nombre); editar el título/nombre NO cambia la URL. El slug **solo es
-  editable a mano desde el formulario de edición** (el de alta ya no incluye el
-  campo), para poder corregir/acortar una URL existente sin que se regenere sola.
+  el título/nombre); editar el título/nombre NO cambia la URL. *(Originalmente el
+  slug era editable a mano desde el formulario de edición; esa edición manual se
+  retiró el 2026-10-15 — ver «Actualización» —, así que el slug ya no se expone en
+  ningún formulario.)*
 - **D3** — El endurecimiento del `file_id` (firma por slug + proxy) se trata como
   ítem aparte.
 - **Nota de ruta** — Se usa `/consolas` (plural) para la página pública porque
@@ -54,24 +73,22 @@ Las URLs legacy (`/home/show/{id}`, `/home/play?file_id=…` y sus equivalentes
   `renderShow()`/`renderPlay()`/`renderPlayError()`/`renderNotFound()`; **301**
   desde legacy (el de `play` se hace antes de contar la jugada para no duplicar).
   Canonical/`og:url` → `/juego/{slug}`.
-- Admin (`AdminController`, `ConsolaController`): generación de slug al crear,
-  conservación al editar (D2), override manual vía campo `slug`; `slugify()`
-  delega en `Slug::make()`. Campo `slug` presente **solo** en los formularios de
-  edición (`admin/edit.php`, `admin/consolas/edit.php`, con texto de ayuda bajo
-  el input); los de alta (`admin/add.php`, `admin/consolas/add.php`) no lo
-  incluyen y el slug se genera siempre desde el título/nombre.
+- Admin (`AdminController`, `ConsolaController`): generación de slug al crear y
+  conservación al editar (D2); `slugify()` delega en `Slug::make()`. *(2026-10-15:
+  se eliminó el override manual y el campo `slug` de los formularios de edición,
+  así que el slug no se expone en ningún formulario.)*
 - Vistas/endpoints: enlaces migrados a slug (con fallback a legacy) en
   `home/index.php`, `components/related_games.php`, `components/game_actions.php`,
   `endpoints/ajax_catalog.php`, `endpoints/ajax_autocomplete.php`.
-- i18n: claves `admin.juego.slug[_placeholder]` y `admin.consola.slug[_placeholder]`
-  en los 6 idiomas (paridad mantenida).
+- i18n: *(2026-10-15)* se eliminaron las claves `admin.juego.slug*` y
+  `admin.consola.slug*`, ya sin uso, de los 12 idiomas.
 
 ### Tests
 - `tests/Integration/SlugRoutingTest.php` (9 pruebas): 200 por slug, 404 en slug
   inexistente, 301 desde `/home/show/{id}` y `index.php?controller=home&action=show`,
   301 desde `/home/play?file_id=`, y catálogo por consola.
-- `tests/Integration/AdminSlugTest.php` (3 pruebas): slug generado desde
-  nombre/título y slug manual en el alta de consola y juego.
+- `tests/Integration/AdminSlugTest.php`: slug generado desde nombre/título al
+  crear, un `slug` enviado se ignora, y al editar se conserva el slug actual.
 
 ## Verificación
 
