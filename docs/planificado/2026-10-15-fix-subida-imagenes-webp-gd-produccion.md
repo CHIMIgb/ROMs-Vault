@@ -1,7 +1,7 @@
 # Subida de imágenes en producción: falta soporte WebP en GD (Dockerfile)
 
 **Fecha:** 2026-10-15
-**Estado:** planificado (se implementa el 2026-10-16)
+**Estado:** implementado (2026-10-15; pendiente de deploy en Vercel)
 **Ámbito:** subida y conversión de imágenes del admin en producción (Vercel)
 **Síntoma:** HTTP 500 al editar un juego con portada nueva
 **Relacionados:** `Dockerfile`, `src/controllers/AdminController.php`

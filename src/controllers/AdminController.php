@@ -518,8 +518,10 @@ class AdminController {
             return ['success' => false, 'error' => t('msg.imagen_demasiado_grande')];
         }
 
-        // Verificar si la librería GD está activa en el servidor
-        if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
+        // Verificar que GD esté activa y pueda ESCRIBIR WebP (formato de salida).
+        // Sin esta comprobación, imagewebp() provocaría un fatal (no un warning)
+        // y el admin devolvería un 500 en lugar de un error controlado.
+        if (!extension_loaded('gd') || !function_exists('imagewebp')) {
             return ['success' => false, 'error' => t('msg.gd_no_activada')];
         }
 
@@ -541,6 +543,10 @@ class AdminController {
                 $image = @imagecreatefromgif($file['tmp_name']);
                 break;
             case 'image/webp':
+                // GD sin soporte WebP no define imagecreatefromwebp(): evita el fatal.
+                if (!function_exists('imagecreatefromwebp')) {
+                    return ['success' => false, 'error' => t('msg.gd_no_activada')];
+                }
                 $image = @imagecreatefromwebp($file['tmp_name']);
                 break;
         }
