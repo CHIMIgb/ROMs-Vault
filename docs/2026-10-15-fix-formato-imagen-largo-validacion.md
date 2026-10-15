@@ -113,10 +113,14 @@ devuelve el error de formulario en vez de un 500.
 - `region` se amplió aunque el formulario no puede desbordarlo: defensa en
   profundidad.
 
-## 7. Pendiente (fuera de este fix)
+## 7. Idiomas que no se traducían
 
-Los idiomas de juegos nuevos/editados **no se traducen**: el encolado funciona
-(`traduccion_cola`), el worker CLI funciona, pero el **cron de GitHub Actions
+Los idiomas de juegos nuevos/editados **no se traducían**: el encolado funcionaba
+(`traduccion_cola`) y el worker CLI también, pero el **cron de GitHub Actions
 solo se disparó 2 veces en 11 horas** (esperado cada 5 min), por lo que la cola
-casi nunca se drena. Decisión de diseño pendiente (drenado desde la app,
-`workflow_dispatch`, u otro). Ver el análisis en la conversación.
+casi nunca se drenaba.
+
+Resuelto con el **drenado oportunista** (Opción A) descrito en
+`docs/2026-10-15-drenado-oportunista-traducciones.md`: tras responder el guardado,
+el admin procesa unos pocos trabajos de la cola sin bloquear al usuario. El job
+pendiente de `juego/156` ya se drenó en producción.

@@ -11,6 +11,7 @@ require_once __DIR__ . '/../config/RateLimiter.php';
 require_once __DIR__ . '/../config/Slug.php';
 require_once __DIR__ . '/../config/StorageService.php';
 require_once __DIR__ . '/../config/TraduccionService.php';
+require_once __DIR__ . '/../config/TraduccionWorker.php';
 require_once __DIR__ . '/../config/IdiomasNormalizer.php';
 
 class AdminController {
@@ -183,7 +184,7 @@ class AdminController {
                         (string) ($data['descripcion'] ?? ''),
                         (string) ($data['idiomas'] ?? '')
                     );
-                    header('Location: /admin/dashboard');
+                    $this->responderYDrenar();
                     exit;
                 } else {
                     $error = t('msg.juego_guardar_error');
@@ -372,7 +373,7 @@ class AdminController {
                         (string) ($data['descripcion'] ?? ''),
                         (string) ($data['idiomas'] ?? '')
                     );
-                    header('Location: /admin/dashboard');
+                    $this->responderYDrenar();
                     exit;
                 } else {
                     $error = t('msg.juego_actualizar_error');
@@ -407,6 +408,44 @@ class AdminController {
             return;
         }
         TraduccionService::traducirEntidad('juego', $id, $campos);
+    }
+
+    /**
+     * Opción A — «drenado oportunista»: responde al navegador con el redirect y,
+     * ya sin conexión que deba esperar, procesa unos pocos trabajos de la cola
+     * de traducciones (best-effort, con un presupuesto corto).
+     *
+     * Así el contenido queda traducido en segundos sin depender del cron (que en
+     * GitHub Actions se dispara de forma irregular) y sin bloquear al usuario.
+     * Sin proveedor configurado, TraduccionWorker::drenarOportunista() no toca
+     * la cola.
+     */
+    private function responderYDrenar(): void {
+        header('Location: /admin/dashboard');
+        header('Content-Length: 0');
+
+        // La respuesta ya está decidida: el drenado no debe retrasar al usuario
+        // ni abortarse si el cliente cierra la conexión.
+        ignore_user_abort(true);
+
+        // Liberar el lock de sesión: el drenado ocurre DESPUÉS de responder, pero
+        // dentro del mismo proceso; sin esto, la siguiente petición del admin
+        // esperaría a que termine.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
+        // Enviar la respuesta y seguir ejecutando (patrón best-effort).
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        } else {
+            while (ob_get_level() > 0) {
+                @ob_end_flush();
+            }
+            flush();
+        }
+
+        TraduccionWorker::drenarOportunista();
     }
 
     /**

@@ -280,6 +280,40 @@ class WorkerTraduccionesTest extends IntegrationTestCase {
         $this->assertSame(0, (int) $fila['intentos'], 'No se queman intentos al no arrancar.');
     }
 
+    // ── Drenado oportunista tras el guardado (Opción A) ───────────────────
+
+    /**
+     * Sin proveedor configurado el drenado oportunista no toca la cola real:
+     * el trabajo sigue pendiente y no se queman intentos. Es exactamente el
+     * caso de la suite (TRANSLATE_PROVIDER=none) y del guardado en el admin
+     * cuando aún no hay proveedor.
+     */
+    public function testDrenarOportunistaSinProveedorNoTocaLaCola(): void {
+        $previo = $_ENV['TRANSLATE_PROVIDER'] ?? null;
+        $_ENV['TRANSLATE_PROVIDER'] = 'none';
+        putenv('TRANSLATE_PROVIDER=none');
+
+        try {
+            self::cola()->encolar('juego', 21, ['descripcion' => 'x']);
+
+            $resumen = \TraduccionWorker::drenarOportunista();
+
+            $this->assertSame(['procesados' => 0, 'ok' => 0, 'error' => 0], $resumen);
+
+            $fila = $this->filasCola()[0];
+            $this->assertSame('pendiente', $fila['estado'], 'No debe reclamarse sin proveedor.');
+            $this->assertSame(0, (int) $fila['intentos'], 'No se queman intentos.');
+            $this->assertNull($fila['bloqueado_en']);
+        } finally {
+            if ($previo === null) {
+                unset($_ENV['TRANSLATE_PROVIDER']);
+            } else {
+                $_ENV['TRANSLATE_PROVIDER'] = $previo;
+            }
+            putenv('TRANSLATE_PROVIDER=' . ($previo ?? ''));
+        }
+    }
+
     /**
      * El worker nunca debe hacer trabajo si se pide por HTTP: el guard de
      * PHP_SAPI lo deja salir sin tocar la cola y sin filtrar código fuente.
