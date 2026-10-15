@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "اختر جهازاً صالحاً بدون محاكٍ مضبوط.",
     "msg.emulador_guardar_error": "حدث خطأ أثناء حفظ المحاكي. راجع البيانات وحاول مرة أخرى.",
     "msg.emulador_nombre_largo": "لا يمكن أن يتجاوز اسم المحاكي 100 حرف.",
+    "msg.campo_largo": "لا يمكن أن يتجاوز الحقل {campo} {limite} حرفًا.",
     "msg.emulador_nombre_obligatorio": "اسم المحاكي إلزامي.",
     "msg.emulador_plataforma_obligatoria": "اختر منصة واحدة على الأقل (كمبيوتر أو أندرويد).",
     "msg.emulador_url_invalida": "يجب أن يكون رابط المحاكي عنواناً صالحاً (يتضمن http:// أو https://).",

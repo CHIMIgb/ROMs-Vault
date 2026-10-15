@@ -17,6 +17,26 @@ class AdminController {
     // Máximo de capturas por juego (el carrusel ya replica la portada si no hay capturas)
     private const MAX_CAPTURAS = 7;
 
+    /**
+     * Longitud máxima de cada campo editable de `juegos` con columna VARCHAR,
+     * junto a la clave i18n de su etiqueta. Debe coincidir con el esquema
+     * (data/roms-vaultDB-postgreSQL.sql) y con los `maxlength` de los
+     * formularios (views/admin/add.php, views/admin/edit.php).
+     *
+     * Valida ANTES de tocar la BD para no provocar el
+     * PDOException 22001 (value too long for type character varying) que
+     * devolvía un HTTP 500 al guardar.
+     */
+    private const JUEGO_LIMITES = [
+        'titulo'                 => ['max' => 200, 'label' => 'admin.juego.titulo'],
+        'region'                 => ['max' => 50,  'label' => 'admin.juego.region'],
+        'idiomas'                => ['max' => 200, 'label' => 'admin.juego.idiomas'],
+        'formato_imagen'         => ['max' => 50,  'label' => 'admin.juego.formato'],
+        'game_id_code'           => ['max' => 50,  'label' => 'admin.juego.game_id_code'],
+        'google_drive_file_id'   => ['max' => 100, 'label' => 'admin.juego.google_drive_file_id'],
+        'google_drive_view_link' => ['max' => 500, 'label' => 'admin.juego.google_drive_view_link'],
+    ];
+
     /** Capa de almacenamiento (R2 o disco local según credenciales). */
     private StorageService $storage;
 
@@ -89,6 +109,14 @@ class AdminController {
             // (evita re-ensuciar el campo y que la traducción reciba erratas).
             $data['idiomas'] = IdiomasNormalizer::normalizar($data['idiomas'] ?? null);
 
+            // Validación de longitudes ANTES de tocar disco/R2: si algún campo
+            // desborda su columna, se muestra el error y no se sube nada.
+            $error = $this->validarJuego($data);
+        }
+
+        // Segunda fase: solo se procesa si el POST pasó la validación (o si no
+        // hubo POST). Evita efectos secundarios cuando hay error de validación.
+        if (isset($data) && !isset($error)) {
             $consolaNombre = $this->obtenerConsolaNombre((int)$data['consola_id']);
 
             // ── Prefijo del juego: {consola}/{juego}/ ──
@@ -140,7 +168,16 @@ class AdminController {
                 // (alta y edición) ya no expone el campo slug; en edición el
                 // slug actual se conserva (ver resolverSlugJuego()).
                 $data['slug'] = Slug::unique($data['titulo'], fn(string $s) => $juegoModel->slugExists($s), 'juego');
-                if ($juegoModel->create($data)) {
+                try {
+                    $creado = $juegoModel->create($data);
+                } catch (PDOException $e) {
+                    // Red de seguridad: la validación cubre las longitudes, pero
+                    // ante cualquier otro dato inválido devolvemos error de
+                    // formulario en lugar de un HTTP 500.
+                    error_log('[admin/add] create fallo: ' . $e->getMessage());
+                    $creado = false;
+                }
+                if ($creado) {
                     $this->autoTraducirJuego(
                         (int) $juegoModel->lastInsertId(),
                         (string) ($data['descripcion'] ?? ''),
@@ -196,6 +233,19 @@ class AdminController {
             // Normaliza la lista de idiomas a nombres canónicos antes de guardar.
             $data['idiomas'] = IdiomasNormalizer::normalizar($data['idiomas'] ?? null);
 
+            // Validación de longitudes ANTES de mover objetos en R2 o subir
+            // archivos: si algún campo desborda su columna no hay efectos
+            // secundarios. Se refleja lo enviado en $juego para que el formulario
+            // (edit.php pinta desde $juego) no pierda la entrada del usuario.
+            $error = $this->validarJuego($data);
+            if ($error !== null) {
+                $juego = array_merge($juego, $data);
+            }
+        }
+
+        // Segunda fase: solo se procesa si el POST pasó la validación (o si no
+        // hubo POST). Evita mover/borrar archivos cuando hay error de validación.
+        if (isset($data) && !isset($error)) {
             $consolaAnterior = (int)$juego['consola_id'];
             $tituloAnterior  = $juego['titulo'];
             $consolaNuevaId  = (int)$data['consola_id'];
@@ -307,7 +357,16 @@ class AdminController {
                     $juego['slug'] ?? null,
                     (int) $juego['id']
                 );
-                if ($juegoModel->update($id, $data)) {
+                try {
+                    $actualizado = $juegoModel->update($id, $data);
+                } catch (PDOException $e) {
+                    // Red de seguridad: la validación cubre las longitudes, pero
+                    // ante cualquier otro dato inválido devolvemos error de
+                    // formulario en lugar de un HTTP 500.
+                    error_log('[admin/edit] update(' . $id . ') fallo: ' . $e->getMessage());
+                    $actualizado = false;
+                }
+                if ($actualizado) {
                     $this->autoTraducirJuego(
                         (int) $id,
                         (string) ($data['descripcion'] ?? ''),
@@ -348,6 +407,26 @@ class AdminController {
             return;
         }
         TraduccionService::traducirEntidad('juego', $id, $campos);
+    }
+
+    /**
+     * Valida las longitudes de los campos editables de un juego contra los
+     * límites de sus columnas (self::JUEGO_LIMITES).
+     *
+     * Devuelve el mensaje de error ya traducido, o null si todo es válido.
+     * Pensada para ejecutarse antes de cualquier efecto secundario (subida de
+     * archivos, movimientos en R2, escritura en BD).
+     */
+    private function validarJuego(array $data): ?string {
+        foreach (self::JUEGO_LIMITES as $campo => $limite) {
+            if (mb_strlen((string) ($data[$campo] ?? '')) > $limite['max']) {
+                return t('msg.campo_largo', [
+                    'campo'  => t($limite['label']),
+                    'limite' => $limite['max'],
+                ]);
+            }
+        }
+        return null;
     }
 
     public function toggleActive($id) {

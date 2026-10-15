@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "Selecione um console válido sem emulador configurado.",
     "msg.emulador_guardar_error": "Erro ao salvar o emulador. Verifique os dados e tente novamente.",
     "msg.emulador_nombre_largo": "O nome do emulador não pode ultrapassar 100 caracteres.",
+    "msg.campo_largo": "O campo {campo} não pode ultrapassar {limite} caracteres.",
     "msg.emulador_nombre_obligatorio": "O nome do emulador é obrigatório.",
     "msg.emulador_plataforma_obligatoria": "Selecione pelo menos uma plataforma (PC ou Android).",
     "msg.emulador_url_invalida": "A URL do emulador deve ser um endereço válido (inclua http:// ou https://).",

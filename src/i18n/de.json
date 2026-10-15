@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "Wähle eine gültige Konsole ohne konfigurierten Emulator.",
     "msg.emulador_guardar_error": "Fehler beim Speichern des Emulators. Prüfe die Daten und versuche es erneut.",
     "msg.emulador_nombre_largo": "Der Name des Emulators darf 100 Zeichen nicht überschreiten.",
+    "msg.campo_largo": "Das Feld {campo} darf {limite} Zeichen nicht überschreiten.",
     "msg.emulador_nombre_obligatorio": "Der Name des Emulators ist erforderlich.",
     "msg.emulador_plataforma_obligatoria": "Wähle mindestens eine Plattform (PC oder Android).",
     "msg.emulador_url_invalida": "Die Emulator-URL muss eine gültige Adresse sein (mit http:// oder https://).",

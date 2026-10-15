@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "Sélectionnez une console valide sans émulateur configuré.",
     "msg.emulador_guardar_error": "Erreur lors de l'enregistrement de l'émulateur. Vérifiez les données et réessayez.",
     "msg.emulador_nombre_largo": "Le nom de l'émulateur ne peut pas dépasser 100 caractères.",
+    "msg.campo_largo": "Le champ {campo} ne peut pas dépasser {limite} caractères.",
     "msg.emulador_nombre_obligatorio": "Le nom de l'émulateur est obligatoire.",
     "msg.emulador_plataforma_obligatoria": "Sélectionnez au moins une plateforme (PC ou Android).",
     "msg.emulador_url_invalida": "L'URL de l'émulateur doit être une adresse valide (incluez http:// ou https://).",

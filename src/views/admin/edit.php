@@ -18,6 +18,7 @@
                    id="titulo"
                    name="titulo" 
                    value="<?= htmlspecialchars($juego['titulo'] ?? '') ?>" 
+                   maxlength="200"
                    required>
         </div>
 
@@ -87,6 +88,7 @@
                        id="idiomas"
                        name="idiomas" 
                        value="<?= htmlspecialchars($juego['idiomas'] ?? '') ?>"
+                       maxlength="200"
                        placeholder="<?= t('admin.juego.idiomas_placeholder') ?>">
             </div>
             
@@ -96,6 +98,7 @@
                        id="formato_imagen"
                        name="formato_imagen" 
                        value="<?= htmlspecialchars($juego['formato_imagen'] ?? '') ?>"
+                       maxlength="50"
                        placeholder="<?= t('admin.juego.formato_placeholder') ?>">
             </div>
         </div>
@@ -107,6 +110,7 @@
                    id="game_id_code"
                    name="game_id_code" 
                    value="<?= htmlspecialchars($juego['game_id_code'] ?? '') ?>"
+                   maxlength="50"
                    placeholder="<?= t('admin.juego.game_id_code_placeholder') ?>">
         </div>
         
@@ -117,6 +121,7 @@
                    id="google_drive_file_id"
                    name="google_drive_file_id" 
                    value="<?= htmlspecialchars($juego['google_drive_file_id'] ?? '') ?>" 
+                   maxlength="100"
                    required>
             <small><?= t('admin.juego.google_drive_file_id_ayuda') ?></small>
         </div>
@@ -126,7 +131,8 @@
             <input type="url" 
                    id="google_drive_view_link"
                    name="google_drive_view_link" 
-                   value="<?= htmlspecialchars($juego['google_drive_view_link'] ?? '') ?>">
+                   value="<?= htmlspecialchars($juego['google_drive_view_link'] ?? '') ?>"
+                   maxlength="500">
         </div>
         
         <!-- Tamaño -->

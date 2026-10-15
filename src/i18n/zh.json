@@ -411,6 +411,7 @@
     "msg.emulador_consola_invalida": "请选择一台尚未配置模拟器的有效主机。",
     "msg.emulador_guardar_error": "保存模拟器时出错。请检查数据后重试。",
     "msg.emulador_nombre_largo": "模拟器名称不能超过 100 个字符。",
+    "msg.campo_largo": "{campo}不能超过 {limite} 个字符。",
     "msg.emulador_nombre_obligatorio": "模拟器名称是必填项。",
     "msg.emulador_plataforma_obligatoria": "请至少选择一个平台（PC 或 Android）。",
     "msg.emulador_url_invalida": "模拟器 URL 必须是有效地址（包含 http:// 或 https://）。",
