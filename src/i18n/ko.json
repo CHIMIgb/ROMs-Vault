@@ -584,11 +584,5 @@
     "component.consolas": "개의 콘솔",
     "component.consolas_con_emulador": "개의 에뮬레이터 있는 콘솔",
     "play.error_sin_juego": "오류: 재생할 게임이 지정되지 않았습니다.",
-    "play.error_juego_no_existe": "오류: 요청한 게임이 데이터베이스에 없습니다.",
-    "admin.juego.slug": "슬러그(URL)",
-    "admin.juego.slug_placeholder": "제목에서 자동 생성됩니다. 편집 가능.",
-    "admin.consola.slug": "슬러그(URL)",
-    "admin.consola.slug_placeholder": "이름에서 자동 생성됩니다. 편집 가능.",
-    "admin.juego.slug_ayuda": "공개 URL의 마지막 부분(/juego/…). 제목에서 자동 생성됩니다. 주소를 수정하려는 경우에만 변경하세요(이전 링크는 작동하지 않게 됩니다).",
-    "admin.consola.slug_ayuda": "공개 URL의 마지막 부분(/consolas/…). 이름에서 자동 생성됩니다. 주소를 수정하려는 경우에만 변경하세요(이전 링크는 작동하지 않게 됩니다)."
+    "play.error_juego_no_existe": "오류: 요청한 게임이 데이터베이스에 없습니다."
 }

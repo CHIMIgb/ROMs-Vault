@@ -584,11 +584,5 @@
     "component.consolas": "console",
     "component.consolas_con_emulador": "console con emulatore",
     "play.error_sin_juego": "Errore: non è stato specificato il gioco da riprodurre.",
-    "play.error_juego_no_existe": "Errore: il gioco richiesto non esiste nel database.",
-    "admin.juego.slug": "Slug (URL)",
-    "admin.juego.slug_placeholder": "Si genera da solo dal titolo. Modificabile.",
-    "admin.consola.slug": "Slug (URL)",
-    "admin.consola.slug_placeholder": "Si genera da solo dal nome. Modificabile.",
-    "admin.juego.slug_ayuda": "Parte finale dell'URL pubblico (/juego/…). Si genera da sola dal titolo; modificala solo se vuoi cambiare l'indirizzo (i link precedenti smetteranno di funzionare).",
-    "admin.consola.slug_ayuda": "Parte finale dell'URL pubblico (/consolas/…). Si genera da sola dal nome; modificala solo se vuoi cambiare l'indirizzo (i link precedenti smetteranno di funzionare)."
+    "play.error_juego_no_existe": "Errore: il gioco richiesto non esiste nel database."
 }

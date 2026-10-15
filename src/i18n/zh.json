@@ -584,11 +584,5 @@
     "component.consolas": "台主机",
     "component.consolas_con_emulador": "台已配置模拟器的主机",
     "play.error_sin_juego": "错误：未指定要游玩的游戏。",
-    "play.error_juego_no_existe": "错误：请求的游戏在数据库中不存在。",
-    "admin.juego.slug": "Slug（URL）",
-    "admin.juego.slug_placeholder": "根据标题自动生成。可编辑。",
-    "admin.consola.slug": "Slug（URL）",
-    "admin.consola.slug_placeholder": "根据名称自动生成。可编辑。",
-    "admin.juego.slug_ayuda": "公开 URL 的末尾部分（/juego/…）。会自动根据标题生成；仅当您想修改地址时才更改（旧链接将失效）。",
-    "admin.consola.slug_ayuda": "公开 URL 的末尾部分（/consolas/…）。会自动根据名称生成；仅当您想修改地址时才更改（旧链接将失效）。"
+    "play.error_juego_no_existe": "错误：请求的游戏在数据库中不存在。"
 }

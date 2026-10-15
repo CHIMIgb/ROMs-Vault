@@ -584,11 +584,5 @@
     "component.consolas": "konsol",
     "component.consolas_con_emulador": "emülatörlü konsol",
     "play.error_sin_juego": "Hata: Oynatılacak oyun belirtilmedi.",
-    "play.error_juego_no_existe": "Hata: İstenen oyun veritabanında mevcut değil.",
-    "admin.juego.slug": "Slug (URL)",
-    "admin.juego.slug_placeholder": "Başlıktan otomatik oluşturulur. Düzenlenebilir.",
-    "admin.consola.slug": "Slug (URL)",
-    "admin.consola.slug_placeholder": "Addan otomatik oluşturulur. Düzenlenebilir.",
-    "admin.juego.slug_ayuda": "Genel URL'nin son kısmı (/juego/…). Başlıktan otomatik oluşturulur; yalnızca adresi değiştirmek istiyorsanız değiştirin (eski bağlantılar çalışmayı durdurur).",
-    "admin.consola.slug_ayuda": "Genel URL'nin son kısmı (/consolas/…). Addan otomatik oluşturulur; yalnızca adresi değiştirmek istiyorsanız değiştirin (eski bağlantılar çalışmayı durdurur)."
+    "play.error_juego_no_existe": "Hata: İstenen oyun veritabanında mevcut değil."
 }

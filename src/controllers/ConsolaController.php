@@ -49,9 +49,9 @@ class ConsolaController {
                 $error = t('msg.consola_nombre_obligatorio');
             } else {
                 $consolaModel = new Consola();
-                // Al crear, el slug se genera siempre desde el nombre (el
-                // formulario de alta no incluye el campo slug). En edición sí
-                // puede fijarse a mano: ver resolverSlugConsola().
+                // Al crear, el slug se genera desde el nombre. El formulario
+                // (alta y edición) ya no expone el campo slug; en edición el
+                // slug actual se conserva (ver resolverSlugConsola()).
                 $ok = $consolaModel->create([
                     'nombre'           => $nombre,
                     'slug'             => Slug::unique($nombre, fn(string $s) => $consolaModel->slugExists($s), 'consola'),
@@ -103,7 +103,7 @@ class ConsolaController {
             } else {
                 $ok = $consolaModel->update($id, [
                     'nombre'           => $nombre,
-                    'slug'             => $this->resolverSlugConsola($_POST['slug'] ?? '', $nombre, $consolaModel, $consola['slug'] ?? null, (int) $consola['id']),
+                    'slug'             => $this->resolverSlugConsola($nombre, $consolaModel, $consola['slug'] ?? null, (int) $consola['id']),
                     'descripcion'      => $descripcion ?: null,
                     'fabricante'       => $fabricante  ?: null,
                     'activo'           => 1,
@@ -162,20 +162,15 @@ class ConsolaController {
 
     /**
      * Resuelve el slug de una consola (URL limpia /consolas/{slug}).
-     * Manual → se respeta; en edición se conserva el actual (estable, D2);
-     * si no hay, se genera desde el nombre.
+     * En edición se conserva el actual (estable, D2); si no hay, se genera
+     * desde el nombre.
      */
     private function resolverSlugConsola(
-        string $manual,
         string $nombre,
         Consola $model,
         ?string $slugActual = null,
         ?int $excludeId = null
     ): string {
-        $manual = trim($manual);
-        if ($manual !== '') {
-            return Slug::unique($manual, fn(string $s) => $model->slugExists($s, $excludeId), 'consola');
-        }
         if ($slugActual !== null && $slugActual !== '') {
             return $slugActual;
         }

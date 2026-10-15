@@ -150,3 +150,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: docker build
         run: docker build -t roms-vault:ci .
+      - name: Verificar GD con soporte WebP en la imagen
+        # La subida de imágenes del admin usa imagecreatefromwebp()/imagewebp();
+        # si GD no se compila con --with-webp, el sitio devuelve 500. Aquí se
+        # corta el CI antes de desplegar una imagen sin WebP.
+        run: |
+          docker run --rm --entrypoint php roms-vault:ci \
+            -r "exit(function_exists('imagewebp') && function_exists('imagecreatefromwebp') ? 0 : 1);"
