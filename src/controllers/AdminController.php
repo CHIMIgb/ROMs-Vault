@@ -136,9 +136,9 @@ class AdminController {
 
             if (!isset($error)) {
                 $juegoModel = new Juego();
-                // Al crear, el slug se genera siempre desde el título (el
-                // formulario de alta no incluye el campo slug). En edición sí
-                // puede fijarse a mano: ver resolverSlugJuego().
+                // Al crear, el slug se genera desde el título. El formulario
+                // (alta y edición) ya no expone el campo slug; en edición el
+                // slug actual se conserva (ver resolverSlugJuego()).
                 $data['slug'] = Slug::unique($data['titulo'], fn(string $s) => $juegoModel->slugExists($s), 'juego');
                 if ($juegoModel->create($data)) {
                     $this->autoTraducirJuego(
@@ -645,7 +645,7 @@ class AdminController {
 
     /**
      * Resuelve el slug de un juego (URL limpia /juego/{slug}).
-     *  - Si el admin escribe uno a mano, se respeta (slugificado + único).
+     *  - Si se recibe un slug manual (POST), se respeta (slugificado + único).
      *  - Si no, en edición se conserva el slug actual (estable: editar el
      *    título NO cambia la URL, decisión D2 del ítem 7.2).
      *  - Si no hay slug previo, se genera desde el título.
