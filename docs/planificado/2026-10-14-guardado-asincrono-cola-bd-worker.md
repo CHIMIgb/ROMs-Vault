@@ -2,8 +2,10 @@
 
 **Fecha:** 2026-10-14
 **Estado:** implementado (2026-10-14) — migración aplicada en Neon (endpoint directo);
-default `TRANSLATE_MODE=async` por decisión del 2026-10-14 (el plan preveía `sync`);
-pendiente en producción: ejecutar el worker (cron/VM) o poner `TRANSLATE_MODE=sync` en Vercel.
+default `TRANSLATE_MODE=async` por decisión del 2026-10-14 (el plan preveía `sync`).
+**Ejecutor del worker: resuelto con GitHub Actions** (cron cada 5 min contra Neon) en
+lugar de una VM/servidor: ver `docs/2026-10-14-worker-traducciones-github-actions.md`.
+Pendiente en producción: crear los 10 secretos y hacer merge a `main`.
 Detalle y evidencia: `docs/2026-10-14-cola-traducciones-asincronas.md`.
 **Ámbito:** i18n (traducción de contenido, bloque 2)
 **Documentos relacionados:**
@@ -260,11 +262,15 @@ Alternativas evaluadas:
 
 ## 11. Estado
 
-- [ ] Migración `traduccion_cola`.
-- [ ] Modelo `TraduccionCola`.
-- [ ] `encolar()` + controladores (flag `TRANSLATE_MODE`).
-- [ ] `scripts/worker-traducciones.php`.
-- [ ] Servicio `worker` en la VM.
-- [ ] Tests Unit + Integration.
-- [ ] Activación en producción.
-- [ ] Docs + roadmap.
+- [x] Migración `traduccion_cola` — `1283f64` (aplicada en local, test y Neon); además
+  incorporada al schema base `data/roms-vaultDB-postgreSQL.sql` para que el CI no falle.
+- [x] Modelo `TraduccionCola` — `1283f64`.
+- [x] `encolar()` + controladores (flag `TRANSLATE_MODE`) — `1283f64`.
+- [x] `scripts/worker-traducciones.php` — `1283f64`.
+- [x] Ejecutor del worker — **GitHub Actions** (`.github/workflows/worker-traducciones.yml`),
+  en lugar del "servicio `worker` en la VM" que preveía el plan (no hay VM).
+- [x] Tests Unit + Integration — `1283f64`.
+- [x] Docs + roadmap — `docs/2026-10-14-cola-traducciones-asincronas.md` y
+  `docs/2026-10-14-worker-traducciones-github-actions.md`.
+- [ ] Activación en producción — pendiente: crear los 10 secretos, merge a `main` y
+  comprobar un run verde.
