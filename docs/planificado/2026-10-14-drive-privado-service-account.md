@@ -2,8 +2,10 @@
 
 **Fecha:** 2026-10-14
 **Estado:** en ejecución — Fases 1-4 completas (Fase 1 `9b2d3c9`, Fase 2 `2702048`,
-Fase 3 `afe7baa`, Fase 4 en el commit que añade esta nota); falta la Fase 5 (alta de
-la cuenta de servicio, compartir la carpeta y verificar end-to-end).
+Fase 3 `afe7baa`, Fase 4 `e0e66ab`); la Fase 5 (cuenta de
+servicio, carpeta compartida y verificación end-to-end) ya está **verificada** con
+el arranque y el catálogo reales, a falta de que el usuario retire el acceso
+público de los archivos.
 **Ámbito:** streaming de ROMs / acceso a los archivos de Google Drive
 **Ruta elegida:** Opción 1 (mantener Drive, blindar el proxy)
 **Relacionados:** `endpoints/rom_proxy.php`, `src/config/UrlSigner.php`,
@@ -438,8 +440,11 @@ Notas:
     `OpeningBraceSpace` tras `class ... {`) más una línea de 132 caracteres.
     Corregidos los tres. Los archivos antiguos del repo también incumplen esos
     sniffs, pero quedan fuera del gate (no son "añadidos").
-- **Fase 5 — Verificación y docs:** smoke manual (con y sin carpeta compartida),
-  emulador (Range/seek), doc fechado de implementación + registro en el roadmap.
+- **Fase 5 — Verificación y docs:** HECHA en lo verificable (cuenta de servicio
+  dada de alta por el usuario y carpeta compartida; `.env` local con
+  `GOOGLE_SERVICE_ACCOUNT_FILE`; prueba contra la Drive API real y smoke HTTP
+  end-to-end con `php -S` + `GDRIVE_MODE=api`, todo verde — ver §16). Queda en
+  manos del usuario: quitar el acceso público de los archivos.
 
 Sin dependencias nuevas (`firebase/php-jwt` ya está). Sin cambios de esquema de
 BD, CSP ni URLs públicas.
@@ -526,9 +531,67 @@ BD, CSP ni URLs públicas.
     5 archivos PHP tocados.
   - `phpunit` (Unit + Integration + Security) → **OK (297 tests, 15053 assertions)**.
 
+**Fase 5 — verificación end-to-end EN CURSO (código verde; falta el paso del usuario):**
+- [x] **Usuario:** cuenta de servicio creada y carpeta compartida con
+      `roms-vault-proxy@roms-vault.iam.gserviceaccount.com`.
+- [x] **Local:** `.env` (no versionado) con
+      `GOOGLE_SERVICE_ACCOUNT_FILE=.secrets/service-account.json`,
+      `GOOGLE_SERVICE_ACCOUNT_JSON_B64` vacía y `GDRIVE_ALLOWED_HOSTS` vacía
+      (por tanto: defaults del proyecto, ver aviso abajo).
+- [x] `.env.example`: bloque "DONDE SE DEFINE CADA VARIABLE" (local vs Vercel) y
+      corrección del default documentado de `GDRIVE_ALLOWED_HOSTS`
+      (faltaba `www.googleapis.com`).
+- [ ] **Usuario:** quitar el acceso público de los archivos (reversible).
+
+*Evidencia (todo con el `.env` real y la cuenta de servicio activa):*
+
+- **Credencial local** (sin exponer secretos): `.secrets/service-account.json`
+  válido, `project_id=roms-vault`, `client_email` = la cuenta de servicio,
+  `private_key` RSA 2048 (1704 chars); `openssl_sign()` con la clave produce una
+  firma que `openssl_verify()` acepta.
+- **Cableado offline:** `GoogleServiceAccount::isConfigured()` = true,
+  `GDriveClient::mode()` = `api`, `enabled()` = true; la allowlist resuelve 3
+  hosts (incluye `www.googleapis.com`, necesario para el endpoint de la API).
+  Aviso detectado y corregido en el `.env` local: un `GDRIVE_ALLOWED_HOSTS`
+  explícito **sustituye** los defaults (no se fusionan); con la lista solo de
+  hosts de entrega, el modo api fallaba con 502 (`proxy.url_no_resuelta`).
+- **Drive real (API):** token OAuth emitido y cacheado (`ya29.` solo en PHP);
+  `files.get` 200 sobre dos juegos privados de la BD (`id=158`, 4.61 GB /
+  4946293860 B, y `id=38`, ISO de PSP). `Range: bytes=0-1023` sobre `alt=media`
+  responde **206** con `Content-Range` y `Content-Disposition: attachment`
+  (el proxy reescribe la disposición: ver smoke).
+- **Smoke HTTP end-to-end** (`php -S localhost:8018 router.php` + peticiones
+  reales, script temporal en `scratch/`, **no versionado**): todas las
+  comprobaciones OK.
+  - Ficha `GET /home/show/158` -> **301** a `/juego/{slug}` -> **200** (53 KB);
+    el HTML trae el enlace `/home/download?file_id=...&t=..&sig=..` firmado y el
+    token CSRF; **no** aparecen `drive.google.com` ni `ya29.`.
+  - `GET /jugar/{slug}` -> **200** y `EJS_gameUrl = /rom_proxy.php?file_id=..&t=..&sig=..`
+    (el mismo camino que usa el emulador en el navegador).
+  - Proxy: sin firma **403**, firma manipulada **403**, firma caducada **403** y
+    firma basura **403** (nunca 500); file_id desconocido con firma válida ->
+    **404** `{"error":"ROM no encontrada en la base de datos"}`.
+  - `HEAD` firmado -> **200** con 0 B de cuerpo, `Content-Length: 4946293860`
+    (el tamaño de la BD), `Accept-Ranges: bytes`, `Cache-Control: no-store`,
+    `Content-Disposition: inline; filename="..."`, sin `Content-Range` y sin
+    fuga del token.
+  - `Range: bytes=2048-3071` -> **206** con exactamente **1024 B** y
+    `Content-Range: bytes 2048-3071/4946293860`; con `dl=1` también **206** pero
+    `attachment` (demuestra que Drive no se salta la política del proxy).
+  - `GET` sin Range -> **200** con cuerpo (el script **corta** la conexión tras
+    el primer bloque: nunca se descarga el archivo completo) e `inline`; con
+    `dl=1` -> `attachment; filename="..."`.
+  - `GET /home/download`: sin firma **403**; con firma **302** a
+    `/rom_proxy.php?...&dl=1` (**nunca** a Drive).
+  - Segundo archivo privado (ISO de PSP, `id=38`): `Range: bytes=0-511` -> **206**
+    con `Content-Type: application/x-iso9660-image`.
+- Conclusión: el **modo api queda verificado** en la ruta completa (ficha,
+  enlace de descarga, redirect de `/home/download`, `EJS_gameUrl`, `HEAD`,
+  `Range` y errores). Queda un paso del usuario, ya sin bloquear nada: privar los
+  archivos.
+
 **Pendiente:**
-- [ ] **Fase 5** — Alta de la cuenta de servicio + compartir carpeta (usuario).
-- [ ] **Fase 5** — Quitar acceso público y verificar (usuario).
+- [ ] **Fase 5 (usuario)** — quitar el acceso público de los archivos de Drive.
 - [ ] **Tarea aparte** — pasar al contenedor el resto de variables que el código ya
       lee (`ENABLE_EMULATOR_THREADS`, `DOWNLOAD_RATE_LIMIT_MAX/WINDOW`, `AUTH_*`,
   `TFA_*`, `DB_SSLMODE`, `I18N_LANG`, `PRELOAD_MAX_BYTES`).
