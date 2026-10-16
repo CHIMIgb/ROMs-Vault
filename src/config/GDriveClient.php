@@ -1,4 +1,5 @@
 <?php
+
 /**
  * config/GDriveClient.php
  * Cliente mínimo de la Google Drive API para el proxy de streaming.
@@ -20,7 +21,6 @@
 require_once __DIR__ . '/GoogleServiceAccount.php';
 
 class GDriveClient {
-
     /** Modo Drive API (archivos privados): valor por defecto. */
     public const MODE_API = 'api';
 

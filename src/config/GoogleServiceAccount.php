@@ -1,4 +1,5 @@
 <?php
+
 /**
  * config/GoogleServiceAccount.php
  * Autenticación con una cuenta de servicio de Google (OAuth 2.0 JWT-bearer).
@@ -14,9 +15,10 @@
  *   1. GOOGLE_SERVICE_ACCOUNT_FILE     ruta al JSON de la cuenta (dev/servidor).
  *   2. GOOGLE_SERVICE_ACCOUNT_JSON_B64 el mismo JSON en base64 (prod sin disco).
  *
- * Modo dual: si no hay credenciales válidas, isConfigured() devuelve false y el
- * proxy usa el flujo público actual (dev y rollback). Ver el plan en
- * docs/planificado/2026-10-14-drive-privado-service-account.md.
+ * El modo lo decide EXPLÍCITAMENTE GDRIVE_MODE (api|public); sin degradación
+ * automática: con GDRIVE_MODE=api y sin credenciales válidas, isConfigured()
+ * devuelve false y el proxy responde 503 en lugar de caer a la vía pública.
+ * Ver el plan en docs/planificado/2026-10-14-drive-privado-service-account.md.
  *
  * La clave privada NUNCA sale del servidor ni se escribe en los logs.
  */
@@ -26,7 +28,6 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Firebase\JWT\JWT;
 
 class GoogleServiceAccount {
-
     /** Scope mínimo: solo lectura de Drive. */
     private const SCOPE = 'https://www.googleapis.com/auth/drive.readonly';
 
@@ -213,7 +214,8 @@ class GoogleServiceAccount {
         curl_close($ch);
 
         if ($body === false || $code !== 200) {
-            error_log('[gdrive] Canje del token OAuth falló (HTTP ' . $code . '): ' . ($err !== '' ? $err : 'respuesta no válida'));
+            $detalle = $err !== '' ? $err : 'respuesta no válida';
+            error_log('[gdrive] Canje del token OAuth falló (HTTP ' . $code . '): ' . $detalle);
             return null;
         }
 

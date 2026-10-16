@@ -1,8 +1,9 @@
 # Drive privado con service account (acceso solo desde la app)
 
 **Fecha:** 2026-10-14
-**Estado:** en ejecución — Fases 1-3 completas (Fase 1 `9b2d3c9`, Fase 2 `2702048`);
-faltan Fase 4 (`docker-entrypoint.sh`) y Fase 5 (cuenta de servicio + compartir carpeta)
+**Estado:** en ejecución — Fases 1-4 completas (Fase 1 `9b2d3c9`, Fase 2 `2702048`,
+Fase 3 `afe7baa`, Fase 4 en el commit que añade esta nota); falta la Fase 5 (alta de
+la cuenta de servicio, compartir la carpeta y verificar end-to-end).
 **Ámbito:** streaming de ROMs / acceso a los archivos de Google Drive
 **Ruta elegida:** Opción 1 (mantener Drive, blindar el proxy)
 **Relacionados:** `endpoints/rom_proxy.php`, `src/config/UrlSigner.php`,
@@ -152,12 +153,15 @@ La `private_key` nunca sale del servidor. Scope mínimo: `drive.readonly`.
   - proxyUrl() con parámetro opcional $download -> añade ?dl=1 (la firma NO cambia)
 
 [MODIFICAR] docker-entrypoint.sh
-  - añadir GOOGLE_SERVICE_ACCOUNT_JSON_B64 (y GOOGLE_SERVICE_ACCOUNT_FILE) al
-    .env del contenedor
+  - añadir al .env del contenedor GDRIVE_MODE, GOOGLE_SERVICE_ACCOUNT_FILE,
+    GOOGLE_SERVICE_ACCOUNT_JSON_B64, GDRIVE_ALLOWED_HOSTS y SIGNED_URL_TTL
+    (el resto de variables que el heredoc ya escribía, sin cambios)
+  - aviso de arranque si GDRIVE_MODE=api y no hay credenciales (sin abortar)
 
 [MODIFICAR] .env.example
   - GOOGLE_SERVICE_ACCOUNT_FILE= / GOOGLE_SERVICE_ACCOUNT_JSON_B64=
   - GDRIVE_MODE= (api por defecto; public para dev/CI/rollback)
+  - nota del canal por el que el contenedor recibe estas claves
 
 [MODIFICAR] .gitignore
   - ignorar la ruta local del secreto (p. ej. *.service-account.json)
@@ -185,8 +189,17 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
 | Variable | Para qué | Dónde |
 |---|---|---|
 | `GDRIVE_MODE` | `api` (defecto) o `public`; elige la vía de acceso | `.env` local / Environment Variables (Vercel/Docker) |
-| `GOOGLE_SERVICE_ACCOUNT_FILE` | ruta al JSON (dev local) | `.env` local |
+| `GOOGLE_SERVICE_ACCOUNT_FILE` | ruta al JSON (dev local) | `.env` local / Environment Variables (Docker, opcional) |
 | `GOOGLE_SERVICE_ACCOUNT_JSON_B64` | JSON en base64 (prod) | Vercel + `docker-entrypoint.sh` |
+| `SIGNED_URL_TTL` | vigencia de las firmas del proxy (default 900 s) | `.env` local / Environment Variables (Docker) |
+| `GDRIVE_ALLOWED_HOSTS` | allowlist anti-SSRF del proxy (vacío = defaults) | `.env` local / Environment Variables (Docker) |
+
+- **Canal en el contenedor (Fase 4):** `docker-entrypoint.sh` escribe el `.env` de
+  `/var/www/html` en el arranque; las cinco variables de la tabla se copian del
+  entorno de la plataforma (`GDRIVE_MODE` con default `api`, `SIGNED_URL_TTL` con
+  900 s). Sin `PassEnv`/`SetEnv` en Apache: **si una variable no está en ese
+  heredoc, PHP no la ve**. Variables sin definir quedan escritas como vacías
+  (el código aplica entonces su valor por defecto).
 
 - **Base64** en producción: el JSON tiene saltos de línea y comillas que rompen
   el formato `.env`/heredoc; base64 es seguro y se decodifica en PHP.
@@ -373,7 +386,7 @@ Notas:
     `openssl_verify()` sí funcionan sin `openssl.cnf`.
   - **Nota php-jwt v7:** `JWT::decode()` no rellena el `$headers` de salida; el
     `alg` se lee del primer segmento (base64url) del propio JWT.
-- **Fase 2 — Proxy modo dual con `GDRIVE_MODE` — HECHA:**
+- **Fase 2 — Proxy modo dual con `GDRIVE_MODE` — HECHA (commit `2702048`):**
   - `src/config/GDriveClient.php`: `mode(): string` (`GDRIVE_MODE`, `api` por
     defecto; solo `public` activa el flujo público) y `enabled()` redefinido como
     `mode() === 'api' && credenciales`.
@@ -396,14 +409,35 @@ Notas:
     movido al bloque de configuración (la caché de URL solo aplica al modo público).
   - i18n: claves nuevas `proxy.gdrive_auth` y `proxy.modo_sin_credenciales` en los
     12 diccionarios (paridad mantenida).
-- **Fase 3 — Descarga por el proxy — HECHA:** `UrlSigner::proxyUrl($fileId, $download)`
+- **Fase 3 — Descarga por el proxy — HECHA (commit `afe7baa`):** `UrlSigner::proxyUrl($fileId, $download)`
   (añade `&dl=1` cuando corresponde, sin cambiar el formato de firma `sig`) y
   `HomeController::download()` → 302 al proxy firmado con `dl=1` (antes hacía 302
   directo a Drive, que con archivos privados deja de funcionar). El contador de
   descargas y el rate limit se mantienen antes del redirect. Incluye el preflight
   `HEAD` con `CURLOPT_NOBODY` en `rom_proxy.php`.
-- **Fase 4 — Config/secretos:** `.env.example`, `docker-entrypoint.sh` (pasar el
-  JSON en base64 al contenedor), `.gitignore` (ignorar `.secrets/`).
+- **Fase 4 — Config/secretos — HECHA:** `.env.example` (documentadas las claves de
+  Drive y, tras esta tarea, el canal por el que llegan al contenedor), `.gitignore`
+  (ignora `.secrets/`) y **`docker-entrypoint.sh`**: el contenedor genera su propio
+  `.env` con un heredoc, así que **toda variable que no esté ahí es invisible para
+  PHP en producción** (Apache no expone el entorno y no hay `PassEnv`/`SetEnv`).
+  Añadidas al heredoc (con los mismos valores por defecto que el código):
+  `GDRIVE_MODE` (`api`), `GOOGLE_SERVICE_ACCOUNT_FILE` (vacío),
+  `GOOGLE_SERVICE_ACCOUNT_JSON_B64` (vacío), `GDRIVE_ALLOWED_HOSTS` (vacío = defaults)
+  y `SIGNED_URL_TTL` (**900 s**, igual que `UrlSigner::ttl()`; se usa 900 y no 2 h
+  para que un despliegue con la variable sin definir no estire la firma).
+  Aviso informativo en el arranque (no aborta y **nunca imprime el secreto**) si
+  `GDRIVE_MODE=api` y no hay credenciales: evita que el 503 quede oculto.
+  El resto de variables que el código lee y el heredoc no escribe
+  (`ENABLE_EMULATOR_THREADS`, `DOWNLOAD_RATE_LIMIT_*`, `AUTH_*`, `TFA_*`,
+  `DB_SSLMODE`, `I18N_LANG`, `PRELOAD_MAX_BYTES`) queda **fuera de alcance**, en
+  una tarea aparte.
+  - **Arreglo PSR-12 (necesario para el CI):** el job `static` ejecuta `phpcs`
+    (PSR-12) sobre los PHP **añadidos** en la rama
+    (`git diff --diff-filter=A`), y `GDriveClient.php` /
+    `GoogleServiceAccount.php` incumplían dos sniffs (`blank line` tras `<?php`,
+    `OpeningBraceSpace` tras `class ... {`) más una línea de 132 caracteres.
+    Corregidos los tres. Los archivos antiguos del repo también incumplen esos
+    sniffs, pero quedan fuera del gate (no son "añadidos").
 - **Fase 5 — Verificación y docs:** smoke manual (con y sin carpeta compartida),
   emulador (Range/seek), doc fechado de implementación + registro en el roadmap.
 
@@ -462,13 +496,39 @@ BD, CSP ni URLs públicas.
     inline`; `GET` 200 con **2510 bytes** de cuerpo. Prueba que el preflight no
     abre el stream (modo público; el contenido de 2510 B es la deuda conocida).
 
-**Fase 4 — parcial (`.env.example` y `.gitignore` en commit `9b2d3c9`):**
-- [x] `.gitignore` → `.secrets/`.
+**Fase 4 — completa (en el commit que añade esta nota):**
+- [x] `.gitignore` → `.secrets/` (commit `9b2d3c9`).
 - [x] `.env.example` → `GOOGLE_SERVICE_ACCOUNT_FILE` / `GOOGLE_SERVICE_ACCOUNT_JSON_B64`.
 - [x] `.env.example` → `GDRIVE_MODE` (hecho en Fase 2).
-- [ ] `docker-entrypoint.sh` (base64 + `GDRIVE_MODE`).
+- [x] `docker-entrypoint.sh` → `GDRIVE_MODE` (+default `api`),
+      `GOOGLE_SERVICE_ACCOUNT_FILE`, `GOOGLE_SERVICE_ACCOUNT_JSON_B64`,
+      `GDRIVE_ALLOWED_HOSTS` y `SIGNED_URL_TTL` (default 900 s) en el `.env` que
+      genera el contenedor.
+- [x] Aviso de arranque (no aborta, sin filtrar el secreto) si `GDRIVE_MODE=api`
+      y no hay credenciales.
+- [x] `.env.example` → nota de que el contenedor recibe esas claves vía
+      `docker-entrypoint.sh`.
+- [x] PSR-12 en los dos PHP añadidos por la rama (gate `phpcs` del CI).
+- **Verificación (evidencia):**
+  - `bash -n docker-entrypoint.sh` → OK.
+  - Dry-run con el heredoc **extraído del propio archivo** (target a un `.env`
+    temporal) y `GDRIVE_MODE`/`SIGNED_URL_TTL` sin definir: se generan
+    `GDRIVE_MODE="api"`, `SIGNED_URL_TTL="900"`, `GDRIVE_ALLOWED_HOSTS="cdn.example.com"`,
+    `GOOGLE_SERVICE_ACCOUNT_FILE=""` y el base64 **byte a byte idéntico** (68 B).
+  - Bloque de aviso con los 4 casos: `api` sin credenciales → avisa; `api` con
+    `..._JSON_B64`, `api` con `GOOGLE_SERVICE_ACCOUNT_FILE` y `public` sin
+    credenciales → silencio. Las líneas `echo` del aviso son texto literal (no
+    interpolan variables), así que no pueden filtrar el secreto.
+  - Contraste de nombres: las 5 variables están exactamente 1 vez en el heredoc y
+    son leídas por el código (`$_ENV['...']`) → sin erratas de nombre.
+  - `phpcs` sobre los dos archivos añadidos → **0 errores, 0 avisos**;
+    `phpstan analyse` (nivel 5 + baseline) → `[OK] No errors`; `php -l` OK en los
+    5 archivos PHP tocados.
+  - `phpunit` (Unit + Integration + Security) → **OK (297 tests, 15053 assertions)**.
 
 **Pendiente:**
-- [ ] **Fase 4** — `docker-entrypoint.sh`.
 - [ ] **Fase 5** — Alta de la cuenta de servicio + compartir carpeta (usuario).
 - [ ] **Fase 5** — Quitar acceso público y verificar (usuario).
+- [ ] **Tarea aparte** — pasar al contenedor el resto de variables que el código ya
+      lee (`ENABLE_EMULATOR_THREADS`, `DOWNLOAD_RATE_LIMIT_MAX/WINDOW`, `AUTH_*`,
+  `TFA_*`, `DB_SSLMODE`, `I18N_LANG`, `PRELOAD_MAX_BYTES`).
