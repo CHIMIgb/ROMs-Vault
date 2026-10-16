@@ -618,6 +618,13 @@ if (!empty($clientRange)) {
     }
 }
 
+// ── Preflight (HEAD) ─────────────────────────────────────────────────────────
+// HomeController::checkProxyAccess() comprueba la accesibilidad con un HEAD en
+// cada carga de /home/play/{id}. Con HEAD se piden a Drive SOLO las cabeceras
+// (CURLOPT_NOBODY) en vez de abrir un GET que habría que cortar al desconectar
+// el cliente.
+$isHeadRequest = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD');
+
 // ── Streaming del contenido desde Google Drive hacia el cliente ───────────────
 $ch = curl_init($finalUrl);
 
@@ -633,6 +640,7 @@ if (!empty($cookieJar)) {
 
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => false,          // No acumular en memoria
+    CURLOPT_NOBODY         => $isHeadRequest, // preflight: solo cabeceras
     CURLOPT_FOLLOWLOCATION => true,           // Seguir redirecciones finales
     CURLOPT_MAXREDIRS      => 5,
     CURLOPT_TIMEOUT        => READ_TIMEOUT,

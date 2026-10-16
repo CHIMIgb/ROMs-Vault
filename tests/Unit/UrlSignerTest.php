@@ -162,9 +162,31 @@ class UrlSignerTest extends TestCase {
         $url = UrlSigner::proxyUrl(self::FILE_ID);
 
         $this->assertStringStartsWith('/rom_proxy.php?file_id=', $url);
-        $this->assertStringContainsString('file_id=' . urlencode(self::FILE_ID), $url);
         $this->assertStringContainsString('&t=', $url);
         $this->assertStringContainsString('&sig=', $url);
+        $this->assertStringNotContainsString('dl=1', $url);
+    }
+
+    public function testProxyUrlWithDownloadAppendsDlWithoutChangingSignature(): void {
+        $stream   = UrlSigner::proxyUrl(self::FILE_ID);
+        $download = UrlSigner::proxyUrl(self::FILE_ID, true);
+
+        // La URL de descarga es la de streaming + &dl=1.
+        $this->assertStringStartsWith($stream . '&dl=1', $download);
+        $this->assertStringEndsWith('&dl=1', $download);
+
+        // El parámetro dl no forma parte de la firma (file_id|t): los valores
+        // firmados son idénticos, así que verify() acepta la URL de descarga.
+        parse_str((string) parse_url($stream, PHP_URL_QUERY), $streamParams);
+        parse_str((string) parse_url($download, PHP_URL_QUERY), $downloadParams);
+
+        $this->assertSame($streamParams['sig'], $downloadParams['sig']);
+        $this->assertSame($streamParams['t'], $downloadParams['t']);
+        $this->assertTrue(UrlSigner::verify(
+            (string) $downloadParams['file_id'],
+            (int) $downloadParams['t'],
+            (string) $downloadParams['sig']
+        ));
     }
 
     public function testSignThrowsWithoutSecret(): void {

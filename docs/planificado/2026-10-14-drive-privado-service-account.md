@@ -1,7 +1,8 @@
 # Drive privado con service account (acceso solo desde la app)
 
 **Fecha:** 2026-10-14
-**Estado:** en ejecución — Fase 1 completa (`9b2d3c9`); Fase 2 completa (esta entrega)
+**Estado:** en ejecución — Fases 1-3 completas (Fase 1 `9b2d3c9`, Fase 2 `2702048`);
+faltan Fase 4 (`docker-entrypoint.sh`) y Fase 5 (cuenta de servicio + compartir carpeta)
 **Ámbito:** streaming de ROMs / acceso a los archivos de Google Drive
 **Ruta elegida:** Opción 1 (mantener Drive, blindar el proxy)
 **Relacionados:** `endpoints/rom_proxy.php`, `src/config/UrlSigner.php`,
@@ -142,13 +143,13 @@ La `private_key` nunca sale del servidor. Scope mínimo: `drive.readonly`.
     GDRIVE_ALLOWED_HOSTS (env), sin tocar código
 
 [MODIFICAR] src/controllers/HomeController.php
-  - download(): dejar de redirigir a Drive; con cuenta de servicio, redirigir al
-    proxy firmado con ?dl=1; sin ella, mantener el redirect público (modo dual)
+  - download(): dejar de redirigir a Drive. Redirige SIEMPRE al proxy firmado
+    con ?dl=1 (opción A, ver §13): el proxy decide la vía según GDRIVE_MODE y
+    responde 503 si está mal configurado (sin fallback silencioso)
   - el contador de descargas y el rate limit se mantienen ANTES del redirect
 
 [MODIFICAR] src/config/UrlSigner.php
-  - proxyUrl() con parámetro opcional para construir la URL con ?dl=1
-    (la firma NO cambia)
+  - proxyUrl() con parámetro opcional $download -> añade ?dl=1 (la firma NO cambia)
 
 [MODIFICAR] docker-entrypoint.sh
   - añadir GOOGLE_SERVICE_ACCOUNT_JSON_B64 (y GOOGLE_SERVICE_ACCOUNT_FILE) al
@@ -290,6 +291,21 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
   no en el stream (que en modo API va al CDN sin credenciales).
 - **Claves i18n nuevas** en los 12 idiomas: `proxy.gdrive_auth` (401 de Drive) y
   `proxy.modo_sin_credenciales` (503 de configuración en modo API).
+- **Descarga local = siempre por el proxy (opción A, 2026-10-16)**: en vez de
+  mantener dos rutas (proxy en `api` y redirect directo a Drive en `public`), se
+  unifica: `HomeController::download()` redirige siempre al proxy firmado con
+  `&dl=1`. Se descarta la rama "en modo público mantener el redirect legacy"
+  porque duplicaba la ruta de acceso a Drive, exponía la URL directa en el HTML
+  y el bug >100 MB afecta igual al redirect legacy. Con `api` mal configurado el
+  usuario ve un 503 claro (fail-loud), no un fallback silencioso.
+- **`dl` fuera de la firma**: `?dl=1` no entra en el HMAC (`file_id|t`), así que
+  no rompe enlaces ya emitidos; solo cambia `Content-Disposition`. Añadirlo a la
+  firma obligaría a invalidar todas las URLs vivas sin ganancia de seguridad
+  (una URL de streaming válida ya permite descargar el binario).
+- **Preflight `HEAD` sin GET a Drive (2026-10-16)**: `rom_proxy.php` usa
+  `CURLOPT_NOBODY` en el upstream cuando el cliente pide `HEAD`
+  (`HomeController::checkProxyAccess()` en cada carga de `/home/play/{id}`). Antes
+  abría un GET completo a Drive que había que cortar al desconectar el cliente.
 
 ---
 
@@ -380,11 +396,12 @@ Notas:
     movido al bloque de configuración (la caché de URL solo aplica al modo público).
   - i18n: claves nuevas `proxy.gdrive_auth` y `proxy.modo_sin_credenciales` en los
     12 diccionarios (paridad mantenida).
-- **Fase 3 — Descarga por el proxy:** `UrlSigner::proxyUrl($fileId, $download)`
+- **Fase 3 — Descarga por el proxy — HECHA:** `UrlSigner::proxyUrl($fileId, $download)`
   (añade `&dl=1` cuando corresponde, sin cambiar el formato de firma `sig`) y
-  `HomeController::download()` → 302 al proxy firmado con `dl=1` (hoy hace 302
+  `HomeController::download()` → 302 al proxy firmado con `dl=1` (antes hacía 302
   directo a Drive, que con archivos privados deja de funcionar). El contador de
-  descargas y el rate limit se mantienen antes del redirect.
+  descargas y el rate limit se mantienen antes del redirect. Incluye el preflight
+  `HEAD` con `CURLOPT_NOBODY` en `rom_proxy.php`.
 - **Fase 4 — Config/secretos:** `.env.example`, `docker-entrypoint.sh` (pasar el
   JSON en base64 al contenedor), `.gitignore` (ignorar `.secrets/`).
 - **Fase 5 — Verificación y docs:** smoke manual (con y sin carpeta compartida),
@@ -407,7 +424,7 @@ BD, CSP ni URLs públicas.
 - **Verificación (evidencia):** `phpunit --testsuite Unit` → OK (168 tests,
   14587 assertions); `php -l` OK en los archivos tocados.
 
-**Fase 2 — completa:**
+**Fase 2 — completa (commit `2702048`):**
 - [x] `GDriveClient::mode()` + `enabled()` mode-aware.
 - [x] `rom_proxy.php`: bifurcación API/público, 503 de configuración, `?dl=1`,
       302 manual sin Bearer, reintento único en 401, mapeo 401.
@@ -427,6 +444,24 @@ BD, CSP ni URLs públicas.
       attachment`, sin `dl=1` → `inline` (ambas 200 con la página de confirmación
       (2510 B) del bug conocido de la rama pública, deuda aceptada).
 
+**Fase 3 — completa:**
+- [x] `UrlSigner::proxyUrl($fileId, bool $download = false)` → `&dl=1` (firma intacta).
+- [x] `HomeController::download()` → 302 al proxy firmado con `dl=1` (contador y
+      rate limit antes del redirect); ya no se expone `drive.google.com`.
+- [x] Preflight `HEAD` en `rom_proxy.php` con `CURLOPT_NOBODY` en el upstream.
+- [x] `tests/Unit/UrlSignerTest.php`: 1 test nuevo (dl sin cambiar la firma).
+- [x] `tests/Integration/DownloadRedirectTest.php`: 3 tests (302 + `dl=1` + contador,
+      403 sin firma/tamper, 404 file_id desconocido).
+- **Verificación (evidencia):**
+  - `php -l` OK en los 5 archivos tocados.
+  - `phpunit --testsuite Unit` → OK (178 tests, 14658 assertions).
+  - `phpunit --testsuite Integration` → OK (102 tests, 346 assertions).
+  - `phpunit --testsuite Security` → OK (17 tests, 49 assertions).
+  - Smoke con socket crudo contra `php -S` (temporal, borrado después):
+    misma URL → `HEAD` 200 con **0 bytes** de cuerpo y `Content-Disposition:
+    inline`; `GET` 200 con **2510 bytes** de cuerpo. Prueba que el preflight no
+    abre el stream (modo público; el contenido de 2510 B es la deuda conocida).
+
 **Fase 4 — parcial (`.env.example` y `.gitignore` en commit `9b2d3c9`):**
 - [x] `.gitignore` → `.secrets/`.
 - [x] `.env.example` → `GOOGLE_SERVICE_ACCOUNT_FILE` / `GOOGLE_SERVICE_ACCOUNT_JSON_B64`.
@@ -434,7 +469,6 @@ BD, CSP ni URLs públicas.
 - [ ] `docker-entrypoint.sh` (base64 + `GDRIVE_MODE`).
 
 **Pendiente:**
-- [ ] **Fase 3** — `UrlSigner::proxyUrl($id, $download)` + `HomeController::download()`.
 - [ ] **Fase 4** — `docker-entrypoint.sh`.
 - [ ] **Fase 5** — Alta de la cuenta de servicio + compartir carpeta (usuario).
 - [ ] **Fase 5** — Quitar acceso público y verificar (usuario).
