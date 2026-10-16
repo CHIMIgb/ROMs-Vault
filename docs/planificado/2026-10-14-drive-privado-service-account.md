@@ -1,7 +1,7 @@
 # Drive privado con service account (acceso solo desde la app)
 
 **Fecha:** 2026-10-14
-**Estado:** en ejecución — Fase 1 completa (sin commitear)
+**Estado:** en ejecución — Fase 1 completa (`9b2d3c9`); Fase 2 completa (esta entrega)
 **Ámbito:** streaming de ROMs / acceso a los archivos de Google Drive
 **Ruta elegida:** Opción 1 (mantener Drive, blindar el proxy)
 **Relacionados:** `endpoints/rom_proxy.php`, `src/config/UrlSigner.php`,
@@ -56,19 +56,33 @@ descarga directo.
 
 ---
 
-## 3. Diseño propuesto (modo dual)
+## 3. Diseño propuesto (modo dual con selección explícita)
 
-El proxy tendrá **dos modos**:
+El proxy tendrá **dos modos**, elegidos con la variable de entorno `GDRIVE_MODE`
+(**sin degradación automática**):
 
-- **Modo API** (archivos privados): pide el archivo a la Drive API
+- **`api` (por defecto, producción):** pide el archivo a la Drive API
   `GET https://www.googleapis.com/drive/v3/files/{id}?alt=media&supportsAllDrives=true`
-  con `Authorization: Bearer <token>`; soporta `Range` (206).
-- **Modo público** (fallback): si no hay cuenta de servicio, se mantiene el
-  comportamiento actual (`GDRIVE_BASE`). Útil para desarrollo y como red de
-  seguridad.
+  con `Authorization: Bearer <token>`; soporta `Range` (206). Sin credenciales o
+  si el token falla, responde **error claro** (503 JSON + `error_log`): nunca cae
+  a la vía pública.
+- **`public` (desarrollo / CI / rollback):** mantiene el comportamiento actual
+  (`GDRIVE_BASE`, resolución de redirects, página de confirmación de ficheros
+  grandes y caché de URL).
 
-Ventaja: se puede **probar en producción sin privatizar todavía** y revertir sin
-migrar datos (el `file_id` no cambia).
+Por qué explícito y **no** automático: un fallback implícito convertiría un fallo
+de la cuenta de servicio (clave rotada, Drive API deshabilitada, carpeta
+descompartida) en un comportamiento degradado **silencioso**, que además
+reintroduciría el bug de los ficheros >100 MB y serviría por la vía que se quiere
+eliminar. Con el modo explícito, en producción un fallo **se ve**.
+
+Ventajas del dual controlado: dev/CI funcionan sin credenciales
+(`GDRIVE_MODE=public`) y el rollback es cambiar una variable y redeployar (el
+`file_id` no cambia, no hay migración de datos).
+
+> **Probar en producción sin privatizar** no requiere el modo público: la Drive
+> API también lee archivos que siguen siendo públicos, así que se puede desplegar
+> con `GDRIVE_MODE=api`, verificar 200/206 y después restringir el acceso.
 
 ---
 
@@ -101,7 +115,8 @@ La `private_key` nunca sale del servidor. Scope mínimo: `drive.readonly`.
   - firma la aserción RS256 y la canjea en oauth2
 
 [CREAR] src/config/GDriveClient.php
-  - enabled(): bool                   (¿hay cuenta de servicio?)
+  - mode(): string                    (GDRIVE_MODE: 'api' por defecto | 'public')
+  - enabled(): bool                   (mode() === 'api' y hay credenciales)
   - mediaUrl(string $fileId): string  (.../drive/v3/files/{id}?alt=media&supportsAllDrives=true)
   - authHeaders(): array              ['Authorization: Bearer <token>']
   - centraliza "API vs público" para no dispersar la lógica en el proxy
@@ -112,9 +127,10 @@ La `private_key` nunca sale del servidor. Scope mínimo: `drive.readonly`.
 
 [MODIFICAR] endpoints/rom_proxy.php
   - require de las dos clases nuevas
-  - elegir upstream: GDriveClient::enabled()
+  - elegir upstream con GDriveClient::enabled() (GDRIVE_MODE + credenciales)
       -> Drive API (host www.googleapis.com) + Authorization: Bearer
-      si no -> rama pública actual (GDRIVE_BASE + confirm token)
+      si no, con GDRIVE_MODE=public -> rama pública (GDRIVE_BASE + confirm token)
+  - con GDRIVE_MODE=api y token no disponible: error 503 JSON (no fallback)
   - en modo API no se usa el resolvedor de redirects/confirm token; se sigue el
     302 con cURL sin reenviar el Bearer al host final (googleusercontent)
   - soporte de ?dl=1 -> Content-Disposition: attachment
@@ -140,6 +156,7 @@ La `private_key` nunca sale del servidor. Scope mínimo: `drive.readonly`.
 
 [MODIFICAR] .env.example
   - GOOGLE_SERVICE_ACCOUNT_FILE= / GOOGLE_SERVICE_ACCOUNT_JSON_B64=
+  - GDRIVE_MODE= (api por defecto; public para dev/CI/rollback)
 
 [MODIFICAR] .gitignore
   - ignorar la ruta local del secreto (p. ej. *.service-account.json)
@@ -166,6 +183,7 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
 
 | Variable | Para qué | Dónde |
 |---|---|---|
+| `GDRIVE_MODE` | `api` (defecto) o `public`; elige la vía de acceso | `.env` local / Environment Variables (Vercel/Docker) |
 | `GOOGLE_SERVICE_ACCOUNT_FILE` | ruta al JSON (dev local) | `.env` local |
 | `GOOGLE_SERVICE_ACCOUNT_JSON_B64` | JSON en base64 (prod) | Vercel + `docker-entrypoint.sh` |
 
@@ -193,8 +211,8 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
 
 ## 9. Orden de ejecución
 
-1. `GoogleServiceAccount` + `GDriveClient` + test unitario.
-2. `rom_proxy.php` (modo dual) + `GDriveAllowlist`.
+1. `GoogleServiceAccount` + `GDriveClient` (con `GDRIVE_MODE`) + test unitario.
+2. `rom_proxy.php` (modo dual + `GDRIVE_MODE`) + `GDriveAllowlist`.
 3. `HomeController::download()` + `UrlSigner`.
 4. `.env.example` + `docker-entrypoint.sh` + `.gitignore`.
 5. Poner el secreto en Vercel y **probar sin privatizar** (archivos públicos).
@@ -227,8 +245,8 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
 
 ## 12. Riesgos, rollback y notas
 
-- **Rollback:** si algo falla tras privatizar, volver a compartir como público
-  temporalmente, o vaciar la configuración y volver al modo público.
+- **Rollback:** poner `GDRIVE_MODE=public` y redeployar (rama pública intacta); o,
+  si algo falla tras privatizar, volver a compartir como público temporalmente.
 - **Token expirado** sin refresco: mitigado con caché y refresco anticipado.
 - **Host final distinto:** si el 302 cae en otro `*.googleusercontent.com`, se
   añade vía `GDRIVE_ALLOWED_HOSTS` (env), sin recompilar.
@@ -246,9 +264,12 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
   siendo la **firma HMAC** de la URL + los **archivos privados** (solo la cuenta
   de servicio los lee). La cuenta de servicio es una identidad máquina-a-máquina
   (`...@....iam.gserviceaccount.com`), invisible para el público.
-- **Modo dual** confirmado: con credenciales → Drive API; sin ellas → rama
-  pública actual (desarrollo y rollback). Permite probar en producción sin
-  privatizar todavía.
+- **Modo dual con selección explícita (`GDRIVE_MODE`)** confirmado: `api` por
+  defecto (producción) y `public` para dev/CI/rollback. **Sin degradación
+  automática**: con `api` y sin credenciales o con token caído, el proxy responde
+  error claro (503 JSON + `error_log`) en lugar de caer a la vía pública. Se
+  descarta el fallback implícito porque enmascararía fallos de la cuenta de
+  servicio y podría servir por la vía que se quiere eliminar.
 - **Ubicación del secreto**: `GOOGLE_SERVICE_ACCOUNT_FILE` apuntando a
   `./.secrets/service-account.json` en local (ruta **gitignoreada**); en
   producción, `GOOGLE_SERVICE_ACCOUNT_JSON_B64` (base64) como variable de
@@ -257,6 +278,18 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
   archivos >100 MB en la rama *pública* (fallback) **no** se arregla en este
   plan. En modo API no se usa: la Drive API autenticada sirve el binario directo
   (sin la página de virus scan de Google). Queda anotado como deuda.
+  - Reproducido el 2026-10-16 en la verificación de la Fase 2: la rama pública
+    sirvió **200 con 2510 bytes** (el HTML de confirmación) para un fichero >100 MB.
+- **`302` de la Drive API**: se sigue **a mano** (`CURLOPT_FOLLOWLOCATION` off),
+  sin reenviar la cabecera `Authorization` al CDN de destino, y se valida el host
+  contra `GDriveAllowlist` (anti-SSRF). Se descarta `FOLLOWLOCATION` porque
+  filtraría el `Bearer` a otro host y esquivaría la allowlist.
+- **Reintento único en 401**: ante un token caducado/revocado se descarta la
+  caché (`GoogleServiceAccount::clearCache()`) y se reintenta una vez con uno
+  fresco. Se implementa en la resolución del upstream (donde se envía el Bearer),
+  no en el stream (que en modo API va al CDN sin credenciales).
+- **Claves i18n nuevas** en los 12 idiomas: `proxy.gdrive_auth` (401 de Drive) y
+  `proxy.modo_sin_credenciales` (503 de configuración en modo API).
 
 ---
 
@@ -310,7 +343,7 @@ Notas:
 > objetos purgados). Ese comportamiento **se re-implementa aquí dentro** (Fase 3),
 > no se recupera del historial.
 
-- **Fase 1 — Auth/API (offline) — HECHA (working tree, sin commitear):**
+- **Fase 1 — Auth/API (offline) — HECHA (commit `9b2d3c9`):**
   `src/config/GoogleServiceAccount.php` (aserción RS256 + canje en `oauth2` +
   caché de token en `sys_get_temp_dir()` con refresco anticipado),
   `src/config/GDriveClient.php` (`enabled()`, `mediaUrl()`, `authHeaders()`),
@@ -324,13 +357,29 @@ Notas:
     `openssl_verify()` sí funcionan sin `openssl.cnf`.
   - **Nota php-jwt v7:** `JWT::decode()` no rellena el `$headers` de salida; el
     `alg` se lee del primer segmento (base64url) del propio JWT.
-- **Fase 2 — Proxy modo dual:** `endpoints/rom_proxy.php`: `require` de las dos
-  clases nuevas, elegir upstream con `GDriveClient::enabled()` → Drive API (host
-  `www.googleapis.com` + `Authorization: Bearer`) o rama pública actual
-  (`GDRIVE_BASE`); mantener Range (206), reenvío de `Content-Length/Type/Range`,
-  tope de chunk, rate limit con exención de Range; `dl=1` →
-  `Content-Disposition: attachment`; mapear 401/403 de Drive a errores
-  controlados (JSON, nunca HTML de Google).
+- **Fase 2 — Proxy modo dual con `GDRIVE_MODE` — HECHA:**
+  - `src/config/GDriveClient.php`: `mode(): string` (`GDRIVE_MODE`, `api` por
+    defecto; solo `public` activa el flujo público) y `enabled()` redefinido como
+    `mode() === 'api' && credenciales`.
+  - `endpoints/rom_proxy.php`: bifurcación explícita API/público. **Sin
+    degradación automática**: con `GDRIVE_MODE=api` sin credenciales (o sin
+    token) → 503 JSON `error_type=config` (`proxy.modo_sin_credenciales`).
+    Se mantienen Range (206), reenvío de `Content-Length/Type/Range`, rate limit
+    con exención de Range y `?dl=1` → `Content-Disposition: attachment`.
+  - `resolveDriveApiMediaUrl()` (nueva): pide el binario a la Drive API y sigue
+    el `302` **a mano** (`FOLLOWLOCATION` off) para no reenviar el `Bearer` al
+    CDN y validar el host destino contra `GDriveAllowlist` (anti-SSRF). Solo lee
+    cabeceras (aborta al primer byte de cuerpo). **Reintento único en 401**:
+    `GoogleServiceAccount::clearCache()` + token fresco (el reintento se hace en
+    la resolución del upstream, no en el stream, porque en modo API el stream va
+    al CDN sin Bearer).
+  - Mapeo de errores: 401 → `proxy.gdrive_auth` (`error_type=auth`), 403 →
+    `proxy.gdrive_bloqueado`, 404 → `proxy.gdrive_no_existe`, 429 →
+    `proxy.gdrive_cuota`; nunca se sirve el HTML de Google.
+  - Limpieza: `guessContentType()` (código muerto) **eliminado**; `URL_CACHE_TTL`
+    movido al bloque de configuración (la caché de URL solo aplica al modo público).
+  - i18n: claves nuevas `proxy.gdrive_auth` y `proxy.modo_sin_credenciales` en los
+    12 diccionarios (paridad mantenida).
 - **Fase 3 — Descarga por el proxy:** `UrlSigner::proxyUrl($fileId, $download)`
   (añade `&dl=1` cuando corresponde, sin cambiar el formato de firma `sig`) y
   `HomeController::download()` → 302 al proxy firmado con `dl=1` (hoy hace 302
@@ -348,7 +397,7 @@ BD, CSP ni URLs públicas.
 
 ## 16. Estado
 
-**Fase 1 — completa (working tree, sin commitear):**
+**Fase 1 — completa (commit `9b2d3c9`):**
 - [x] `src/config/GoogleServiceAccount.php`.
 - [x] `src/config/GDriveClient.php`.
 - [x] `www.googleapis.com` en `src/config/GDriveAllowlist.php`.
@@ -358,13 +407,33 @@ BD, CSP ni URLs públicas.
 - **Verificación (evidencia):** `phpunit --testsuite Unit` → OK (168 tests,
   14587 assertions); `php -l` OK en los archivos tocados.
 
-**Fase 4 — parcial (working tree):**
+**Fase 2 — completa:**
+- [x] `GDriveClient::mode()` + `enabled()` mode-aware.
+- [x] `rom_proxy.php`: bifurcación API/público, 503 de configuración, `?dl=1`,
+      302 manual sin Bearer, reintento único en 401, mapeo 401.
+- [x] `guessContentType()` eliminado; `URL_CACHE_TTL` reubicado.
+- [x] `tests/Unit/GDriveClientTest.php` (9 tests, offline).
+- [x] `.env.example` → `GDRIVE_MODE` (comentario del modo corregido).
+- [x] i18n: `proxy.gdrive_auth` + `proxy.modo_sin_credenciales` (12 idiomas).
+- **Verificación (evidencia):**
+  - `php -l` OK en `rom_proxy.php`, `GDriveClient.php` y `GDriveClientTest.php`.
+  - `phpunit --testsuite Unit` → OK (177 tests, 14653 assertions).
+  - `phpunit --testsuite Security` → OK (17 tests): el endpoint arranca y sigue
+    rechazando firma ausente/tamper/vencida e id inexistente.
+  - Smoke con el arnés de integración (temporal, borrado después):
+    - `GDRIVE_MODE` ausente → `503` `{"error_type":"config"}` para un file_id activo.
+    - `GDRIVE_MODE=public` → 502 `not_found` (rama pública operativa, sin 503).
+    - ROM real pública con `Range: bytes=0-1023`: `dl=1` → `Content-Disposition:
+      attachment`, sin `dl=1` → `inline` (ambas 200 con la página de confirmación
+      (2510 B) del bug conocido de la rama pública, deuda aceptada).
+
+**Fase 4 — parcial (`.env.example` y `.gitignore` en commit `9b2d3c9`):**
 - [x] `.gitignore` → `.secrets/`.
 - [x] `.env.example` → `GOOGLE_SERVICE_ACCOUNT_FILE` / `GOOGLE_SERVICE_ACCOUNT_JSON_B64`.
-- [ ] `docker-entrypoint.sh` (base64).
+- [x] `.env.example` → `GDRIVE_MODE` (hecho en Fase 2).
+- [ ] `docker-entrypoint.sh` (base64 + `GDRIVE_MODE`).
 
 **Pendiente:**
-- [ ] **Fase 2** — `rom_proxy.php` (modo dual) + `?dl=1`.
 - [ ] **Fase 3** — `UrlSigner::proxyUrl($id, $download)` + `HomeController::download()`.
 - [ ] **Fase 4** — `docker-entrypoint.sh`.
 - [ ] **Fase 5** — Alta de la cuenta de servicio + compartir carpeta (usuario).
