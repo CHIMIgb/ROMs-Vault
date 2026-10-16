@@ -70,6 +70,8 @@ require_once __DIR__ . '/../src/config/CsrfService.php';
 require_once __DIR__ . '/../src/config/LoggerService.php';
 require_once __DIR__ . '/../src/config/TfaService.php';
 require_once __DIR__ . '/../src/config/GDriveAllowlist.php';
+require_once __DIR__ . '/../src/config/GoogleServiceAccount.php';
+require_once __DIR__ . '/../src/config/GDriveClient.php';
 require_once __DIR__ . '/../src/config/OriginPolicy.php';
 require_once __DIR__ . '/../src/config/i18n.php';
 require_once __DIR__ . '/../src/config/IntlHelper.php';

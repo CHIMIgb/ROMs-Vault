@@ -1,7 +1,7 @@
 # Drive privado con service account (acceso solo desde la app)
 
 **Fecha:** 2026-10-14
-**Estado:** planificado (pendiente de aprobación)
+**Estado:** en ejecución — Fase 1 completa (sin commitear)
 **Ámbito:** streaming de ROMs / acceso a los archivos de Google Drive
 **Ruta elegida:** Opción 1 (mantener Drive, blindar el proxy)
 **Relacionados:** `endpoints/rom_proxy.php`, `src/config/UrlSigner.php`,
@@ -179,6 +179,8 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
 
 ## 8. Pasos del usuario (una sola vez, en Google)
 
+> Detalle ampliado, con enlaces y notas, en **§14**.
+
 1. Crear/elegir un proyecto en Google Cloud Console.
 2. Habilitar la **Google Drive API**.
 3. Crear una **cuenta de servicio**.
@@ -237,12 +239,133 @@ Resultado: una sola ruta de acceso a Drive (menos duplicación y menos superfici
 
 ---
 
-## 13. Estado
+## 13. Decisiones finales (2026-10-15)
 
-- [ ] `GoogleServiceAccount`.
-- [ ] `GDriveClient`.
-- [ ] `rom_proxy.php` (modo dual) + `www.googleapis.com` en la allowlist.
-- [ ] `HomeController::download()` + `UrlSigner`.
-- [ ] `.env.example` + `docker-entrypoint.sh` + `.gitignore`.
-- [ ] Alta de la cuenta de servicio + carpeta compartida.
-- [ ] Quitar acceso público y verificar.
+- **Los usuarios NO crean cuenta ni inician sesión.** La cuenta de servicio es
+  *server-side* y el visitante juega/descarga igual que hoy. La barrera sigue
+  siendo la **firma HMAC** de la URL + los **archivos privados** (solo la cuenta
+  de servicio los lee). La cuenta de servicio es una identidad máquina-a-máquina
+  (`...@....iam.gserviceaccount.com`), invisible para el público.
+- **Modo dual** confirmado: con credenciales → Drive API; sin ellas → rama
+  pública actual (desarrollo y rollback). Permite probar en producción sin
+  privatizar todavía.
+- **Ubicación del secreto**: `GOOGLE_SERVICE_ACCOUNT_FILE` apuntando a
+  `./.secrets/service-account.json` en local (ruta **gitignoreada**); en
+  producción, `GOOGLE_SERVICE_ACCOUNT_JSON_B64` (base64) como variable de
+  entorno. El JSON **no** se mete en `.env`.
+- **Deuda técnica reconocida (aceptada)**: el bug del HTML de confirmación de
+  archivos >100 MB en la rama *pública* (fallback) **no** se arregla en este
+  plan. En modo API no se usa: la Drive API autenticada sirve el binario directo
+  (sin la página de virus scan de Google). Queda anotado como deuda.
+
+---
+
+## 14. Cómo obtener las credenciales (paso a paso)
+
+> Se hace **una sola vez**. Requiere una cuenta de Google con acceso a la carpeta
+> donde están las ROMs (la misma con la que se subieron).
+
+1. **Crear/elegir proyecto** en https://console.cloud.google.com/ →
+   selector de proyecto (barra superior) → **Nuevo proyecto** → nombre
+   (p. ej. `roms-vault-drive`) → **Crear**. Esperar y seleccionarlo.
+2. **Habilitar la Google Drive API**: menú ☰ → **APIs y servicios** →
+   **Biblioteca** → buscar **Google Drive API** (la de "Google Drive", **no** la
+   de *Activity*) → **Habilitar**. Sin esto, las llamadas devuelven 403
+   `accessNotConfigured`.
+3. **Crear la cuenta de servicio**: **APIs y servicios** → **Credenciales** →
+   **Crear credenciales** → **Cuenta de servicio**.
+   - Nombre: `roms-vault-proxy` (el ID se autogenera).
+   - Roles de GCP: **ninguno** (no hace falta; el acceso es por Drive, no por IAM).
+   - **Listo**.
+4. **Crear la clave JSON**: en **Credenciales** → sección **Cuentas de servicio**
+   → clic en la cuenta creada → pestaña **Claves** → **Agregar clave** →
+   **Crear clave nueva** → **JSON** → **Crear**. Se descarga un `.json`.
+5. **Guardar el JSON** (nunca al repo): colocarlo en
+   `.secrets/service-account.json`. En producción, subir su contenido en base64:
+   `base64 -w0 service-account.json` → variable `GOOGLE_SERVICE_ACCOUNT_JSON_B64`.
+6. **Copiar el email** de la cuenta: `client_email` dentro del JSON, tipo
+   `roms-vault-proxy@PROYECTO.iam.gserviceaccount.com`.
+7. **Compartir la carpeta de ROMs** con ese email: en Google Drive → carpeta de
+   ROMs → **Compartir** → pegar el email → permiso **Lector** → **Enviar**
+   (se puede desmarcar "notificar"). Los archivos heredan el permiso.
+8. **Probar sin privatizar** (archivos aún públicos): definir
+   `GOOGLE_SERVICE_ACCOUNT_FILE` y verificar 200/206 por el proxy.
+9. **Quitar el acceso público**: cuando el paso 8 funcione, seleccionar los
+   archivos/carpeta → **Compartir** → **Acceso general** → **Restringido**.
+
+Notas:
+- Si la cuenta es de empresa (Workspace) y bloquea compartir con externos, hay
+  que permitirlo a nivel de organización o usar una cuenta personal.
+- En un proyecto nuevo la **Google Drive API hay que habilitarla** (paso 2) o las
+  llamadas fallan con 403 `accessNotConfigured`.
+
+---
+
+## 15. Fases de implementación (código)
+
+> **Base de partida:** `ead9d4c` (== `origin/main`) en la rama
+> `fix/descarga-drirecta-drive`. El intento previo de servir la descarga por el
+> proxy con `dl=1` (commits `51db8fb` + `2654b59`) se **revirtió y eliminó sin
+> rastro** (rama vieja `fix/descarga-directa-proxy` borrada, reflog expirado y
+> objetos purgados). Ese comportamiento **se re-implementa aquí dentro** (Fase 3),
+> no se recupera del historial.
+
+- **Fase 1 — Auth/API (offline) — HECHA (working tree, sin commitear):**
+  `src/config/GoogleServiceAccount.php` (aserción RS256 + canje en `oauth2` +
+  caché de token en `sys_get_temp_dir()` con refresco anticipado),
+  `src/config/GDriveClient.php` (`enabled()`, `mediaUrl()`, `authHeaders()`),
+  `www.googleapis.com` añadido a `GDriveAllowlist::HOSTS_DEFAULT`, `require_once`
+  de ambas clases en `tests/bootstrap.php` y `tests/Unit/GoogleServiceAccountTest.php`.
+  - **Nota de entorno:** el PHP de XAMPP/Windows **no** puede ejecutar
+    `openssl_pkey_new()` (falta `openssl.cnf`; `OPENSSL_CONF` se lee al arrancar,
+    así que `putenv()` no sirve). El test usa un par RSA 2048 fijo *de usar y
+    tirar*, guardado en base64 en `tests/Unit/Support/rsa_test_{private,public}.pem.b64`
+    (sin literales `-----BEGIN ... KEY-----` en el repo). `openssl_sign()` y
+    `openssl_verify()` sí funcionan sin `openssl.cnf`.
+  - **Nota php-jwt v7:** `JWT::decode()` no rellena el `$headers` de salida; el
+    `alg` se lee del primer segmento (base64url) del propio JWT.
+- **Fase 2 — Proxy modo dual:** `endpoints/rom_proxy.php`: `require` de las dos
+  clases nuevas, elegir upstream con `GDriveClient::enabled()` → Drive API (host
+  `www.googleapis.com` + `Authorization: Bearer`) o rama pública actual
+  (`GDRIVE_BASE`); mantener Range (206), reenvío de `Content-Length/Type/Range`,
+  tope de chunk, rate limit con exención de Range; `dl=1` →
+  `Content-Disposition: attachment`; mapear 401/403 de Drive a errores
+  controlados (JSON, nunca HTML de Google).
+- **Fase 3 — Descarga por el proxy:** `UrlSigner::proxyUrl($fileId, $download)`
+  (añade `&dl=1` cuando corresponde, sin cambiar el formato de firma `sig`) y
+  `HomeController::download()` → 302 al proxy firmado con `dl=1` (hoy hace 302
+  directo a Drive, que con archivos privados deja de funcionar). El contador de
+  descargas y el rate limit se mantienen antes del redirect.
+- **Fase 4 — Config/secretos:** `.env.example`, `docker-entrypoint.sh` (pasar el
+  JSON en base64 al contenedor), `.gitignore` (ignorar `.secrets/`).
+- **Fase 5 — Verificación y docs:** smoke manual (con y sin carpeta compartida),
+  emulador (Range/seek), doc fechado de implementación + registro en el roadmap.
+
+Sin dependencias nuevas (`firebase/php-jwt` ya está). Sin cambios de esquema de
+BD, CSP ni URLs públicas.
+
+---
+
+## 16. Estado
+
+**Fase 1 — completa (working tree, sin commitear):**
+- [x] `src/config/GoogleServiceAccount.php`.
+- [x] `src/config/GDriveClient.php`.
+- [x] `www.googleapis.com` en `src/config/GDriveAllowlist.php`.
+- [x] `require_once` en `tests/bootstrap.php`.
+- [x] `tests/Unit/GoogleServiceAccountTest.php` (8 tests) + fixtures base64 en
+      `tests/Unit/Support/`.
+- **Verificación (evidencia):** `phpunit --testsuite Unit` → OK (168 tests,
+  14587 assertions); `php -l` OK en los archivos tocados.
+
+**Fase 4 — parcial (working tree):**
+- [x] `.gitignore` → `.secrets/`.
+- [x] `.env.example` → `GOOGLE_SERVICE_ACCOUNT_FILE` / `GOOGLE_SERVICE_ACCOUNT_JSON_B64`.
+- [ ] `docker-entrypoint.sh` (base64).
+
+**Pendiente:**
+- [ ] **Fase 2** — `rom_proxy.php` (modo dual) + `?dl=1`.
+- [ ] **Fase 3** — `UrlSigner::proxyUrl($id, $download)` + `HomeController::download()`.
+- [ ] **Fase 4** — `docker-entrypoint.sh`.
+- [ ] **Fase 5** — Alta de la cuenta de servicio + compartir carpeta (usuario).
+- [ ] **Fase 5** — Quitar acceso público y verificar (usuario).
