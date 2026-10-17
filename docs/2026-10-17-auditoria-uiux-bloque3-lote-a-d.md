@@ -31,11 +31,11 @@
 
 | ID | Hallazgo | Estado |
 |----|----------|--------|
-| C1 | ~145 estilos inline en 19 vistas (concentrados en admin) | **PENDIENTE** (lote C) |
-| C2 | Doble sistema de tokens (alias `--primary/--text-light/...` + paleta canónica) | **PENDIENTE** (lote C) |
-| C3 | Sombras hardcoded (~30 sitios, mismo valor que tokens existentes) | **PENDIENTE** (lote C) |
+| C1 | ~145 estilos inline en 19 vistas (concentrados en admin) | **APLICADO** (2026-10-17, Lote C — quedan 3: 2 dinámicos + API de `Alert`) |
+| C2 | Doble sistema de tokens (alias `--primary/--text-light/...` + paleta canónica) | **APLICADO** (2026-10-17, Lote C) |
+| C3 | Sombras hardcoded (~30 sitios, mismo valor que tokens existentes) | **APLICADO** (2026-10-17, Lote C) |
 | C4 | Radios 8/6/4px en carrusel de capturas | **DECISIÓN:** efecto "bisel de TV/CRT" intencional. Documentado en `game-details.css` |
-| C5 | Cabecera `variables.css:1` dice "style.css"; `style="position:relative"` redundante en `home/index.php:5` | **PENDIENTE** (menor) |
+| C5 | Cabecera `variables.css:1` dice "style.css"; `style="position:relative"` redundante en `home/index.php:5` | **APLICADO** (2026-10-17, Lote C) |
 | D1 | Estado vacío del catálogo = alerta genérica sin identidad | **APLICADO** (nuevo componente CRT) |
 
 ---
@@ -98,5 +98,5 @@
 ## 4. Pendiente (próximos lotes)
 
 - **Lote B:** cerrado el 2026-10-17 (B1 + B3 + B4) — ver `docs/2026-10-17-lote-b-i18n-visual.md`.
-- **Lote C:** C1 estilos inline → clases, C2 unificación de tokens, C3 sombras → tokens, C5 limpieza menor.
-- Auditoría completa de contraste en componentes con fondos amber (tag-hack con texto cream-light = 3.25:1 — requiere decisión sobre si oscurecer el fondo o aceptar como texto grande/decorativo).
+- **Lote C:** cerrado el 2026-10-17 (C5 + C3 + C2 + C1) — ver `docs/2026-10-17-lote-c-design-system.md`. D2 (contraste del ámbar) queda **excluido del Lote C**: irá por separado.
+- **D2 — Auditoría completa de contraste en componentes con fondos amber** (tag-hack con texto cream-light = 3.25:1 — requiere decisión sobre si oscurecer el fondo o aceptar como texto grande/decorativo). **PENDIENTE** (por separado, según decisión del usuario).

@@ -1,6 +1,6 @@
 # Plan — Bloque 3 UI/UX: lotes pendientes (B restante, C design system, contraste amber)
 
-**Fecha:** 2026-10-17 · **Estado:** Lote B aplicado (2026-10-17); Lote C y D2 planificados (no iniciados)
+**Fecha:** 2026-10-17 · **Estado:** Lote B y Lote C aplicados (2026-10-17); D2 pendiente (irá por separado)
 **Rama sugerida:** nueva rama desde `main` tras fusionar `mejora/uiux-lote-a-accesibilidad`.
 **Auditoría origen:** `docs/2026-10-17-auditoria-uiux-bloque3-lote-a-d.md` (hallazgos A1-A4, B1-B4, C1-C5, D1).
 
@@ -109,10 +109,19 @@ carácter árabe unido rompe la forma de la palabra.
 
 ---
 
-## Lote C — Design system / mantenimiento
+## Lote C — Design system / mantenimiento ✓ APLICADO 2026-10-17
 
-> Orden sugerido: C5 → C3 → C2 → C1 (de menor a mayor blast radius).
-> C1 y C2 tocan muchas vistas — hacer en ramas separadas si crecen.
+> Cerrado en `mejora/uiux-lote-c-design-system` (4 commits de código + doc):
+> C5+C3 (`5b55cd1`) → C2 (`982398d`) → C1 ola admin-1 (`d72a28c`) →
+> C1 olas admin-2 + front (`66b863d`). D2 quedó **excluido** de este lote a
+> petición del usuario (irá por separado). C1 terminó con **3** `style=` en
+> `src/views` (2 dinámicos + la API de `Alert::render`), lejos del objetivo
+> de ≤40. Detalle: `docs/2026-10-17-lote-c-design-system.md`.
+> Se conservan las descripciones originales íntegras a continuación como
+> registro del plan.
+
+> Orden sugerido original: C5 → C3 → C2 → C1 (de menor a mayor blast radius).
+> Ejecutado exactamente en ese orden, en 5 commits aprobados.
 
 ### C5 — Limpieza menor (P2)
 
