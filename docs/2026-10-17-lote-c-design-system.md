@@ -48,6 +48,7 @@ Fuera de alcance (documentado, no modificado): `endpoints/` (≈22 `style=`, cri
 
 ## 5. Notas y decisiones
 
-- **D2 (contraste ámbar) excluido** de este lote por decisión del usuario — ver sección D2 del plan.
+- **D2 (contraste ámbar) excluido** de este lote por decisión del usuario — se aplicó por separado el 2026-10-17 (ver `docs/2026-10-17-d2-contraste-amber-y-fix-filter-loading.md`).
+- **Corrección post-cierre (2026-10-17):** `.filter-loading` quedó con base `display:flex` al borrar sus inline en las olas 1 y 3 (único base-state omitido del lote) — la barra "buscando" se veía siempre en carga inicial, back o limpieza de filtros. Corregido en `ad9b3bf` (base → `display:none`); el JS era correcto.
 - Cambios de valor en CSS base (márgenes de `.pagination`, `display:none` de estados): solo seguros porque el uso inline anterior **siempre** ganaba en todos los renderizados — el resultado efectivo no cambia.
 - Los inline de `Alert::render(..., $style)` y de `endpoints/` quedan como deuda menor registrada; moverlos exige tocar la API del componente o criterios de alcance ampliados (pendiente de decisión futura).

@@ -98,5 +98,5 @@
 ## 4. Pendiente (próximos lotes)
 
 - **Lote B:** cerrado el 2026-10-17 (B1 + B3 + B4) — ver `docs/2026-10-17-lote-b-i18n-visual.md`.
-- **Lote C:** cerrado el 2026-10-17 (C5 + C3 + C2 + C1) — ver `docs/2026-10-17-lote-c-design-system.md`. D2 (contraste del ámbar) queda **excluido del Lote C**: irá por separado.
-- **D2 — Auditoría completa de contraste en componentes con fondos amber** (tag-hack con texto cream-light = 3.25:1 — requiere decisión sobre si oscurecer el fondo o aceptar como texto grande/decorativo). **PENDIENTE** (por separado, según decisión del usuario).
+- **Lote C:** cerrado el 2026-10-17 (C5 + C3 + C2 + C1) — ver `docs/2026-10-17-lote-c-design-system.md`. D2 (contraste del ámbar) quedó **excluido del Lote C**: se aplicó por separado (siguiente línea).
+- **D2 — Contraste de componentes con fondo amber** — **APLICADO** 2026-10-17 (opción 1, la recomendada): los 3 únicos fondos `--amber` del proyecto (`tag-hack`, `detail-hack-ribbon`, `rv-btn--warning`) pasan a `--amber-dark` + borde/sombra/hover a `#4a3606`. Contraste: 6.78:1 / 6.78:1 / 7.98:1 (AA; antes 2.77 / 2.77 / 3.26). Ver `docs/2026-10-17-d2-contraste-amber-y-fix-filter-loading.md` (incluye además el fix del bug de la barra "buscando": commits `ad9b3bf` y `1386a3d`).
