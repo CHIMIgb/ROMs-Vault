@@ -1655,10 +1655,10 @@
     box-shadow: 3px 3px 0 #1a1a1a;
 }
 .tag-hack {
-    background: var(--amber);
+    background: var(--amber-dark); /* D2: AA para cream-light (≈6:1; antes 3.25:1) */
     color: var(--cream-light);
-    border-color: #8a6a00;
-    box-shadow: 3px 3px 0 #8a6a00;
+    border-color: #4a3606; /* Borro/sombra más oscuros que el nuevo fondo (patrón de los .tag hermanos) */
+    box-shadow: 3px 3px 0 #4a3606;
 }
 
 /* ── Sello de región + ribbon Hack sobre el cover ── */
@@ -1691,7 +1691,7 @@
     font-size: 0.42rem;
     letter-spacing: 0.06em;
     color: var(--cream-light);
-    background: var(--amber);
+    background: var(--amber-dark); /* D2: AA para cream-light (≈6:1; antes 3.25:1) */
     border-inline-end: 3px solid var(--border-dark);
     border-bottom: 3px solid var(--border-dark);
     padding-block: 0.4rem;

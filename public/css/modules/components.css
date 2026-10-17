@@ -458,8 +458,8 @@
 
 .rv-btn-cancel                { background: var(--cream-light); color: var(--slate); }
 .rv-btn-cancel:hover          { background: var(--cream-dark); }
-.rv-btn--warning              { background: var(--amber);       color: #fff; }
-.rv-btn--warning:hover        { background: #9a6f09; }
+.rv-btn--warning              { background: var(--amber-dark); color: #fff; } /* D2: AA (≈7:1; antes 3.25:1) */
+.rv-btn--warning:hover        { background: #4a3606; }
 .rv-btn--danger               { background: var(--red);         color: #fff; }
 .rv-btn--danger:hover         { background: var(--red-dark); }
 .rv-btn--success              { background: var(--green-ok);    color: #fff; }
