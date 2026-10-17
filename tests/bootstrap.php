@@ -79,6 +79,9 @@ require_once __DIR__ . '/../src/config/IdiomasNormalizer.php';
 require_once __DIR__ . '/../src/config/TraduccionService.php';
 require_once __DIR__ . '/../src/config/TraduccionWorker.php';
 require_once __DIR__ . '/../src/config/DrenadoTrigger.php';
+require_once __DIR__ . '/../src/config/EmulatorJS.php';
+require_once __DIR__ . '/../src/config/GoogleFonts.php';
+require_once __DIR__ . '/../src/config/SecurityHeaders.php';
 
 // 5) Asegurar un directorio temporal limpio para RateLimiter y LoggerService
 $rateDir = sys_get_temp_dir() . '/rv_rate_limit/test';

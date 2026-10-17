@@ -91,7 +91,8 @@ define('CHUNK_SIZE',   1024 * 1024);  // 1 MB por chunk de streaming (antes 256 
 define('MAX_REDIRECTS', 8);           // Máximo de redirecciones a seguir
 define('CONNECT_TIMEOUT', 15);        // Segundos para establecer conexión
 define('READ_TIMEOUT',    0);         // Sin límite de tiempo de lectura (streaming)
-define('GDRIVE_BASE',  'https://drive.google.com/uc?export=download&confirm=t&id=');
+// El enlace público de Drive (modo 'public') vive en GDriveClient::UC_BASE para
+// no duplicar el host que ya declara la allowlist (GDriveAllowlist).
 define('URL_CACHE_TTL', 600);         // Caché de URLs resueltas de Drive (10 min)
 
 // ── Cargar base de datos ─────────────────────────────────────────────────────
@@ -264,11 +265,11 @@ if ($useDriveApi) {
         $authHeaders = GDriveClient::authHeaders();
     }
 } else {
-    // ── Modo público: flujo actual (GDRIVE_BASE + token de confirmación) ─────
-    $gdriveUrl = GDRIVE_BASE . urlencode($fileId);
+    // ── Modo público: flujo actual (GDriveClient::UC_BASE + token de confirmación)
+    $gdriveUrl = GDriveClient::UC_BASE . urlencode($fileId);
 
     // Anti-SSRF: la URL inicial también debe estar en la allowlist de hosts
-    // (por construcción GDRIVE_BASE es drive.google.com; queda explícito).
+    // (por construcción GDriveClient::UC_BASE apunta a drive.google.com; queda explícito).
     if (!GDriveAllowlist::hostPermitido((string) parse_url($gdriveUrl, PHP_URL_HOST))) {
         error_log('[rom_proxy] Host inicial no permitido para file_id=' . $fileId);
         emitProxyError(502, t('proxy.url_no_resuelta'), 'network');

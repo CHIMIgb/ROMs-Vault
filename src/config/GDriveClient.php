@@ -27,6 +27,13 @@ class GDriveClient {
     /** Modo público (enlace de Drive sin credenciales): dev / CI / rollback. */
     public const MODE_PUBLIC = 'public';
 
+    /**
+     * Enlace público de descarga de Drive (solo en modo 'public'). El host debe
+     * seguir estando en la allowlist (GDriveAllowlist::HOSTS_DEFAULT), de manera
+     * que el host de Google Drive no viva en dos fuentes distintas.
+     */
+    public const UC_BASE = 'https://drive.google.com/uc?export=download&confirm=t&id=';
+
     /** Endpoint base de archivos de la Drive API v3. */
     private const FILES_ENDPOINT = 'https://www.googleapis.com/drive/v3/files/';
 

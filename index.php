@@ -4,6 +4,9 @@ require_once __DIR__ . '/src/config/AuthMiddleware.php';
 require_once __DIR__ . '/src/config/CsrfService.php';
 require_once __DIR__ . '/src/config/i18n.php';
 require_once __DIR__ . '/src/config/IntlHelper.php';
+require_once __DIR__ . '/src/config/EmulatorJS.php';
+require_once __DIR__ . '/src/config/GoogleFonts.php';
+require_once __DIR__ . '/src/config/SecurityHeaders.php';
 
 // ── Selector de idioma (?lang=es|en) — ítem 6.2 ──────────────────────────────
 // Persiste la preferencia en la cookie rv_lang y redirige a la MISMA URL sin el
@@ -23,44 +26,9 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], I18n::LANGUAGES, true)) {
 I18n::init(); // t() disponible en todas las páginas HTML
 
 // ── Cabeceras de seguridad globales (todas las páginas HTML) ────────────────
-// CSP equilibrada: permite el CDN de EmulatorJS (scripts, estilos, fuentes,
-// imágenes, workers y fetch), blob: (Object URLs del emulador) y scripts/estilos
-// inline que ya usa el sitio. Se requiere 'unsafe-eval' porque el runtime de
-// Emscripten (cores de EmulatorJS) usa eval()/new Function() internamente
-// (cwrap/createNamedFunction) y 'blob:' en script-src porque el core
-// descomprimido se inyecta como un Object URL (blob) y el WASM se instancia
-// vía fetch desde ese blob (connect-src). Sin ello el emulador no arranca.
-// object-src 'none' y frame-ancestors 'self' cierran clickjacking y
-// plugin-based XSS.
-//
-// Si R2 está configurado, se añade su host público a img-src para que el
-// navegador cargue las portadas/capturas directo desde el CDN (sin pasar por PHP).
-
-$r2Raw = $_ENV['R2_PUBLIC_HOST'] ?? getenv('R2_PUBLIC_HOST');
-if (empty($r2Raw)) {
-    $r2Raw = $_ENV['R2_PUBLIC_BASE'] ?? getenv('R2_PUBLIC_BASE');
-}
-$r2ImgSrc = '';
-if (!empty($r2Raw)) {
-    $r2Host = parse_url(strpos((string) $r2Raw, '://') !== false ? (string) $r2Raw : 'https://' . $r2Raw, PHP_URL_HOST);
-    if (!empty($r2Host)) {
-        $r2ImgSrc = ' https://' . $r2Host;
-    }
-}
-
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: SAMEORIGIN');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
-header("Content-Security-Policy: default-src 'self'; "
-     . "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.emulatorjs.org; "
-     . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.emulatorjs.org; "
-     . "font-src 'self' https://fonts.gstatic.com data: https://cdn.emulatorjs.org; "
-     . "img-src 'self' data: blob: https://cdn.emulatorjs.org" . $r2ImgSrc . "; "
-     . "media-src 'self' blob: https://cdn.emulatorjs.org; "
-     . "connect-src 'self' blob: https://cdn.emulatorjs.org; "
-     . "worker-src 'self' blob: https://cdn.emulatorjs.org; "
-     . "frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'");
+// La política (CSP) y su porqué viven en src/config/SecurityHeaders.php, junto
+// a los hosts externos declarados una sola vez (EmulatorJS, Google Fonts, R2).
+SecurityHeaders::emitir();
 
 // Cargar usuario actual desde JWT (disponible como $currentUser en las vistas)
 $currentUser = AuthMiddleware::getUser();
