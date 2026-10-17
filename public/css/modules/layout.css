@@ -300,6 +300,11 @@ header .subtitle { margin-bottom: 1.2rem; }
     border: 2px solid var(--border-dark);
     box-shadow: var(--raise-shadow);
     display: none;
+    /* B1 (auditoría 2026-10-17): con 12 idiomas el menú crecía sin límite y en
+       viewports bajos las últimas opciones quedaban fuera de pantalla. En
+       pantallas altas 60vh no se alcanza → el menú luce idéntico al de siempre. */
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .lang-switch:focus-within .lang-menu {

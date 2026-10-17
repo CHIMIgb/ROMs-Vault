@@ -164,7 +164,10 @@ if ($emuladorLocal) {
                 <span class="synopsis-hack-badge"><i data-i="zap" aria-hidden="true"></i> <?= t('show.rom_hack') ?></span>
             <?php endif; ?>
         </h2>
-        <div class="detail-synopsis-content">
+        <div class="detail-synopsis-content<?=
+            // B4: capitular Press Start 2P solo si arranca en latín (ver game-details.css)
+            preg_match('/^\s*\p{Latin}/u', $juego['descripcion']) ? ' synopsis-dropcap' : ''
+        ?>">
             <?= nl2br(htmlspecialchars($juego['descripcion'])) ?>
         </div>
     </section>

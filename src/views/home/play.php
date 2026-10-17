@@ -66,7 +66,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                 </a>
             <?php endif; ?>
             <?php if ($errorType === 'quota'): ?>
-                <a href="javascript:location.reload()" class="btn-retry">
+                <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?>" class="btn-retry" data-reload>
                     <i data-i="reload"></i> <?= t('play.reintentar_ahora') ?>
                 </a>
             <?php endif; ?>
@@ -87,6 +87,8 @@ if ($juego === null && empty($error) && empty($proxyError)) {
         </details>
 
     </div>
+
+    <script src="public/js/views/home/play-error.js" defer></script>
 
 <?php else: ?>
     <!-- ====== Emulador ====== -->

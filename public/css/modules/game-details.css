@@ -1755,7 +1755,12 @@
 }
 
 /* ── Sinopsis: tratamiento editorial ── */
-.detail-synopsis-content::first-letter {
+/* Capitular solo con .synopsis-dropcap (B4 — auditoría 2026-10-17): la vista
+   imprime la clase únicamente si la sinopsis empieza por carácter latino
+   (\p{Latin}). Press Start 2P cubre latin/latin-ext; en CJK/árabe/cirílico
+   el ::first-letter caía a la fuente fallback y en RTL el float rompía la
+   forma de la palabra. Aspecto idéntico para sinopsis en scripts latinos. */
+.detail-synopsis-content.synopsis-dropcap::first-letter {
     font-family: 'Press Start 2P', monospace;
     font-size: 2.3rem;
     line-height: 1;

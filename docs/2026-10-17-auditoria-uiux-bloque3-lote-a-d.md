@@ -22,10 +22,10 @@
 
 | ID | Hallazgo | Estado |
 |----|----------|--------|
-| B1 | `.lang-menu` sin `max-height` con 12 idiomas (viewport bajo → opciones inalcanzables) | **PENDIENTE** (lote siguiente) |
+| B1 | `.lang-menu` sin `max-height` con 12 idiomas (viewport bajo → opciones inalcanzables) | **APLICADO** (2026-10-17, Lote B) |
 | B2 | `nowrap + ellipsis` desborda cadenas largas (de/ru) en tarjetas y tags | **DECISIÓN:** mantener el clamp — es arquitectura deliberada de altura fija de tarjeta. Documentado en `game-grid.css` |
-| B3 | `javascript:history.back()` en `errors/404.php` | **PENDIENTE** |
-| B4 | Drop-cap `::first-letter` con scripts CJK/RTL | **PENDIENTE** |
+| B3 | `javascript:history.back()` en `errors/404.php` | **APLICADO** (2026-10-17, Lote B) — ampliado a `errors/generic.php` y al `location.reload()` de `home/play.php` (criterio `grep → 0`) |
+| B4 | Drop-cap `::first-letter` con scripts CJK/RTL | **APLICADO** (2026-10-17, Lote B) |
 
 ### P2 — Design system / mantenimiento
 
@@ -97,6 +97,6 @@
 
 ## 4. Pendiente (próximos lotes)
 
-- **Lote B restante:** B1 (max-height lang-menu), B3 (history.back del 404), B4 (drop-cap condicional).
+- **Lote B:** cerrado el 2026-10-17 (B1 + B3 + B4) — ver `docs/2026-10-17-lote-b-i18n-visual.md`.
 - **Lote C:** C1 estilos inline → clases, C2 unificación de tokens, C3 sombras → tokens, C5 limpieza menor.
 - Auditoría completa de contraste en componentes con fondos amber (tag-hack con texto cream-light = 3.25:1 — requiere decisión sobre si oscurecer el fondo o aceptar como texto grande/decorativo).

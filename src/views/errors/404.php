@@ -24,7 +24,7 @@
         <a href="/" class="btn-404-home">
             <?= t('errors.ir_catalogo') ?>
         </a>
-        <a href="javascript:history.back()" class="btn-404-back">
+        <a href="/" class="btn-404-back" data-back>
             <?= t('errors.volver_atras') ?>
         </a>
     </div>

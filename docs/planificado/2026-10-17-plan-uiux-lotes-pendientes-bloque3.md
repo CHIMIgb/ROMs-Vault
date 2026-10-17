@@ -1,8 +1,14 @@
 # Plan — Bloque 3 UI/UX: lotes pendientes (B restante, C design system, contraste amber)
 
-**Fecha:** 2026-10-17 · **Estado:** planificado (no iniciado)
+**Fecha:** 2026-10-17 · **Estado:** Lote B aplicado (2026-10-17); Lote C y D2 planificados (no iniciados)
 **Rama sugerida:** nueva rama desde `main` tras fusionar `mejora/uiux-lote-a-accesibilidad`.
 **Auditoría origen:** `docs/2026-10-17-auditoria-uiux-bloque3-lote-a-d.md` (hallazgos A1-A4, B1-B4, C1-C5, D1).
+
+> Los Lotes A (accesibilidad base), D (estado vacío CRT) y **B restante (B1/B3/B4)** ya
+> están aplicados (ramas `mejora/uiux-lote-a-accesibilidad` y `mejora/uiux-lote-b-i18n-visual`).
+> Este documento planifica **solo lo que queda** (Lote C + D2). Cada ítem requiere
+> su plan §10 aprobado antes de tocar código. Detalle del B cerrado:
+> `docs/2026-10-17-lote-b-i18n-visual.md`.
 
 > Los Lotes A (accesibilidad base) y D (estado vacío CRT) ya están aplicados en la
 > rama `mejora/uiux-lote-a-accesibilidad`. Este documento planifica **solo lo que
@@ -20,7 +26,15 @@
 
 ---
 
-## Lote B restante — i18n visual
+## Lote B restante — i18n visual ✓ APLICADO 2026-10-17
+
+> Cerrado en `mejora/uiux-lote-b-i18n-visual`: B1 (`60vh` sin tope de 22rem,
+> para cumplir "idéntico en pantallas altas"), B3 (`href="/"` base en vez de
+> `href="#"`, mejora progresiva) y B4 (alfabeto por primer carácter del
+> contenido, alternativa `\p{Latin}` que este plan ya contemplaba — también
+> excluye cirílico). Detalle: `docs/2026-10-17-lote-b-i18n-visual.md`.
+> Se conservan las descripciones originales íntegras a continuación como
+> registro del plan.
 
 ### B1 — Menú de idiomas sin `max-height` (P1)
 
