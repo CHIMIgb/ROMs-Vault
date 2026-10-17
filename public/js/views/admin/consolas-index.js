@@ -50,6 +50,7 @@
 
     function getUiParams(page) {
         const p = getAjaxParams(page);
+        if (!page || page === 1) p.delete('page');
         return p;
     }
 
@@ -66,7 +67,8 @@
         resultsEl.style.opacity    = '0.45';
         resultsEl.style.pointerEvents = 'none';
 
-        history.replaceState(null, '', '?' + getUiParams(page).toString());
+        const uiQs = getUiParams(page).toString();
+        history.replaceState(null, '', uiQs ? '?' + uiQs : location.pathname);
 
         try {
             const res = await fetch('ajax_consola.php?' + getAjaxParams(page).toString(), {
@@ -77,7 +79,7 @@
             bindPagination();
         } catch (err) {
             if (err.name !== 'AbortError') {
-                window.location.href = '?' + getUiParams(page).toString();
+                window.location.href = uiQs ? '?' + uiQs : location.pathname;
             }
         } finally {
             loadingEl.style.display    = 'none';
