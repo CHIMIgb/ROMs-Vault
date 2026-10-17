@@ -13,6 +13,12 @@ RewriteRule ^ajax_[a-z]+\.php$ endpoints/$0            [L,QSA]
 # El código bajo /src nunca debe servirse por HTTP.
 RewriteRule ^src/ - [F,L]
 
+# ── Rutas internas que nunca se sirven por HTTP ─────────────────────────────
+# Dotfiles (.env, .secrets/, .git/, …) salvo /.well-known/ (ACME).
+RewriteRule "(^|/)\.(?!well-known/)" - [F,L]
+# Directorios de datos, tests, scripts y documentación.
+RewriteRule ^(data|tests|scratch|docs|scripts|vendor)/ - [F,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]
@@ -26,6 +32,12 @@ ErrorDocument 500 /index.php?controller=errors&action=serverError
 # Bloquear acceso directo a archivos sensibles
 # (Apache 2.4: usar Require, no Order/Deny)
 <FilesMatch "\.(env|log|sql|sh|bak)$">
+    Require all denied
+</FilesMatch>
+
+# Ficheros de configuración y documentación que nunca se sirven por HTTP
+# (el código de la app vive en /src y no se distribuye por HTTP).
+<FilesMatch "^(Dockerfile|docker-compose\.ya?ml|composer\.(json|lock)|phpunit\.xml(\.dist)?|AGENTS\.md|README\.md|router\.php|docker-entrypoint\.sh)$">
     Require all denied
 </FilesMatch>
 

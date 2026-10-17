@@ -9,7 +9,8 @@
  *
  * La lista es configurable en .env con GDRIVE_ALLOWED_HOSTS (coma-separada,
  * sin espacios). Si está vacía/ausente se usan los defaults del proyecto
- * (drive.google.com y drive.usercontent.google.com), de modo que los hosts de
+ * (drive.google.com, drive.usercontent.google.com y www.googleapis.com, este
+ * último para la Drive API con cuenta de servicio), de modo que los hosts de
  * entrega futuros se pueden añadir sin tocar código.
  */
 
@@ -19,6 +20,7 @@ class GDriveAllowlist {
     public const HOSTS_DEFAULT = [
         'drive.google.com',
         'drive.usercontent.google.com',
+        'www.googleapis.com',
     ];
 
     /**

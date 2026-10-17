@@ -32,6 +32,11 @@ INTERNAL_DRAIN_SECRET="${INTERNAL_DRAIN_SECRET}"
 INTERNAL_DRAIN_URL="${INTERNAL_DRAIN_URL:-}"
 RATE_LIMIT_MAX="${RATE_LIMIT_MAX:-30}"
 RATE_LIMIT_WINDOW="${RATE_LIMIT_WINDOW:-60}"
+GDRIVE_MODE="${GDRIVE_MODE:-api}"
+GOOGLE_SERVICE_ACCOUNT_FILE="${GOOGLE_SERVICE_ACCOUNT_FILE:-}"
+GOOGLE_SERVICE_ACCOUNT_JSON_B64="${GOOGLE_SERVICE_ACCOUNT_JSON_B64:-}"
+GDRIVE_ALLOWED_HOSTS="${GDRIVE_ALLOWED_HOSTS:-}"
+SIGNED_URL_TTL="${SIGNED_URL_TTL:-900}"
 ALLOWED_ORIGINS="${ALLOWED_ORIGINS}"
 TRUSTED_PROXIES="${TRUSTED_PROXIES:-}"
 AUTH_LOG_DIR="${AUTH_LOG_DIR:-/var/log/roms-vault}"
@@ -44,6 +49,15 @@ R2_BUCKET="${R2_BUCKET}"
 R2_PUBLIC_BASE="${R2_PUBLIC_BASE}"
 R2_PUBLIC_HOST="${R2_PUBLIC_HOST}"
 EOF
+
+# Aviso operativo (no aborta): en modo api el proxy de ROMs necesita credenciales
+# de cuenta de servicio; sin ellas respondería 503. Se avisa en el arranque para
+# no dejar el fallo oculto. Nunca se imprime el contenido de las credenciales.
+if [ "${GDRIVE_MODE:-api}" = "api" ] \
+    && [ -z "${GOOGLE_SERVICE_ACCOUNT_FILE:-}" ] \
+    && [ -z "${GOOGLE_SERVICE_ACCOUNT_JSON_B64:-}" ]; then
+    echo "[entrypoint] AVISO: GDRIVE_MODE=api sin GOOGLE_SERVICE_ACCOUNT_FILE ni GOOGLE_SERVICE_ACCOUNT_JSON_B64; el proxy de ROMs responderá 503." >&2
+fi
 
 # Asegurar un directorio de logs escribible por www-data
 mkdir -p "${AUTH_LOG_DIR:-/var/log/roms-vault}" 2>/dev/null || true

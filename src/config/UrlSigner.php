@@ -67,12 +67,18 @@ class UrlSigner {
 
     /**
      * URL firmada del proxy de streaming (rom_proxy.php).
+     *
+     * Con $download = true añade "&dl=1" para que el proxy emita
+     * Content-Disposition: attachment (descarga local) en lugar de inline.
+     * El parámetro dl NO forma parte de la firma (que sigue siendo
+     * hmac(fileId|t)), así que las URLs ya emitidas siguen siendo válidas.
      */
-    public static function proxyUrl(string $fileId): string {
+    public static function proxyUrl(string $fileId, bool $download = false): string {
         $f = self::sign($fileId);
         return '/rom_proxy.php?file_id=' . urlencode($fileId)
              . '&t=' . $f['t']
-             . '&sig=' . $f['sig'];
+             . '&sig=' . $f['sig']
+             . ($download ? '&dl=1' : '');
     }
 
     private static function secret(): string {

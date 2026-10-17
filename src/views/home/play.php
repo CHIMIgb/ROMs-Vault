@@ -259,7 +259,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
             window.EJS_core = '<?= addslashes($core) ?>';
             window.EJS_gameName = '<?= addslashes(htmlspecialchars_decode($juego['titulo'])) ?>';
             window.EJS_gameUrl = '<?= addslashes($romUrl) ?>';
-            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+            window.EJS_pathtodata = '<?= EmulatorJS::dataUrl() ?>';
             window.EJS_color = '#c0392b';
             window.EJS_startOnLoaded = false;
             window.EJS_backgroundColor = '#1a1a1a';
@@ -292,7 +292,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
             // ── Carga el loader de EmulatorJS en el DOM ───────────────────────────
             function loadEmulatorJS() {
                 const s = document.createElement('script');
-                s.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+                s.src = '<?= EmulatorJS::loaderUrl() ?>';
                 s.async = true;
                 s.onerror = () => {
                     console.error('[EmulatorJS] No se pudo cargar loader.js — verifica tu conexión.');

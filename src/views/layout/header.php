@@ -35,8 +35,8 @@
 
     <link rel="icon" type="image/png" href="public/img/icon.png">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="<?= GoogleFonts::CSS_ORIGIN ?>">
+    <link rel="preconnect" href="<?= GoogleFonts::FILES_ORIGIN ?>" crossorigin>
     <link rel="stylesheet" href="public/css/style.css">
 </head>
 <body>

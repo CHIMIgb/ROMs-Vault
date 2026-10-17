@@ -579,8 +579,12 @@ class HomeController {
         // Incrementar contador de descargas
         $juegoModel->incrementDownloads($juego['id']);
 
-        $downloadLink = "https://drive.google.com/uc?export=download&id={$fileId}&confirm=t";
-        header("Location: " . $downloadLink);
+        // Redirigir al proxy firmado con dl=1: rom_proxy.php emite
+        // Content-Disposition: attachment (descarga local) reutilizando toda la
+        // lógica de Drive (API o público según GDRIVE_MODE, Range y errores).
+        // Ya no se redirige a drive.google.com: con archivos privados ese enlace
+        // no funciona y además expondría la URL directa de Drive.
+        header('Location: ' . UrlSigner::proxyUrl($fileId, true));
         exit;
     }
 

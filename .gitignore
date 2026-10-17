@@ -2,6 +2,10 @@
 .env.neon
 .env.*
 !tests/.env.test.example
+
+# Credenciales de la cuenta de servicio de Google (Drive API). Secreto critico:
+# nunca se versiona. Ver docs/planificado/2026-10-14-drive-privado-service-account.md
+.secrets/
 .vercel
 *.log
 generate_imports.py

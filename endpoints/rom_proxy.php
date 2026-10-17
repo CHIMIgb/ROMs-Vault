@@ -13,10 +13,19 @@
  *  5. Hace streaming del contenido en chunks para no saturar la memoria del servidor
  *  6. Gestiona el token de confirmación de descarga que Google exige en archivos grandes
  *
- * URL de uso:
- *   rom_proxy.php?file_id=GOOGLE_DRIVE_FILE_ID
+ * Modo de acceso a Drive (variable de entorno GDRIVE_MODE, sin degradación
+ * automática; ver src/config/GDriveClient.php):
+ *   - 'api' (por defecto): lee el binario de la Drive API con una cuenta de
+ *     servicio, de modo que las ROMs pueden dejar de ser públicas. Si no hay
+ *     credenciales o el access_token falla, responde 503 (error de configuración)
+ *     en lugar de caer a la vía pública.
+ *   - 'public': usa el enlace público de Drive (desarrollo, CI y rollback).
  *
- * EmulatorJS lo usará internamente como EJS_gameUrl.
+ * URL de uso:
+ *   rom_proxy.php?file_id=GOOGLE_DRIVE_FILE_ID&t=..&sig=..[&dl=1]
+ *
+ * EmulatorJS lo usará internamente como EJS_gameUrl. `dl=1` añade
+ * Content-Disposition: attachment (descarga local), sin cambiar la firma.
  */
 
 // ── Seguridad: evitar ejecución directa sin parámetros ──────────────────────
@@ -53,6 +62,18 @@ function emitCorsHeaders(): void {
     header('Access-Control-Expose-Headers: Content-Length, Content-Range, Accept-Ranges');
 }
 
+/**
+ * Emite un error JSON controlado y termina la ejecución.
+ * Centraliza el patrón repetido en este endpoint: nunca se filtra HTML ni
+ * detalles internos de Google Drive al cliente.
+ */
+function emitProxyError(int $httpCode, string $message, string $type): void {
+    http_response_code($httpCode);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => $message, 'error_type' => $type]);
+    exit;
+}
+
 // ── Responder preflight CORS inmediatamente (sin tocar BD ni Google) ────────
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     emitCorsHeaders();
@@ -70,7 +91,9 @@ define('CHUNK_SIZE',   1024 * 1024);  // 1 MB por chunk de streaming (antes 256 
 define('MAX_REDIRECTS', 8);           // Máximo de redirecciones a seguir
 define('CONNECT_TIMEOUT', 15);        // Segundos para establecer conexión
 define('READ_TIMEOUT',    0);         // Sin límite de tiempo de lectura (streaming)
-define('GDRIVE_BASE',  'https://drive.google.com/uc?export=download&confirm=t&id=');
+// El enlace público de Drive (modo 'public') vive en GDriveClient::UC_BASE para
+// no duplicar el host que ya declara la allowlist (GDriveAllowlist).
+define('URL_CACHE_TTL', 600);         // Caché de URLs resueltas de Drive (10 min)
 
 // ── Cargar base de datos ─────────────────────────────────────────────────────
 
@@ -78,6 +101,7 @@ require_once __DIR__ . '/../src/config/database.php';
 require_once __DIR__ . '/../src/config/RateLimiter.php';
 require_once __DIR__ . '/../src/config/UrlSigner.php';
 require_once __DIR__ . '/../src/config/GDriveAllowlist.php';
+require_once __DIR__ . '/../src/config/GDriveClient.php';
 require_once __DIR__ . '/../src/config/OriginPolicy.php';
 require_once __DIR__ . '/../src/config/i18n.php';
 require_once __DIR__ . '/../src/models/Model.php';
@@ -186,21 +210,185 @@ if (!$juego['activo']) {
     exit;
 }
 
-// ── Construir URL inicial de Google Drive ────────────────────────────────────
-$gdriveUrl = GDRIVE_BASE . urlencode($fileId);
+// ── Modo de acceso a Drive (GDRIVE_MODE: 'api' por defecto | 'public') ───────
+// Sin degradación automática: con GDRIVE_MODE=api y sin credenciales es un
+// error de configuración del servidor (503), nunca un fallback silencioso.
+$gdriveMode  = GDriveClient::mode();
+$useDriveApi = GDriveClient::enabled();
 
-// Anti-SSRF: la URL inicial también debe estar en la allowlist de hosts
-// (por construcción GDRIVE_BASE es drive.google.com; queda explícito).
-if (!GDriveAllowlist::hostPermitido((string) parse_url($gdriveUrl, PHP_URL_HOST))) {
-    http_response_code(502);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error'      => t('proxy.url_no_resuelta'),
-        'error_type' => 'network',
-        'detail'     => t('proxy.destino_invalido'),
-    ]);
-    error_log('[rom_proxy] Host inicial no permitido para file_id=' . $fileId);
-    exit;
+// `dl=1` solo cambia Content-Disposition (descarga); la firma es HMAC(fileId|t),
+// así que este parámetro no interviene en la validación.
+$download = (($_GET['dl'] ?? '') === '1');
+
+// Cabeceras Bearer para la Drive API (vacío en modo público).
+$authHeaders = [];
+
+// GDRIVE_MODE=api pero sin credenciales → error de configuración (no se cae a público).
+if ($gdriveMode === GDriveClient::MODE_API && !$useDriveApi) {
+    error_log('[rom_proxy] GDRIVE_MODE=api sin credenciales de cuenta de servicio (file_id=' . $fileId . ')');
+    emitProxyError(503, t('proxy.modo_sin_credenciales'), 'config');
+}
+
+if ($useDriveApi) {
+    // ── Modo API: binario vía Drive API (archivos privados) ──────────────────
+    if (GDriveClient::authHeaders() === []) {
+        error_log('[rom_proxy] Access token no disponible (file_id=' . $fileId . ')');
+        emitProxyError(503, t('proxy.modo_sin_credenciales'), 'config');
+    }
+
+    $resolvedApi = resolveDriveApiMediaUrl(GDriveClient::mediaUrl($fileId), $fileId);
+
+    if ($resolvedApi['url'] === null) {
+        error_log('[rom_proxy] Drive API: ' . $resolvedApi['error'] . ' (file_id=' . $fileId . ')');
+        switch ($resolvedApi['error']) {
+            case 'auth':
+                emitProxyError(502, t('proxy.gdrive_auth'), 'auth');
+            case 'private':
+                emitProxyError(502, t('proxy.gdrive_bloqueado'), 'private');
+            case 'not_found':
+                emitProxyError(502, t('proxy.gdrive_no_existe'), 'not_found');
+            case 'quota':
+                emitProxyError(502, t('proxy.gdrive_cuota'), 'quota');
+            case 'config':
+                emitProxyError(503, t('proxy.modo_sin_credenciales'), 'config');
+            default:
+                emitProxyError(502, t('proxy.url_no_resuelta'), 'network');
+        }
+    }
+
+    $finalUrl  = $resolvedApi['url'];
+    $cookieJar = [];
+
+    // La URL final (CDN de Google) no necesita el Bearer; solo se reenvía si la
+    // propia Drive API sirvió el binario directo (sin redirect).
+    if (!empty($resolvedApi['needs_auth'])) {
+        $authHeaders = GDriveClient::authHeaders();
+    }
+} else {
+    // ── Modo público: flujo actual (GDriveClient::UC_BASE + token de confirmación)
+    $gdriveUrl = GDriveClient::UC_BASE . urlencode($fileId);
+
+    // Anti-SSRF: la URL inicial también debe estar en la allowlist de hosts
+    // (por construcción GDriveClient::UC_BASE apunta a drive.google.com; queda explícito).
+    if (!GDriveAllowlist::hostPermitido((string) parse_url($gdriveUrl, PHP_URL_HOST))) {
+        error_log('[rom_proxy] Host inicial no permitido para file_id=' . $fileId);
+        emitProxyError(502, t('proxy.url_no_resuelta'), 'network');
+    }
+
+    // Resolver URL final con cookies (cache → resolución)
+    $cached = getCachedUrl($fileId);
+
+    if ($cached) {
+        $finalUrl  = $cached['url'];
+        $cookieJar = $cached['cookies'];
+    } else {
+        $resolved = resolveGDriveUrl($gdriveUrl);
+
+        if ($resolved['error'] || !$resolved['url']) {
+            error_log('[rom_proxy] Error resolviendo URL para file_id=' . $fileId . ': ' . ($resolved['error'] ?? ''));
+            emitProxyError(502, t('proxy.url_no_resuelta'), 'network');
+        }
+
+        $finalUrl  = $resolved['url'];
+        $cookieJar = $resolved['cookies'];
+        cacheUrl($fileId, $finalUrl, $cookieJar);
+    }
+}
+
+// ── Función: resolver el binario vía Drive API (modo 'api') ─────────────────
+/**
+ * Pide a la Drive API el binario de un file_id y devuelve la URL final desde
+ * la que hacer streaming.
+ *
+ * La Drive API responde 302 hacia un CDN de Google (drive.usercontent.google.com
+ * / *.googleusercontent.com). La redirección se sigue A MANO (FOLLOWLOCATION
+ * desactivado) para:
+ *   - no reenviar la cabecera Authorization al host final (no filtrar el Bearer);
+ *   - validar el host de destino contra GDriveAllowlist (anti-SSRF).
+ *
+ * Solo se leen las cabeceras: el cuerpo se aborta al primer byte (no se descarga
+ * la ROM dos veces). Ante un 401 (token caducado/revocado) se descarta el token
+ * en caché y se reintenta UNA vez con uno fresco.
+ *
+ * @return array{url: ?string, error: ?string, needs_auth: bool}
+ *         error: null | 'config' | 'auth' | 'private' | 'not_found' | 'quota' | 'host' | 'network'
+ */
+function resolveDriveApiMediaUrl(string $mediaUrl, string $fileId): array {
+    $intento = 0;
+
+    while (true) {
+        $headers = GDriveClient::authHeaders();
+        if ($headers === []) {
+            return ['url' => null, 'error' => 'config', 'needs_auth' => false];
+        }
+
+        $ch = curl_init($mediaUrl);
+        $httpCode = 0;
+        $location = null;
+
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => false,
+            CURLOPT_HEADER         => false,
+            CURLOPT_FOLLOWLOCATION => false,          // 302 a mano: no filtrar el Bearer
+            CURLOPT_TIMEOUT        => CONNECT_TIMEOUT,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0 (compatible; ROMs-Vault/1.0)',
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_HEADERFUNCTION => function ($ch, $headerLine) use (&$httpCode, &$location) {
+                $trimmed = rtrim($headerLine);
+                if (preg_match('#^HTTP/[\d.]+ (\d{3})#', $trimmed, $m)) {
+                    $httpCode = (int)$m[1];
+                } elseif (stripos($trimmed, 'Location:') === 0) {
+                    $location = trim(substr($trimmed, 9));
+                }
+                return strlen($headerLine);
+            },
+            // Solo interesan las cabeceras: abortar al primer byte de cuerpo.
+            CURLOPT_WRITEFUNCTION  => function ($ch, $data) {
+                return 0;
+            },
+        ]);
+
+        curl_exec($ch);
+        curl_close($ch);
+
+        // Token caducado/revocado: descartar caché y reintentar una vez.
+        if ($httpCode === 401 && $intento === 0) {
+            GoogleServiceAccount::clearCache();
+            $intento++;
+            continue;
+        }
+
+        if ($httpCode === 401) {
+            return ['url' => null, 'error' => 'auth', 'needs_auth' => false];
+        }
+        if ($httpCode === 403) {
+            return ['url' => null, 'error' => 'private', 'needs_auth' => false];
+        }
+        if ($httpCode === 404) {
+            return ['url' => null, 'error' => 'not_found', 'needs_auth' => false];
+        }
+        if ($httpCode === 429) {
+            return ['url' => null, 'error' => 'quota', 'needs_auth' => false];
+        }
+
+        // 200: la Drive API sirve el binario directamente (necesita el Bearer).
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return ['url' => $mediaUrl, 'error' => null, 'needs_auth' => true];
+        }
+
+        // 302/303/307: CDN de Google. Validar host (anti-SSRF) y no reenviar Bearer.
+        if ($httpCode >= 300 && $httpCode < 400 && !empty($location)) {
+            $host = (string) parse_url($location, PHP_URL_HOST);
+            if (!GDriveAllowlist::hostPermitido($host)) {
+                error_log('[rom_proxy] Drive API redirige a host no permitido: ' . $host . ' (file_id=' . $fileId . ')');
+                return ['url' => null, 'error' => 'host', 'needs_auth' => false];
+            }
+            return ['url' => $location, 'error' => null, 'needs_auth' => false];
+        }
+
+        return ['url' => null, 'error' => 'network', 'needs_auth' => false];
+    }
 }
 
 // ── Función: seguir redirecciones manualmente con cURL ───────────────────────
@@ -385,29 +573,7 @@ function extractDriveConfirmToken(string $html): ?string {
     return null;
 }
 
-/**
- * Convierte el nombre del archivo de Google Drive a una extensión conocida
- * basándose en el nombre del juego y la consola.
- */
-function guessContentType(string $titulo, string $consolaNombre): string {
-    $console = strtolower($consolaNombre);
-
-    $map = [
-        'psp'               => 'application/octet-stream', // .iso / .cso
-        'playstation'       => 'application/octet-stream', // .bin / .iso
-        'nintendo ds'       => 'application/octet-stream', // .nds
-        'game boy advance'  => 'application/octet-stream', // .gba
-    ];
-
-    foreach ($map as $key => $mime) {
-        if (str_contains($console, $key)) return $mime;
-    }
-
-    return 'application/octet-stream';
-}
-
-// ── Cache de URLs resueltas de Google Drive ──────────────────────────────────
-define('URL_CACHE_TTL', 600); // 10 minutos (conservador)
+// ── Cache de URLs resueltas de Google Drive (solo modo público) ──────────────
 
 function getCachedUrl(string $fileId): ?array {
     $cacheFile = sys_get_temp_dir() . '/romproxy_cache/' . md5($fileId) . '.json';
@@ -433,46 +599,13 @@ function cacheUrl(string $fileId, string $url, array $cookies): void {
     ]), LOCK_EX);
 }
 
-// ── Resolver URL final con cookies (cache → resolución) ─────────────────────
-$cached = getCachedUrl($fileId);
-
-if ($cached) {
-    $finalUrl  = $cached['url'];
-    $cookieJar = $cached['cookies'];
-} else {
-    $resolved = resolveGDriveUrl($gdriveUrl);
-
-    if ($resolved['error'] || !$resolved['url']) {
-        http_response_code(502);
-        header('Content-Type: application/json');
-        echo json_encode([
-            'error'      => t('proxy.url_no_resuelta'),
-            'error_type' => 'network',
-            'detail'     => t('proxy.destino_invalido'),
-        ]);
-        error_log('[rom_proxy] Error resolviendo URL para file_id=' . $fileId . ': ' . ($resolved['error'] ?? ''));
-        exit;
-    }
-
-    $finalUrl  = $resolved['url'];
-    $cookieJar = $resolved['cookies'];
-    cacheUrl($fileId, $finalUrl, $cookieJar);
-}
-
 // ── Anti-SSRF (defensa en profundidad): también se valida el host de la URL
-// final (venga de la caché o de la resolución) antes de abrir el stream.
-// Nunca se conecta a un host que no esté en la allowlist.
+// final (venga del CDN de la Drive API, de la caché o de la resolución) antes
+// de abrir el stream. Nunca se conecta a un host que no esté en la allowlist.
 $finalHost = (string) parse_url($finalUrl, PHP_URL_HOST);
 if (!GDriveAllowlist::hostPermitido($finalHost)) {
-    http_response_code(502);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error'      => t('proxy.url_no_resuelta'),
-        'error_type' => 'network',
-        'detail'     => t('proxy.destino_invalido'),
-    ]);
-    error_log('[rom_proxy] Host final no permitido (cache o resolución): ' . $finalHost . ' para file_id=' . $fileId);
-    exit;
+    error_log('[rom_proxy] Host final no permitido: ' . $finalHost . ' para file_id=' . $fileId);
+    emitProxyError(502, t('proxy.url_no_resuelta'), 'network');
 }
 
 // ── Procesar Range Request del cliente (para seeking en EmulatorJS) ───────────
@@ -485,6 +618,13 @@ if (!empty($clientRange)) {
         $rangeHeader = $clientRange; // Lo reenviaremos a Google Drive
     }
 }
+
+// ── Preflight (HEAD) ─────────────────────────────────────────────────────────
+// HomeController::checkProxyAccess() comprueba la accesibilidad con un HEAD en
+// cada carga de /home/play/{id}. Con HEAD se piden a Drive SOLO las cabeceras
+// (CURLOPT_NOBODY) en vez de abrir un GET que habría que cortar al desconectar
+// el cliente.
+$isHeadRequest = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD');
 
 // ── Streaming del contenido desde Google Drive hacia el cliente ───────────────
 $ch = curl_init($finalUrl);
@@ -501,6 +641,7 @@ if (!empty($cookieJar)) {
 
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => false,          // No acumular en memoria
+    CURLOPT_NOBODY         => $isHeadRequest, // preflight: solo cabeceras
     CURLOPT_FOLLOWLOCATION => true,           // Seguir redirecciones finales
     CURLOPT_MAXREDIRS      => 5,
     CURLOPT_TIMEOUT        => READ_TIMEOUT,
@@ -510,9 +651,15 @@ curl_setopt_array($ch, [
     CURLOPT_BUFFERSIZE     => CHUNK_SIZE,
 ]);
 
-// Reenviar cookies de sesión de Google
+// Reenviar cookies de sesión de Google (solo modo público)
 if (!empty($cookieStr)) {
     curl_setopt($ch, CURLOPT_COOKIE, $cookieStr);
+}
+
+// Bearer de la Drive API: solo si el binario lo sirve la propia API (sin
+// redirect al CDN). En modo público $authHeaders está vacío.
+if (!empty($authHeaders)) {
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $authHeaders);
 }
 
 // Reenviar Range si el cliente lo pidió (para seeking / progressive download)
@@ -536,7 +683,7 @@ $streamError       = false;
 curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (
     &$streamHttpCode, &$streamContentLen, &$streamContentType,
     &$streamContentRange, &$headersSent, &$streamError,
-    $juego, $cleanTitle, $fileId, $rangeHeader
+    $juego, $cleanTitle, $fileId, $rangeHeader, $download
 ) {
     $trimmed = rtrim($headerLine);
 
@@ -565,6 +712,9 @@ curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (
             if ($streamHttpCode === 404) {
                 $errorType = 'not_found';
                 $errorMsg  = t('proxy.gdrive_no_existe');
+            } elseif ($streamHttpCode === 401) {
+                $errorType = 'auth';
+                $errorMsg  = t('proxy.gdrive_auth');
             } elseif ($streamHttpCode === 403) {
                 $errorType = 'private';
                 $errorMsg  = t('proxy.gdrive_bloqueado');
@@ -615,7 +765,9 @@ curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine) use (
         header($rangeHeader
             ? 'Cache-Control: private, max-age=3600'
             : 'Cache-Control: no-store');
-        header('Content-Disposition: inline; filename="' . $cleanTitle . '"');
+        header('Content-Disposition: '
+            . ($download ? 'attachment' : 'inline')
+            . '; filename="' . $cleanTitle . '"');
 
         // Tamaño del contenido
         if ($streamContentLen > 0) {

@@ -70,6 +70,8 @@ require_once __DIR__ . '/../src/config/CsrfService.php';
 require_once __DIR__ . '/../src/config/LoggerService.php';
 require_once __DIR__ . '/../src/config/TfaService.php';
 require_once __DIR__ . '/../src/config/GDriveAllowlist.php';
+require_once __DIR__ . '/../src/config/GoogleServiceAccount.php';
+require_once __DIR__ . '/../src/config/GDriveClient.php';
 require_once __DIR__ . '/../src/config/OriginPolicy.php';
 require_once __DIR__ . '/../src/config/i18n.php';
 require_once __DIR__ . '/../src/config/IntlHelper.php';
@@ -77,6 +79,9 @@ require_once __DIR__ . '/../src/config/IdiomasNormalizer.php';
 require_once __DIR__ . '/../src/config/TraduccionService.php';
 require_once __DIR__ . '/../src/config/TraduccionWorker.php';
 require_once __DIR__ . '/../src/config/DrenadoTrigger.php';
+require_once __DIR__ . '/../src/config/EmulatorJS.php';
+require_once __DIR__ . '/../src/config/GoogleFonts.php';
+require_once __DIR__ . '/../src/config/SecurityHeaders.php';
 
 // 5) Asegurar un directorio temporal limpio para RateLimiter y LoggerService
 $rateDir = sys_get_temp_dir() . '/rv_rate_limit/test';

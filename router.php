@@ -19,6 +19,32 @@ if ($path === '/src' || str_starts_with($path, '/src/')) {
     return true;
 }
 
+// Mismas denegaciones que .htaccess, para dev y tests de integración:
+// dotfiles (.env, .secrets/, .git/, …) salvo /.well-known/, directorios
+// internos y ficheros de configuración/documentación.
+$esDotfile = (bool) preg_match('#(^|/)\.(?!well-known/)#', $path);
+$esDirectorioInterno = (bool) preg_match(
+    '#^/(data|tests|scratch|docs|scripts|vendor)(/|$)#',
+    $path
+);
+$ficherosInternos = [
+    'Dockerfile',
+    'docker-compose.yml',
+    'docker-compose.yaml',
+    'composer.json',
+    'composer.lock',
+    'phpunit.xml',
+    'phpunit.xml.dist',
+    'AGENTS.md',
+    'README.md',
+    'router.php',
+    'docker-entrypoint.sh',
+];
+if ($esDotfile || $esDirectorioInterno || in_array(basename($path), $ficherosInternos, true)) {
+    http_response_code(403);
+    return true;
+}
+
 // Servir archivos existentes (raíz o dentro de /public) sin pasar por el router.
 $candidates = [__DIR__ . $path, __DIR__ . '/public' . $path];
 foreach ($candidates as $file) {
