@@ -137,6 +137,11 @@
 }
 
 /* ── TAGS: siempre 1 línea, sin wrap ── */
+/* DECISIÓN DELIBERADA (auditoría UI/UX 2026-10-17, B2): el nowrap + ellipsis
+   de los tags y el clamp de 2 líneas del título NO son bugs. Mantener la
+   arquitectura de altura fija de la tarjeta (grid 4×5, 20 por página) es
+   prioritario sobre mostrar cadenas completas en idiomas largos (de/ru).
+   No "arreglar" sin reevaluar la rejilla completa. */
 .game-metadata {
     display: flex;
     flex-wrap: nowrap;

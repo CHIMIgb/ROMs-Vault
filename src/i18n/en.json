@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Show password",
     "auth.usuario": "Username",
     "catalog.sin_resultados": "No games available matching the filters.",
+    "catalog.vacio_titulo": "No results",
     "common.saludo": "Hello, {nombre}",
     "component.anterior": "Previous",
     "component.descargar": "Download",

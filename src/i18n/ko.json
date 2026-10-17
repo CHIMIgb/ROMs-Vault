@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "비밀번호 표시",
     "auth.usuario": "사용자",
     "catalog.sin_resultados": "필터와 일치하는 사용 가능한 게임이 없습니다.",
+    "catalog.vacio_titulo": "결과 없음",
     "common.saludo": "안녕하세요, {nombre}",
     "component.anterior": "이전",
     "component.descargar": "다운로드",

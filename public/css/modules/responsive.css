@@ -120,18 +120,19 @@
     /* Hack info */
     .game-hack-info { font-size: 0.42rem; padding: 0.15rem 0.25rem; margin-bottom: 0.3rem; }
 
-    /* Botones */
-    .game-play { font-size: 0.36rem; padding: 0.38rem 0.3rem; }
-    .game-download { font-size: 0.32rem; padding: 0.3rem 0.3rem; }
+    /* Botones (padding al menos ~24px de alto — WCAG 2.5.8 targets táctiles;
+       era 0.38/0.3rem y quedaba en el límite o por debajo) */
+    .game-play { font-size: 0.36rem; padding: 0.5rem 0.35rem; }
+    .game-download { font-size: 0.32rem; padding: 0.48rem 0.35rem; }
     .game-download span { font-size: 0.7rem; margin-inline-end: 0.08rem; }
     .game-actions { gap: 0.28rem; }
 
     /* ─── Paginación ─── */
     .pagination { gap: 0.2rem; margin: 1.2rem 0 0.6rem; flex-wrap: wrap; }
     .pagination a, .pagination span {
-        padding: 0.3rem 0.45rem;
+        padding: 0.45rem 0.55rem;
         font-size: 0.32rem;
-        min-width: 24px;
+        min-width: 28px;
         box-shadow: 2px 2px 0 #8a7a58;
     }
     .pagination-info { font-size: 0.65rem; }

@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Показать пароль",
     "auth.usuario": "Имя пользователя",
     "catalog.sin_resultados": "Нет доступных игр, соответствующих фильтрам.",
+    "catalog.vacio_titulo": "Нет результатов",
     "common.saludo": "Привет, {nombre}",
     "component.anterior": "Предыдущая",
     "component.descargar": "Скачать",

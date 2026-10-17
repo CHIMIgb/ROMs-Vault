@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "パスワードを表示",
     "auth.usuario": "ユーザー",
     "catalog.sin_resultados": "フィルターに一致する利用可能なゲームはありません。",
+    "catalog.vacio_titulo": "結果なし",
     "common.saludo": "こんにちは、{nombre}",
     "component.anterior": "前へ",
     "component.descargar": "ダウンロード",

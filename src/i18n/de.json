@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Passwort anzeigen",
     "auth.usuario": "Benutzer",
     "catalog.sin_resultados": "Es gibt keine verfügbaren Spiele, die den Filtern entsprechen.",
+    "catalog.vacio_titulo": "Keine Ergebnisse",
     "common.saludo": "Hallo, {nombre}",
     "component.anterior": "Zurück",
     "component.descargar": "Herunterladen",

@@ -137,7 +137,7 @@
     display: block;
     font-family: 'Press Start 2P', monospace;
     font-size: 0.38rem;
-    color: var(--amber);
+    color: var(--amber-dark); /* AA sobre cream-dark del tip (4.83:1) — era --amber (2.58:1) */
     margin-bottom: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -1194,6 +1194,10 @@
     margin: 1.75rem auto 0;
 }
 
+/* DECISIÓN DELIBERADA (auditoría UI/UX 2026-10-17, C4): los border-radius
+   8px/6px/4px del carrusel de capturas NO son inconsistencia — imitan el
+   biselado de una pantalla de televisor/consola CRT (visor → marco → slide).
+   Mantener; solo alinear si se rediseña el bloque completo. */
 .screenshot-viewport {
     position: relative;
     background: #0a0a0a;
@@ -1771,8 +1775,8 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--amber);
-    border: 2px solid var(--amber);
+    color: var(--amber-dark); /* AA sobre cream-light del badge (6.78:1) — era --amber (3.36:1) */
+    border: 2px solid var(--amber-dark);
     background: var(--cream-light);
     padding: 0.18rem 0.5rem;
     margin-inline-start: auto;

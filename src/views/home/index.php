@@ -76,9 +76,8 @@
     <!-- GRID DE JUEGOS -->
     <div class="games-grid" id="games-grid">
         <?php if (empty($juegos)): ?>
-            <div class="alert alert-info" style="grid-column:1/-1;text-align:center;padding:3rem;">
-                <?= t('catalog.sin_resultados') ?>
-            </div>
+            <?php require_once __DIR__ . '/../components/EmptyState.php'; ?>
+            <?php EmptyState::render(t('catalog.vacio_titulo'), t('catalog.sin_resultados'), t('home.limpiar')); ?>
         <?php else: ?>
             <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
                 <div class="game-card">

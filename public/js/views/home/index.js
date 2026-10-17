@@ -218,6 +218,12 @@
         fetchResults(1);
     });
 
+    // Botón "Limpiar" del estado vacío (EmptyState): misma acción que #btn-limpiar.
+    // Delegación en resultsEl para que funcione tras cada repintado por AJAX.
+    resultsEl.addEventListener('click', e => {
+        if (e.target.closest('.empty-state-clear')) btnLimpiar.click();
+    });
+
     busquedaEl.addEventListener('input',   scheduleSearch);
     consolaEl.addEventListener('change',   onSelectChange);
     categoriaEl.addEventListener('change', onSelectChange);

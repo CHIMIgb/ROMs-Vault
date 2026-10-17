@@ -29,3 +29,12 @@ body {
     border: 2px solid var(--cream-dark);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--slate-mid); }
+
+/* ===== FOCO VISIBLE (accesibilidad, solo teclado) ===== */
+/* Anillo retro rojo coherente con el design system. Los elementos con
+   outline:none en :focus (inputs de búsqueda, filtros, lang-trigger)
+   mantienen su propio indicador (borde rojo) — no se tocan. */
+:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 2px;
+}

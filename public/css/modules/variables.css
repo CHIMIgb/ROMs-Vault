@@ -14,13 +14,14 @@
     --cream-dark:   #d4c9a8;
     --cream-light:  #f2ece0;
     --slate:        #3a3a3a;
-    --slate-mid:    #5a5a5a;
-    --slate-light:  #8a8a8a;
+    --slate-mid:    #4f4f4f; /* AA sobre cream-dark (4.96:1) — era #5a5a5a (4.18:1, fallaba) */
+    --slate-light:  #666666; /* AA sobre cream-light (4.88:1) — era #8a8a8a (2.93:1, fallaba) */
     --red:          #c0392b;
     --red-dark:     #962d22;
     --blue-btn:     #2c5f8a;
     --green-ok:     #3a7d44;
     --amber:        #b8860b;
+    --amber-dark:   #664d0a; /* Texto sobre cream: AA (4.83:1 sobre cream-dark, 6.78:1 sobre cream-light) */
     --border-dark:  #3a3a3a;
     --border-mid:   #a09070;
     --border-light: #c8bda0;
@@ -35,7 +36,7 @@
     --background:   #d4c9a8;
     --card-bg:      #f2ece0;
     --text:         #3a3a3a;
-    --text-light:   #8a8a8a;
+    --text-light:   #666666;
     --border:       #c8bda0;
     --success:      #3a7d44;
     --warning:      #b8860b;

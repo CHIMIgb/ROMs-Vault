@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Mostrar senha",
     "auth.usuario": "Usuário",
     "catalog.sin_resultados": "Não há jogos disponíveis que correspondam aos filtros.",
+    "catalog.vacio_titulo": "Nenhum resultado",
     "common.saludo": "Olá, {nombre}",
     "component.anterior": "Anterior",
     "component.descargar": "Baixar",

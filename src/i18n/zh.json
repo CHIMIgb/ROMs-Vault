@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "显示密码",
     "auth.usuario": "用户名",
     "catalog.sin_resultados": "没有符合筛选条件的可用游戏。",
+    "catalog.vacio_titulo": "无结果",
     "common.saludo": "你好，{nombre}",
     "component.anterior": "上一页",
     "component.descargar": "下载",

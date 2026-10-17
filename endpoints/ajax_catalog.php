@@ -60,9 +60,9 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <!-- GRID -->
 <div class="games-grid" id="games-grid">
     <?php if (empty($juegos)): ?>
-        <?php 
-        require_once __DIR__ . '/../src/views/components/Alert.php';
-        Alert::render('info', t('catalog.sin_resultados'), 'info', 'grid-column:1/-1;text-align:center;padding:3rem;justify-content:center;');
+        <?php
+        require_once __DIR__ . '/../src/views/components/EmptyState.php';
+        EmptyState::render(t('catalog.vacio_titulo'), t('catalog.sin_resultados'), t('home.limpiar'));
         ?>
     <?php else: ?>
         <?php $i = 0; foreach ($juegos as $juego): $i++; ?>

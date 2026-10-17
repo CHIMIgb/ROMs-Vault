@@ -488,7 +488,8 @@
 .rv-toast-close {
     background: none;
     border: none;
-    color: var(--slate-light);
+    /* cream-light (no slate-light): el toast tiene fondo slate oscuro → AA 12.4:1 */
+    color: var(--cream-light);
     cursor: pointer;
     font-size: 0.8rem;
     padding: 0 0.2rem;
@@ -621,7 +622,8 @@
 }
 .ac-consola {
     font-size: 0.65rem;
-    color: var(--slate-light);
+    /* slate-mid (no slate-light): en hover la fila pone fondo cream-dark → AA 4.96:1 */
+    color: var(--slate-mid);
     font-family: 'Press Start 2P', monospace;
 }
 
@@ -702,6 +704,93 @@
 
 @media (max-width: 600px) {
     .btn-share { font-size: 0.5rem; padding: 0.45rem 0.8rem; }
+}
+
+
+/* ===================================================
+   EMPTY STATE — Estado vacío del catálogo (CRT)
+   Pantalla oscura con scanlines, coherente con la
+   estética retro (mismo lenguaje que .screenshot-viewport
+   y las pantallas de error).
+   =================================================== */
+
+.empty-state {
+    grid-column: 1 / -1;
+    background: var(--slate);
+    border: 3px solid var(--border-dark);
+    box-shadow:
+        inset 0 0 30px rgba(0, 0, 0, 0.55),
+        var(--raise-shadow);
+    padding: 3rem 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+/* Scanlines CRT (mismo patrón que el visor de capturas) */
+.empty-state::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.18) 2px,
+        rgba(0, 0, 0, 0.18) 4px
+    );
+    pointer-events: none;
+}
+
+.empty-state-icon svg.pxi {
+    width: 44px;
+    height: 44px;
+    color: var(--cream);
+    opacity: 0.85;
+}
+
+.empty-state-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cream-light);
+}
+
+.empty-state-msg {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    color: var(--cream);
+    max-width: 42ch;
+    line-height: 1.6;
+}
+
+.empty-state-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.4rem;
+    padding: 0.6rem 1.1rem;
+    background: var(--cream-light);
+    color: var(--slate);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.empty-state-clear:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #8a7a58;
+}
+.empty-state-clear svg.pxi {
+    width: 12px;
+    height: 12px;
 }
 
 

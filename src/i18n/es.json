@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Mostrar contraseña",
     "auth.usuario": "Usuario",
     "catalog.sin_resultados": "No hay juegos disponibles que coincidan con los filtros.",
+    "catalog.vacio_titulo": "Sin resultados",
     "common.saludo": "Hola, {nombre}",
     "component.anterior": "Anterior",
     "component.descargar": "Descargar",

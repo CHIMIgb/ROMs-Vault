@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Şifreyi göster",
     "auth.usuario": "Kullanıcı adı",
     "catalog.sin_resultados": "Filtrelerle eşleşen kullanılabilir oyun yok.",
+    "catalog.vacio_titulo": "Sonuç yok",
     "common.saludo": "Merhaba, {nombre}",
     "component.anterior": "Önceki",
     "component.descargar": "İndir",
