@@ -161,13 +161,18 @@
 /* Texto atenuado genérico (marcadores "—", iconos sin portada…) */
 .text-muted { color: var(--slate-light); }
 
+/* Enlace subrayado explícito (los enlaces base no lo llevan) */
+.text-underline { text-decoration: underline; }
+
 
 /* ===== PAGINACIÓN ===== */
 .pagination {
     display: flex;
     justify-content: center;
     gap: 0.4rem;
-    margin: 2.5rem 0 1rem;
+    /* C1 ola 3: era 2.5rem; Pagination.php siempre sobreescribía a 1.5rem
+       con style inline — se fija el valor efectivo y se elimina el inline */
+    margin: 1.5rem 0 1rem;
     flex-wrap: wrap;
 }
 
@@ -204,9 +209,17 @@
     box-shadow: 3px 3px 0 var(--red-dark) !important;
 }
 
+.pagination .pagination-ellipsis {
+    /* "…" entre números — antes style inline (ganaba a .pagination span) */
+    padding: 0 0.3rem;
+    color: var(--slate-light);
+}
+
 .pagination-info {
     text-align: center;
-    margin-top: 0.6rem;
+    /* C1 ola 3: era 0.6rem; el componente siempre sobreescribía a 0.75rem
+       con style inline — se fija el valor efectivo y se elimina el inline */
+    margin-top: 0.75rem;
     color: var(--slate-mid);
     font-family: 'Courier Prime', monospace;
     font-size: 0.82rem;
@@ -242,6 +255,20 @@
    estilo inline anterior. */
 .btn-primary.btn-primary--success { background: var(--green-ok); }
 .btn-primary.btn-primary--danger  { background: var(--red); }
+/* Volver (fantasma) y Borrar (destructivo sólido) — ola 2 */
+.btn-primary.btn-primary--ghost  {
+    background: var(--cream-dark);
+    color: var(--slate);
+    box-shadow: 3px 3px 0 var(--border-mid);
+    border-color: var(--border-mid);
+}
+.btn-primary.btn-primary--delete {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 3px 3px 0 var(--border-dark);
+}
+/* C1 ola 3: botón a ancho completo (formularios auth) */
+.btn-block { width: 100%; }
 
 .btn-edit {
     padding: 0.35rem 0.7rem;

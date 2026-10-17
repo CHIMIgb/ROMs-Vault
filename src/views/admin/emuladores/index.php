@@ -8,15 +8,15 @@ require_once __DIR__ . '/../../../config/IntlHelper.php';
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.total') ?></div>
-        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($total) ?></div>
+        <div class="stat-value"><?= IntlHelper::formatNumber($total) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.activas') ?></div>
-        <div class="stat-value" style="color:var(--green-ok);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
+        <div class="stat-value stat-value--ok"><?= IntlHelper::formatNumber($totalActivas) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.inactivas') ?></div>
-        <div class="stat-value" style="color:var(--slate-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
+        <div class="stat-value stat-value--muted"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
     </div>
 </div>
 
@@ -46,7 +46,7 @@ endif;
 <!-- FILTROS — mismo patrón exacto que consolas/categorías -->
 <div class="search-section">
     <div class="admin-filter-form">
-        <div class="search-wrapper" style="flex:2;min-width:180px;">
+        <div class="search-wrapper">
             <input type="text"
                    id="em-busqueda"
                    placeholder="<?= t('admin.emulador.buscar_placeholder') ?>"
@@ -65,12 +65,12 @@ endif;
             <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>><?= t('admin.emulador.solo_inactivos') ?></option>
         </select>
 
-        <button type="button" id="em-limpiar" class="clear-filters" style="display:none;white-space:nowrap;">
+        <button type="button" id="em-limpiar" class="clear-filters clear-filters--nowrap">
             <i data-i="close" aria-hidden="true"></i> <?= t('admin.emulador.limpiar') ?>
         </button>
     </div>
 
-    <div id="em-loading" class="filter-loading" style="display:none;">
+    <div id="em-loading" class="filter-loading">
         <span class="filter-loading-bar"></span>
         <span class="filter-loading-text"><?= t('admin.emulador.buscando') ?></span>
     </div>
@@ -85,7 +85,7 @@ endif;
         Alert::render('info', t('admin.emulador.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
-    <div style="overflow-x:auto;">
+    <div class="admin-table-wrap">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -105,25 +105,25 @@ endif;
                     <td>
                         <?php if ($f['principal']): ?>
                             <strong><?= htmlspecialchars($f['principal']['nombre']) ?></strong>
-                            <div style="color:var(--slate-mid);font-size:.88rem;margin-top:.25rem;">
+                            <div class="cell-meta">
                                 <?= htmlspecialchars(implode(' / ', $f['principal']['plataformas'])) ?>
                                 ·
-                                <a href="<?= htmlspecialchars($f['principal']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
+                                <a href="<?= htmlspecialchars($f['principal']['url']) ?>" target="_blank" rel="noopener noreferrer" class="text-underline"><?= t('admin.emulador.sitio_oficial') ?></a>
                             </div>
                         <?php else: ?>
-                            <span style="color:var(--slate-light);">—</span>
+                            <span class="text-muted">—</span>
                         <?php endif; ?>
                     </td>
                     <td>
                         <?php if ($f['alterno']): ?>
                             <strong><?= htmlspecialchars($f['alterno']['nombre']) ?></strong>
-                            <div style="color:var(--slate-mid);font-size:.88rem;margin-top:.25rem;">
+                            <div class="cell-meta">
                                 <?= htmlspecialchars(implode(' / ', $f['alterno']['plataformas'])) ?>
                                 ·
-                                <a href="<?= htmlspecialchars($f['alterno']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
+                                <a href="<?= htmlspecialchars($f['alterno']['url']) ?>" target="_blank" rel="noopener noreferrer" class="text-underline"><?= t('admin.emulador.sitio_oficial') ?></a>
                             </div>
                         <?php else: ?>
-                            <span style="color:var(--slate-light);">—</span>
+                            <span class="text-muted">—</span>
                         <?php endif; ?>
                     </td>
                     <td>

@@ -47,7 +47,7 @@ class Pagination {
 
         ?>
         <?php if ($totalPages > 1): ?>
-        <div class="pagination" style="margin-top:1.5rem;" <?= $idPrefix ? 'id="' . htmlspecialchars($idPrefix) . '-pagination"' : '' ?>>
+        <div class="pagination" <?= $idPrefix ? 'id="' . htmlspecialchars($idPrefix) . '-pagination"' : '' ?>>
             <?php if ($currentPage > 1): ?>
                 <a href="<?= $baseUrl ?>&page=<?= $currentPage - 1 ?><?= $paramStr ?>"
                    class="pagination-link" data-page="<?= $currentPage - 1 ?>">
@@ -67,7 +67,7 @@ class Pagination {
             $prev = null;
             foreach ($pages as $i):
                 if ($prev !== null && $i - $prev > 1): ?>
-                    <span style="padding:0 0.3rem;color:var(--slate-light);">...</span>
+                    <span class="pagination-ellipsis">...</span>
                 <?php endif;
                 
                 if ($i === $currentPage): ?>
@@ -91,7 +91,7 @@ class Pagination {
         <?php endif; ?>
 
         <?php if ($totalItems > 0): ?>
-        <div class="pagination-info" style="margin-top:0.75rem;" <?= $idPrefix ? 'id="' . htmlspecialchars($idPrefix) . '-info"' : '' ?>>
+        <div class="pagination-info" <?= $idPrefix ? 'id="' . htmlspecialchars($idPrefix) . '-info"' : '' ?>>
             <?= t('component.mostrando', [
                 'mostrados' => IntlHelper::formatNumber($countCurrent),
                 'total'     => IntlHelper::formatNumber($totalItems),

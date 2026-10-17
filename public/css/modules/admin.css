@@ -360,3 +360,20 @@
     user-select: all;
 }
 .tfa-secret-code--sm { font-size: 0.8rem; }
+
+/* C1 ola 2: celdas de tablas admin */
+.cell-meta {
+    color: var(--slate-mid);
+    font-size: 0.88rem;
+    margin-top: 0.25rem;
+}
+/* Celda con texto cortado (B2: nowrap+ellipsis deliberado, documentado) */
+.cell-ellipsis {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--slate-mid);
+    font-size: 0.88rem;
+}
+.cell-ellipsis--wide { max-width: 260px; }

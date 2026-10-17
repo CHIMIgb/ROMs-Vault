@@ -31,6 +31,53 @@
 .form-group--grow     { flex: 1; min-width: 220px; margin: 0; }
 .form-group--grow-sm  { flex: 1; min-width: 160px; margin: 0; }
 
+/* C1 ola 2: bloques de formularios admin (emuladores y juegos) */
+.form-lead       { margin: 0 0 1.5rem; color: var(--slate-light); font-size: 0.92rem; }
+.form-section    { margin-bottom: 2.25rem; padding-bottom: 1.5rem; border-bottom: 1px dashed var(--border-mid); }
+.form-section-title { margin: 0 0 1rem; font-size: 1.05rem; color: var(--slate); }
+.form-section-sub   { font-weight: 400; color: var(--slate-light); font-size: 0.85rem; }
+.form-grid-2     { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+/* Filas de casillas de verificación */
+.check-row   { display: flex; gap: 1.5rem; padding-top: 0.25rem; }
+.check-label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+
+/* Casilla con fondo embebida en el formulario (consolas) */
+.check-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    background: var(--cream);
+    border: 1px solid var(--border-mid);
+    border-radius: 12px;
+}
+.check-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--slate); cursor: pointer; }
+.check-card label  { margin: 0; font-weight: 600; cursor: pointer; }
+.check-card small  { display: block; color: var(--slate-mid); }
+
+/* Vista previa de la portada actual (juegos/edit) */
+.img-preview {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+}
+.img-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid var(--border-dark);
+    flex-shrink: 0;
+}
+.img-preview-text   { font-family: 'Courier Prime', monospace; }
+.img-preview-label  { font-size: 0.78rem; font-weight: 700; color: var(--slate); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.img-preview-aviso  { font-size: 0.78rem; color: var(--slate-mid); font-style: italic; }
+
 .form-group label {
     display: block;
     margin-bottom: 0.4rem;
@@ -407,3 +454,18 @@
     background: var(--slate);
     color: var(--cream-light);
 }
+
+/* C1 ola 3: textos de ayuda de auth (login y 2FA) — antes style inline */
+.auth-hint {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--slate-light);
+}
+.auth-hint--tfa {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+/* Estado inicial del icono "ojo oculto": login.js solo escribe style.display */
+#eye-off-icon { display: none; }

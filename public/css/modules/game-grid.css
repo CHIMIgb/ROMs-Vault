@@ -52,6 +52,13 @@
     min-width: 0;           /* evita que flexbox desborde */
 }
 
+/* Enlace que cubre la tarjeta del juego (home) — antes style inline */
+.game-detail-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
 .game-card::before {
     content: '';
     position: absolute;

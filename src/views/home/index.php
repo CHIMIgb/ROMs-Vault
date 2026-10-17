@@ -60,11 +60,11 @@
             <option value="año_asc"   <?= (($_GET['orden'] ?? '') === 'año_asc')   ? 'selected' : '' ?>><?= t('home.orden_ano_asc') ?></option>
         </select>
 
-        <button type="button" id="btn-limpiar" class="clear-filters" style="display:none;"><i data-i="close" aria-hidden="true"></i> <?= t('home.limpiar') ?></button>
+        <button type="button" id="btn-limpiar" class="clear-filters"><i data-i="close" aria-hidden="true"></i> <?= t('home.limpiar') ?></button>
     </div>
 
     <!-- Indicador de carga -->
-    <div id="filter-loading" class="filter-loading" style="display:none;">
+    <div id="filter-loading" class="filter-loading">
         <span class="filter-loading-bar"></span>
         <span class="filter-loading-text"><?= t('home.buscando') ?></span>
     </div>
@@ -82,7 +82,7 @@
             <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
                 <div class="game-card">
                     <div class="game-card-inner">
-                        <a href="<?= !empty($juego['slug']) ? '/juego/' . rawurlencode($juego['slug']) : '/home/show/' . $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
+                        <a href="<?= !empty($juego['slug']) ? '/juego/' . rawurlencode($juego['slug']) : '/home/show/' . $juego['id'] ?>" class="game-detail-link">
                             <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
                                 <!-- Disco placeholder siempre presente: se ve cuando no hay
                                      imagen o cuando la imagen falla al cargar (onerror) -->

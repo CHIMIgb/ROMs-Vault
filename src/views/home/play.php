@@ -185,7 +185,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
 
         <?php if (!$modoStreaming): ?>
             <!-- Barra de progreso — ROMs pequeñas (NES, SNES, GBA, N64…) -->
-            <div id="proxy-load-bar" class="proxy-load-bar" style="display:none;">
+            <div id="proxy-load-bar" class="proxy-load-bar">
                 <div class="proxy-load-label">
                     <span id="proxy-load-text"><i data-i="clock"></i> <?= t('play.cargando_rom') ?></span>
                     <span id="proxy-load-pct">0%</span>

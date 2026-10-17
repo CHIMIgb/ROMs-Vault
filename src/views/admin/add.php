@@ -32,7 +32,7 @@
         </div>
         
         <!-- Plataforma y categoría -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-grid-2">
             <div class="form-group">
                 <label for="consola_id"><?= t('admin.juego.consola') ?></label>
                 <select id="consola_id" name="consola_id" required>
@@ -61,7 +61,7 @@
         </div>
         
         <!-- Región y fecha -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-grid-2">
             <div class="form-group">
                 <label for="region"><?= t('admin.juego.region') ?></label>
                 <select id="region" name="region">
@@ -83,7 +83,7 @@
         </div>
         
         <!-- Idiomas y formato -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-grid-2">
             <div class="form-group">
                 <label for="idiomas"><?= t('admin.juego.idiomas') ?></label>
                 <input type="text" 
@@ -192,7 +192,7 @@
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary"><i data-i="save"></i> <?= t('admin.juego.guardar') ?></button>
-                <a href="/admin/dashboard" class="btn-primary" style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
+                <a href="/admin/dashboard" class="btn-primary btn-primary--ghost">
                     <i data-i="close"></i> <?= t('admin.juego.cancelar') ?>
                 </a>
         </div>

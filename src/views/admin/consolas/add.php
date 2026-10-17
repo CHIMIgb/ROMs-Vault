@@ -47,16 +47,15 @@
         </div>
 
         <!-- Emulación online -->
-        <div class="form-group" style="display:flex;align-items:center;gap:.75rem;padding:.9rem 1rem;background:var(--cream);border:1px solid var(--border-mid);border-radius:12px;">
+        <div class="form-group check-card">
             <input type="checkbox"
                    id="emulacion_online"
                    name="emulacion_online"
                    value="1"
-                   <?= empty($_POST['emulacion_online']) ? 'checked' : '' ?>
-                   style="width:18px;height:18px;accent-color:var(--slate);cursor:pointer;">
+                   <?= empty($_POST['emulacion_online']) ? 'checked' : '' ?>>
             <div>
-                <label for="emulacion_online" style="margin:0;font-weight:600;cursor:pointer;"><?= t('admin.consola.emulacion_online') ?></label>
-                <small style="display:block;color:var(--slate-mid);"><?= t('admin.consola.emulacion_online_ayuda') ?></small>
+                <label for="emulacion_online"><?= t('admin.consola.emulacion_online') ?></label>
+                <small><?= t('admin.consola.emulacion_online_ayuda') ?></small>
             </div>
         </div>
 
@@ -66,8 +65,7 @@
                 <i data-i="save"></i> <?= t('admin.consola.guardar') ?>
             </button>
             <a href="/consola/index"
-               class="btn-primary"
-               style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
+               class="btn-primary btn-primary--ghost">
                 <i data-i="close"></i> <?= t('admin.consola.cancelar') ?>
             </a>
         </div>

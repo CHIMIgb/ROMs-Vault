@@ -9,7 +9,7 @@
         ?>
     <?php endif; ?>
 
-    <p style="margin-bottom: 1rem; color: var(--slate-light); font-size: 0.9rem; text-align: center;">
+    <p class="auth-hint auth-hint--tfa">
         <?= t('two_factor.instruccion') ?>
     </p>
 
@@ -28,10 +28,10 @@
                    autocomplete="one-time-code">
         </div>
 
-        <button type="submit" class="btn-primary" style="width: 100%;"><i data-i="shield-2"></i> <?= t('two_factor.verificar') ?></button>
+        <button type="submit" class="btn-primary btn-block"><i data-i="shield-2"></i> <?= t('two_factor.verificar') ?></button>
     </form>
 
-    <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--slate-light);">
-        <a href="/auth/logout" style="color: var(--slate-light); text-decoration: underline;"><?= t('two_factor.cancelar') ?></a>
+    <div class="auth-hint">
+        <a href="/auth/logout" class="text-muted text-underline"><?= t('two_factor.cancelar') ?></a>
     </div>
 </div>

@@ -42,8 +42,7 @@
                 <i data-i="save"></i> <?= t('admin.categoria.guardar') ?>
             </button>
             <a href="/categoria/index"
-               class="btn-primary"
-               style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
+               class="btn-primary btn-primary--ghost">
                 <i data-i="close"></i> <?= t('admin.categoria.cancelar') ?>
             </a>
         </div>

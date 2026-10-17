@@ -704,6 +704,7 @@
    ===================================================== */
 
 .proxy-load-bar {
+    display: none; /* C1 ola 3: oculto hasta que play-emulator.js lo muestra */
     background: var(--cream-light);
     border: 2px solid var(--border-dark);
     box-shadow: var(--raise-shadow);
