@@ -51,7 +51,7 @@
                    name="emulacion_online"
                    value="1"
                    <?= (isset($_POST['emulacion_online']) ? $_POST['emulacion_online'] : $consola['emulacion_online']) ? 'checked' : '' ?>
-                   style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;">
+                   style="width:18px;height:18px;accent-color:var(--slate);cursor:pointer;">
             <div>
                 <label for="emulacion_online" style="margin:0;font-weight:600;cursor:pointer;"><?= t('admin.consola.emulacion_online') ?></label>
                 <small style="display:block;color:var(--slate-mid);"><?= t('admin.consola.emulacion_online_ayuda') ?></small>
@@ -71,7 +71,7 @@
             <button type="button"
                     id="btn-eliminar-consola"
                     class="btn-primary"
-                    style="background:var(--danger, #b00020);color:#fff;box-shadow:3px 3px 0 var(--border-dark);border-color:var(--border-dark);"
+                    style="background:var(--red);color:#fff;box-shadow:3px 3px 0 var(--border-dark);border-color:var(--border-dark);"
                     data-id="<?= (int) $consola['id'] ?>"
                     data-nombre="<?= htmlspecialchars($consola['nombre'], ENT_QUOTES) ?>">
                 <i data-i="trash"></i> <?= t('admin.consola.eliminar') ?>

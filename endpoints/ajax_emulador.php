@@ -98,7 +98,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                             <a href="<?= htmlspecialchars($f['principal']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
                         </div>
                     <?php else: ?>
-                        <span style="color:var(--text-light);">—</span>
+                        <span style="color:var(--slate-light);">—</span>
                     <?php endif; ?>
                 </td>
                 <td>
@@ -110,7 +110,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                             <a href="<?= htmlspecialchars($f['alterno']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
                         </div>
                     <?php else: ?>
-                        <span style="color:var(--text-light);">—</span>
+                        <span style="color:var(--slate-light);">—</span>
                     <?php endif; ?>
                 </td>
                 <td>

@@ -8,15 +8,15 @@ require_once __DIR__ . '/../../../config/IntlHelper.php';
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.total') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($total) ?></div>
+        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($total) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.activas') ?></div>
-        <div class="stat-value" style="color:var(--success);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--green-ok);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.emulador.inactivas') ?></div>
-        <div class="stat-value" style="color:var(--text-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--slate-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
     </div>
 </div>
 
@@ -111,7 +111,7 @@ endif;
                                 <a href="<?= htmlspecialchars($f['principal']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
                             </div>
                         <?php else: ?>
-                            <span style="color:var(--text-light);">—</span>
+                            <span style="color:var(--slate-light);">—</span>
                         <?php endif; ?>
                     </td>
                     <td>
@@ -123,7 +123,7 @@ endif;
                                 <a href="<?= htmlspecialchars($f['alterno']['url']) ?>" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;"><?= t('admin.emulador.sitio_oficial') ?></a>
                             </div>
                         <?php else: ?>
-                            <span style="color:var(--text-light);">—</span>
+                            <span style="color:var(--slate-light);">—</span>
                         <?php endif; ?>
                     </td>
                     <td>

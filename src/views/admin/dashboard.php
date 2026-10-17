@@ -8,23 +8,23 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_juegos') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($stats['total']) ?></div>
+        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($stats['total']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.activos') ?></div>
-        <div class="stat-value" style="color:var(--success);"><?= IntlHelper::formatNumber($stats['activos']) ?></div>
+        <div class="stat-value" style="color:var(--green-ok);"><?= IntlHelper::formatNumber($stats['activos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.inactivos') ?></div>
-        <div class="stat-value" style="color:var(--text-light);"><?= IntlHelper::formatNumber($stats['inactivos']) ?></div>
+        <div class="stat-value" style="color:var(--slate-light);"><?= IntlHelper::formatNumber($stats['inactivos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_descargas') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($stats['total_descargas']) ?></div>
+        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($stats['total_descargas']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_jugadas') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($stats['total_jugadas']) ?></div>
+        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($stats['total_jugadas']) ?></div>
     </div>
 </div>
 
@@ -63,7 +63,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
                 <div class="ranking-info">
                     <span class="ranking-game"><?= htmlspecialchars($j['titulo']) ?></span>
                     <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '') ?></span>
-                    <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:<?= $pct ?>%;background:var(--success);"></div></div>
+                    <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:<?= $pct ?>%;background:var(--green-ok);"></div></div>
                 </div>
                 <span class="ranking-count"><?= IntlHelper::formatNumber($j['plays_count']) ?></span>
             </li>
@@ -90,7 +90,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
         <a href="/categoria/index" class="btn-primary">
             <i data-i="dashboard"></i> <?= t('admin.dashboard.categorias') ?>
         </a>
-        <button type="button" id="btn-export" class="btn-primary" style="background-color: var(--success);">
+        <button type="button" id="btn-export" class="btn-primary" style="background-color: var(--green-ok);">
             <i data-i="save"></i> <?= t('admin.dashboard.exportar') ?>
         </button>
         <a href="/admin/add" class="btn-primary">
@@ -194,7 +194,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
                             <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= t('admin.juego.alt_portada') ?>"
                                  style="width:40px;height:40px;object-fit:cover;">
                         <?php else: ?>
-                            <span style="color:var(--text-light);"><i data-i="image"></i></span>
+                            <span style="color:var(--slate-light);"><i data-i="image"></i></span>
                         <?php endif; ?>
                     </td>
                     <td><strong><?= htmlspecialchars($juego['titulo']) ?></strong></td>
@@ -202,7 +202,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
                     <td><?= htmlspecialchars($juego['consola_nombre']  ?? '-') ?></td>
                     <td><?= htmlspecialchars($juego['categoria_nombre'] ?? '-') ?></td>
                     <td>
-                        <span class="game-tag" style="background:var(--background);color:var(--text);">
+                        <span class="game-tag" style="background:var(--cream-dark);color:var(--slate);">
                             <?= htmlspecialchars($juego['region'] ?? '-') ?>
                         </span>
                     </td>
@@ -257,7 +257,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
             <h3 class="rv-modal-title"><?= t('admin.dashboard.exportar_titulo') ?></h3>
         </div>
         <div class="rv-modal-body" style="padding-top:0.5rem; text-align:center;">
-            <p style="margin-bottom: 1rem; color: var(--text-light);"><?= t('admin.dashboard.exportar_instruccion') ?></p>
+            <p style="margin-bottom: 1rem; color: var(--slate-light);"><?= t('admin.dashboard.exportar_instruccion') ?></p>
             <select id="export-table" class="admin-filter-select" style="width:100%;">
                 <option value="juegos"><?= t('admin.dashboard.exportar_tabla_juegos') ?></option>
                 <option value="consolas"><?= t('admin.dashboard.exportar_tabla_consolas') ?></option>

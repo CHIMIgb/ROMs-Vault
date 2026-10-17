@@ -8,15 +8,15 @@ require_once __DIR__ . '/../../../config/IntlHelper.php';
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.consola.total') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($total) ?></div>
+        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($total) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.consola.activas') ?></div>
-        <div class="stat-value" style="color:var(--success);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--green-ok);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.consola.inactivas') ?></div>
-        <div class="stat-value" style="color:var(--text-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
+        <div class="stat-value" style="color:var(--slate-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
     </div>
 </div>
 

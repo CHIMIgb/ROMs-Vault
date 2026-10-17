@@ -47,7 +47,7 @@
             <button type="button"
                     id="btn-eliminar-categoria"
                     class="btn-primary"
-                    style="background:var(--danger, #b00020);color:#fff;box-shadow:3px 3px 0 var(--border-dark);border-color:var(--border-dark);"
+                    style="background:var(--red);color:#fff;box-shadow:3px 3px 0 var(--border-dark);border-color:var(--border-dark);"
                     data-id="<?= (int) $categoria['id'] ?>"
                     data-nombre="<?= htmlspecialchars($categoria['nombre'], ENT_QUOTES) ?>">
                 <i data-i="trash"></i> <?= t('admin.categoria.eliminar') ?>

@@ -44,7 +44,7 @@
         <button type="submit" class="btn-primary" style="width: 100%;"><i data-i="shield-2"></i> <?= t('auth.iniciar_sesion') ?></button>
     </form>
     
-    <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-light);">
+    <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--slate-light);">
         <p><?= t('auth.acceso_restringido') ?></p>
     </div>
 </div>

@@ -53,7 +53,7 @@
                    name="emulacion_online"
                    value="1"
                    <?= empty($_POST['emulacion_online']) ? 'checked' : '' ?>
-                   style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;">
+                   style="width:18px;height:18px;accent-color:var(--slate);cursor:pointer;">
             <div>
                 <label for="emulacion_online" style="margin:0;font-weight:600;cursor:pointer;"><?= t('admin.consola.emulacion_online') ?></label>
                 <small style="display:block;color:var(--slate-mid);"><?= t('admin.consola.emulacion_online_ayuda') ?></small>

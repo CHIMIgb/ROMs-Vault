@@ -9,7 +9,7 @@
         ?>
     <?php endif; ?>
 
-    <p style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem; text-align: center;">
+    <p style="margin-bottom: 1rem; color: var(--slate-light); font-size: 0.9rem; text-align: center;">
         <?= t('two_factor.instruccion') ?>
     </p>
 
@@ -31,7 +31,7 @@
         <button type="submit" class="btn-primary" style="width: 100%;"><i data-i="shield-2"></i> <?= t('two_factor.verificar') ?></button>
     </form>
 
-    <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-light);">
-        <a href="/auth/logout" style="color: var(--text-light); text-decoration: underline;"><?= t('two_factor.cancelar') ?></a>
+    <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--slate-light);">
+        <a href="/auth/logout" style="color: var(--slate-light); text-decoration: underline;"><?= t('two_factor.cancelar') ?></a>
     </div>
 </div>

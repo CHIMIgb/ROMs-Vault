@@ -15,13 +15,13 @@
 
     <form method="POST" autocomplete="off">
         <?= CsrfService::field() ?>
-        <p style="margin:0 0 1.5rem;color:var(--text-light);font-size:.92rem;">
+        <p style="margin:0 0 1.5rem;color:var(--slate-light);font-size:.92rem;">
             <?= t('admin.emulador.ayuda_edit') ?>
         </p>
 
         <!-- ═══ Emulador principal ═══ -->
         <div style="margin-bottom:2.25rem;padding-bottom:1.5rem;border-bottom:1px dashed var(--border-mid);">
-            <h3 style="margin:0 0 1rem;font-size:1.05rem;color:var(--text);">
+            <h3 style="margin:0 0 1rem;font-size:1.05rem;color:var(--slate);">
                 <i data-i="gamepad"></i> <?= t('admin.emulador.principal') ?>
             </h3>
 
@@ -65,8 +65,8 @@
 
         <!-- ═══ Emulador alternativo (opcional) ═══ -->
         <div style="margin-bottom:2.25rem;padding-bottom:1.5rem;border-bottom:1px dashed var(--border-mid);">
-            <h3 style="margin:0 0 1rem;font-size:1.05rem;color:var(--text);">
-                <i data-i="gamepad-2"></i> <?= t('admin.emulador.alternativo') ?> <span style="font-weight:400;color:var(--text-light);font-size:.85rem;"><?= t('admin.emulador.opcional') ?></span>
+            <h3 style="margin:0 0 1rem;font-size:1.05rem;color:var(--slate);">
+                <i data-i="gamepad-2"></i> <?= t('admin.emulador.alternativo') ?> <span style="font-weight:400;color:var(--slate-light);font-size:.85rem;"><?= t('admin.emulador.opcional') ?></span>
             </h3>
 
             <div class="form-group">

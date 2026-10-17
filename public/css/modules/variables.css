@@ -31,18 +31,4 @@
     --raise-shadow-lg: 5px 5px 0 #8a7a58;
     --card-raise: 4px 4px 0 #8a7a58, 5px 5px 0 #6a5a38;
     --card-raise-lg: 8px 8px 0 #8a7a58, 9px 9px 0 #6a5a38;
-    /* Alias para compatibilidad con código PHP existente */
-    --primary:      #3a3a3a;
-    --secondary:    #5a5a5a;
-    --accent:       #c0392b;
-    --background:   #d4c9a8;
-    --card-bg:      #f2ece0;
-    --text:         #3a3a3a;
-    --text-light:   #666666;
-    --border:       #c8bda0;
-    --success:      #3a7d44;
-    --warning:      #b8860b;
-    --danger:       #c0392b;
-    --shadow:       4px 4px 0 #8a7a58;
-    --shadow-hover: 6px 6px 0 #6a5a38;
 }
