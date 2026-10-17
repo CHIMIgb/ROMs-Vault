@@ -12,7 +12,9 @@
 
 /* Barra de carga debajo de los filtros */
 .filter-loading {
-    display: flex;
+    display: none; /* Oculto hasta que el JS de filtros escribe style.display='flex'
+                       (fetchResults); en carga inicial no hay fetch → debe nacer
+                       oculto. Corrige la regresión del Lote C (olas 1 y 3). */
     align-items: center;
     gap: 0.75rem;
     margin-top: 0.6rem;
