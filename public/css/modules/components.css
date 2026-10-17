@@ -146,7 +146,9 @@
     background: var(--cream);
     box-shadow: 2px 2px 0 var(--border-mid);
     transition: all 0.1s;
-    display: inline-block;
+    /* C1: oculto hasta que el JS de filtros lo muestra (style.display);
+       las 5 vistas lo renderizan inicialmente oculto */
+    display: none;
 }
 
 .clear-filters:hover {
@@ -154,6 +156,10 @@
     border-color: var(--red);
     box-shadow: 2px 2px 0 var(--red-dark);
 }
+.clear-filters--nowrap { white-space: nowrap; }
+
+/* Texto atenuado genérico (marcadores "—", iconos sin portada…) */
+.text-muted { color: var(--slate-light); }
 
 
 /* ===== PAGINACIÓN ===== */
@@ -229,6 +235,13 @@
     transform: translate(2px, 2px);
     box-shadow: 1px 1px 0 #6a5a38;
 }
+
+/* C1: variantes sólidas de .btn-primary (antes style inline).
+   Se declara tras :hover con doble clase para que el color del estado
+   normal pase a ser el del hover — mismo comportamiento que con el
+   estilo inline anterior. */
+.btn-primary.btn-primary--success { background: var(--green-ok); }
+.btn-primary.btn-primary--danger  { background: var(--red); }
 
 .btn-edit {
     padding: 0.35rem 0.7rem;
@@ -331,7 +344,10 @@
     position: fixed;
     inset: 0;
     background: rgba(30, 25, 15, 0.72);
-    display: flex;
+    /* C1: base oculto; rv-alerts.js y dashboard.js lo muestran con
+       style.display='flex' (gestión inline, la lectura de style.display
+       no depende de esta regla) */
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 10000;
@@ -386,6 +402,8 @@
     color: var(--slate-mid);
     line-height: 1.65;
 }
+/* C1: cuerpo del modal de exportación (dashboard) — antes style inline */
+.rv-modal-body--export { padding-top: 0.5rem; text-align: center; }
 .rv-modal-body strong { color: var(--slate); }
 
 .rv-modal-footer {

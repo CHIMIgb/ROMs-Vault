@@ -21,6 +21,16 @@
 
 .form-group { margin-bottom: 1.25rem; }
 
+/* C1 (Bloque 3): filas y grupos flex de formularios admin (antes inline) */
+.form-row {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.form-group--grow     { flex: 1; min-width: 220px; margin: 0; }
+.form-group--grow-sm  { flex: 1; min-width: 160px; margin: 0; }
+
 .form-group label {
     display: block;
     margin-bottom: 0.4rem;

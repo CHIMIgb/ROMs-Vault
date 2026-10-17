@@ -8,23 +8,23 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_juegos') ?></div>
-        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($stats['total']) ?></div>
+        <div class="stat-value"><?= IntlHelper::formatNumber($stats['total']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.activos') ?></div>
-        <div class="stat-value" style="color:var(--green-ok);"><?= IntlHelper::formatNumber($stats['activos']) ?></div>
+        <div class="stat-value stat-value--ok"><?= IntlHelper::formatNumber($stats['activos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.inactivos') ?></div>
-        <div class="stat-value" style="color:var(--slate-light);"><?= IntlHelper::formatNumber($stats['inactivos']) ?></div>
+        <div class="stat-value stat-value--muted"><?= IntlHelper::formatNumber($stats['inactivos']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_descargas') ?></div>
-        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($stats['total_descargas']) ?></div>
+        <div class="stat-value"><?= IntlHelper::formatNumber($stats['total_descargas']) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.dashboard.total_jugadas') ?></div>
-        <div class="stat-value" style="color:var(--slate);"><?= IntlHelper::formatNumber($stats['total_jugadas']) ?></div>
+        <div class="stat-value"><?= IntlHelper::formatNumber($stats['total_jugadas']) ?></div>
     </div>
 </div>
 
@@ -63,7 +63,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
                 <div class="ranking-info">
                     <span class="ranking-game"><?= htmlspecialchars($j['titulo']) ?></span>
                     <span class="ranking-platform"><?= htmlspecialchars($j['consola_nombre'] ?? '') ?></span>
-                    <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:<?= $pct ?>%;background:var(--green-ok);"></div></div>
+                    <div class="ranking-bar-track"><div class="ranking-bar-fill ranking-bar-fill--plays" style="width:<?= $pct ?>%"></div></div>
                 </div>
                 <span class="ranking-count"><?= IntlHelper::formatNumber($j['plays_count']) ?></span>
             </li>
@@ -90,7 +90,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
         <a href="/categoria/index" class="btn-primary">
             <i data-i="dashboard"></i> <?= t('admin.dashboard.categorias') ?>
         </a>
-        <button type="button" id="btn-export" class="btn-primary" style="background-color: var(--green-ok);">
+        <button type="button" id="btn-export" class="btn-primary btn-primary--success">
             <i data-i="save"></i> <?= t('admin.dashboard.exportar') ?>
         </button>
         <a href="/admin/add" class="btn-primary">
@@ -102,7 +102,7 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
 <!-- FILTROS EXTENDIDOS EN TIEMPO REAL -->
 <div class="search-section">
     <div class="admin-filter-form">
-        <div class="search-wrapper" style="flex:2;min-width:180px;">
+        <div class="search-wrapper">
             <input type="text"
                    id="af-busqueda"
                    placeholder="<?= t('admin.dashboard.buscar_titulo') ?>"
@@ -147,11 +147,11 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
             <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>><?= t('admin.dashboard.solo_inactivos') ?></option>
         </select>
 
-        <button type="button" id="af-limpiar" class="clear-filters" style="display:none;white-space:nowrap;"><i data-i="close" aria-hidden="true"></i> <?= t('admin.dashboard.limpiar') ?></button>
+        <button type="button" id="af-limpiar" class="clear-filters clear-filters--nowrap"><i data-i="close" aria-hidden="true"></i> <?= t('admin.dashboard.limpiar') ?></button>
     </div>
 
     <!-- Indicador de carga -->
-    <div id="admin-filter-loading" class="filter-loading" style="display:none;">
+    <div id="admin-filter-loading" class="filter-loading">
         <span class="filter-loading-bar"></span>
         <span class="filter-loading-text"><?= t('admin.dashboard.buscando') ?></span>
     </div>
@@ -166,14 +166,14 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
         Alert::render('info', t('admin.dashboard.sin_juegos'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
-    <div style="overflow-x:auto;">
+    <div class="admin-table-wrap">
         <table class="admin-table">
             <thead>
                 <tr>
                     <th><?= t('admin.juego.tabla_id') ?></th><th><?= t('admin.juego.tabla_portada') ?></th><th><?= t('admin.juego.tabla_titulo') ?></th><th><?= t('admin.juego.tabla_id_juego') ?></th>
                     <th><?= t('admin.juego.tabla_consola') ?></th><th><?= t('admin.juego.tabla_categoria') ?></th><th><?= t('admin.juego.tabla_region') ?></th>
-                    <th style="text-align:center;" title="<?= t('admin.juego.tabla_descargas') ?>"><?= t('admin.juego.tabla_descargas_abrev') ?></th>
-                    <th style="text-align:center;" title="<?= t('admin.juego.tabla_jugadas_online') ?>"><?= t('admin.juego.tabla_jugadas_abrev') ?></th>
+                    <th class="col-center" title="<?= t('admin.juego.tabla_descargas') ?>"><?= t('admin.juego.tabla_descargas_abrev') ?></th>
+                    <th class="col-center" title="<?= t('admin.juego.tabla_jugadas_online') ?>"><?= t('admin.juego.tabla_jugadas_abrev') ?></th>
                     <th><?= t('admin.juego.tabla_estado') ?></th><th><?= t('admin.juego.tabla_acciones') ?></th>
                 </tr>
             </thead>
@@ -191,23 +191,22 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
                     <td>#<?= $juego['id'] ?></td>
                     <td>
                         <?php if (!empty($juego['imagen'])): ?>
-                            <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= t('admin.juego.alt_portada') ?>"
-                                 style="width:40px;height:40px;object-fit:cover;">
+                            <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= t('admin.juego.alt_portada') ?>">
                         <?php else: ?>
-                            <span style="color:var(--slate-light);"><i data-i="image"></i></span>
+                            <span class="text-muted"><i data-i="image"></i></span>
                         <?php endif; ?>
                     </td>
                     <td><strong><?= htmlspecialchars($juego['titulo']) ?></strong></td>
-                    <td><code style="font-size:0.78rem;"><?= htmlspecialchars($juego['game_id_code'] ?? '-') ?></code></td>
+                    <td><code><?= htmlspecialchars($juego['game_id_code'] ?? '-') ?></code></td>
                     <td><?= htmlspecialchars($juego['consola_nombre']  ?? '-') ?></td>
                     <td><?= htmlspecialchars($juego['categoria_nombre'] ?? '-') ?></td>
                     <td>
-                        <span class="game-tag" style="background:var(--cream-dark);color:var(--slate);">
+                        <span class="game-tag">
                             <?= htmlspecialchars($juego['region'] ?? '-') ?>
                         </span>
                     </td>
-                    <td style="text-align:center;font-size:0.85rem;"><?= IntlHelper::formatNumber($juego['downloads_count'] ?? 0) ?></td>
-                    <td style="text-align:center;font-size:0.85rem;"><?= IntlHelper::formatNumber($juego['plays_count'] ?? 0) ?></td>
+                    <td class="col-num"><?= IntlHelper::formatNumber($juego['downloads_count'] ?? 0) ?></td>
+                    <td class="col-num"><?= IntlHelper::formatNumber($juego['plays_count'] ?? 0) ?></td>
                     <td>
                         <button class="btn-toggle-active <?= $juego['activo'] ? 'btn-toggle--on' : 'btn-toggle--off' ?>"
                                 data-id="<?= $juego['id'] ?>"
@@ -250,15 +249,15 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
 </div><!-- /#admin-results -->
 
 <!-- MODAL DE EXPORTACION -->
-<div id="export-modal" class="rv-modal-overlay" style="display:none;">
+<div id="export-modal" class="rv-modal-overlay">
     <div class="rv-modal-box rv-modal--info rv-modal--open">
         <div class="rv-modal-header">
             <span class="rv-modal-icon"><i data-i="save"></i></span>
             <h3 class="rv-modal-title"><?= t('admin.dashboard.exportar_titulo') ?></h3>
         </div>
-        <div class="rv-modal-body" style="padding-top:0.5rem; text-align:center;">
-            <p style="margin-bottom: 1rem; color: var(--slate-light);"><?= t('admin.dashboard.exportar_instruccion') ?></p>
-            <select id="export-table" class="admin-filter-select" style="width:100%;">
+        <div class="rv-modal-body rv-modal-body--export">
+            <p class="export-note"><?= t('admin.dashboard.exportar_instruccion') ?></p>
+            <select id="export-table" class="admin-filter-select export-select">
                 <option value="juegos"><?= t('admin.dashboard.exportar_tabla_juegos') ?></option>
                 <option value="consolas"><?= t('admin.dashboard.exportar_tabla_consolas') ?></option>
                 <option value="categorias"><?= t('admin.dashboard.exportar_tabla_categorias') ?></option>
