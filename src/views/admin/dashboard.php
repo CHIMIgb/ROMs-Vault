@@ -275,224 +275,26 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
     </div>
 </div>
 
-<script>
-(function () {
-    'use strict';
+<script type="application/json" id="rv-data-admin-dashboard"><?= json_encode(
+    [
+        't' => [
+            'admin.juego.error_cargar_resultados' => t('admin.juego.error_cargar_resultados'),
+            'admin.juego.confirmar_activar_titulo' => t('admin.juego.confirmar_activar_titulo'),
+            'admin.juego.confirmar_desactivar_titulo' => t('admin.juego.confirmar_desactivar_titulo'),
+            'admin.juego.confirmar_activar_mensaje' => t('admin.juego.confirmar_activar_mensaje', ['nombre' => '{n}']),
+            'admin.juego.confirmar_desactivar_mensaje' => t('admin.juego.confirmar_desactivar_mensaje', ['nombre' => '{n}']),
+            'admin.juego.confirmar_btn_activar' => t('admin.juego.confirmar_btn_activar'),
+            'admin.juego.confirmar_btn_desactivar' => t('admin.juego.confirmar_btn_desactivar'),
+            'admin.juego.cancelar' => t('admin.juego.cancelar'),
+            'admin.juego.error_desconocido' => t('admin.juego.error_desconocido'),
+            'admin.juego.error_cambiar_estado' => t('admin.juego.error_cambiar_estado'),
+            'admin.juego.toast_activado' => t('admin.juego.toast_activado', ['nombre' => '{n}']),
+            'admin.juego.toast_desactivado' => t('admin.juego.toast_desactivado', ['nombre' => '{n}']),
+            'admin.juego.desactivar' => t('admin.juego.desactivar'),
+            'admin.juego.activar' => t('admin.juego.activar'),
+        ],
+    ],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+) ?></script>
 
-    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
-
-    const busquedaEl  = document.getElementById('af-busqueda');
-    const consolaEl   = document.getElementById('af-consola');
-    const categoriaEl = document.getElementById('af-categoria');
-    const regionEl    = document.getElementById('af-region');
-    const activoEl    = document.getElementById('af-activo');
-    const btnLimpiar  = document.getElementById('af-limpiar');
-    const resultsEl   = document.getElementById('admin-results');
-    const loadingEl   = document.getElementById('admin-filter-loading');
-
-    let debounceTimer  = null;
-    let currentRequest = null;
-
-    function getAjaxParams(page) {
-        const p = new URLSearchParams();
-        p.set('page', page || 1);
-        const b = busquedaEl.value.trim();
-        if (b)                 p.set('busqueda',  b);
-        if (consolaEl.value)   p.set('consola',   consolaEl.value);
-        if (categoriaEl.value) p.set('categoria', categoriaEl.value);
-        if (regionEl.value)    p.set('region',    regionEl.value);
-        if (activoEl.value !== '') p.set('activo', activoEl.value);
-        return p;
-    }
-
-    function getUiParams(page) {
-        const p = getAjaxParams(page);
-        return p;
-    }
-
-    function updateLimpiar() {
-        const has = busquedaEl.value.trim() || consolaEl.value
-            || categoriaEl.value || regionEl.value || activoEl.value !== '';
-        btnLimpiar.style.display = has ? 'inline-block' : 'none';
-    }
-
-    async function fetchResults(page) {
-        if (currentRequest) currentRequest.abort();
-        currentRequest = new AbortController();
-
-        loadingEl.style.display = 'flex';
-        resultsEl.style.opacity = '0.45';
-        resultsEl.style.pointerEvents = 'none';
-
-        history.replaceState(null, '', '?' + getUiParams(page).toString());
-
-        try {
-            const res = await fetch('ajax_admin.php?' + getAjaxParams(page).toString(), {
-                signal: currentRequest.signal
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            resultsEl.innerHTML = await res.text();
-            bindPagination();
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                RVAlerts.toast(<?= json_encode(t('admin.juego.error_cargar_resultados')) ?>, 'danger');
-            }
-        } finally {
-            loadingEl.style.display = 'none';
-            resultsEl.style.opacity = '';
-            resultsEl.style.pointerEvents = '';
-        }
-    }
-
-    function scheduleSearch() {
-        clearTimeout(debounceTimer);
-        updateLimpiar();
-        debounceTimer = setTimeout(() => fetchResults(1), 380);
-    }
-
-    function onSelectChange() {
-        updateLimpiar();
-        fetchResults(1);
-    }
-
-    function bindPagination() {
-        resultsEl.querySelectorAll('.pagination-link[data-page]').forEach(a => {
-            a.addEventListener('click', e => {
-                e.preventDefault();
-                fetchResults(parseInt(a.dataset.page));
-            });
-        });
-    }
-
-    btnLimpiar.addEventListener('click', () => {
-        busquedaEl.value  = '';
-        consolaEl.value   = '';
-        categoriaEl.value = '';
-        regionEl.value    = '';
-        activoEl.value    = '';
-        updateLimpiar();
-        fetchResults(1);
-    });
-
-    busquedaEl.addEventListener('input',   scheduleSearch);
-    consolaEl.addEventListener('change',   onSelectChange);
-    categoriaEl.addEventListener('change', onSelectChange);
-    regionEl.addEventListener('change',    onSelectChange);
-    activoEl.addEventListener('change',    onSelectChange);
-
-    bindPagination();
-    updateLimpiar();
-
-    // ── Delegación de clics en botones toggle (funciona con AJAX también) ──
-    document.getElementById('admin-results').addEventListener('click', e => {
-        const btn = e.target.closest('.btn-toggle-active');
-        if (!btn) return;
-        e.preventDefault();
-
-        const accion = btn.dataset.accion;
-        const titulo = btn.dataset.titulo;
-        const id     = btn.dataset.id;
-
-        const textosConfirm = {
-            tituloActivar:    <?= json_encode(t('admin.juego.confirmar_activar_titulo')) ?>,
-            tituloDesactivar: <?= json_encode(t('admin.juego.confirmar_desactivar_titulo')) ?>,
-            msgActivar:       <?= json_encode(t('admin.juego.confirmar_activar_mensaje', ['nombre' => '{n}'])) ?>,
-            msgDesactivar:    <?= json_encode(t('admin.juego.confirmar_desactivar_mensaje', ['nombre' => '{n}'])) ?>,
-            okActivar:        <?= json_encode(t('admin.juego.confirmar_btn_activar')) ?>,
-            okDesactivar:     <?= json_encode(t('admin.juego.confirmar_btn_desactivar')) ?>,
-            cancelar:         <?= json_encode(t('admin.juego.cancelar')) ?>,
-            errorDesconocido: <?= json_encode(t('admin.juego.error_desconocido')) ?>,
-            errorEstado:      <?= json_encode(t('admin.juego.error_cambiar_estado')) ?>,
-            toastActivado:    <?= json_encode(t('admin.juego.toast_activado', ['nombre' => '{n}'])) ?>,
-            toastDesactivado: <?= json_encode(t('admin.juego.toast_desactivado', ['nombre' => '{n}'])) ?>,
-            desactivar:       <?= json_encode(t('admin.juego.desactivar')) ?>,
-            activar:          <?= json_encode(t('admin.juego.activar')) ?>,
-        };
-
-        RVAlerts.confirm({
-            tipo:      accion === 'desactivar' ? 'warning' : 'success',
-            titulo:    accion === 'desactivar' ? textosConfirm.tituloDesactivar : textosConfirm.tituloActivar,
-            mensaje:   (accion === 'desactivar' ? textosConfirm.msgDesactivar : textosConfirm.msgActivar).replace('{n}', titulo),
-            btnOk:     accion === 'desactivar' ? textosConfirm.okDesactivar : textosConfirm.okActivar,
-            btnCancel: textosConfirm.cancelar,
-            onOk: async () => {
-                btn.disabled    = true;
-                btn.textContent = '...';
-
-                try {
-                    const res  = await fetch(
-                        `/admin/toggleActiveAjax/${id}`,
-                        { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
-                    );
-                    const data = await res.json();
-
-                    if (!data.ok) throw new Error(data.error || textosConfirm.errorDesconocido);
-
-                    const estaActivo = data.activo === 1;
-                    btn.textContent      = estaActivo ? textosConfirm.desactivar : textosConfirm.activar;
-                    btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
-                    btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
-
-                    RVAlerts.toast(
-                        (estaActivo ? textosConfirm.toastActivado : textosConfirm.toastDesactivado).replace('{n}', data.titulo),
-                        estaActivo ? 'success' : 'warning'
-                    );
-
-                } catch (err) {
-                    RVAlerts.toast(textosConfirm.errorEstado, 'danger');
-                    btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? textosConfirm.desactivar : textosConfirm.activar;
-                }
-
-                btn.disabled = false;
-            }
-        });
-    });
-
-    // ── Lógica de Exportación ──
-    const btnExport = document.getElementById('btn-export');
-    const modalExport = document.getElementById('export-modal');
-    const btnCancelExport = document.getElementById('btn-export-cancel');
-    const btnConfirmExport = document.getElementById('btn-export-confirm');
-    const selectExportTable = document.getElementById('export-table');
-
-    function closeExportModal() {
-        const box = modalExport.querySelector('.rv-modal-box');
-        box.classList.remove('rv-modal--open');
-        box.classList.add('rv-modal--close');
-        setTimeout(() => {
-            modalExport.style.display = 'none';
-            box.classList.remove('rv-modal--close');
-        }, 220);
-    }
-
-    if (btnExport) {
-        btnExport.addEventListener('click', () => {
-            modalExport.style.display = 'flex';
-            const box = modalExport.querySelector('.rv-modal-box');
-            void box.offsetWidth;
-            box.classList.add('rv-modal--open');
-        });
-    }
-
-    if (btnCancelExport) {
-        btnCancelExport.addEventListener('click', closeExportModal);
-    }
-
-    if (btnConfirmExport) {
-        btnConfirmExport.addEventListener('click', () => {
-            const table = selectExportTable.value;
-            window.location.href = `/export/download?table=${table}`;
-            closeExportModal();
-        });
-    }
-
-    // Cerrar modal al hacer clic afuera
-    window.addEventListener('click', (e) => {
-        if (e.target === modalExport) {
-            closeExportModal();
-        }
-    });
-
-})();
-</script>
+<script src="public/js/views/admin/dashboard.js" defer></script>

@@ -166,218 +166,31 @@ endif;
 
 </div><!-- /#consolas-results -->
 
-<script>
-(function () {
-    'use strict';
+<script type="application/json" id="rv-data-admin-consolas-index"><?= json_encode(
+    [
+        't' => [
+            'admin.consola.confirm_activar_titulo' => t('admin.consola.confirm_activar_titulo'),
+            'admin.consola.confirm_desactivar_titulo' => t('admin.consola.confirm_desactivar_titulo'),
+            'admin.consola.confirm_estado_activar' => t('admin.consola.confirm_estado_activar', ['nombre' => '{n}']),
+            'admin.consola.confirm_estado_desactivar' => t('admin.consola.confirm_estado_desactivar', ['nombre' => '{n}']),
+            'admin.consola.confirm_emulacion_activar_titulo' => t('admin.consola.confirm_emulacion_activar_titulo'),
+            'admin.consola.confirm_emulacion_desactivar_titulo' => t('admin.consola.confirm_emulacion_desactivar_titulo'),
+            'admin.consola.confirm_emulacion_activar' => t('admin.consola.confirm_emulacion_activar', ['nombre' => '{n}']),
+            'admin.consola.confirm_emulacion_desactivar' => t('admin.consola.confirm_emulacion_desactivar', ['nombre' => '{n}']),
+            'admin.consola.si_activar' => t('admin.consola.si_activar'),
+            'admin.consola.si_desactivar' => t('admin.consola.si_desactivar'),
+            'admin.consola.cancelar' => t('admin.consola.cancelar'),
+            'admin.consola.error_desconocido' => t('admin.consola.error_desconocido'),
+            'admin.consola.error_estado' => t('admin.consola.error_estado'),
+            'admin.consola.toast_activada' => t('admin.consola.toast_activada', ['nombre' => '{n}']),
+            'admin.consola.toast_desactivada' => t('admin.consola.toast_desactivada', ['nombre' => '{n}']),
+            'admin.consola.toast_emulacion_activada' => t('admin.consola.toast_emulacion_activada', ['nombre' => '{n}']),
+            'admin.consola.toast_emulacion_desactivada' => t('admin.consola.toast_emulacion_desactivada', ['nombre' => '{n}']),
+            'admin.consola.desactivar' => t('admin.consola.desactivar'),
+            'admin.consola.activar' => t('admin.consola.activar'),
+        ],
+    ],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+) ?></script>
 
-    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
-
-    const busquedaEl = document.getElementById('cs-busqueda');
-    const activoEl   = document.getElementById('cs-activo');
-    const btnLimpiar = document.getElementById('cs-limpiar');
-    const resultsEl  = document.getElementById('consolas-results');
-    const loadingEl  = document.getElementById('cs-loading');
-
-    const textos = {
-        tituloActivar:    <?= json_encode(t('admin.consola.confirm_activar_titulo')) ?>,
-        tituloDesactivar: <?= json_encode(t('admin.consola.confirm_desactivar_titulo')) ?>,
-        msgActivar:       <?= json_encode(t('admin.consola.confirm_estado_activar', ['nombre' => '{n}'])) ?>,
-        msgDesactivar:    <?= json_encode(t('admin.consola.confirm_estado_desactivar', ['nombre' => '{n}'])) ?>,
-        tituloEmuActivar:    <?= json_encode(t('admin.consola.confirm_emulacion_activar_titulo')) ?>,
-        tituloEmuDesactivar: <?= json_encode(t('admin.consola.confirm_emulacion_desactivar_titulo')) ?>,
-        msgEmuActivar:       <?= json_encode(t('admin.consola.confirm_emulacion_activar', ['nombre' => '{n}'])) ?>,
-        msgEmuDesactivar:    <?= json_encode(t('admin.consola.confirm_emulacion_desactivar', ['nombre' => '{n}'])) ?>,
-        okActivar:        <?= json_encode(t('admin.consola.si_activar')) ?>,
-        okDesactivar:     <?= json_encode(t('admin.consola.si_desactivar')) ?>,
-        cancelar:         <?= json_encode(t('admin.consola.cancelar')) ?>,
-        errorDesconocido: <?= json_encode(t('admin.consola.error_desconocido')) ?>,
-        errorEstado:      <?= json_encode(t('admin.consola.error_estado')) ?>,
-        toastActivada:    <?= json_encode(t('admin.consola.toast_activada', ['nombre' => '{n}'])) ?>,
-        toastDesactivada: <?= json_encode(t('admin.consola.toast_desactivada', ['nombre' => '{n}'])) ?>,
-        toastEmuActivada:    <?= json_encode(t('admin.consola.toast_emulacion_activada', ['nombre' => '{n}'])) ?>,
-        toastEmuDesactivada: <?= json_encode(t('admin.consola.toast_emulacion_desactivada', ['nombre' => '{n}'])) ?>,
-        desactivar:       <?= json_encode(t('admin.consola.desactivar')) ?>,
-        activar:          <?= json_encode(t('admin.consola.activar')) ?>,
-    };
-
-    let debounceTimer  = null;
-    let currentRequest = null;
-
-    function getAjaxParams(page) {
-        const p = new URLSearchParams();
-        p.set('page', page || 1);
-        const b = busquedaEl.value.trim();
-        if (b)                     p.set('busqueda', b);
-        if (activoEl.value !== '') p.set('activo',   activoEl.value);
-        return p;
-    }
-
-    function getUiParams(page) {
-        const p = getAjaxParams(page);
-        return p;
-    }
-
-    function updateLimpiar() {
-        const has = busquedaEl.value.trim() || activoEl.value !== '';
-        btnLimpiar.style.display = has ? 'inline-block' : 'none';
-    }
-
-    async function fetchResults(page) {
-        if (currentRequest) currentRequest.abort();
-        currentRequest = new AbortController();
-
-        loadingEl.style.display    = 'flex';
-        resultsEl.style.opacity    = '0.45';
-        resultsEl.style.pointerEvents = 'none';
-
-        history.replaceState(null, '', '?' + getUiParams(page).toString());
-
-        try {
-            const res = await fetch('ajax_consola.php?' + getAjaxParams(page).toString(), {
-                signal: currentRequest.signal
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            resultsEl.innerHTML = await res.text();
-            bindPagination();
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                window.location.href = '?' + getUiParams(page).toString();
-            }
-        } finally {
-            loadingEl.style.display    = 'none';
-            resultsEl.style.opacity    = '';
-            resultsEl.style.pointerEvents = '';
-        }
-    }
-
-    function scheduleSearch() {
-        clearTimeout(debounceTimer);
-        updateLimpiar();
-        debounceTimer = setTimeout(() => fetchResults(1), 380);
-    }
-
-    function bindPagination() {
-        resultsEl.querySelectorAll('.pagination-link[data-page]').forEach(a => {
-            a.addEventListener('click', e => {
-                e.preventDefault();
-                fetchResults(parseInt(a.dataset.page));
-            });
-        });
-    }
-
-    btnLimpiar.addEventListener('click', () => {
-        busquedaEl.value = '';
-        activoEl.value   = '';
-        updateLimpiar();
-        fetchResults(1);
-    });
-
-    busquedaEl.addEventListener('input',  scheduleSearch);
-    activoEl.addEventListener('change',   () => { updateLimpiar(); fetchResults(1); });
-
-    bindPagination();
-    updateLimpiar();
-
-    // ── Delegación de clics en botones toggle — idéntica al dashboard ─────
-    document.getElementById('consolas-results').addEventListener('click', e => {
-        const btn = e.target.closest('.btn-toggle-active');
-        // El toggle de emulación online se gestiona en su propia delegación
-        if (!btn || btn.classList.contains('btn-toggle-emulacion')) return;
-        e.preventDefault();
-
-        const accion = btn.dataset.accion;
-        const titulo = btn.dataset.titulo;
-        const id     = btn.dataset.id;
-
-        RVAlerts.confirm({
-            tipo:      accion === 'desactivar' ? 'warning' : 'success',
-            titulo:    accion === 'desactivar' ? textos.tituloDesactivar : textos.tituloActivar,
-            mensaje:   (accion === 'desactivar' ? textos.msgDesactivar : textos.msgActivar).replace('{n}', titulo),
-            btnOk:     accion === 'desactivar' ? textos.okDesactivar : textos.okActivar,
-            btnCancel: textos.cancelar,
-            onOk: async () => {
-                btn.disabled    = true;
-                btn.textContent = '...';
-
-                try {
-                    const res  = await fetch(
-                        `/consola/toggleActiveAjax/${id}`,
-                        { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
-                    );
-                    const data = await res.json();
-
-                    if (!data.ok) throw new Error(data.error || textos.errorDesconocido);
-
-                    const estaActivo     = data.activo === 1;
-                    btn.textContent      = estaActivo ? textos.desactivar : textos.activar;
-                    btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
-                    btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
-
-                    RVAlerts.toast(
-                        (estaActivo ? textos.toastActivada : textos.toastDesactivada).replace('{n}', data.nombre),
-                        estaActivo ? 'success' : 'warning'
-                    );
-
-                } catch (err) {
-                    RVAlerts.toast(textos.errorEstado, 'danger');
-                    btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? textos.desactivar : textos.activar;
-                }
-
-                btn.disabled = false;
-            }
-        });
-    });
-
-    // ── Toggle de emulación online (botón .btn-toggle-emulacion) ──────────
-    document.getElementById('consolas-results').addEventListener('click', e => {
-        const btn = e.target.closest('.btn-toggle-emulacion');
-        if (!btn) return;
-        e.preventDefault();
-
-        const accion = btn.dataset.accion;   // 'activar' | 'desactivar'
-        const titulo = btn.dataset.titulo;
-        const id     = btn.dataset.id;
-
-        RVAlerts.confirm({
-            tipo:    accion === 'desactivar' ? 'warning' : 'success',
-            titulo:  accion === 'desactivar' ? textos.tituloEmuDesactivar : textos.tituloEmuActivar,
-            mensaje: (accion === 'desactivar' ? textos.msgEmuDesactivar : textos.msgEmuActivar).replace('{n}', titulo),
-            btnOk:     accion === 'desactivar' ? textos.okDesactivar : textos.okActivar,
-            btnCancel: textos.cancelar,
-            onOk: async () => {
-                btn.disabled    = true;
-                btn.textContent = '...';
-
-                try {
-                    const res  = await fetch(
-                        `/consola/toggleEmulacionAjax/${id}`,
-                        { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
-                    );
-                    const data = await res.json();
-
-                    if (!data.ok) throw new Error(data.error || textos.errorDesconocido);
-
-                    const activada = data.emulacion_online === 1;
-                    btn.textContent    = activada ? textos.desactivar : textos.activar;
-                    btn.dataset.accion = activada ? 'desactivar' : 'activar';
-                    btn.className      = 'btn-toggle-active btn-toggle-emulacion ' + (activada ? 'btn-toggle--on' : 'btn-toggle--off');
-
-                    RVAlerts.toast(
-                        (activada ? textos.toastEmuActivada : textos.toastEmuDesactivada).replace('{n}', data.nombre),
-                        activada ? 'success' : 'warning'
-                    );
-
-                } catch (err) {
-                    RVAlerts.toast(textos.errorEstado, 'danger');
-                    btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? textos.desactivar : textos.activar;
-                }
-
-                btn.disabled = false;
-            }
-        });
-    });
-
-})();
-</script>
+<script src="public/js/views/admin/consolas-index.js" defer></script>

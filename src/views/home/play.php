@@ -251,240 +251,46 @@ if ($juego === null && empty($error) && empty($proxyError)) {
     </div><!-- /.emulator-wrapper -->
 
     <!-- ====== EmulatorJS ====================================================== -->
-    <script>
-        (function () {
+<script type="application/json" id="rv-data-play-emulator"><?= json_encode(
+    [
+        'core'          => $core,
+        'gameName'      => htmlspecialchars_decode((string) $juego['titulo']),
+        'gameUrl'       => $romUrl,
+        'pathtodata'    => EmulatorJS::dataUrl(),
+        'loaderUrl'     => EmulatorJS::loaderUrl(),
+        'language'      => IntlHelper::emulatorLanguage(),
+        'biosUrl'       => $biosUrl ?: null,
+        'needsThreads'  => (bool) $needsThreads,
+        'modoStreaming' => (bool) $modoStreaming,
+        'totalBytes'    => (int) ($juego['size_bytes'] ?? 0),
+        'downloadUrl'   => $downloadUrl,
+        't' => [
+            'play.recibidos' => t('play.recibidos'),
+            'play.rom_cargada' => t('play.rom_cargada'),
+            'play.procesando' => t('play.procesando', ['valor' => '']),
+            'play.error_archivo_no_encontrado' => t('play.error_archivo_no_encontrado'),
+            'play.error_archivo_privado' => t('play.error_archivo_privado'),
+            'play.error_limite_descargas' => t('play.error_limite_descargas'),
+            'play.error_conexion' => t('play.error_conexion'),
+            'play.consejo_archivo_no_encontrado_js' => t('play.consejo_archivo_no_encontrado_js'),
+            'play.consejo_archivo_privado_js' => t('play.consejo_archivo_privado_js'),
+            'play.consejo_limite_descargas_js' => t('play.consejo_limite_descargas_js'),
+            'play.consejo_conexion' => t('play.consejo_conexion'),
+            'play.error_cargar_rom' => t('play.error_cargar_rom'),
+            'play.consejo_reintentar' => t('play.consejo_reintentar'),
+            'play.que_puedo_hacer' => t('play.que_puedo_hacer'),
+            'play.descargar_rom' => t('play.descargar_rom'),
+            'play.reintentar' => t('play.reintentar'),
+            'play.volver_catalogo' => t('play.volver_catalogo'),
+            'play.detalles_tecnicos' => t('play.detalles_tecnicos'),
+            'play.error_label' => t('play.error_label'),
+            'play.mensaje' => t('play.mensaje'),
+        ],
+    ],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+) ?></script>
 
-            // ── Configuración base ────────────────────────────────────────────────
-            window.EJS_player = '#game';
-            window.EJS_core = '<?= addslashes($core) ?>';
-            window.EJS_gameName = '<?= addslashes(htmlspecialchars_decode($juego['titulo'])) ?>';
-            window.EJS_gameUrl = '<?= addslashes($romUrl) ?>';
-            window.EJS_pathtodata = '<?= EmulatorJS::dataUrl() ?>';
-            window.EJS_color = '#c0392b';
-            window.EJS_startOnLoaded = false;
-            window.EJS_backgroundColor = '#1a1a1a';
-            window.EJS_language = '<?= IntlHelper::emulatorLanguage() ?>';  // UI del emulador según idioma activo (FASE 5.3)
-            window.EJS_Buttons = {
-                saveState: true,
-                loadState: true,
-                fullscreen: false,
-                screenshot: true,
-                cacheManager: false,
-            };
-
-            <?php if (!empty($biosUrl)): ?>
-                // BIOS requerido por este core (PS1, etc.)
-                window.EJS_biosUrl = '<?= addslashes($biosUrl) ?>';
-            <?php endif; ?>
-
-            <?php if ($needsThreads): ?>
-                // Threads habilitados por los headers COOP/COEP que emite el
-                // controlador (ahora: N64, PSP, DOSBox — se añaden cores de uno
-                // en uno tras probar). Si el navegador no expone SharedArrayBuffer,
-                // EmulatorJS usa single-thread sin romper.
-                window.EJS_threads = true;
-            <?php endif; ?>
-
-            // ── Flags de comportamiento ───────────────────────────────────────────
-            const modoStreaming = <?= $modoStreaming ? 'true' : 'false' ?>;
-            const totalBytes = <?= (int) ($juego['size_bytes'] ?? 0) ?>;
-
-            // ── Carga el loader de EmulatorJS en el DOM ───────────────────────────
-            function loadEmulatorJS() {
-                const s = document.createElement('script');
-                s.src = '<?= EmulatorJS::loaderUrl() ?>';
-                s.async = true;
-                s.onerror = () => {
-                    console.error('[EmulatorJS] No se pudo cargar loader.js — verifica tu conexión.');
-                };
-                document.body.appendChild(s);
-            }
-
-            // ── MODO STREAMING: PSP, PS1, Saturn, etc. ────────────────────────────
-            // La ROM es demasiado grande para cargarla en memoria del navegador.
-            // EmulatorJS recibe la URL del proxy y él mismo gestiona los Range Requests
-            // para ir leyendo la ISO en bloques conforme los necesita.
-            // ── Aspect ratio automático según consola ────────────────────────────
-            // PSP → 16:9 (480x272 nativa)
-            // El resto de consolas retro → 4:3
-            const container = document.getElementById('emulator-container');
-            const coreActual = container.dataset.core;
-            const cores16x9 = ['ppsspp', 'psp'];   // PSP → 16:9 (480×272)
-            const ratio = cores16x9.includes(coreActual) ? '16 / 9' : '4 / 3';
-            container.style.aspectRatio = ratio;
-
-            // ── Slider de tamaño de pantalla ──────────────────────────────────────
-            const slider = document.getElementById('emulator-size-slider');
-            const sizeLabel = document.getElementById('emulator-size-value');
-
-            function applySize(pct) {
-                container.style.width = pct + '%';
-                container.style.marginLeft = 'auto';
-                container.style.marginRight = 'auto';
-                sizeLabel.textContent = pct + '%';
-                // Guardar preferencia en localStorage
-                try { localStorage.setItem('ejs_screen_size', pct); } catch (e) { }
-            }
-
-            // Recuperar preferencia guardada
-            try {
-                const saved = localStorage.getItem('ejs_screen_size');
-                if (saved) {
-                    slider.value = saved;
-                    applySize(parseInt(saved));
-                } else {
-                    applySize(parseInt(slider.value));
-                }
-            } catch (e) {
-                applySize(parseInt(slider.value));
-            }
-
-            slider.addEventListener('input', () => applySize(parseInt(slider.value)));
-
-            if (modoStreaming) {
-                loadEmulatorJS();
-                return;
-            }
-
-            // ── MODO PRECARGA: NES, SNES, GBA, N64, MD, etc. ─────────────────────
-            // ROMs pequeñas (<64 MB): las descargamos completas en memoria,
-            // las convertimos en Object URL y se las pasamos a EmulatorJS.
-            // Esto evita problemas de CORS en navegadores estrictos y da carga instantánea.
-
-            const loadBar = document.getElementById('proxy-load-bar');
-            const loadFill = document.getElementById('proxy-load-fill');
-            const loadPct = document.getElementById('proxy-load-pct');
-            const loadText = document.getElementById('proxy-load-text');
-            const loadDetail = document.getElementById('proxy-load-detail');
-            const romUrl = window.EJS_gameUrl;
-
-            function fmtBytes(b) {
-                if (b >= 1073741824) return (b / 1073741824).toFixed(2) + ' GB';
-                if (b >= 1048576) return (b / 1048576).toFixed(1) + ' MB';
-                if (b >= 1024) return Math.round(b / 1024) + ' KB';
-                return b + ' B';
-            }
-
-            async function preloadRom() {
-                loadBar.style.display = 'block';
-                try {
-                    const response = await fetch(romUrl);
-                    if (!response.ok) throw new Error('HTTP ' + response.status + ' — ' + response.statusText);
-
-                    const contentLength = parseInt(response.headers.get('Content-Length') || String(totalBytes), 10);
-                    const hasLength = contentLength > 0;
-                    const reader = response.body.getReader();
-                    const chunks = [];
-                    let received = 0;
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        chunks.push(value);
-                        received += value.length;
-
-                        if (hasLength) {
-                            const pct = Math.min(Math.round((received / contentLength) * 100), 99);
-                            loadFill.style.width = pct + '%';
-                            loadPct.textContent = pct + '%';
-                            loadDetail.textContent = fmtBytes(received) + ' / ' + fmtBytes(contentLength);
-                        } else {
-                            loadFill.classList.add('indeterminate');
-                            loadPct.textContent = '…';
-                            loadDetail.textContent = fmtBytes(received) + ' ' + <?= json_encode(t('play.recibidos')) ?>.replace('{valor}', '');
-                        }
-                    }
-
-                    loadFill.style.width = '100%';
-                    loadFill.classList.remove('indeterminate');
-                    loadPct.textContent = '100%';
-                    loadText.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> ' + <?= json_encode(t('play.rom_cargada')) ?>;
-                    loadDetail.textContent = <?= json_encode(t('play.procesando', ['valor' => ''])) ?>.replace('{valor}', fmtBytes(received));
-
-                    window.EJS_gameUrl = URL.createObjectURL(new Blob(chunks));
-
-                    await new Promise(r => setTimeout(r, 500));
-                    loadBar.style.display = 'none';
-
-                } catch (err) {
-                    loadFill.style.background = 'var(--red)';
-                    loadFill.style.width = '100%';
-                    console.error('[proxy preload]', err);
-
-                    // Intentar leer el JSON de error del proxy para mostrar diagnóstico
-                    let errorType = 'network';
-                    let errorMsg = err.message;
-
-                    // Si el error viene de un HTTP no-OK, intentar parsear la respuesta JSON
-                    try {
-                        const errRes = await fetch(romUrl);
-                        if (!errRes.ok) {
-                            const ct = errRes.headers.get('Content-Type') || '';
-                            if (ct.includes('json')) {
-                                const data = await errRes.json();
-                                errorType = data.error_type || 'network';
-                                errorMsg = data.error || errorMsg;
-                            }
-                        }
-                    } catch (_) { /* ignorar errores al releer */ }
-
-                    // Mostrar página de error amigable en vez del emulador
-                    const iconMap = {
-                        not_found: ['<i data-i="trash"></i>', <?= json_encode(t('play.error_archivo_no_encontrado')) ?>],
-                        private: ['<i data-i="lock"></i>', <?= json_encode(t('play.error_archivo_privado')) ?>],
-                        quota: ['<i data-i="clock"></i>', <?= json_encode(t('play.error_limite_descargas')) ?>],
-                        network: ['<i data-i="wifi"></i>', <?= json_encode(t('play.error_conexion')) ?>],
-                    };
-                    const tipMap = {
-                        not_found: <?= json_encode(t('play.consejo_archivo_no_encontrado_js')) ?>,
-                        private: <?= json_encode(t('play.consejo_archivo_privado_js')) ?>,
-                        quota: <?= json_encode(t('play.consejo_limite_descargas_js')) ?>,
-                        network: <?= json_encode(t('play.consejo_conexion')) ?>,
-                    };
-                    const [icon, titulo] = iconMap[errorType] || ['<i data-i="warning"></i>', <?= json_encode(t('play.error_cargar_rom')) ?>];
-                    const consejo = tipMap[errorType] || <?= json_encode(t('play.consejo_reintentar')) ?>;
-                    // URL de descarga firmada por el servidor (inyectada desde PHP)
-                    const signedDownloadUrl = '<?= addslashes($downloadUrl) ?>';
-
-document.querySelector('.emulator-wrapper').innerHTML = `
-                <div class="proxy-error-page">
-                    <div class="proxy-error-icon">${icon}</div>
-                    <h2 class="proxy-error-title">${titulo}</h2>
-                    <p class="proxy-error-msg">${errorMsg}</p>
-                    <div class="proxy-error-tip">
-                        <span class="proxy-tip-label"><i data-i="lightbulb"></i> ${<?= json_encode(t('play.que_puedo_hacer')) ?>}</span>
-                        ${consejo}
-                    </div>
-                    <div class="proxy-error-actions">
-                        ${errorType !== 'quota'
-                        ? `<a href="${signedDownloadUrl}"
-                                   class="btn-download-big" target="_blank"><i data-i="download"></i> ${<?= json_encode(t('play.descargar_rom')) ?>}</a>`
-                        : `<a href="javascript:location.reload()" class="btn-retry"><i data-i="reload"></i> ${<?= json_encode(t('play.reintentar')) ?>}</a>`
-                    }
-                        <a href="/" class="btn-back-catalog"><i data-i="arrow-left"></i> ${<?= json_encode(t('play.volver_catalogo')) ?>}</a>
-                    </div>
-                    <details class="proxy-error-details">
-                        <summary>${<?= json_encode(t('play.detalles_tecnicos')) ?>}</summary>
-                        <div class="proxy-error-technical">
-                            <div><span>${<?= json_encode(t('play.error_label')) ?>}</span> <code>${errorType}</code></div>
-                            <div><span>${<?= json_encode(t('play.mensaje')) ?>}</span> <code>${errorMsg}</code></div>
-                        </div>
-                    </details>
-                </div>`;
-                    return; // No cargar EmulatorJS
-                }
-
-                loadEmulatorJS();
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', preloadRom);
-            } else {
-                preloadRom();
-            }
-
-        })();
-    </script>
+<script src="public/js/views/home/play-emulator.js" defer></script>
 
 <?php endif; ?>
 
@@ -499,57 +305,15 @@ require_once __DIR__ . '/../components/related_games.php';
 ?>
 
 <!-- ====== SHARE + AUTOCOMPLETE JS ======================================== -->
-<script>
-    (function () {
-        'use strict';
+<script type="application/json" id="rv-data-play-share"><?= json_encode(
+    [
+        't' => [
+            'play.enlace_copiado' => t('play.enlace_copiado'),
+            'play.no_se_pudo_copiar' => t('play.no_se_pudo_copiar'),
+            'play.no_se_pudo_copiar_enlace' => t('play.no_se_pudo_copiar_enlace'),
+        ],
+    ],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+) ?></script>
 
-        // ── Botón Compartir ───────────────────────────────────────────────────
-        const btnShare = document.getElementById('btn-share-game');
-        const toast = document.getElementById('share-toast');
-
-        if (btnShare) {
-            btnShare.addEventListener('click', () => {
-                const url = btnShare.dataset.url;
-                copyToClipboard(url);
-            });
-        }
-
-        function copyToClipboard(text) {
-            // Método 1: API moderna (requiere HTTPS o localhost)
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text)
-                    .then(() => showToast('<i data-i="check"></i> ' + <?= json_encode(t('play.enlace_copiado')) ?>))
-                    .catch(() => legacyCopy(text));
-                return;
-            }
-            // Método 2: execCommand — funciona en HTTP e IPs locales
-            legacyCopy(text);
-        }
-
-        function legacyCopy(text) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
-            document.body.appendChild(ta);
-            ta.focus();
-            ta.select();
-            try {
-                const ok = document.execCommand('copy');
-                showToast(ok
-                    ? '<i data-i="check"></i> ' + <?= json_encode(t('play.enlace_copiado')) ?>
-                    : '<i data-i="close"></i> ' + <?= json_encode(t('play.no_se_pudo_copiar')) ?>);
-            } catch (_) {
-                showToast('<i data-i="close"></i> ' + <?= json_encode(t('play.no_se_pudo_copiar_enlace')) ?>);
-            }
-            document.body.removeChild(ta);
-        }
-
-        function showToast(msg) {
-            if (!toast) return;
-            toast.innerHTML = msg;
-            toast.classList.add('share-toast--visible');
-            setTimeout(() => toast.classList.remove('share-toast--visible'), 2800);
-        }
-
-    })();
-</script>
+<script src="public/js/views/home/play-share.js" defer></script>

@@ -86,24 +86,16 @@
     </form>
 </div>
 
-<script>
-(function () {
-    'use strict';
-    const btn = document.getElementById('btn-eliminar-consola');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-        const id     = this.dataset.id;
-        const nombre = this.dataset.nombre;
-        RVAlerts.confirm({
-            tipo:      'danger',
-            titulo:    <?= json_encode(t('admin.consola.confirm_eliminar_titulo')) ?>,
-            mensaje:   <?= json_encode(t('admin.consola.confirm_eliminar', ['nombre' => '{n}'])) ?>.replace('{n}', nombre),
-            btnOk:     <?= json_encode(t('admin.consola.si_eliminar')) ?>,
-            btnCancel: <?= json_encode(t('admin.consola.cancelar')) ?>,
-            onOk: () => {
-                document.getElementById('form-eliminar-consola').submit();
-            }
-        });
-    });
-})();
-</script>
+<script type="application/json" id="rv-data-admin-consolas-edit"><?= json_encode(
+    [
+        't' => [
+            'admin.consola.confirm_eliminar_titulo' => t('admin.consola.confirm_eliminar_titulo'),
+            'admin.consola.confirm_eliminar' => t('admin.consola.confirm_eliminar', ['nombre' => '{n}']),
+            'admin.consola.si_eliminar' => t('admin.consola.si_eliminar'),
+            'admin.consola.cancelar' => t('admin.consola.cancelar'),
+        ],
+    ],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+) ?></script>
+
+<script src="public/js/views/admin/consolas-edit.js" defer></script>
