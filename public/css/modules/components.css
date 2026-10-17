@@ -176,7 +176,7 @@
     font-size: 0.5rem;
     min-width: 38px;
     text-align: center;
-    box-shadow: 3px 3px 0 #8a7a58;
+    box-shadow: var(--raise-shadow);
     transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
     display: inline-flex;
     align-items: center;
@@ -187,7 +187,7 @@
     background: var(--slate);
     color: var(--cream-light);
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #8a7a58;
+    box-shadow: var(--raise-shadow-sm);
 }
 
 .pagination-current,
@@ -786,7 +786,7 @@
 }
 .empty-state-clear:hover {
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #8a7a58;
+    box-shadow: var(--raise-shadow-sm);
 }
 .empty-state-clear svg.pxi {
     width: 12px;

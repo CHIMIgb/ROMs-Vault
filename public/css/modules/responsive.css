@@ -133,6 +133,7 @@
         padding: 0.45rem 0.55rem;
         font-size: 0.32rem;
         min-width: 28px;
+        /* Variante móvil (2px): prensado de --raise-shadow a escala reducida */
         box-shadow: 2px 2px 0 #8a7a58;
     }
     .pagination-info { font-size: 0.65rem; }

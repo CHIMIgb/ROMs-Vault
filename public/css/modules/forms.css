@@ -323,7 +323,7 @@
     background: var(--cream-light);
     padding: 2.5rem;
     border: 3px solid var(--border-dark);
-    box-shadow: 8px 8px 0 #8a7a58, 9px 9px 0 #6a5a38;
+    box-shadow: var(--card-raise-lg);
     position: relative;
 }
 

@@ -64,6 +64,7 @@
 
 .game-card:hover {
     transform: translate(-2px, -2px);
+    /* Único en su escala (7px): variante mayor de --card-raise para la tarjeta grande */
     box-shadow: 6px 6px 0 #8a7a58, 7px 7px 0 #6a5a38;
 }
 
@@ -356,7 +357,7 @@
     height: 2rem;
     background: var(--blue-btn);
     border: 2px solid var(--border-dark);
-    box-shadow: 3px 3px 0 #8a7a58;
+    box-shadow: var(--raise-shadow);
 }
 .related-title-icon svg.pxi {
     width: 18px;
@@ -405,9 +406,7 @@
 }
 .related-card:hover {
     transform: translate(-3px, -3px);
-    box-shadow:
-        8px 8px 0 #8a7a58,
-        9px 9px 0 #6a5a38;
+    box-shadow: var(--card-raise-lg);
 }
 /* ── Hover retro "cartucho encendido" ──
    La portada se enciende como una pantalla CRT: brillo y contraste,

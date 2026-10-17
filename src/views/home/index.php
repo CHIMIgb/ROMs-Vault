@@ -2,7 +2,7 @@
 
 <!-- BARRA DE BÚSQUEDA -->
 <div class="search-section">
-    <div class="search-wrapper" style="position:relative;">
+    <div class="search-wrapper">
         <input type="text"
                id="f-busqueda"
                placeholder="<?= t('home.buscar_placeholder') ?>"
