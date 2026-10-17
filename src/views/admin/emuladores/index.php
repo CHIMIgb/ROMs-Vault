@@ -169,161 +169,25 @@ endif;
 
 </div><!-- /#emuladores-results -->
 
-<script>
-(function () {
-    'use strict';
+<script type="application/json" id="rv-data-admin-emuladores-index"><?= json_encode(
+    [
+        't' => [
+            'admin.emulador.confirm_activar_titulo' => t('admin.emulador.confirm_activar_titulo'),
+            'admin.emulador.confirm_desactivar_titulo' => t('admin.emulador.confirm_desactivar_titulo'),
+            'admin.emulador.confirm_estado_activar' => t('admin.emulador.confirm_estado_activar', ['nombre' => '{n}']),
+            'admin.emulador.confirm_estado_desactivar' => t('admin.emulador.confirm_estado_desactivar', ['nombre' => '{n}']),
+            'admin.emulador.si_activar' => t('admin.emulador.si_activar'),
+            'admin.emulador.si_desactivar' => t('admin.emulador.si_desactivar'),
+            'admin.emulador.cancelar' => t('admin.emulador.cancelar'),
+            'admin.emulador.error_desconocido' => t('admin.emulador.error_desconocido'),
+            'admin.emulador.error_estado' => t('admin.emulador.error_estado'),
+            'admin.emulador.toast_activado' => t('admin.emulador.toast_activado', ['nombre' => '{n}']),
+            'admin.emulador.toast_desactivado' => t('admin.emulador.toast_desactivado', ['nombre' => '{n}']),
+            'admin.emulador.desactivar' => t('admin.emulador.desactivar'),
+            'admin.emulador.activar' => t('admin.emulador.activar'),
+        ],
+    ],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+) ?></script>
 
-    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
-
-    const busquedaEl = document.getElementById('em-busqueda');
-    const activoEl   = document.getElementById('em-activo');
-    const btnLimpiar = document.getElementById('em-limpiar');
-    const resultsEl  = document.getElementById('emuladores-results');
-    const loadingEl  = document.getElementById('em-loading');
-
-    const textos = {
-        tituloActivar:    <?= json_encode(t('admin.emulador.confirm_activar_titulo')) ?>,
-        tituloDesactivar: <?= json_encode(t('admin.emulador.confirm_desactivar_titulo')) ?>,
-        msgActivar:       <?= json_encode(t('admin.emulador.confirm_estado_activar', ['nombre' => '{n}'])) ?>,
-        msgDesactivar:    <?= json_encode(t('admin.emulador.confirm_estado_desactivar', ['nombre' => '{n}'])) ?>,
-        okActivar:        <?= json_encode(t('admin.emulador.si_activar')) ?>,
-        okDesactivar:     <?= json_encode(t('admin.emulador.si_desactivar')) ?>,
-        cancelar:         <?= json_encode(t('admin.emulador.cancelar')) ?>,
-        errorDesconocido: <?= json_encode(t('admin.emulador.error_desconocido')) ?>,
-        errorEstado:      <?= json_encode(t('admin.emulador.error_estado')) ?>,
-        toastActivado:    <?= json_encode(t('admin.emulador.toast_activado', ['nombre' => '{n}'])) ?>,
-        toastDesactivado: <?= json_encode(t('admin.emulador.toast_desactivado', ['nombre' => '{n}'])) ?>,
-        desactivar:       <?= json_encode(t('admin.emulador.desactivar')) ?>,
-        activar:          <?= json_encode(t('admin.emulador.activar')) ?>,
-    };
-
-    let debounceTimer  = null;
-    let currentRequest = null;
-
-    function getAjaxParams(page) {
-        const p = new URLSearchParams();
-        p.set('page', page || 1);
-        const b = busquedaEl.value.trim();
-        if (b)                     p.set('busqueda', b);
-        if (activoEl.value !== '') p.set('activo',   activoEl.value);
-        return p;
-    }
-
-    function getUiParams(page) {
-        const p = getAjaxParams(page);
-        return p;
-    }
-
-    function updateLimpiar() {
-        const has = busquedaEl.value.trim() || activoEl.value !== '';
-        btnLimpiar.style.display = has ? 'inline-block' : 'none';
-    }
-
-    async function fetchResults(page) {
-        if (currentRequest) currentRequest.abort();
-        currentRequest = new AbortController();
-
-        loadingEl.style.display    = 'flex';
-        resultsEl.style.opacity    = '0.45';
-        resultsEl.style.pointerEvents = 'none';
-
-        history.replaceState(null, '', '?' + getUiParams(page).toString());
-
-        try {
-            const res = await fetch('ajax_emulador.php?' + getAjaxParams(page).toString(), {
-                signal: currentRequest.signal
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            resultsEl.innerHTML = await res.text();
-            bindPagination();
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                window.location.href = '?' + getUiParams(page).toString();
-            }
-        } finally {
-            loadingEl.style.display    = 'none';
-            resultsEl.style.opacity    = '';
-            resultsEl.style.pointerEvents = '';
-        }
-    }
-
-    function scheduleSearch() {
-        clearTimeout(debounceTimer);
-        updateLimpiar();
-        debounceTimer = setTimeout(() => fetchResults(1), 380);
-    }
-
-    function bindPagination() {
-        resultsEl.querySelectorAll('.pagination-link[data-page]').forEach(a => {
-            a.addEventListener('click', e => {
-                e.preventDefault();
-                fetchResults(parseInt(a.dataset.page));
-            });
-        });
-    }
-
-    btnLimpiar.addEventListener('click', () => {
-        busquedaEl.value = '';
-        activoEl.value   = '';
-        updateLimpiar();
-        fetchResults(1);
-    });
-
-    busquedaEl.addEventListener('input',  scheduleSearch);
-    activoEl.addEventListener('change',   () => { updateLimpiar(); fetchResults(1); });
-
-    bindPagination();
-    updateLimpiar();
-
-    // ── Delegación de clics en botones toggle — idéntica al dashboard ─────
-    document.getElementById('emuladores-results').addEventListener('click', e => {
-        const btn = e.target.closest('.btn-toggle-active');
-        if (!btn) return;
-        e.preventDefault();
-
-        const accion = btn.dataset.accion;
-        const titulo = btn.dataset.titulo;
-        const id     = btn.dataset.id;
-
-        RVAlerts.confirm({
-            tipo:      accion === 'desactivar' ? 'warning' : 'success',
-            titulo:    accion === 'desactivar' ? textos.tituloDesactivar : textos.tituloActivar,
-            mensaje:   (accion === 'desactivar' ? textos.msgDesactivar : textos.msgActivar).replace('{n}', titulo),
-            btnOk:     accion === 'desactivar' ? textos.okDesactivar : textos.okActivar,
-            btnCancel: textos.cancelar,
-            onOk: async () => {
-                btn.disabled    = true;
-                btn.textContent = '...';
-
-                try {
-                    const res  = await fetch(
-                        `/emulador/toggleActiveAjax/${id}`,
-                        { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken } }
-                    );
-                    const data = await res.json();
-
-                    if (!data.ok) throw new Error(data.error || textos.errorDesconocido);
-
-                    const estaActivo     = data.activo === 1;
-                    btn.textContent      = estaActivo ? textos.desactivar : textos.activar;
-                    btn.dataset.accion   = estaActivo ? 'desactivar' : 'activar';
-                    btn.className        = 'btn-toggle-active ' + (estaActivo ? 'btn-toggle--on' : 'btn-toggle--off');
-
-                    RVAlerts.toast(
-                        (estaActivo ? textos.toastActivado : textos.toastDesactivado).replace('{n}', data.nombre),
-                        estaActivo ? 'success' : 'warning'
-                    );
-
-                } catch (err) {
-                    RVAlerts.toast(textos.errorEstado, 'danger');
-                    btn.disabled    = false;
-                    btn.textContent = accion === 'desactivar' ? textos.desactivar : textos.activar;
-                }
-
-                btn.disabled = false;
-            }
-        });
-    });
-
-})();
-</script>
+<script src="public/js/views/admin/emuladores-index.js" defer></script>

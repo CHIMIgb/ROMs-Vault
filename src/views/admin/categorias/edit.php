@@ -62,24 +62,16 @@
     </form>
 </div>
 
-<script>
-(function () {
-    'use strict';
-    const btn = document.getElementById('btn-eliminar-categoria');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-        const id     = this.dataset.id;
-        const nombre = this.dataset.nombre;
-        RVAlerts.confirm({
-            tipo:      'danger',
-            titulo:    <?= json_encode(t('admin.categoria.confirm_eliminar_titulo')) ?>,
-            mensaje:   <?= json_encode(t('admin.categoria.confirm_eliminar', ['nombre' => '{n}'])) ?>.replace('{n}', nombre),
-            btnOk:     <?= json_encode(t('admin.categoria.si_eliminar')) ?>,
-            btnCancel: <?= json_encode(t('admin.categoria.cancelar')) ?>,
-            onOk: () => {
-                document.getElementById('form-eliminar-categoria').submit();
-            }
-        });
-    });
-})();
-</script>
+<script type="application/json" id="rv-data-admin-categorias-edit"><?= json_encode(
+    [
+        't' => [
+            'admin.categoria.confirm_eliminar_titulo' => t('admin.categoria.confirm_eliminar_titulo'),
+            'admin.categoria.confirm_eliminar' => t('admin.categoria.confirm_eliminar', ['nombre' => '{n}']),
+            'admin.categoria.si_eliminar' => t('admin.categoria.si_eliminar'),
+            'admin.categoria.cancelar' => t('admin.categoria.cancelar'),
+        ],
+    ],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+) ?></script>
+
+<script src="public/js/views/admin/categorias-edit.js" defer></script>
