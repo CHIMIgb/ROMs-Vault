@@ -123,7 +123,13 @@ propuesta de ajustes. Cada ajuste relevante pasa por su plan §10.
 
 ## Bloque 4 — Separar `<script>` embebidos en archivos `.php`
 
-**Situación actual:** las vistas contienen bloques `<script>` inline. Inventario:
+**Estado:** **implementado** (2026-10-17) · plan de implementación aprobado y ejecutado según
+`docs/planificado/2026-10-17-externar-scripts-vistas.md` (rama
+`refactor/externar-scripts-vistas`). Decisiones tomadas: se externalizó también el arranque
+de EmulatorJS, sin versionado de caché (tarea aparte) y con test de regresión
+`VistasSinScriptInlineTest`.
+
+**Situación actual:** las vistas contenían bloques `<script>` inline. Inventario:
 
 | Fichero | Bloques `<script>` |
 |---|---|
