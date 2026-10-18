@@ -588,5 +588,6 @@
     "component.consolas": "جهاز",
     "component.consolas_con_emulador": "جهاز به محاكٍ",
     "play.error_sin_juego": "خطأ: لم يتم تحديد اللعبة المراد تشغيلها.",
-    "play.error_juego_no_existe": "خطأ: اللعبة المطلوبة غير موجودة في قاعدة البيانات."
+    "play.error_juego_no_existe": "خطأ: اللعبة المطلوبة غير موجودة في قاعدة البيانات.",
+    "component.idiomas_count": "{count} لغات"
 }

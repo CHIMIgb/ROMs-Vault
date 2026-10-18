@@ -117,8 +117,8 @@
     .game-info-label { font-size: 0.52rem; }
     .game-info-value { font-size: 0.52rem; max-width: 55%; }
 
-    /* Hack info */
-    .game-hack-info { font-size: 0.42rem; padding: 0.15rem 0.25rem; margin-bottom: 0.3rem; }
+    /* Ribbons de portada (HACK/NUEVO): mantienen su tamaño de escritorio;
+       el texto más largo ("NOUVEAU") sigue cabiendo en la tarjeta de 2 col. */
 
     /* Botones (padding al menos ~24px de alto — WCAG 2.5.8 targets táctiles;
        era 0.38/0.3rem y quedaba en el límite o por debajo) */

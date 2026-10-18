@@ -588,5 +588,6 @@
     "component.consolas": "konsol",
     "component.consolas_con_emulador": "emülatörlü konsol",
     "play.error_sin_juego": "Hata: Oynatılacak oyun belirtilmedi.",
-    "play.error_juego_no_existe": "Hata: İstenen oyun veritabanında mevcut değil."
+    "play.error_juego_no_existe": "Hata: İstenen oyun veritabanında mevcut değil.",
+    "component.idiomas_count": "{count} dil"
 }

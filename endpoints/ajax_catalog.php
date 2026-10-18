@@ -65,52 +65,9 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
         EmptyState::render(t('catalog.vacio_titulo'), t('catalog.sin_resultados'), t('home.limpiar'));
         ?>
     <?php else: ?>
+        <?php require_once __DIR__ . '/../src/views/components/game_card.php'; ?>
         <?php $i = 0; foreach ($juegos as $juego): $i++; ?>
-            <div class="game-card">
-                <div class="game-card-inner">
-                    <a href="<?= !empty($juego['slug']) ? '/juego/' . rawurlencode($juego['slug']) : '/home/show/' . $juego['id'] ?>" class="game-detail-link" style="text-decoration:none; color:inherit; display:block;">
-                        <div class="game-cover <?= empty($juego['imagen']) ? 'no-image' : '' ?>">
-                            <?php if (!empty($juego['imagen'])): ?>
-                                <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>" loading="lazy" decoding="async"<?= $i === 1 ? ' fetchpriority="high"' : '' ?>>
-                            <?php else: ?>
-                                <i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>
-                            <?php endif; ?>
-                        </div>
-                        <h3 class="game-title"><?= htmlspecialchars($juego['titulo']) ?></h3>
-                    </a>
-                    <div class="game-metadata">
-                        <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre'] ?? t('home.sin_genero')) ?></span>
-                        <span class="game-tag platform"><?= htmlspecialchars($juego['consola_nombre'] ?? 'Multi') ?></span>
-                        <span class="game-tag language"><?= htmlspecialchars($juego['region'] ?? 'All') ?></span>
-                    </div>
-                    <?php if (!empty($juego['formato_imagen']) && $juego['formato_imagen'] === 'Hack'): ?>
-                        <div class="game-hack-info"><?= htmlspecialchars($juego['descripcion'] ?? t('home.rom_hack')) ?></div>
-                    <?php endif; ?>
-                    <div class="game-info">
-                        <div class="game-info-item">
-                            <span class="game-info-label"><?= t('home.idiomas') ?></span>
-                            <span class="game-info-value"><?= htmlspecialchars($juego['idiomas'] ?? 'English') ?></span>
-                        </div>
-                        <div class="game-info-item">
-                            <span class="game-info-label"><?= t('home.tamano') ?></span>
-                            <span class="game-info-value"><?= number_format($juego['size_bytes'] / 1048576, 2) ?> MB</span>
-                        </div>
-                        <?php if (!empty($juego['downloads_count'])): ?>
-                        <div class="game-info-item">
-                            <span class="game-info-label"><?= t('home.descargas') ?></span>
-                            <span class="game-info-value"><?= number_format($juego['downloads_count']) ?></span>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($juego['plays_count'])): ?>
-                        <div class="game-info-item">
-                            <span class="game-info-label"><?= t('home.jugadas') ?></span>
-                            <span class="game-info-value"><?= number_format($juego['plays_count']) ?></span>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <?php require __DIR__ . '/../src/views/components/game_actions.php'; ?>
-                </div>
-            </div>
+            <?php GameCard::render($juego, $i); ?>
         <?php endforeach; ?>
     <?php endif; ?>
 </div>

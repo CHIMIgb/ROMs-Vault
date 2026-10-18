@@ -588,5 +588,6 @@
     "component.consolas": "console",
     "component.consolas_con_emulador": "console con emulatore",
     "play.error_sin_juego": "Errore: non è stato specificato il gioco da riprodurre.",
-    "play.error_juego_no_existe": "Errore: il gioco richiesto non esiste nel database."
+    "play.error_juego_no_existe": "Errore: il gioco richiesto non esiste nel database.",
+    "component.idiomas_count": "{count} lingue"
 }

@@ -127,6 +127,48 @@
 
 .game-cover.no-image { background: var(--slate); }
 
+/* ── RIBBONS de portada (mismo lenguaje visual que la ficha del juego) ──
+   HACK a la izquierda (ámbar oscuro) y NUEVO a la derecha (rojo). Ambos van
+   sobre la portada, sin capturar clics (el enlace de la tarjeta sigue vivo). */
+.game-hack-ribbon,
+.game-new-badge {
+    position: absolute;
+    top: 0;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.34rem;
+    letter-spacing: 0.05em;
+    color: var(--cream-light);
+    padding-block: 0.3rem;
+    pointer-events: none;
+}
+
+/* HACK: ámbar oscuro (AA 6.78:1 sobre cream-light, igual que la ficha — D2) */
+.game-hack-ribbon {
+    inset-inline-start: 0;
+    background: var(--amber-dark);
+    border-inline-end: 2px solid var(--border-dark);
+    border-bottom: 2px solid var(--border-dark);
+    padding-inline: 0.5rem 0.4rem;
+}
+
+.game-hack-ribbon svg.pxi {
+    width: 9px;
+    height: 9px;
+}
+
+/* NUEVO: rojo (AA 7.98:1 sobre cream-light) */
+.game-new-badge {
+    inset-inline-end: 0;
+    background: var(--red);
+    border-inline-start: 2px solid var(--border-dark);
+    border-bottom: 2px solid var(--border-dark);
+    padding-inline: 0.4rem 0.5rem;
+}
+
 /* ── TÍTULO: siempre exactamente 2 líneas ── */
 .game-title {
     font-family: 'Press Start 2P', monospace;
@@ -244,21 +286,8 @@
     max-width: 55%;
 }
 
-/* Hack/Mod info */
-.game-hack-info {
-    background: #f5edd0;
-    padding: 0.28rem 0.4rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.66rem;
-    margin-bottom: 0.4rem;
-    color: var(--slate);
-    border: 1px solid var(--amber);
-    border-inline-start: 4px solid var(--amber);
-    flex-shrink: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
+/* Hack/Mod: se muestra como ribbon sobre la portada (.game-hack-ribbon),
+   ya no como caja de texto con la descripción del juego. */
 
 /* ── ACCIONES: siempre al fondo de la tarjeta ── */
 .game-actions {
