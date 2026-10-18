@@ -97,10 +97,11 @@ class GameCard {
         $html .= '<div class="game-info-item">';
         $html .= '<span class="game-info-label">' . t('home.idiomas') . '</span>';
         if ($numIdiomas >= 2) {
-            // Resumen + lista completa en el tooltip (antes se cortaba con
-            // ellipsis y la información quedaba perdida).
+            // Mostrar hasta 3 idiomas, con '...' si hay más. La lista completa
+            // va en el title para mantener el acceso a la información.
+            $resumido = self::resumirIdiomas($idiomas, 3);
             $html .= '<span class="game-info-value" title="' . htmlspecialchars($idiomas) . '">'
-                   . htmlspecialchars(t('component.idiomas_varios'))
+                   . htmlspecialchars($resumido)
                    . '</span>';
         } else {
             // 0 o 1 idioma: el propio nombre (o el fallback) ya es la versión
@@ -160,8 +161,32 @@ class GameCard {
     }
 
     /**
-     * Número de idiomas del campo `juegos.idiomas` (texto separado por coma,
-     * punto o punto y coma — mismo criterio que IdiomasNormalizer y la ficha).
+     * Resume la lista de idiomas (separados por coma/punto/punto y coma),
+     * devolviendo hasta $max tokens + '...' si hay más. No añade traducciones.
+     */
+    private static function resumirIdiomas(string $raw, int $max = 3): string {
+        if ($raw === '') {
+            return '';
+        }
+        $tokens = [];
+        foreach (preg_split('/[,.;]/u', $raw) ?: [] as $token) {
+            $t = trim($token);
+            if ($t !== '') {
+                $tokens[] = $t;
+            }
+        }
+        if ($tokens === []) {
+            return $raw;
+        }
+        if (count($tokens) <= $max) {
+            return implode(', ', $tokens);
+        }
+        return implode(', ', array_slice($tokens, 0, $max)) . '...';
+    }
+
+    /**
+     * Cuenta idiomas del campo `juegos.idiomas` (texto separado por coma,
+     * punto o punto y coma).
      */
     private static function contarIdiomas(string $raw): int {
         if ($raw === '') {
