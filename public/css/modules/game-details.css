@@ -1399,7 +1399,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    /* Margen dinámico a los bordes: >=16px en movil, >=32px en escritorio */
+    padding: clamp(1rem, 3vw, 2rem);
 }
 .screenshot-lightbox[hidden] { display: none; }
 
@@ -1414,7 +1415,8 @@
 .screenshot-lightbox-content {
     position: relative;
     width: 100%;
-    max-width: 1000px;
+    /* Ancho reducido y adaptable: deja laterales en pantallas anchas */
+    max-width: min(920px, 100%);
     animation: lightboxPop 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1429,7 +1431,10 @@
 
 .screenshot-lightbox-close {
     position: absolute;
-    top: -3.2rem;
+    /* Arriba-derecha y totalmente FUERA del marco, con ~12px de aire bajo ella.
+       El alto dinámico del img garantiza >= ~79px de hueco superior, asi la X
+       (56px) nunca sale del borde de pantalla. El contador vive arriba-izquierda */
+    top: -3.5rem;
     inset-inline-end: 0;
     z-index: 5;
     width: 44px;
@@ -1462,6 +1467,14 @@
     height: 22px;
 }
 
+/* Contador del visor: arriba-IZQUIERDA del carrusel (en espejo con la X de
+   cerrar, que vive arriba-derecha). Scoped al lightbox: el contador del
+   carrusel embebido en la ficha conserva su sitio arriba-derecha */
+.screenshot-carousel--lightbox .screenshot-counter {
+    inset-inline-start: 18px;
+    inset-inline-end: auto;
+}
+
 /* Carrusel ampliado dentro del visor: imagen completa sin recorte */
 .screenshot-carousel--lightbox {
     max-width: none;
@@ -1479,7 +1492,8 @@
     width: auto;
     height: auto;
     max-width: 100%;
-    max-height: 76vh;
+    /* Alto dinámico: reserva marco + miniaturas + holgura para la X en cualquier pantalla */
+    max-height: min(70vh, calc(100vh - 240px));
     object-fit: contain;
 }
 
@@ -1494,9 +1508,8 @@
 }
 
 @media (max-width: 620px) {
-    .screenshot-lightbox { padding: 0.6rem; }
-    .screenshot-lightbox-close { top: -2.9rem; }
-    .screenshot-slide--lightbox img { max-height: 62vh; }
+    .screenshot-lightbox { padding: 1rem; }
+    .screenshot-slide--lightbox img { max-height: min(55vh, calc(100vh - 230px)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
