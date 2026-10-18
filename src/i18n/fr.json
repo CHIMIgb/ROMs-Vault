@@ -589,5 +589,7 @@
     "component.consolas_con_emulador": "consoles avec émulateur",
     "play.error_sin_juego": "Erreur : le jeu à lire n'a pas été précisé.",
     "play.error_juego_no_existe": "Erreur : le jeu demandé n'existe pas dans la base de données.",
-    "component.idiomas_count": "{count} langues"
+    "component.idiomas_count": "{count} langues",
+    "component.idiomas_varios": "Plusieurs langues",
+    "component.idiomas_todos": "Toutes les langues"
 }

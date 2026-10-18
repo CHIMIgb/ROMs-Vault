@@ -589,5 +589,7 @@
     "component.consolas_con_emulador": "개의 에뮬레이터 있는 콘솔",
     "play.error_sin_juego": "오류: 재생할 게임이 지정되지 않았습니다.",
     "play.error_juego_no_existe": "오류: 요청한 게임이 데이터베이스에 없습니다.",
-    "component.idiomas_count": "{count}개 언어"
+    "component.idiomas_count": "{count}개 언어",
+    "component.idiomas_varios": "여러 언어",
+    "component.idiomas_todos": "모든 언어"
 }

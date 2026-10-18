@@ -589,5 +589,7 @@
     "component.consolas_con_emulador": "консолей с эмулятором",
     "play.error_sin_juego": "Ошибка: не указана игра для запуска.",
     "play.error_juego_no_existe": "Ошибка: запрошенная игра не существует в базе данных.",
-    "component.idiomas_count": "{count} язык(ов)"
+    "component.idiomas_count": "{count} язык(ов)",
+    "component.idiomas_varios": "Несколько языков",
+    "component.idiomas_todos": "Все языки"
 }

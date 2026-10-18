@@ -589,5 +589,7 @@
     "component.consolas_con_emulador": "台已配置模拟器的主机",
     "play.error_sin_juego": "错误：未指定要游玩的游戏。",
     "play.error_juego_no_existe": "错误：请求的游戏在数据库中不存在。",
-    "component.idiomas_count": "{count} 种语言"
+    "component.idiomas_count": "{count} 种语言",
+    "component.idiomas_varios": "多种语言",
+    "component.idiomas_todos": "所有语言"
 }

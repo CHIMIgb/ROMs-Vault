@@ -589,5 +589,7 @@
     "component.consolas_con_emulador": "Konsolen mit Emulator",
     "play.error_sin_juego": "Fehler: Das abzuspielende Spiel wurde nicht angegeben.",
     "play.error_juego_no_existe": "Fehler: Das angeforderte Spiel existiert nicht in der Datenbank.",
-    "component.idiomas_count": "{count} Sprachen"
+    "component.idiomas_count": "{count} Sprachen",
+    "component.idiomas_varios": "Mehrere Sprachen",
+    "component.idiomas_todos": "Alle Sprachen"
 }

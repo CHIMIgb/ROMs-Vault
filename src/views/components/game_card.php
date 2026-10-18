@@ -100,7 +100,7 @@ class GameCard {
             // Resumen + lista completa en el tooltip (antes se cortaba con
             // ellipsis y la información quedaba perdida).
             $html .= '<span class="game-info-value" title="' . htmlspecialchars($idiomas) . '">'
-                   . htmlspecialchars(t('component.idiomas_count', ['count' => $numIdiomas]))
+                   . htmlspecialchars(t('component.idiomas_varios'))
                    . '</span>';
         } else {
             // 0 o 1 idioma: el propio nombre (o el fallback) ya es la versión
