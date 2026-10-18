@@ -1046,11 +1046,9 @@
     font-size: 0.75rem;
 }
 
-/* ── Stats bar ── */
-.detail-stats-bar {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+/* Compartir: chip al final de la fila de tags (rediseño panel 2026-10-18) */
+.detail-tags .stat-chip--share {
+    margin-inline-start: auto;
 }
 
 .stat-chip {
@@ -1139,24 +1137,6 @@
     flex-shrink: 0;
 }
 
-/* ── Synopsis section ── */
-.detail-synopsis {
-    background: var(--cream-light);
-    border: 3px solid var(--border-dark);
-    box-shadow: var(--card-raise);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    position: relative;
-}
-.detail-synopsis::before {
-    content: '';
-    position: absolute;
-    top: 4px; left: 4px; right: 4px;
-    height: 2px;
-    background: rgba(255,255,255,0.4);
-    pointer-events: none;
-}
-
 .detail-section-title {
     font-family: 'Press Start 2P', monospace;
     font-size: 0.85rem;
@@ -1181,6 +1161,18 @@
     line-height: 1.8;
     color: var(--slate);
     column-count: 1;
+}
+
+/* Sinopsis inline en el panel de información (rediseño panel 2026-10-18).
+   La tipografía vive en .detail-synopsis-content (sin cambios); este wrapper
+   limita el alto y habilita scroll con la barra retro global (base.css) en
+   lugar de hacer crecer el panel. */
+.detail-panel-synopsis {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    max-height: 14rem;
+    overflow-y: auto;
+    padding-inline-end: 0.35rem;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1545,9 +1537,8 @@
     .detail-tags {
         justify-content: center;
     }
-
-    .detail-languages {
-        justify-content: center;
+    .detail-tags .stat-chip--share {
+        margin-inline-start: 0;
     }
 
     .detail-actions {
@@ -1576,14 +1567,6 @@
         font-size: 0.9rem;
     }
 
-    .language-tag {
-        font-size: 0.32rem;
-        padding: 0.22rem 0.4rem;
-    }
-    .detail-languages-label {
-        font-size: 0.4rem;
-    }
-
     .detail-spec-sheet {
         padding: 0.75rem 1rem;
     }
@@ -1595,9 +1578,6 @@
         font-size: 0.82rem;
     }
 
-    .detail-stats-bar {
-        gap: 0.5rem;
-    }
     .stat-chip {
         font-size: 0.75rem;
         padding: 0.25rem 0.55rem;
@@ -1608,9 +1588,6 @@
         padding: 0.7rem 1rem;
     }
 
-    .detail-synopsis {
-        padding: 1.25rem;
-    }
     .detail-section-title {
         font-size: 0.7rem;
     }
@@ -1713,7 +1690,7 @@
     text-align: end;
 }
 
-/* ── Stats: número destacado ── */
+/* ── Chip compartir: gap e icono ── */
 .stat-chip {
     gap: 0.5rem;
 }
@@ -1722,20 +1699,8 @@
     height: 14px;
     color: var(--red);
 }
-.stat-chip-num {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.5rem;
-    line-height: 1.6;
-    color: var(--slate);
-}
-.stat-chip-label {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--slate-mid);
-}
 
-/* Botón compartir integrado como chip sutil de la barra de stats */
+/* Botón compartir integrado como chip sutil al final de la fila de tags */
 .stat-chip--share {
     font-family: 'Courier Prime', monospace;
     font-size: 0.82rem;
@@ -1774,26 +1739,6 @@
     text-shadow: 2px 2px 0 var(--border-mid);
 }
 
-.synopsis-hack-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--amber-dark); /* AA sobre cream-light del badge (6.78:1) — era --amber (3.36:1) */
-    border: 2px solid var(--amber-dark);
-    background: var(--cream-light);
-    padding: 0.18rem 0.5rem;
-    margin-inline-start: auto;
-}
-.synopsis-hack-badge svg.pxi {
-    width: 12px;
-    height: 12px;
-}
-
 /* ── Focus visible accesible ── */
 .game-detail-page a:focus-visible,
 .game-detail-page button:focus-visible {
@@ -1806,10 +1751,6 @@
     .game-detail-hero {
         opacity: 0;
         animation: detailRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .detail-synopsis {
-        opacity: 0;
-        animation: detailRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
     }
     .related-section {
         opacity: 0;
@@ -1829,10 +1770,7 @@
     .detail-hack-ribbon svg.pxi { width: 10px; height: 10px; }
     .detail-new-badge { font-size: 0.36rem; padding-block: 0.3rem; padding-inline-start: 0.55rem; padding-inline-end: 0.65rem; }
     .detail-new-badge svg.pxi { width: 10px; height: 10px; }
-    .stat-chip-num { font-size: 0.42rem; }
-    .stat-chip-label { font-size: 0.7rem; }
     .stat-chip--share { font-size: 0.72rem; padding: 0.3rem 0.6rem; }
-    .synopsis-hack-badge { margin-inline-start: 0; }
 }
 
 /* =====================================================
@@ -1879,7 +1817,7 @@
    GAME DETAIL ENHANCEMENTS v5 — Ficha de producto en 3 actos
    ===================================================== */
 
-/* ── Columna del cover (marco + franja de caja) ── */
+/* ── Columna del cover (marco CRT) ── */
 .detail-cover-col {
     display: flex;
     flex-direction: column;
@@ -1887,68 +1825,6 @@
     gap: 0.85rem;
     width: max-content;
     align-self: center;
-}
-
-.detail-cover-labels {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    width: 100%;
-    max-width: 400px;
-    align-self: flex-start;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.4rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--cream-light);
-    background: var(--slate);
-    border: 2px solid var(--border-dark);
-    padding: 0.45rem 0.75rem;
-    box-shadow: var(--card-raise);
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-/* ── Idiomas ── */
-.detail-languages {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
-.detail-languages-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.45rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--slate-light);
-    flex-shrink: 0;
-}
-.detail-languages-label svg.pxi {
-    width: 13px;
-    height: 13px;
-    flex-shrink: 0;
-    color: var(--red);
-}
-.detail-languages-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-}
-.language-tag {
-    display: inline-block;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.36rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--cream-light);
-    background: var(--slate);
-    border: 2px solid var(--border-dark);
-    box-shadow: 2px 2px 0 var(--border-dark);
-    padding: 0.28rem 0.5rem;
 }
 
 /* ── Título con año de lanzamiento ── */
@@ -2128,11 +2004,6 @@
     }
     .detail-howto {
         padding: 1.4rem;
-    }
-    .detail-cover-labels {
-        font-size: 0.34rem;
-        gap: 0.5rem;
-        padding: 0.35rem 0.5rem;
     }
     /* Carrusel de capturas en móvil: flechas dentro del marco */
     .screenshot-viewport { padding: 8px; }
