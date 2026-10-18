@@ -59,8 +59,10 @@ class GameCard {
         // cuando la imagen falla al cargar (onerror la oculta).
         $html .= '<i data-i="disc" data-cls="pxi-cover-placeholder" aria-hidden="true"></i>';
         if ($imagen !== '') {
+            // alt="" (decorativa): el título ya está en el <h3> del mismo enlace;
+            // repetirlo haría que los lectores de pantalla lo anuncien dos veces.
             $html .= '<img src="' . htmlspecialchars($imagen) . '"'
-                   . ' alt="' . htmlspecialchars($titulo) . '"'
+                   . ' alt=""'
                    . ' loading="lazy" decoding="async"'
                    . ($index === 1 ? ' fetchpriority="high"' : '')
                    . ' onerror="this.style.display=\'none\';">';

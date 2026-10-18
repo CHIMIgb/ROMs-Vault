@@ -124,7 +124,6 @@
        era 0.38/0.3rem y quedaba en el límite o por debajo) */
     .game-play { font-size: 0.36rem; padding: 0.5rem 0.35rem; }
     .game-download { font-size: 0.32rem; padding: 0.48rem 0.35rem; }
-    .game-download span { font-size: 0.7rem; margin-inline-end: 0.08rem; }
     .game-actions { gap: 0.28rem; }
 
     /* ─── Paginación ─── */
