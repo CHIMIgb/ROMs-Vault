@@ -48,6 +48,9 @@ class GameCard {
         $esHack    = ($juego['formato_imagen'] ?? '') === 'Hack';
         $esNuevo   = self::esNuevo($juego['created_at'] ?? null);
         $numIdiomas = self::contarIdiomas($idiomas);
+        // Mismo criterio que game_actions.php: sin emulación online no hay botón
+        // Jugar, así que tampoco se muestra el contador de jugadas en la tarjeta.
+        $emulacionOnline = (bool) ($juego['consola_emulacion_online'] ?? true);
 
         $html  = '<div class="game-card">';
         $html .= '<div class="game-card-inner">';
@@ -126,7 +129,9 @@ class GameCard {
             $html .= '</div>';
         }
 
-        if (!empty($juego['plays_count'])) {
+        // Jugadas solo si la consola permite jugar online (sin botón Jugar,
+        // el contador no tiene sentido) y hay partidas registradas.
+        if ($emulacionOnline && !empty($juego['plays_count'])) {
             $html .= '<div class="game-info-item">';
             $html .= '<span class="game-info-label">' . t('home.jugadas') . '</span>';
             $html .= '<span class="game-info-value">' . IntlHelper::formatNumber($juego['plays_count']) . '</span>';

@@ -289,13 +289,25 @@
 /* Hack/Mod: se muestra como ribbon sobre la portada (.game-hack-ribbon),
    ya no como caja de texto con la descripción del juego. */
 
-/* ── ACCIONES: siempre al fondo de la tarjeta ── */
+/* ── ACCIONES: siempre al fondo de la tarjeta ──
+   Reserva del botón Jugar: min-height = alto natural del bloque "Jugar + gap +
+   Descargar" (padding + borde 4px + icono 11px de cada botón, según sus métricas
+   de escritorio). Las tarjetas sin emulación online (sin botón Jugar) reservan
+   su hueco → el espacio entre la caja de información y Descarga es visible también
+   en vistas homogéneas (p. ej. filtro PC), y con flex-end Descarga queda anclada y
+   alineada al fondo con el resto de la fila.
+   GARANTÍA de cero cambio en tarjetas con los dos botones: su alto natural es
+   SIEMPRE ≥ este cálculo (el contenido de un botón es ≥ icono de 11px y el
+   line-height heredado 1.6 solo puede añadir altura), luego el min-height no
+   llega a actuar en ellas. */
 .game-actions {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
     margin-top: auto;
     flex-shrink: 0;
+    justify-content: flex-end;
+    min-height: calc(0.42rem * 2 + 4px + 11px + 0.35rem + 0.38rem * 2 + 4px + 11px);
 }
 
 /* Botón Play */

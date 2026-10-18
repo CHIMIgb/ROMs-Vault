@@ -12,6 +12,10 @@ if (!function_exists('formatBytes')) {
 $esNuevo = !empty($juego['created_at'])
     && (time() - strtotime($juego['created_at'])) < 30 * 86400;
 
+// Sin emulación online no hay botón Jugar (game_actions.php lo oculta) →
+// tampoco se muestra el contador de jugadas en la ficha.
+$emulacionOnline = (bool) ($juego['consola_emulacion_online'] ?? true);
+
 // ── Datos derivados para los pasos de instalación del emulador ──
 $formato = strtoupper(trim($juego['formato_imagen'] ?? ''));
 $esImagenDisco = in_array($formato, ['ISO', 'BIN/CUE', 'ISP'], true);
@@ -115,11 +119,13 @@ if ($emuladorLocal) {
                     <span class="stat-chip-num"><?= htmlspecialchars(IntlHelper::formatNumber($juego['downloads_count'] ?? 0)) ?></span>
                     <span class="stat-chip-label"><?= t('show.descargas_label') ?></span>
                 </span>
+                <?php if ($emulacionOnline): ?>
                 <span class="stat-chip" title="<?= t('show.partidas_online') ?>">
                     <i data-i="play" aria-hidden="true"></i>
                     <span class="stat-chip-num"><?= htmlspecialchars(IntlHelper::formatNumber($juego['plays_count'] ?? 0)) ?></span>
                     <span class="stat-chip-label"><?= t('show.jugadas_label') ?></span>
                 </span>
+                <?php endif; ?>
                 <button type="button" class="stat-chip stat-chip--share" id="btn-share-game" title="<?= t('show.compartir_title') ?>">
                     <i data-i="share" aria-hidden="true"></i>
                     <?= t('show.compartir') ?>
