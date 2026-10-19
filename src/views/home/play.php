@@ -117,6 +117,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
             <div class="emulator-game-meta">
                 <!-- Contenedor de portada: tamaño variable, se adapta a cada imagen -->
                 <div class="emulator-cover-frame">
+                    <div class="emulator-cover-scanlines"></div>
                     <?php if (!empty($juego['imagen'])): ?>
                         <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>"
                             class="emulator-cover-img">
@@ -177,7 +178,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
             <!-- Barra de progreso — ROMs pequeñas (NES, SNES, GBA, N64…) -->
             <div id="proxy-load-bar" class="proxy-load-bar">
                 <div class="proxy-load-label">
-                    <span id="proxy-load-text"><i data-i="clock" aria-hidden="true"></i> <?= t('play.cargando_rom') ?></span>
+                    <span id="proxy-load-text"><?= t('play.cargando_rom') ?></span>
                     <span id="proxy-load-pct">0%</span>
                 </div>
                 <div class="proxy-load-track">
@@ -201,11 +202,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
 
         <!-- Slider de tamaño de pantalla -->
         <div class="emulator-size-control">
-            <span class="size-control-label"><svg viewBox="0 0 24 24" fill="currentColor" class="pxi" width="14"
-                    height="14">
-                    <path
-                        d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z" />
-                </svg> <?= t('play.tamano_pantalla') ?></span>
+            <span class="size-control-label"><?= t('play.tamano_pantalla') ?></span>
             <div class="size-control-row">
                 <span class="size-control-min">40%</span>
                 <input type="range" id="emulator-size-slider" min="40" max="100" value="80" step="5"

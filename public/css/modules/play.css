@@ -233,6 +233,35 @@
     width: max-content;
     height: max-content;
 }
+/* Brillo diagonal (mismo filtro CRT que .detail-cover-frame de la ficha) */
+.emulator-cover-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.06) 0%,
+        transparent 50%,
+        rgba(0,0,0,0.15) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Scanlines CRT (mismo patrón que .detail-cover-scanlines de la ficha) */
+.emulator-cover-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.12) 2px,
+        rgba(0,0,0,0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 3;
+}
 .emulator-cover-img {
     max-width: 170px;
     max-height: 220px;

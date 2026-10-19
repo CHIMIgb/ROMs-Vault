@@ -978,17 +978,6 @@
         font-size: 0.9rem;
     }
 
-    .detail-spec-sheet {
-        padding: 0.75rem 1rem;
-    }
-
-    .spec-label {
-        font-size: 0.36rem;
-    }
-    .spec-value {
-        font-size: 0.82rem;
-    }
-
     .stat-chip {
         font-size: 0.75rem;
         padding: 0.25rem 0.55rem;
@@ -1024,23 +1013,11 @@
     border: 2px solid;
 }
 
-.tag-consola {
-    background: var(--blue-btn);
-    color: var(--cream-light);
-    border-color: #1e4266;
-    box-shadow: 3px 3px 0 #1a3a5a;
-}
 .tag-categoria {
     background: var(--red);
     color: var(--cream-light);
     border-color: var(--red-dark);
     box-shadow: 3px 3px 0 var(--red-dark);
-}
-.tag-region {
-    background: var(--slate);
-    color: var(--cream-light);
-    border-color: #1a1a1a;
-    box-shadow: 3px 3px 0 #1a1a1a;
 }
 .tag-hack {
     background: var(--amber-dark); /* D2: AA para cream-light (6.78:1; antes 2.77:1) */
@@ -1091,14 +1068,6 @@
 .detail-hack-ribbon svg.pxi {
     width: 12px;
     height: 12px;
-}
-
-/* ── Spec sheet: valores sin overflow ── */
-.spec-value {
-    white-space: normal;
-    overflow-wrap: anywhere;
-    max-width: 62%;
-    text-align: end;
 }
 
 /* ── Chip compartir: gap e icono ── */

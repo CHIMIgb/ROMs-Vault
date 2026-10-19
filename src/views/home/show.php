@@ -2,12 +2,6 @@
 require_once __DIR__ . '/../../config/IntlHelper.php';
 ?>
 <?php
-// Helper de tamaño legible: B / KB / MB / GB según el valor
-if (!function_exists('formatBytes')) {
-    function formatBytes($bytes) {
-        return IntlHelper::formatBytes($bytes);
-    }
-}
 // Badge NUEVO: ROMs añadidas en los últimos 30 días
 $esNuevo = !empty($juego['created_at'])
     && (time() - strtotime($juego['created_at'])) < 30 * 86400;
