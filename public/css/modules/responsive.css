@@ -237,24 +237,12 @@
     .error-404-code { font-size: 2.5rem; }
     .error-404-screen { padding: 1.5rem 1rem; max-width: 100%; }
     .error-404-actions { flex-direction: column; gap: 0.5rem; }
-    .btn-404-home, .btn-404-back,
-    .btn-retry, .btn-back-catalog { width: 100%; text-align: center; }
-    .proxy-error-actions { flex-direction: column; gap: 0.5rem; }
+    .btn-404-home, .btn-404-back { width: 100%; text-align: center; }
 
     /* ─── Juegos relacionados ─── */
     .related-section { padding: 0; }
     .related-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
     .related-title { font-size: 0.6rem; }
-
-    /* ─── Emulador ─── */
-    .emulator-game-meta { flex-direction: column; }
-    /* Portada completa y nítida en móviles pequeños, sin recortes */
-    .emulator-cover-img { max-width: 140px; max-height: 185px; }
-    .emulator-actions { flex-direction: column; }
-    .btn-dl-small, .btn-fullscreen { width: 100%; text-align: center; }
-    #emulator-container { aspect-ratio: 3 / 2; }
-    .emulator-size-control { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-    .size-control-row { width: 100%; }
 }
 
 /* ── Móviles muy pequeños (≤ 360px) ── */

@@ -227,6 +227,11 @@
         loadEmulatorJS();
     }
 
+    // Fullscreen del emulador (antes onclick inline en play.php)
+    document.getElementById('btn-fullscreen')?.addEventListener('click', () => {
+        container?.requestFullscreen?.();
+    });
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', preloadRom);
     } else {

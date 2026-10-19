@@ -62,6 +62,10 @@ if (!isset($_GET['controller'])) {
         $_GET['controller'] = 'home';
         $_GET['action']     = $prettyRoutes[$segments[0]];
         $_GET['id']         = $segments[1];
+    } elseif (isset($prettyRoutes[$segments[0] ?? ''])) {
+        // Pretty route sin slug → redirige al inicio
+        header('Location: /');
+        exit;
     } else {
         $_GET['controller'] = $segments[0] ?? 'home';
         $_GET['action']     = $segments[1] ?? 'index';

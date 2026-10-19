@@ -28,13 +28,13 @@ if ($juego === null && empty($error) && empty($proxyError)) {
     <?php
     // Icono y título según tipo
     $iconMap = [
-        'not_found' => ['<i data-i="trash"></i>', t('play.error_archivo_no_encontrado')],
-        'private' => ['<i data-i="lock"></i>', t('play.error_archivo_privado')],
-        'quota' => ['<i data-i="clock"></i>', t('play.error_limite_descargas')],
-        'network' => ['<i data-i="wifi"></i>', t('play.error_conexion')],
-        'unsupported' => ['<i data-i="settings-cog"></i>', t('play.error_no_disponible')],
+        'not_found' => ['<i data-i="trash" aria-hidden="true"></i>', t('play.error_archivo_no_encontrado')],
+        'private' => ['<i data-i="lock" aria-hidden="true"></i>', t('play.error_archivo_privado')],
+        'quota' => ['<i data-i="clock" aria-hidden="true"></i>', t('play.error_limite_descargas')],
+        'network' => ['<i data-i="wifi" aria-hidden="true"></i>', t('play.error_conexion')],
+        'unsupported' => ['<i data-i="settings-cog" aria-hidden="true"></i>', t('play.error_no_disponible')],
     ];
-    [$icon, $titulo] = $iconMap[$errorType] ?? ['<i data-i="warning"></i>', t('play.error_desconocido')];
+    [$icon, $titulo] = $iconMap[$errorType] ?? ['<i data-i="warning" aria-hidden="true"></i>', t('play.error_desconocido')];
 
     // Consejo específico por tipo
     $consejo = match ($errorType) {
@@ -53,7 +53,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
         <p class="proxy-error-msg"><?= $errorMsg /* puede contener <code> */ ?></p>
 
         <div class="proxy-error-tip">
-            <span class="proxy-tip-label"><i data-i="lightbulb"></i> <?= t('play.que_puedo_hacer') ?></span>
+            <span class="proxy-tip-label"><i data-i="lightbulb" aria-hidden="true"></i> <?= t('play.que_puedo_hacer') ?></span>
             <?= htmlspecialchars($consejo) ?>
         </div>
 
@@ -62,16 +62,16 @@ if ($juego === null && empty($error) && empty($proxyError)) {
             <?php if ($errorType !== 'quota'): ?>
                 <a href="<?= htmlspecialchars($downloadUrl) ?>"
                     class="btn-download-big" target="_blank">
-<i data-i="download"></i> <?= t('play.descargar_rom') ?>
+<i data-i="download" aria-hidden="true"></i> <?= t('play.descargar_rom') ?>
                 </a>
             <?php endif; ?>
             <?php if ($errorType === 'quota'): ?>
                 <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?>" class="btn-retry" data-reload>
-                    <i data-i="reload"></i> <?= t('play.reintentar_ahora') ?>
+                    <i data-i="reload" aria-hidden="true"></i> <?= t('play.reintentar_ahora') ?>
                 </a>
             <?php endif; ?>
             <a href="/" class="btn-back-catalog">
-<i data-i="arrow-left"></i> <?= t('play.volver_catalogo') ?>
+<i data-i="arrow-left" aria-hidden="true"></i> <?= t('play.volver_catalogo') ?>
             </a>
         </div>
 
@@ -93,29 +93,17 @@ if ($juego === null && empty($error) && empty($proxyError)) {
 <?php else: ?>
     <!-- ====== Emulador ====== -->
 
-    <?php if ($core === 'ppsspp'): ?>
-        <!-- Aviso experimental PSP -->
-        <div class="psp-warning">
-            <strong><i data-i="warning"></i> <?= t('play.psp_soporte') ?></strong>
-            <?= t('play.psp_aviso') ?>
-        </div>
-    <?php elseif ($core === 'psx'): ?>
-        <!-- Aviso experimental PSX -->
-        <div class="psp-warning">
-            <strong><i data-i="warning"></i> <?= t('play.psx_soporte') ?></strong>
-            <?= t('play.psx_aviso') ?>
-        </div>
-    <?php elseif ($core === 'n64'): ?>
-        <!-- Aviso experimental N64 -->
-        <div class="psp-warning">
-            <strong><i data-i="warning"></i> <?= t('play.n64_soporte') ?></strong>
-            <?= t('play.n64_aviso') ?>
-        </div>
-    <?php elseif ($core === 'nds'): ?>
-        <!-- Aviso experimental NDS -->
-        <div class="psp-warning">
-            <strong><i data-i="warning"></i> <?= t('play.nds_soporte') ?></strong>
-            <?= t('play.nds_aviso') ?>
+    <?php
+    // Aviso de soporte experimental — una sola rama para los4 cores.
+    // Las claves i18n play.{psp,psx,n64,nds}_{soporte,aviso} ya existen.
+    $avisosExperimentales = ['ppsspp' => 'psp', 'psx' => 'psx', 'n64' => 'n64', 'nds' => 'nds'];
+    $prefijoAviso = $avisosExperimentales[$core] ?? null;
+    ?>
+    <?php if ($prefijoAviso !== null): ?>
+        <!-- Aviso de soporte experimental -->
+        <div class="experimental-warning">
+            <strong><i data-i="warning" aria-hidden="true"></i> <?= t('play.' . $prefijoAviso . '_soporte') ?></strong>
+            <?= t('play.' . $prefijoAviso . '_aviso') ?>
         </div>
     <?php endif; ?>
 
@@ -130,7 +118,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                         <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= htmlspecialchars($juego['titulo']) ?>"
                             class="emulator-cover-img">
                     <?php else: ?>
-                        <div class="emulator-cover-placeholder"><i data-i="disc"
+                        <div class="emulator-cover-placeholder"><i data-i="disc" aria-hidden="true"
                                 data-cls="pxi-cover-placeholder"></i></div>
                     <?php endif; ?>
                 </div>
@@ -155,27 +143,26 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                     <div class="emulator-meta-row">
                         <?php if (!empty($juego['size_bytes'])): ?>
                             <span class="emulator-meta-item">
-                                <i data-i="hard-drive"></i> <?= IntlHelper::formatBytes($juego['size_bytes']) ?>
+                                <i data-i="hard-drive" aria-hidden="true"></i> <?= IntlHelper::formatBytes($juego['size_bytes']) ?>
                             </span>
                         <?php endif; ?>
                         <?php if (!empty($juego['idiomas'])): ?>
                             <span class="emulator-meta-item">
-                                <i data-i="globe"></i> <?= htmlspecialchars($juego['idiomas']) ?>
+                                <i data-i="globe" aria-hidden="true"></i> <?= htmlspecialchars($juego['idiomas']) ?>
                             </span>
                         <?php endif; ?>
                     </div>
 
                     <div class="emulator-actions">
                         <a href="<?= htmlspecialchars($downloadUrl) ?>"
-                            class="btn-dl-small" target="_blank"><i data-i="download"></i> <?= t('play.descargar_rom') ?></a>
-                        <button class="btn-fullscreen"
-                            onclick="document.getElementById('emulator-container').requestFullscreen()">
-                            <i data-i="expand"></i> <?= t('play.pantalla_completa') ?>
+                            class="btn-dl-small" target="_blank"><i data-i="download" aria-hidden="true"></i> <?= t('play.descargar_rom') ?></a>
+                        <button class="btn-fullscreen" id="btn-fullscreen">
+                            <i data-i="expand" aria-hidden="true"></i> <?= t('play.pantalla_completa') ?>
                         </button>
                         <button class="btn-share" id="btn-share-game"
                             data-url="<?= htmlspecialchars((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $_SERVER['REQUEST_URI']) ?>"
                             title="<?= t('play.copiar_enlace') ?>">
-                            <i data-i="share"></i> <?= t('play.compartir') ?>
+                            <i data-i="share" aria-hidden="true"></i> <?= t('play.compartir') ?>
                         </button>
                     </div>
                     <div id="share-toast" class="share-toast" aria-live="polite" data-lang-skip></div>
@@ -187,7 +174,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
             <!-- Barra de progreso — ROMs pequeñas (NES, SNES, GBA, N64…) -->
             <div id="proxy-load-bar" class="proxy-load-bar">
                 <div class="proxy-load-label">
-                    <span id="proxy-load-text"><i data-i="clock"></i> <?= t('play.cargando_rom') ?></span>
+                    <span id="proxy-load-text"><i data-i="clock" aria-hidden="true"></i> <?= t('play.cargando_rom') ?></span>
                     <span id="proxy-load-pct">0%</span>
                 </div>
                 <div class="proxy-load-track">
@@ -198,7 +185,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
         <?php else: ?>
             <!-- Aviso streaming — ISOs grandes (PSP, PS1, Saturn…) -->
             <div class="proxy-streaming-notice">
-                <span class="streaming-icon"><i data-i="wifi"></i></span>
+                <span class="streaming-icon"><i data-i="wifi" aria-hidden="true"></i></span>
                 <span>
                     <?= t('play.aviso_streaming', [
                         'tamano' => !empty($juego['size_bytes'])

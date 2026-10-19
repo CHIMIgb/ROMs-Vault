@@ -700,30 +700,6 @@
    BOTÓN COMPARTIR + TOAST
    =================================================== */
 
-.btn-share {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.55rem 1rem;
-    background: var(--blue-btn);
-    color: #fff;
-    border: 3px solid var(--border-dark);
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    cursor: pointer;
-    box-shadow: var(--raise-shadow);
-    transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
-}
-.btn-share:hover {
-    background: #1e4a73;
-    transform: translateY(-2px);
-    box-shadow: var(--raise-shadow-lg);
-}
-.btn-share:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
-
 .share-toast {
     position: fixed;
     bottom: 2rem;
@@ -745,10 +721,6 @@
 .share-toast--visible {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
-}
-
-@media (max-width: 600px) {
-    .btn-share { font-size: 0.5rem; padding: 0.45rem 0.8rem; }
 }
 
 
