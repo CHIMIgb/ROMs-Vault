@@ -1285,11 +1285,13 @@
    sus iconos se invierten para seguir apuntando en la dirección correcta */
 [dir="rtl"] .screenshot-nav svg.pxi { transform: scaleX(-1); }
 
-/* Contador estilo etiqueta de caja */
+/* Contador estilo etiqueta de caja — arriba-IZQUIERDA en preview y visor
+   (en espejo con la X del visor, que vive arriba-derecha) */
 .screenshot-counter {
     position: absolute;
     top: 18px;
-    inset-inline-end: 18px;
+    inset-inline-start: 18px;
+    inset-inline-end: auto;
     z-index: 3;
     font-family: 'Press Start 2P', monospace;
     font-size: 0.6rem;
@@ -1465,14 +1467,6 @@
 .screenshot-lightbox-close .pxi {
     width: 22px;
     height: 22px;
-}
-
-/* Contador del visor: arriba-IZQUIERDA del carrusel (en espejo con la X de
-   cerrar, que vive arriba-derecha). Scoped al lightbox: el contador del
-   carrusel embebido en la ficha conserva su sitio arriba-derecha */
-.screenshot-carousel--lightbox .screenshot-counter {
-    inset-inline-start: 18px;
-    inset-inline-end: auto;
 }
 
 /* Carrusel ampliado dentro del visor: imagen completa sin recorte */
@@ -2023,6 +2017,6 @@
     .screenshot-nav { width: 34px; height: 34px; }
     .screenshot-nav--prev { inset-inline-start: 6px; }
     .screenshot-nav--next { inset-inline-end: 6px; }
-    .screenshot-counter { top: 14px; inset-inline-end: 14px; font-size: 0.5rem; }
+    .screenshot-counter { top: 14px; inset-inline-start: 14px; inset-inline-end: auto; font-size: 0.5rem; }
     .screenshot-thumb { width: 60px; }
 }
