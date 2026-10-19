@@ -24,6 +24,9 @@ if ($juego === null && empty($error) && empty($proxyError)) {
 }
 ?>
 
+<!-- Wrapper de página: mismo ancho que .game-detail-page de la ficha -->
+<div class="play-page">
+
 <?php if ($hayError): ?>
     <?php
     // Icono y título según tipo
@@ -292,6 +295,7 @@ if ($juego === null && empty($error) && empty($proxyError)) {
 $relatedEager = true;
 require_once __DIR__ . '/../components/related_games.php';
 ?>
+</div><!-- /.play-page -->
 
 <!-- ====== SHARE + AUTOCOMPLETE JS ======================================== -->
 <script type="application/json" id="rv-data-play-share"><?= json_encode(

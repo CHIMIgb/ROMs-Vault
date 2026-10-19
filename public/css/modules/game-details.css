@@ -319,7 +319,7 @@
 
 /* ── Page wrapper ── */
 .game-detail-page {
-    max-width: 1060px;
+    max-width: var(--page-max-width);
     margin: 0 auto;
     padding: 0.5rem 0 2rem;
 }

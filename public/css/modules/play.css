@@ -5,6 +5,13 @@
    Extraídos de game-details.css, components.css y responsive.css
    ===================================================== */
 
+/* ── Page wrapper — mismo ancho que .game-detail-page de la ficha ── */
+.play-page {
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    padding: 0.5rem 0 2rem;
+}
+
 /* =====================================================
    ERROR DE PROXY — Archivo de Google Drive inaccesible
    ===================================================== */

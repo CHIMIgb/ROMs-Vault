@@ -31,4 +31,6 @@
     --raise-shadow-lg: 5px 5px 0 #8a7a58;
     --card-raise: 4px 4px 0 #8a7a58, 5px 5px 0 #6a5a38;
     --card-raise-lg: 8px 8px 0 #8a7a58, 9px 9px 0 #6a5a38;
+    /* Ancho máximo de las páginas de detalle (ficha y jugar online) */
+    --page-max-width: 1060px;
 }
