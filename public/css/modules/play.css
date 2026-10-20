@@ -289,16 +289,9 @@
 .emulator-title-row {
     display: flex;
     align-items: baseline;
+    justify-content: space-between;
     gap: 0.75rem;
     flex-wrap: wrap;
-}
-/* El título ocupa el espacio libre; año y chip se empujan a la derecha */
-.emulator-title-row .emulator-game-title {
-    margin-inline-end: auto;
-}
-/* El chip compartir se alinea con la línea base del título, no con el año */
-.emulator-share-chip {
-    align-self: center;
 }
 .emulator-game-title {
     font-family: 'Press Start 2P', monospace;
@@ -317,9 +310,14 @@
 }
 .emulator-tags {
     display: flex;
+    align-items: center;
     gap: 0.4rem;
     flex-wrap: wrap;
     margin-top: 0.7rem;
+}
+/* Compartir anclado a la derecha de la fila de metadatos (eco .detail-tags de la ficha) */
+.emulator-tags .emulator-share-chip {
+    margin-inline-start: auto;
 }
 /* ── Pie de acciones: divisor de sección (eco .detail-title-block) ── */
 .emulator-actions {
