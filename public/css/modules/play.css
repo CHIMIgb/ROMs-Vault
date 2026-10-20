@@ -289,9 +289,16 @@
 .emulator-title-row {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
     gap: 0.75rem;
     flex-wrap: wrap;
+}
+/* El título ocupa el espacio libre; año y chip se empujan a la derecha */
+.emulator-title-row .emulator-game-title {
+    margin-inline-end: auto;
+}
+/* El chip compartir se alinea con la línea base del título, no con el año */
+.emulator-share-chip {
+    align-self: center;
 }
 .emulator-game-title {
     font-family: 'Press Start 2P', monospace;
@@ -326,11 +333,10 @@
 /* ── Botones del panel: lenguaje canónico (eco .detail-btn de la ficha) ──
    Jerarquía: Descargar = primario azul · Pantalla completa = herramienta
    slate · Compartir = neutro (mismo rol que los chips neutros del sistema).
-   Los tres comparten tamaño, borde y sombra dura; sólidos llevan borde/sombra
-   --border-dark, el neutro --border-mid (nunca parece deshabilitado). */
+   Los dos comparten tamaño, borde y sombra dura; sólidos llevan borde/sombra
+   --border-dark. */
 .btn-dl-small,
-.btn-fullscreen,
-.btn-share {
+.btn-fullscreen {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -349,8 +355,7 @@
 }
 /* Brillo superior (mismo detalle CRT que .detail-btn::before) */
 .btn-dl-small::before,
-.btn-fullscreen::before,
-.btn-share::before {
+.btn-fullscreen::before {
     content: '';
     position: absolute;
     top: 3px; left: 3px; right: 3px;
@@ -359,14 +364,12 @@
     pointer-events: none;
 }
 .btn-dl-small:hover,
-.btn-fullscreen:hover,
-.btn-share:hover {
+.btn-fullscreen:hover {
     transform: translate(2px, 2px);
     box-shadow: 1px 1px 0 var(--border-dark);
 }
 .btn-dl-small:active,
-.btn-fullscreen:active,
-.btn-share:active {
+.btn-fullscreen:active {
     transform: translate(3px, 3px);
     box-shadow: none;
 }
@@ -381,20 +384,6 @@
 }
 .btn-fullscreen:hover {
     background: var(--slate);
-}
-/* Neutro del sistema: borde y sombra --border-mid, texto slate */
-.btn-share {
-    background: var(--cream-dark);
-    color: var(--slate);
-    border-color: var(--border-mid);
-    box-shadow: 3px 3px 0 var(--border-mid);
-}
-.btn-share:hover {
-    background: var(--border-light);
-    box-shadow: 1px 1px 0 var(--border-mid);
-}
-.btn-share:active {
-    box-shadow: none;
 }
 
 /* ── Contenedor del emulador ── */
@@ -668,7 +657,6 @@
     .btn-dl-small, .btn-fullscreen { width: 100%; text-align: center; }
     .emulator-size-control { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .size-control-row { width: 100%; }
-    .btn-share { font-size: 0.5rem; padding: 0.45rem 0.8rem; }
 }
 
 @media (max-width: 576px) {

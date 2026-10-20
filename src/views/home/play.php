@@ -134,6 +134,12 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                         <?php if (!empty($juego['fecha_lanzamiento'])): ?>
                             <span class="play-info-year"><?= htmlspecialchars(IntlHelper::formatYear($juego['fecha_lanzamiento'])) ?></span>
                         <?php endif; ?>
+                        <button type="button" class="stat-chip stat-chip--share emulator-share-chip" id="btn-share-game"
+                            data-url="<?= htmlspecialchars((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $_SERVER['REQUEST_URI']) ?>"
+                            title="<?= t('play.copiar_enlace') ?>">
+                            <i data-i="share" aria-hidden="true"></i>
+                            <?= t('play.compartir') ?>
+                        </button>
                     </div>
 
                     <div class="emulator-tags">
@@ -154,11 +160,6 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                             class="btn-dl-small" target="_blank"><i data-i="download" aria-hidden="true"></i> <?= t('play.descargar_rom') ?></a>
                         <button class="btn-fullscreen" id="btn-fullscreen">
                             <i data-i="expand" aria-hidden="true"></i> <?= t('play.pantalla_completa') ?>
-                        </button>
-                        <button class="btn-share" id="btn-share-game"
-                            data-url="<?= htmlspecialchars((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $_SERVER['REQUEST_URI']) ?>"
-                            title="<?= t('play.copiar_enlace') ?>">
-                            <i data-i="share" aria-hidden="true"></i> <?= t('play.compartir') ?>
                         </button>
                     </div>
                     <div id="share-toast" class="share-toast" aria-live="polite" data-lang-skip></div>
