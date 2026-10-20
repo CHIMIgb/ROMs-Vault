@@ -323,12 +323,15 @@
     padding-top: 0.9rem;
     border-top: 3px solid var(--border-dark);
 }
-/* ── Botones del panel: lenguaje canónico (eco .detail-btn) ──
+/* ── Botones del panel: lenguaje canónico (eco .detail-btn de la ficha) ──
    Jerarquía: Descargar = primario azul · Pantalla completa = herramienta
-   slate · Compartir = ghost neutro (dos azules no deben competir). */
+   slate · Compartir = neutro (mismo rol que los chips neutros del sistema).
+   Los tres comparten tamaño, borde y sombra dura; sólidos llevan borde/sombra
+   --border-dark, el neutro --border-mid (nunca parece deshabilitado). */
 .btn-dl-small,
 .btn-fullscreen,
 .btn-share {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -343,6 +346,17 @@
     cursor: pointer;
     box-shadow: 3px 3px 0 var(--border-dark);
     transition: box-shadow 0.1s, transform 0.1s, background 0.15s;
+}
+/* Brillo superior (mismo detalle CRT que .detail-btn::before) */
+.btn-dl-small::before,
+.btn-fullscreen::before,
+.btn-share::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px;
+    height: 3px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.1) 100%);
+    pointer-events: none;
 }
 .btn-dl-small:hover,
 .btn-fullscreen:hover,
@@ -368,12 +382,19 @@
 .btn-fullscreen:hover {
     background: var(--slate);
 }
+/* Neutro del sistema: borde y sombra --border-mid, texto slate */
 .btn-share {
     background: var(--cream-dark);
     color: var(--slate);
+    border-color: var(--border-mid);
+    box-shadow: 3px 3px 0 var(--border-mid);
 }
 .btn-share:hover {
     background: var(--border-light);
+    box-shadow: 1px 1px 0 var(--border-mid);
+}
+.btn-share:active {
+    box-shadow: none;
 }
 
 /* ── Contenedor del emulador ── */
