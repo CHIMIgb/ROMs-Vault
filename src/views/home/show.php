@@ -177,7 +177,7 @@ if ($emuladorLocal) {
 
                 <div class="screenshot-carousel screenshot-carousel--lightbox">
                     <div class="screenshot-viewport screenshot-viewport--lightbox">
-                        <div class="screenshot-track screenshot-track--lightbox" data-lightbox-track></div>
+                        <div class="screenshot-track" data-lightbox-track></div>
                     </div>
 
 <button type="button" class="screenshot-nav screenshot-nav--prev" data-lightbox-prev aria-label="<?= t('show.captura_anterior') ?>">
