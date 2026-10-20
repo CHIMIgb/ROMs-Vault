@@ -101,14 +101,6 @@ footer::before {
     letter-spacing: 0.05em;
 }
 
-.footer-note {
-    margin-top: 0.4rem;
-    font-size: 0.78rem;
-    /* slate-mid (no slate-light): vive sobre cream-dark del body → AA 4.96:1 */
-    color: var(--slate-mid);
-    font-style: italic;
-}
-
 
 /* =====================================================
    HEADER BRAND — Logo + título en línea

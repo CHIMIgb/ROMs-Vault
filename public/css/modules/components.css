@@ -8,8 +8,6 @@
     flex-wrap: wrap;
 }
 
-.search-form { width: 100%; }
-
 .search-wrapper {
     position: relative;
     width: 100%;
@@ -65,6 +63,77 @@
 .search-button:hover { background: var(--red); }
 
 /* ===== FILTROS ===== */
+/* Fila de controles de filtros (sin form nativo) */
+.filters-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Barra de carga debajo de los filtros */
+.filter-loading {
+    display: none; /* Oculto hasta que el JS de filtros escribe style.display='flex'
+                       (fetchResults); en carga inicial no hay fetch → debe nacer
+                       oculto. Corrige la regresión del Lote C (olas 1 y 3). */
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+    padding: 0.4rem 0;
+}
+
+.filter-loading-bar {
+    display: block;
+    width: 120px;
+    height: 8px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.filter-loading-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 60%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--red)      0px,
+        var(--red)      5px,
+        var(--red-dark) 5px,
+        var(--red-dark) 10px
+    );
+    animation: filterScan 0.9s linear infinite;
+}
+
+@keyframes filterScan {
+    0%   { left: -60%; }
+    100% { left: 110%; }
+}
+
+.filter-loading-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    color: var(--slate-mid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: filterBlink 1s step-end infinite;
+}
+
+@keyframes filterBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+/* Suavizar la zona de resultados durante la carga */
+#catalog-results,
+#admin-results {
+    transition: opacity 0.15s ease;
+}
+
 .filters {
     margin-bottom: 2rem;
     padding: 1rem;
@@ -289,24 +358,6 @@
     box-shadow: 1px 1px 0 #1e4266;
 }
 
-.btn-delete {
-    padding: 0.35rem 0.7rem;
-    background: var(--red);
-    color: var(--cream-light);
-    text-decoration: none;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.42rem;
-    border: 2px solid var(--red-dark);
-    box-shadow: 2px 2px 0 var(--red-dark);
-    display: inline-block;
-    transition: transform 0.1s, box-shadow 0.1s;
-}
-
-.btn-delete:hover {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0 var(--red-dark);
-}
-
 
 /* ===== ALERTAS ===== */
 /* =====================================================
@@ -343,25 +394,10 @@
     border: 2px solid;
     border-inline-start-width: 5px;
 }
-.alert-error, .alert-danger {
+.alert-error {
     background: var(--rv-danger-bg);
     color: var(--rv-danger-fg);
     border-color: var(--rv-danger-brd);
-}
-.alert-success {
-    background: var(--rv-success-bg);
-    color: var(--rv-success-fg);
-    border-color: var(--rv-success-brd);
-}
-.alert-warning {
-    background: var(--rv-warning-bg);
-    color: var(--rv-warning-fg);
-    border-color: var(--rv-warning-brd);
-}
-.alert-info {
-    background: var(--rv-info-bg);
-    color: var(--rv-info-fg);
-    border-color: var(--rv-info-brd);
 }
 
 /* ─────────────────────────────────────────────────────
@@ -937,20 +973,6 @@ nav a svg.pxi {
     vertical-align: middle;
 }
 
-/* ── error page big icon ─────────────────────────── */
-.proxy-error-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    font-size: 1rem; /* reset emoji */
-}
-.proxy-error-icon svg.pxi {
-    width: 52px;
-    height: 52px;
-    opacity: 0.7;
-}
-
 /* ── tip label icon ──────────────────────────────── */
 .proxy-tip-label svg.pxi {
     width: 14px;
@@ -968,9 +990,7 @@ nav a svg.pxi {
 
 /* ── btn icons ───────────────────────────────────── */
 .btn-primary svg.pxi,
-.btn-secondary svg.pxi,
-.btn-primary i[data-i],
-.btn-secondary i[data-i] {
+.btn-primary i[data-i] {
     width: 12px;
     height: 12px;
     vertical-align: middle;
@@ -1034,4 +1054,80 @@ p svg.pxi {
     height: 14px;
     vertical-align: middle;
     margin-inline-end: 0.3em;
+}
+
+
+/* =====================================================
+   TARJETA DE JUEGO — título y tags compartidos
+   (movido de game-grid.css, auditoría CSS 2026-10-18:
+   los usan game_card.php, play.php y el dashboard)
+   ===================================================== */
+
+/* ── TÍTULO: siempre exactamente 2 líneas ── */
+.game-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--slate);
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
+    /* Exactamente 2 líneas: font-size × line-height × 2 */
+    height: calc(0.55rem * 1.7 * 2);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+/* ── TAGS: siempre 1 línea, sin wrap ── */
+/* DECISIÓN DELIBERADA (auditoría UI/UX 2026-10-17, B2): el nowrap + ellipsis
+   de los tags y el clamp de 2 líneas del título NO son bugs. Mantener la
+   arquitectura de altura fija de la tarjeta (grid 4×5, 20 por página) es
+   prioritario sobre mostrar cadenas completas en idiomas largos (de/ru).
+   No "arreglar" sin reevaluar la rejilla completa. */
+.game-metadata {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.2rem;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    height: 1.3rem;
+    align-items: center;
+}
+
+.game-tag {
+    background: var(--cream-dark);
+    color: var(--slate);
+    padding: 0.12rem 0.28rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border-mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    flex-shrink: 1;
+}
+
+.game-tag.genre {
+    background: var(--red);
+    color: var(--cream-light);
+    border-color: var(--red-dark);
+}
+
+.game-tag.platform {
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    border-color: #1e4266;
+}
+
+.game-tag.language {
+    background: var(--slate);
+    color: var(--cream-light);
+    border-color: #1a1a1a;
 }

@@ -1,319 +1,4 @@
 /* =====================================================
-   FILTRADO EN TIEMPO REAL — Loading indicator
-   ===================================================== */
-
-/* Fila de controles de filtros (sin form nativo) */
-.filters-row {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-/* Barra de carga debajo de los filtros */
-.filter-loading {
-    display: none; /* Oculto hasta que el JS de filtros escribe style.display='flex'
-                       (fetchResults); en carga inicial no hay fetch → debe nacer
-                       oculto. Corrige la regresión del Lote C (olas 1 y 3). */
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.6rem;
-    padding: 0.4rem 0;
-}
-
-.filter-loading-bar {
-    display: block;
-    width: 120px;
-    height: 8px;
-    background: var(--cream-dark);
-    border: 2px solid var(--border-dark);
-    overflow: hidden;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.filter-loading-bar::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -60%;
-    width: 60%;
-    height: 100%;
-    background: repeating-linear-gradient(
-        -45deg,
-        var(--red)      0px,
-        var(--red)      5px,
-        var(--red-dark) 5px,
-        var(--red-dark) 10px
-    );
-    animation: filterScan 0.9s linear infinite;
-}
-
-@keyframes filterScan {
-    0%   { left: -60%; }
-    100% { left: 110%; }
-}
-
-.filter-loading-text {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.38rem;
-    color: var(--slate-mid);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    animation: filterBlink 1s step-end infinite;
-}
-
-@keyframes filterBlink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.3; }
-}
-
-/* Suavizar la zona de resultados durante la carga */
-#catalog-results,
-#admin-results {
-    transition: opacity 0.15s ease;
-}
-
-
-/* =====================================================
-   PÁGINA 404 — Game Over estilo arcade
-   ===================================================== */
-
-.error-404-page {
-    text-align: center;
-    padding: 2rem 1rem 3rem;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-/* Pantalla CRT simulada */
-.error-404-screen {
-    position: relative;
-    background: #0a0a0a;
-    border: 4px solid var(--border-dark);
-    box-shadow: var(--raise-shadow-lg), inset 0 0 40px rgba(0,0,0,0.8);
-    padding: 2.5rem 2rem 2rem;
-    margin: 0 auto 2.5rem;
-    max-width: 420px;
-    overflow: hidden;
-}
-
-/* Líneas de escaneo CRT */
-.error-404-scanlines {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,0,0,0.25) 3px,
-        rgba(0,0,0,0.25) 4px
-    );
-    pointer-events: none;
-    z-index: 2;
-}
-
-.error-404-code {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 4rem;
-    color: var(--red);
-    text-shadow: 0 0 20px rgba(192,57,43,0.8), 3px 3px 0 var(--red-dark);
-    line-height: 1;
-    margin-bottom: 0.5rem;
-    position: relative;
-    z-index: 3;
-    animation: glitch 4s infinite;
-}
-
-@keyframes glitch {
-    0%, 90%, 100% { transform: none; text-shadow: 0 0 20px rgba(192,57,43,0.8), 3px 3px 0 var(--red-dark); }
-    92%  { transform: translate(-3px, 1px); text-shadow: 2px 0 0 #00ffff, -2px 0 0 #ff00ff; }
-    94%  { transform: translate(3px, -1px); text-shadow: -2px 0 0 #00ffff, 2px 0 0 #ff00ff; }
-    96%  { transform: translate(0, 2px); }
-}
-
-.error-404-gameover {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 1rem;
-    color: var(--cream);
-    letter-spacing: 0.15em;
-    margin-bottom: 1.25rem;
-    text-shadow: 0 0 10px rgba(232,224,200,0.5);
-    position: relative;
-    z-index: 3;
-}
-
-.error-404-insert {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.45rem;
-    color: var(--border-mid);
-    letter-spacing: 0.2em;
-    margin-bottom: 1rem;
-    animation: insertBlink 1.2s step-end infinite;
-    position: relative;
-    z-index: 3;
-}
-
-@keyframes insertBlink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0; }
-}
-
-.error-404-blink {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    color: var(--red);
-    animation: insertBlink 0.8s step-end infinite;
-    position: relative;
-    z-index: 3;
-}
-
-.error-404-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.85rem;
-    color: var(--slate);
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 0 var(--border-mid);
-    line-height: 1.6;
-}
-
-.error-404-msg {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.95rem;
-    color: var(--slate-mid);
-    line-height: 1.7;
-    margin-bottom: 2rem;
-    max-width: 420px;
-    margin-inline: auto;
-}
-
-.error-404-actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-}
-
-.btn-404-home {
-    display: inline-block;
-    background: var(--red);
-    color: var(--cream-light);
-    padding: 0.7rem 1.5rem;
-    border: 2px solid var(--red-dark);
-    box-shadow: 4px 4px 0 var(--red-dark);
-    text-decoration: none;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.48rem;
-    letter-spacing: 0.04em;
-    transition: box-shadow 0.1s, transform 0.1s;
-}
-
-.btn-404-home:hover {
-    box-shadow: 1px 1px 0 var(--red-dark);
-    transform: translate(3px, 3px);
-}
-
-.btn-404-back {
-    display: inline-block;
-    background: var(--slate);
-    color: var(--cream-light);
-    padding: 0.7rem 1.5rem;
-    border: 2px solid var(--border-dark);
-    box-shadow: 4px 4px 0 #1a1a1a;
-    text-decoration: none;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.48rem;
-    letter-spacing: 0.04em;
-    transition: box-shadow 0.1s, transform 0.1s, background 0.1s;
-}
-
-.btn-404-back:hover {
-    background: var(--red);
-    box-shadow: 1px 1px 0 #1a1a1a;
-    transform: translate(3px, 3px);
-}
-
-.error-404-details {
-    text-align: start;
-    max-width: 480px;
-    margin: 0 auto;
-    border: 2px solid var(--border-light);
-    padding: 0.5rem 0.75rem;
-    background: var(--cream-dark);
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.82rem;
-}
-
-.error-404-details summary {
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--slate-mid);
-    font-size: 0.78rem;
-    user-select: none;
-    list-style: none;
-    padding: 0.25rem 0;
-}
-
-.error-404-details summary::before { content: '▶ '; font-size: 0.55rem; }
-.error-404-details[open] summary::before { content: '▼ '; }
-
-.error-technical-content {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    color: var(--slate-mid);
-}
-
-.error-technical-content div {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    align-items: baseline;
-}
-
-.error-technical-content span {
-    color: var(--slate);
-    font-weight: 700;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.38rem;
-    min-width: 3.5rem;
-    flex-shrink: 0;
-}
-
-.error-technical-content code {
-    font-size: 0.78rem;
-    background: var(--cream-light);
-    border: 1px solid var(--border-light);
-    padding: 0.1rem 0.3rem;
-    word-break: break-all;
-}
-
-/* Créditos decorativos */
-.error-404-credits {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.5rem;
-    color: var(--border-mid);
-    letter-spacing: 0.15em;
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-}
-
-#credits-num {
-    color: var(--red);
-}
-
-@media (max-width: 480px) {
-    .error-404-code   { font-size: 2.8rem; }
-    .error-404-screen { padding: 2rem 1rem 1.5rem; }
-    .error-404-actions { flex-direction: column; }
-    .btn-404-home, .btn-404-back { width: 100%; text-align: center; }
-}
-
-
-/* =====================================================
    GAME DETAIL PAGE — Ficha individual (v2)
    ===================================================== */
 
@@ -1416,3 +1101,258 @@
     .screenshot-counter { top: 14px; inset-inline-start: 14px; inset-inline-end: auto; font-size: 0.5rem; }
     .screenshot-thumb { width: 60px; }
 }
+
+
+/* ===================================================
+   JUEGOS RELACIONADOS — "Estante de cartuchos"
+   (movido de game-grid.css, auditoría CSS 2026-10-18:
+   el componente related_games.php solo se incluye en la ficha)
+   =================================================== */
+
+.related-section {
+    margin: 3rem auto 2rem;
+    max-width: 1200px;
+    padding: 0 1.5rem;
+}
+
+.related-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.72rem;
+    color: var(--slate);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid var(--border-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+/* Icono del título en recuadro pixel */
+.related-title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--blue-btn);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+}
+.related-title-icon svg.pxi {
+    width: 18px;
+    height: 18px;
+    color: var(--cream-light);
+    vertical-align: middle;
+}
+
+.related-title-text {
+    min-width: 0;
+}
+
+/* Variantes de sección: misma consola (azul) vs mismo género (slate) */
+.related-section--genero .related-title-icon { background: var(--slate); }
+
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+}
+
+/* ── Tarjeta: cartucho físico ── */
+.related-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--card-raise);
+    text-decoration: none;
+    color: var(--slate);
+    transition: transform 0.15s, box-shadow 0.15s;
+    overflow: hidden;
+}
+/* Brillo superior: reflejo del plástico del cartucho */
+.related-card::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+    z-index: 2;
+}
+.related-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--card-raise-lg);
+}
+/* ── Hover retro "cartucho encendido" ──
+   La portada se enciende como una pantalla CRT: brillo y contraste,
+   scanlines más visibles y un barrido de power-on de una sola pasada. */
+.related-card:hover .related-cover {
+    filter: brightness(1.12) contrast(1.1) saturate(1.12);
+}
+.related-card:hover .related-cover::after {
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.22) 0px,
+            rgba(0, 0, 0, 0.22) 1px,
+            transparent 1px,
+            transparent 2px
+        ),
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            transparent 45%,
+            rgba(0, 0, 0, 0.18) 100%
+        );
+}
+/* Barrido de brillo: banda que cruza la portada al entrar el cursor */
+.related-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.22) 50%,
+        transparent 100%
+    );
+    transform: translateY(-110%);
+    opacity: 0;
+}
+.related-card:hover .related-cover::before {
+    animation: relatedPowerOn 0.55s ease-out 1;
+}
+@keyframes relatedPowerOn {
+    0%   { transform: translateY(-110%); opacity: 0; }
+    15%  { opacity: 1; }
+    100% { transform: translateY(110%); opacity: 0; }
+}
+/* Sin movimiento si el usuario lo prefiere: solo efectos estáticos */
+@media (prefers-reduced-motion: reduce) {
+    .related-card:hover .related-cover::before {
+        animation: none;
+        opacity: 0;
+    }
+}
+
+/* ── Portada: marco + scanline CRT ── */
+.related-cover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    background: var(--cream-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    overflow: hidden;
+    border-bottom: 2px solid var(--border-mid);
+    transition: filter 0.15s;
+}
+.related-cover.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Placeholder: icono disco SIEMPRE presente detrás de la imagen (z-index 0).
+   Se ve cuando no hay carátula o cuando la imagen falla (onerror la oculta). */
+.related-cover i[data-i],
+.related-cover svg.pxi {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 55%;
+    height: 55%;
+    opacity: 0.75;
+    z-index: 0;
+}
+.related-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: relative;
+    z-index: 1;
+}
+/* Scanline sutil estilo CRT */
+.related-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 45%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+    transition: background 0.2s;
+}
+
+/* ── Info: título + tags tipo sello ── */
+.related-info {
+    padding: 0.65rem 0.7rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+.related-game-title {
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 0.74rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(0.74rem * 1.35 * 2);
+    transition: color 0.15s;
+}
+.related-game-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+.related-tag {
+    display: inline-block;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.55rem;
+    padding: 0.12rem 0.42rem;
+    white-space: nowrap;
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+.related-tag--platform {
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    border-color: #1e4266;
+}
+.related-tag--language {
+    background: var(--slate);
+    color: var(--cream-light);
+    border-color: #1a1a1a;
+}
+
+/* ── Subsecciones: espaciado entre las dos secciones curadas ── */
+.related-subsection {
+    margin-top: 0;
+    margin-bottom: 2.5rem;
+}
+.related-subsection:first-of-type {
+    margin-top: 3rem;
+}
+.related-subsection:last-of-type {
+    margin-bottom: 2rem;
+}
+
