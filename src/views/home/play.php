@@ -128,7 +128,13 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                 </div>
 
                 <div class="emulator-game-details">
-                    <h2 class="emulator-game-title"><?= htmlspecialchars($juego['titulo']) ?></h2>
+                    <!-- Cabecera: título + año (eco de .detail-title-row de la ficha) -->
+                    <div class="emulator-title-row">
+                        <h2 class="emulator-game-title"><?= htmlspecialchars($juego['titulo']) ?></h2>
+                        <?php if (!empty($juego['fecha_lanzamiento'])): ?>
+                            <span class="play-info-year"><?= htmlspecialchars(IntlHelper::formatYear($juego['fecha_lanzamiento'])) ?></span>
+                        <?php endif; ?>
+                    </div>
 
                     <div class="emulator-tags">
                         <span class="game-tag platform"><?= htmlspecialchars($juego['consola_nombre'] ?? '') ?></span>
@@ -138,22 +144,8 @@ if ($juego === null && empty($error) && empty($proxyError)) {
                         <?php if (!empty($juego['categoria_nombre'])): ?>
                             <span class="game-tag genre"><?= htmlspecialchars($juego['categoria_nombre']) ?></span>
                         <?php endif; ?>
-                    </div>
-
-                    <?php if (!empty($juego['descripcion'])): ?>
-                        <p class="emulator-description"><?= htmlspecialchars($juego['descripcion']) ?></p>
-                    <?php endif; ?>
-
-                    <div class="emulator-meta-row">
-                        <?php if (!empty($juego['size_bytes'])): ?>
-                            <span class="emulator-meta-item">
-                                <i data-i="hard-drive" aria-hidden="true"></i> <?= IntlHelper::formatBytes($juego['size_bytes']) ?>
-                            </span>
-                        <?php endif; ?>
                         <?php if (!empty($juego['idiomas'])): ?>
-                            <span class="emulator-meta-item">
-                                <i data-i="globe" aria-hidden="true"></i> <?= htmlspecialchars($juego['idiomas']) ?>
-                            </span>
+                            <span class="game-tag"><?= htmlspecialchars($juego['idiomas']) ?></span>
                         <?php endif; ?>
                     </div>
 

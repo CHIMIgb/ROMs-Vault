@@ -285,61 +285,95 @@
 .emulator-game-details {
     width: 100%;
 }
+/* ── Cabecera: título + año (eco de .detail-title-row de la ficha) ── */
+.emulator-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
 .emulator-game-title {
     font-family: 'Press Start 2P', monospace;
-    font-size: 0.72rem;
+    font-size: 0.9rem;
     color: var(--slate);
     line-height: 1.5;
-    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 0 var(--border-light);
+    word-break: break-word;
+}
+.play-info-year {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+    color: var(--red);
+    text-shadow: 2px 2px 0 var(--border-light);
+    flex-shrink: 0;
 }
 .emulator-tags {
     display: flex;
     gap: 0.4rem;
     flex-wrap: wrap;
-    margin-bottom: 0.6rem;
+    margin-top: 0.7rem;
 }
-.emulator-description {
-    font-size: 0.82rem;
-    color: var(--slate-mid);
-    margin-bottom: 0.75rem;
-    line-height: 1.5;
-}
+/* ── Pie de acciones: divisor de sección (eco .detail-title-block) ── */
 .emulator-actions {
     display: flex;
     gap: 0.6rem;
     flex-wrap: wrap;
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 3px solid var(--border-dark);
+}
+/* ── Botones del panel: lenguaje canónico (eco .detail-btn) ──
+   Jerarquía: Descargar = primario azul · Pantalla completa = herramienta
+   slate · Compartir = ghost neutro (dos azules no deben competir). */
+.btn-dl-small,
+.btn-fullscreen,
+.btn-share {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.9rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+    border: 3px solid var(--border-dark);
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--border-dark);
+    transition: box-shadow 0.1s, transform 0.1s, background 0.15s;
+}
+.btn-dl-small:hover,
+.btn-fullscreen:hover,
+.btn-share:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--border-dark);
+}
+.btn-dl-small:active,
+.btn-fullscreen:active,
+.btn-share:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
 }
 .btn-dl-small {
-    display: inline-block;
     background: var(--blue-btn);
-    color: #fff;
-    padding: 0.35rem 0.85rem;
-    border: 2px solid var(--border-dark);
-    box-shadow: 3px 3px 0 #1a3a5a;
-    text-decoration: none;
-    font-size: 0.78rem;
-    font-weight: 700;
-    transition: box-shadow 0.1s, transform 0.1s;
 }
 .btn-dl-small:hover {
-    box-shadow: 1px 1px 0 #1a3a5a;
-    transform: translate(2px, 2px);
+    background: #1a4a7a;
 }
 .btn-fullscreen {
-    display: inline-block;
     background: var(--slate-mid);
-    color: #fff;
-    padding: 0.35rem 0.85rem;
-    border: 2px solid var(--border-dark);
-    box-shadow: 3px 3px 0 #2a2a2a;
-    font-size: 0.78rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: box-shadow 0.1s, transform 0.1s;
 }
 .btn-fullscreen:hover {
-    box-shadow: 1px 1px 0 #2a2a2a;
-    transform: translate(2px, 2px);
+    background: var(--slate);
+}
+.btn-share {
+    background: var(--cream-dark);
+    color: var(--slate);
+}
+.btn-share:hover {
+    background: var(--border-light);
 }
 
 /* ── Contenedor del emulador ── */
@@ -482,21 +516,6 @@
     font-family: 'Courier Prime', monospace;
 }
 
-/* ── metarow de idiomas/tamaño ── */
-.emulator-meta-row {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.7rem;
-    font-size: 0.8rem;
-    color: var(--slate-mid);
-}
-.emulator-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
 /* ── Aviso de streaming (ISOs grandes) ── */
 .proxy-streaming-notice {
     display: flex;
@@ -616,33 +635,6 @@
 }
 
 /* =====================================================
-   BOTÓN SHARE — compartir enlace (exclusivo de play)
-   ===================================================== */
-.btn-share {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.55rem 1rem;
-    background: var(--blue-btn);
-    color: #fff;
-    border: 3px solid var(--border-dark);
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    cursor: pointer;
-    box-shadow: var(--raise-shadow);
-    transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
-}
-.btn-share:hover {
-    background: #1e4a73;
-    transform: translateY(-2px);
-    box-shadow: var(--raise-shadow-lg);
-}
-.btn-share:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-/* =====================================================
    RESPONSIVE — vista play (consolidado de responsive.css + medias de 600px)
    ===================================================== */
 
@@ -663,4 +655,7 @@
     .btn-retry, .btn-back-catalog { width: 100%; text-align: center; }
     /* Portada completa y nítida en móviles pequeños, sin recortes */
     .emulator-cover-img { max-width: 140px; max-height: 185px; }
+    /* Cabecera de la sección de info en pantallas pequeñas */
+    .emulator-game-title { font-size: 0.7rem; }
+    .play-info-year { font-size: 0.8rem; }
 }

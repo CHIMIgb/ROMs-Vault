@@ -959,15 +959,6 @@ nav a svg.pxi {
     margin-inline-end: 0.3em;
 }
 
-/* ── emulator meta icons ─────────────────────────── */
-.emulator-meta-item svg.pxi {
-    width: 14px;
-    height: 14px;
-    vertical-align: middle;
-    margin-inline-end: 0.3em;
-    flex-shrink: 0;
-}
-
 /* ── streaming notice icon ───────────────────────── */
 .streaming-icon svg.pxi {
     width: 18px;
