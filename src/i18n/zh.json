@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "显示密码",
     "auth.usuario": "用户名",
     "catalog.sin_resultados": "没有符合筛选条件的可用游戏。",
+    "catalog.vacio_titulo": "无结果",
     "common.saludo": "你好，{nombre}",
     "component.anterior": "上一页",
     "component.descargar": "下载",
@@ -587,5 +588,8 @@
     "component.consolas": "台主机",
     "component.consolas_con_emulador": "台已配置模拟器的主机",
     "play.error_sin_juego": "错误：未指定要游玩的游戏。",
-    "play.error_juego_no_existe": "错误：请求的游戏在数据库中不存在。"
+    "play.error_juego_no_existe": "错误：请求的游戏在数据库中不存在。",
+    "component.idiomas_count": "{count} 种语言",
+    "component.idiomas_varios": "多种语言",
+    "component.idiomas_todos": "所有语言"
 }

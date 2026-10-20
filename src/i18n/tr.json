@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Şifreyi göster",
     "auth.usuario": "Kullanıcı adı",
     "catalog.sin_resultados": "Filtrelerle eşleşen kullanılabilir oyun yok.",
+    "catalog.vacio_titulo": "Sonuç yok",
     "common.saludo": "Merhaba, {nombre}",
     "component.anterior": "Önceki",
     "component.descargar": "İndir",
@@ -587,5 +588,8 @@
     "component.consolas": "konsol",
     "component.consolas_con_emulador": "emülatörlü konsol",
     "play.error_sin_juego": "Hata: Oynatılacak oyun belirtilmedi.",
-    "play.error_juego_no_existe": "Hata: İstenen oyun veritabanında mevcut değil."
+    "play.error_juego_no_existe": "Hata: İstenen oyun veritabanında mevcut değil.",
+    "component.idiomas_count": "{count} dil",
+    "component.idiomas_varios": "Birkaç dil",
+    "component.idiomas_todos": "Tüm diller"
 }

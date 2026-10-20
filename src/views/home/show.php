@@ -2,12 +2,6 @@
 require_once __DIR__ . '/../../config/IntlHelper.php';
 ?>
 <?php
-// Helper de tamaño legible: B / KB / MB / GB según el valor
-if (!function_exists('formatBytes')) {
-    function formatBytes($bytes) {
-        return IntlHelper::formatBytes($bytes);
-    }
-}
 // Badge NUEVO: ROMs añadidas en los últimos 30 días
 $esNuevo = !empty($juego['created_at'])
     && (time() - strtotime($juego['created_at'])) < 30 * 86400;
@@ -15,23 +9,6 @@ $esNuevo = !empty($juego['created_at'])
 // ── Datos derivados para los pasos de instalación del emulador ──
 $formato = strtoupper(trim($juego['formato_imagen'] ?? ''));
 $esImagenDisco = in_array($formato, ['ISO', 'BIN/CUE', 'ISP'], true);
-
-// ── Idiomas disponibles ──
-// La BD guarda una lista separada por comas (y en datos antiguos, por puntos);
-// se normaliza: recorte, mayúscula inicial y dedupe sin importar mayúsculas,
-// preservando el orden original (el primer idioma suele ser el principal).
-$idiomas = [];
-if (!empty($juego['idiomas'])) {
-    $vistos = [];
-    foreach (preg_split('/[,.;]/u', $juego['idiomas']) as $idioma) {
-        $idioma = trim($idioma);
-        if ($idioma === '') continue;
-        $clave = strtolower($idioma);
-        if (isset($vistos[$clave])) continue;
-        $vistos[$clave] = true;
-        $idiomas[] = ucfirst($idioma);
-    }
-}
 
 // ── Capturas (carrusel) ──
 // Usa el campo `capturas` de la BD (JSON de rutas); si no hay, replica la portada.
@@ -94,7 +71,11 @@ if ($emuladorLocal) {
                         <span class="detail-year"><?= htmlspecialchars(IntlHelper::formatYear($juego['fecha_lanzamiento'])) ?></span>
                     <?php endif; ?>
                 </div>
+                <!-- Fila 1: plataforma + categoría -->
                 <div class="detail-tags">
+                    <?php if (!empty($juego['consola_nombre'])): ?>
+                        <span class="tag tag-plataforma"><?= htmlspecialchars($juego['consola_nombre']) ?></span>
+                    <?php endif; ?>
                     <?php if (!empty($juego['categoria_id'])): ?>
                         <a href="/?categoria=<?= (int) $juego['categoria_id'] ?>" class="tag tag-categoria" title="<?= t('show.ver_mas_de', ['categoria' => htmlspecialchars($juego['categoria_nombre'] ?? t('show.esta_categoria'))]) ?>">
                             <?= htmlspecialchars($juego['categoria_nombre'] ?? t('show.sin_categoria')) ?>
@@ -106,47 +87,28 @@ if ($emuladorLocal) {
                         <span class="tag tag-hack"><?= t('show.hack_rom') ?></span>
                     <?php endif; ?>
                 </div>
-            </div>
-
-            <!-- Stats bar -->
-            <div class="detail-stats-bar">
-                <span class="stat-chip" title="<?= t('show.descargas') ?>">
-                    <i data-i="download" aria-hidden="true"></i>
-                    <span class="stat-chip-num"><?= htmlspecialchars(IntlHelper::formatNumber($juego['downloads_count'] ?? 0)) ?></span>
-                    <span class="stat-chip-label"><?= t('show.descargas_label') ?></span>
-                </span>
-                <span class="stat-chip" title="<?= t('show.partidas_online') ?>">
-                    <i data-i="play" aria-hidden="true"></i>
-                    <span class="stat-chip-num"><?= htmlspecialchars(IntlHelper::formatNumber($juego['plays_count'] ?? 0)) ?></span>
-                    <span class="stat-chip-label"><?= t('show.jugadas_label') ?></span>
-                </span>
-                <button type="button" class="stat-chip stat-chip--share" id="btn-share-game" title="<?= t('show.compartir_title') ?>">
-                    <i data-i="share" aria-hidden="true"></i>
-                    <?= t('show.compartir') ?>
-                </button>
-            </div>
-
-            <!-- Etiquetas de la caja: consola / región / formato -->
-            <?php if (!empty($juego['consola_nombre'])): ?>
-                <div class="detail-cover-labels" aria-hidden="true">
-                    <span><?= htmlspecialchars($juego['consola_nombre']) ?></span>
-                    <span><?= htmlspecialchars($juego['region'] ?? 'ALL') ?></span>
-                    <span><?= htmlspecialchars($juego['formato_imagen'] ?? 'ROM') ?></span>
+                <!-- Fila 2: dato (idiomas) a la izquierda, compartir anclado a la derecha -->
+                <div class="detail-tags detail-tags--data">
+                    <?php if (!empty($juego['idiomas'])): ?>
+                        <span class="tag tag-idiomas" title="<?= htmlspecialchars($juego['idiomas']) ?>"><?= htmlspecialchars($juego['idiomas']) ?></span>
+                    <?php endif; ?>
+                    <!-- Compartir: al final de la fila de datos (rediseño panel, opción b) -->
+                    <button type="button" class="stat-chip stat-chip--share" id="btn-share-game" title="<?= t('show.compartir_title') ?>">
+                        <i data-i="share" aria-hidden="true"></i>
+                        <?= t('show.compartir') ?>
+                    </button>
                 </div>
-            <?php endif; ?>
+            </div>
 
-            <!-- Idiomas disponibles -->
-            <?php if (!empty($idiomas)): ?>
-                <div class="detail-languages" aria-label="<?= t('show.idiomas_disponibles') ?>">
-                    <span class="detail-languages-label">
-                        <i data-i="globe" aria-hidden="true"></i>
-                        <span><?= t('show.idiomas') ?></span>
-                    </span>
-                    <span class="detail-languages-list">
-                        <?php foreach ($idiomas as $idioma): ?>
-                            <span class="language-tag"><?= htmlspecialchars($idioma) ?></span>
-                        <?php endforeach; ?>
-                    </span>
+            <!-- Sinopsis inline en el panel; scroll interno si supera el alto máx. -->
+            <?php if (!empty($juego['descripcion'])): ?>
+                <div class="detail-panel-synopsis" tabindex="0" role="region" aria-label="<?= t('show.sinopsis') ?>">
+                    <div class="detail-synopsis-content<?=
+                        // B4: capitular Press Start 2P solo si arranca en latín (ver game-details.css)
+                        preg_match('/^\s*\p{Latin}/u', $juego['descripcion']) ? ' synopsis-dropcap' : ''
+                    ?>">
+                        <?= nl2br(htmlspecialchars($juego['descripcion'])) ?>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -154,21 +116,6 @@ if ($emuladorLocal) {
             <?php $detailContext = true; require __DIR__ . '/../components/game_actions.php'; ?>
         </div>
     </div>
-
-    <!-- ── Sinopsis ── -->
-    <?php if (!empty($juego['descripcion'])): ?>
-    <section class="detail-synopsis">
-        <h2 class="detail-section-title">
-            <?= t('show.sinopsis') ?>
-            <?php if (($juego['formato_imagen'] ?? '') === 'Hack'): ?>
-                <span class="synopsis-hack-badge"><i data-i="zap" aria-hidden="true"></i> <?= t('show.rom_hack') ?></span>
-            <?php endif; ?>
-        </h2>
-        <div class="detail-synopsis-content">
-            <?= nl2br(htmlspecialchars($juego['descripcion'])) ?>
-        </div>
-    </section>
-    <?php endif; ?>
 
     <!-- ══════════════════════════════════════════════════════
          CAPTURAS — carrusel tipo pantalla CRT
@@ -230,7 +177,7 @@ if ($emuladorLocal) {
 
                 <div class="screenshot-carousel screenshot-carousel--lightbox">
                     <div class="screenshot-viewport screenshot-viewport--lightbox">
-                        <div class="screenshot-track screenshot-track--lightbox" data-lightbox-track></div>
+                        <div class="screenshot-track" data-lightbox-track></div>
                     </div>
 
 <button type="button" class="screenshot-nav screenshot-nav--prev" data-lightbox-prev aria-label="<?= t('show.captura_anterior') ?>">

@@ -101,13 +101,6 @@ footer::before {
     letter-spacing: 0.05em;
 }
 
-.footer-note {
-    margin-top: 0.4rem;
-    font-size: 0.78rem;
-    color: var(--slate-light);
-    font-style: italic;
-}
-
 
 /* =====================================================
    HEADER BRAND — Logo + título en línea
@@ -299,6 +292,11 @@ header .subtitle { margin-bottom: 1.2rem; }
     border: 2px solid var(--border-dark);
     box-shadow: var(--raise-shadow);
     display: none;
+    /* B1 (auditoría 2026-10-17): con 12 idiomas el menú crecía sin límite y en
+       viewports bajos las últimas opciones quedaban fuera de pantalla. En
+       pantallas altas 60vh no se alcanza → el menú luce idéntico al de siempre. */
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .lang-switch:focus-within .lang-menu {

@@ -479,6 +479,8 @@ class HomeController {
         // header daría "headers already sent", ítem 9.1).
         $catalogSeed = Juego::getCatalogSeed();
 
+        $pageTitle = ($juego['titulo'] ?? '') . ' — ROMs Vault';
+
         require_once __DIR__ . '/../views/layout/header.php';
         require_once __DIR__ . '/../views/home/play.php';
         require_once __DIR__ . '/../views/layout/footer.php';

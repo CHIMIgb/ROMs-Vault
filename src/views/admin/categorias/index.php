@@ -8,15 +8,15 @@ require_once __DIR__ . '/../../../config/IntlHelper.php';
 <div class="admin-stats-grid">
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.categoria.total') ?></div>
-        <div class="stat-value" style="color:var(--primary);"><?= IntlHelper::formatNumber($total) ?></div>
+        <div class="stat-value"><?= IntlHelper::formatNumber($total) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.categoria.activas') ?></div>
-        <div class="stat-value" style="color:var(--success);"><?= IntlHelper::formatNumber($totalActivas) ?></div>
+        <div class="stat-value stat-value--ok"><?= IntlHelper::formatNumber($totalActivas) ?></div>
     </div>
     <div class="stat-card">
         <div class="stat-label"><?= t('admin.categoria.inactivas') ?></div>
-        <div class="stat-value" style="color:var(--text-light);"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
+        <div class="stat-value stat-value--muted"><?= IntlHelper::formatNumber($total - $totalActivas) ?></div>
     </div>
 </div>
 
@@ -51,7 +51,7 @@ endif;
 <!-- FILTROS — mismo patrón exacto que el dashboard -->
 <div class="search-section">
     <div class="admin-filter-form">
-        <div class="search-wrapper" style="flex:2;min-width:180px;">
+        <div class="search-wrapper">
             <input type="text"
                    id="cat-busqueda"
                    placeholder="<?= t('admin.categoria.buscar_placeholder') ?>"
@@ -70,12 +70,12 @@ endif;
             <option value="0" <?= (($_GET['activo'] ?? '') === '0') ? 'selected' : '' ?>><?= t('admin.categoria.solo_inactivas') ?></option>
         </select>
 
-        <button type="button" id="cat-limpiar" class="clear-filters" style="display:none;white-space:nowrap;">
+        <button type="button" id="cat-limpiar" class="clear-filters clear-filters--nowrap">
             <i data-i="close" aria-hidden="true"></i> <?= t('admin.categoria.limpiar') ?>
         </button>
     </div>
 
-    <div id="cat-loading" class="filter-loading" style="display:none;">
+    <div id="cat-loading" class="filter-loading">
         <span class="filter-loading-bar"></span>
         <span class="filter-loading-text"><?= t('admin.categoria.buscando') ?></span>
     </div>
@@ -90,7 +90,7 @@ endif;
         Alert::render('info', t('admin.categoria.sin_resultados'), 'info', 'text-align:center;padding:3rem;justify-content:center;');
         ?>
     <?php else: ?>
-    <div style="overflow-x:auto;">
+    <div class="admin-table-wrap">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -107,7 +107,7 @@ endif;
                 <tr>
                     <td>#<?= $cat['id'] ?></td>
                     <td><strong><?= htmlspecialchars($cat['nombre']) ?></strong></td>
-                    <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--slate-mid);font-size:.88rem;">
+                    <td class="cell-ellipsis cell-ellipsis--wide">
                         <?= htmlspecialchars($cat['descripcion'] ?? '—') ?>
                     </td>
                     <td><?= htmlspecialchars(IntlHelper::formatDate($cat['created_at'], IntlHelper::MEDIUM)) ?></td>

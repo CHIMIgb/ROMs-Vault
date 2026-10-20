@@ -1,0 +1,668 @@
+/* public/css/modules/play.css */
+/* =====================================================
+   ROMs Vault — Vista "Jugar online" (/juego/{slug} → /jugar/{slug})
+   Estilos exclusivos de src/views/home/play.php.
+   Extraídos de game-details.css, components.css y responsive.css
+   ===================================================== */
+
+/* ── Page wrapper — mismo ancho que .game-detail-page de la ficha ── */
+.play-page {
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    padding: 0.5rem 0 2rem;
+}
+
+/* =====================================================
+   ERROR DE PROXY — Archivo de Google Drive inaccesible
+   ===================================================== */
+
+.proxy-error-page {
+    max-width: 560px;
+    margin: 2rem auto;
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.proxy-error-page::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.4);
+    pointer-events: none;
+}
+
+.proxy-error-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    line-height: 1;
+}
+
+.proxy-error-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.72rem;
+    color: var(--red);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    text-shadow: 2px 2px 0 var(--red-dark);
+}
+
+.proxy-error-msg {
+    color: var(--slate);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.proxy-error-tip {
+    background: var(--cream-dark);
+    border: 2px solid var(--border-mid);
+    border-inline-start: 4px solid var(--amber);
+    padding: 0.75rem 1rem;
+    text-align: start;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    color: var(--slate);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.proxy-tip-label {
+    display: block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    color: var(--amber-dark); /* AA sobre cream-dark del tip (4.83:1) — era --amber (2.58:1) */
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.proxy-error-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.btn-retry {
+    display: inline-block;
+    background: var(--green-ok);
+    color: #fff;
+    padding: 0.7rem 1.5rem;
+    border: 2px solid #2a5a32;
+    box-shadow: 4px 4px 0 #1a3a20;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+
+.btn-retry:hover {
+    box-shadow: 1px 1px 0 #1a3a20;
+    transform: translate(3px, 3px);
+}
+
+.btn-back-catalog {
+    display: inline-block;
+    background: var(--slate);
+    color: var(--cream-light);
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 4px 4px 0 #1a1a1a;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.04em;
+    transition: box-shadow 0.1s, transform 0.1s, background 0.1s;
+}
+
+.btn-back-catalog:hover {
+    background: var(--red);
+    box-shadow: 1px 1px 0 #1a1a1a;
+    transform: translate(3px, 3px);
+}
+
+.proxy-error-details {
+    text-align: start;
+    border: 2px solid var(--border-light);
+    padding: 0.5rem 0.75rem;
+    background: var(--cream-dark);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+}
+
+.proxy-error-details summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--slate-mid);
+    font-size: 0.78rem;
+    user-select: none;
+    list-style: none;
+    padding: 0.25rem 0;
+}
+
+.proxy-error-details summary::before {
+    content: '▶ ';
+    font-size: 0.55rem;
+}
+
+.proxy-error-details[open] summary::before {
+    content: '▼ ';
+}
+
+.proxy-error-technical {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: var(--slate-mid);
+}
+
+.proxy-error-technical div {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+}
+
+.proxy-error-technical span {
+    color: var(--slate);
+    font-weight: 700;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    min-width: 4rem;
+    flex-shrink: 0;
+}
+
+.proxy-error-technical code {
+    font-size: 0.82rem;
+    background: var(--cream-light);
+    border: 1px solid var(--border-light);
+    padding: 0.1rem 0.3rem;
+    word-break: break-all;
+}
+
+
+/* =====================================================
+   EMULATOR PLAY PAGE — EmulatorJS Integration
+   ===================================================== */
+
+/* ── Info panel (cover + metadata) ── */
+.emulator-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+.emulator-info {
+    background: var(--cream-light);
+    border: 3px solid var(--border-dark);
+    box-shadow: var(--card-raise);
+    padding: 1rem 1.25rem;
+}
+.emulator-game-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+/* ── Contenedor de portada: marco CRT con tamaño variable ──
+   Igual que en el detalle pero en menor tamaño: el contenedor
+   se adapta a cada imagen (width/height: max-content) y la portada
+   se muestra completa y nítida, sin recortes. */
+.emulator-cover-frame {
+    position: relative;
+    background: #0a0a0a;
+    border: 3px solid var(--border-dark);
+    box-shadow:
+        inset 0 0 20px rgba(0, 0, 0, 0.5),
+        0 0 0 2px var(--border-mid);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    height: max-content;
+}
+/* Brillo diagonal (mismo filtro CRT que .detail-cover-frame de la ficha) */
+.emulator-cover-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.06) 0%,
+        transparent 50%,
+        rgba(0,0,0,0.15) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Scanlines CRT (mismo patrón que .detail-cover-scanlines de la ficha) */
+.emulator-cover-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.12) 2px,
+        rgba(0,0,0,0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 3;
+}
+.emulator-cover-img {
+    max-width: 170px;
+    max-height: 220px;
+    width: auto;
+    height: auto;
+    display: block;
+}
+.emulator-cover-placeholder {
+    width: 150px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--slate);
+}
+.emulator-cover-placeholder svg.pxi {
+    width: 52px;
+    height: 52px;
+    opacity: 0.3;
+}
+.emulator-game-details {
+    width: 100%;
+}
+/* ── Cabecera: título + año (eco de .detail-title-row de la ficha) ── */
+.emulator-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.emulator-game-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.9rem;
+    color: var(--slate);
+    line-height: 1.5;
+    text-shadow: 2px 2px 0 var(--border-light);
+    word-break: break-word;
+}
+.play-info-year {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+    color: var(--red);
+    text-shadow: 2px 2px 0 var(--border-light);
+    flex-shrink: 0;
+}
+.emulator-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.7rem;
+}
+/* Compartir anclado a la derecha de la fila de metadatos (eco .detail-tags de la ficha) */
+.emulator-tags .emulator-share-chip {
+    margin-inline-start: auto;
+}
+/* ── Pie de acciones: divisor de sección (eco .detail-title-block) ── */
+.emulator-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 3px solid var(--border-dark);
+}
+/* ── Botones del panel: lenguaje canónico (eco .detail-btn de la ficha) ──
+   Jerarquía: Descargar = primario azul · Pantalla completa = herramienta
+   slate · Compartir = neutro (mismo rol que los chips neutros del sistema).
+   Los dos comparten tamaño, borde y sombra dura; sólidos llevan borde/sombra
+   --border-dark. */
+.btn-dl-small,
+.btn-fullscreen {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.9rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+    border: 3px solid var(--border-dark);
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--border-dark);
+    transition: box-shadow 0.1s, transform 0.1s, background 0.15s;
+}
+/* Brillo superior (mismo detalle CRT que .detail-btn::before) */
+.btn-dl-small::before,
+.btn-fullscreen::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px;
+    height: 3px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.1) 100%);
+    pointer-events: none;
+}
+.btn-dl-small:hover,
+.btn-fullscreen:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--border-dark);
+}
+.btn-dl-small:active,
+.btn-fullscreen:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
+}
+.btn-dl-small {
+    background: var(--blue-btn);
+}
+.btn-dl-small:hover {
+    background: #1a4a7a;
+}
+.btn-fullscreen {
+    background: var(--slate-mid);
+}
+.btn-fullscreen:hover {
+    background: var(--slate);
+}
+
+/* ── Contenedor del emulador ── */
+#emulator-container {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #111;
+    border: 4px solid var(--border-dark);
+    box-shadow: var(--raise-shadow-lg);
+    overflow: hidden;
+    position: relative;
+}
+#game {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Controles hint ── */
+.emulator-controls-hint {
+    background: var(--cream-light);
+    border: 2px solid var(--border-mid);
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+}
+.emulator-controls-hint summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--slate);
+    user-select: none;
+}
+.controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.35rem 1.5rem;
+    margin-top: 0.75rem;
+    color: var(--slate-mid);
+}
+.controls-grid strong { color: var(--slate); }
+
+/* ── Consola no soportada ── */
+.btn-download-big {
+    display: inline-block;
+    background: var(--blue-btn);
+    color: #fff;
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--border-dark);
+    box-shadow: 4px 4px 0 #1a3a5a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: box-shadow 0.1s, transform 0.1s;
+}
+.btn-download-big:hover {
+    box-shadow: 1px 1px 0 #1a3a5a;
+    transform: translate(3px, 3px);
+}
+
+/* ── Responsive emulador ── */
+@media (max-width: 600px) {
+    .emulator-game-meta { flex-direction: column; }
+    .emulator-cover-img { max-width: 160px; max-height: 210px; }
+    .emulator-cover-placeholder { width: 140px; height: 190px; }
+    #emulator-container { aspect-ratio: 3 / 2; }
+    .emulator-actions { flex-direction: column; }
+    .btn-dl-small, .btn-fullscreen { width: 100%; text-align: center; }
+}
+
+/* =====================================================
+   PROXY LOAD BAR — Barra de progreso de ROM
+   ===================================================== */
+
+.proxy-load-bar {
+    display: none; /* C1 ola 3: oculto hasta que play-emulator.js lo muestra */
+    background: var(--cream-light);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0;
+}
+
+.proxy-load-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--slate);
+}
+
+#proxy-load-pct {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    color: var(--red);
+    min-width: 3.5ch;
+    text-align: end;
+}
+
+.proxy-load-track {
+    width: 100%;
+    height: 18px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--inset-shadow);
+    overflow: hidden;
+    position: relative;
+}
+
+.proxy-load-fill {
+    height: 100%;
+    width: 0%;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--red)       0px,
+        var(--red)       8px,
+        var(--red-dark)  8px,
+        var(--red-dark)  16px
+    );
+    background-size: 22px 100%;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+/* Animación indeterminada (cuando no hay Content-Length) */
+.proxy-load-fill.indeterminate {
+    width: 100% !important;
+    animation: proxyIndeterminate 1.4s linear infinite;
+}
+
+@keyframes proxyIndeterminate {
+    0%   { background-position: 0 0; }
+    100% { background-position: 44px 0; }
+}
+
+.proxy-load-detail {
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--slate-mid);
+    font-family: 'Courier Prime', monospace;
+}
+
+/* ── Aviso de streaming (ISOs grandes) ── */
+.proxy-streaming-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    background: var(--cream-light);
+    border: 2px solid var(--amber);
+    box-shadow: 3px 3px 0 #8a6a00;
+    padding: 0.75rem 1rem;
+    font-size: 0.84rem;
+    color: var(--slate);
+    line-height: 1.5;
+}
+.streaming-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+/* ── Aviso de soporte experimental (PPSSPP, PSX, N64, NDS) ── */
+.experimental-warning {
+    background: var(--rv-warning-bg);
+    border: 2px solid var(--amber);
+    box-shadow: 3px 3px 0 #8a6a00;
+    padding: 0.75rem 1rem;
+    font-size: 0.84rem;
+    color: var(--slate);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+/* =====================================================
+   SLIDER DE TAMAÑO DE PANTALLA DEL EMULADOR
+   ===================================================== */
+
+.emulator-size-control {
+    background: var(--cream-light);
+    border: 2px solid var(--border-mid);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.size-control-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--slate);
+    white-space: nowrap;
+}
+
+.size-control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.size-control-min,
+.size-control-max {
+    font-size: 0.72rem;
+    color: var(--slate-light);
+    font-family: 'Courier Prime', monospace;
+    white-space: nowrap;
+}
+
+/* El slider en sí */
+#emulator-size-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    outline: none;
+    cursor: pointer;
+}
+#emulator-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--red);
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--red-dark);
+    cursor: pointer;
+}
+#emulator-size-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--red);
+    border: 2px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--red-dark);
+    cursor: pointer;
+    border-radius: 0;
+}
+#emulator-size-slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.3), 2px 2px 0 var(--red-dark);
+}
+
+.size-control-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.58rem;
+    color: var(--red);
+    min-width: 3.5ch;
+    text-align: end;
+}
+
+/* El contenedor se centra solo con el JS,
+   pero definimos la transición aquí */
+#emulator-container {
+    transition: width 0.2s ease;
+}
+
+@media (max-width: 600px) {
+    .emulator-size-control { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .size-control-row { width: 100%; }
+}
+
+/* =====================================================
+   RESPONSIVE — vista play (consolidado de responsive.css + medias de 600px)
+   ===================================================== */
+
+@media (max-width: 600px) {
+    .emulator-game-meta { flex-direction: column; }
+    .emulator-cover-img { max-width: 160px; max-height: 210px; }
+    .emulator-cover-placeholder { width: 140px; height: 190px; }
+    #emulator-container { aspect-ratio: 3 / 2; }
+    .emulator-actions { flex-direction: column; }
+    .btn-dl-small, .btn-fullscreen { width: 100%; text-align: center; }
+    .emulator-size-control { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .size-control-row { width: 100%; }
+}
+
+@media (max-width: 576px) {
+    .proxy-error-actions { flex-direction: column; gap: 0.5rem; }
+    .btn-retry, .btn-back-catalog { width: 100%; text-align: center; }
+    /* Portada completa y nítida en móviles pequeños, sin recortes */
+    .emulator-cover-img { max-width: 140px; max-height: 185px; }
+    /* Cabecera de la sección de info en pantallas pequeñas */
+    .emulator-game-title { font-size: 0.7rem; }
+    .play-info-year { font-size: 0.8rem; }
+}

@@ -16,6 +16,8 @@
 
     <div class="error-404-actions">
         <a href="/" class="btn-404-home"><?= t('errors.ir_catalogo_icono') ?></a>
-        <a href="javascript:history.back()" class="btn-404-back"><?= t('errors.volver_atras') ?></a>
+        <a href="/" class="btn-404-back" data-back><?= t('errors.volver_atras') ?></a>
     </div>
 </div>
+
+<script src="public/js/views/errors/404.js" defer></script>

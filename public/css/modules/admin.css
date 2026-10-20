@@ -289,3 +289,91 @@
     border: 2px solid var(--border-dark);
     display: block;
 }
+
+/* =====================================================
+   C1 (Bloque 3, 2026-10-17) — clases que sustituyen
+   estilos inline de las vistas admin. Cada clase replica
+   exactamente el valor que antes venía en style="…".
+   ===================================================== */
+
+/* Búsqueda del formulario de filtros admin: ocupa el hueco sobrante */
+.admin-filter-form .search-wrapper {
+    flex: 2;
+    min-width: 180px;
+}
+
+/* .stat-card apiladas fuera de grid (tfa) — en grid (dashboard) el
+   espaciado lo da gap, por eso el margen es modificador y no base */
+.stat-card--mb-15 { margin-bottom: 1.5rem; }
+.stat-card--mb-1  { margin-bottom: 1rem; }
+
+/* Título de ranking con separación reducida (tfa; base = 1rem) */
+.ranking-title--tight { margin-bottom: 0.75rem; }
+
+/* Párrafo de ayuda administrativa (tfa + modal de exportación) */
+.admin-hint {
+    font-size: 0.9rem;
+    color: var(--slate-light);
+    margin-bottom: 1rem;
+}
+.admin-hint--tight { margin-bottom: 0.75rem; }
+.admin-hint--lead  { margin-top: 0.5rem; margin-bottom: 0; }
+
+/* Colores semánticos de .stat-value (hereda --slate por defecto) */
+.stat-value--ok    { color: var(--green-ok); }
+.stat-value--muted { color: var(--slate-light); }
+
+/* Barra de ranking de jugadas (la de descargas usa el rojo base) */
+.ranking-bar-fill--plays { background: var(--green-ok); }
+
+/* Envoltorio con scroll horizontal de la tabla admin */
+.admin-table-wrap { overflow-x: auto; }
+
+/* Columnas de la tabla admin */
+.admin-table .col-center { text-align: center; }
+.admin-table .col-num {
+    text-align: center;
+    font-size: 0.85rem;
+}
+.admin-table code { font-size: 0.78rem; }
+
+/* Modal de exportación (dashboard) */
+.export-note   { margin-bottom: 1rem; color: var(--slate-light); }
+.export-select { width: 100%; }
+
+/* Bloques de secreto 2FA (tfa) */
+.tfa-secret-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.tfa-secret-label {
+    font-size: 0.85rem;
+    color: var(--slate-light);
+    margin-bottom: 0.3rem;
+}
+.tfa-secret-code {
+    font-size: 0.9rem;
+    word-break: break-all;
+    user-select: all;
+}
+.tfa-secret-code--sm { font-size: 0.8rem; }
+
+/* C1 ola 2: celdas de tablas admin */
+.cell-meta {
+    color: var(--slate-mid);
+    font-size: 0.88rem;
+    margin-top: 0.25rem;
+}
+/* Celda con texto cortado (B2: nowrap+ellipsis deliberado, documentado) */
+.cell-ellipsis {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--slate-mid);
+    font-size: 0.88rem;
+}
+.cell-ellipsis--wide { max-width: 260px; }

@@ -43,11 +43,14 @@
 
     function getUiParams(page) {
         const p = getAjaxParams(page);
+        if (!page || page === 1) p.delete('page');
+        if (p.get('orden') === 'random') p.delete('orden');
         return p;
     }
 
     function updateLimpiar() {
-        const has = busquedaEl.value.trim() || consolaEl.value || categoriaEl.value || regionEl.value;
+        const has = busquedaEl.value.trim() || consolaEl.value || categoriaEl.value || regionEl.value
+            || ordenEl.value !== 'random';
         btnLimpiar.style.display = has ? 'inline-block' : 'none';
     }
 
@@ -59,7 +62,8 @@
         resultsEl.style.opacity = '0.45';
         resultsEl.style.pointerEvents = 'none';
 
-        history.replaceState(null, '', '?' + getUiParams(page).toString());
+        const uiQs = getUiParams(page).toString();
+        history.replaceState(null, '', uiQs ? '?' + uiQs : location.pathname);
 
         try {
             const paramsStr = getAjaxParams(page).toString();
@@ -213,9 +217,15 @@
         consolaEl.value   = '';
         categoriaEl.value = '';
         regionEl.value    = '';
-        ordenEl.value     = 'recientes';
+        ordenEl.value     = 'random'; // limpiar = estado inicial del index (URL limpia y orden aleatorio)
         updateLimpiar();
         fetchResults(1);
+    });
+
+    // Botón "Limpiar" del estado vacío (EmptyState): misma acción que #btn-limpiar.
+    // Delegación en resultsEl para que funcione tras cada repintado por AJAX.
+    resultsEl.addEventListener('click', e => {
+        if (e.target.closest('.empty-state-clear')) btnLimpiar.click();
     });
 
     busquedaEl.addEventListener('input',   scheduleSearch);

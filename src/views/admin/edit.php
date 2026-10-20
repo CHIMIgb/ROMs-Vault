@@ -30,7 +30,7 @@
         </div>
         
         <!-- Plataforma y categoría -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-grid-2">
             <div class="form-group">
                 <label for="consola_id"><?= t('admin.juego.consola') ?></label>
                 <select id="consola_id" name="consola_id" required>
@@ -59,7 +59,7 @@
         </div>
         
         <!-- Región y fecha -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-grid-2">
             <div class="form-group">
                 <label for="region"><?= t('admin.juego.region') ?></label>
                 <select id="region" name="region">
@@ -81,7 +81,7 @@
         </div>
         
         <!-- Idiomas y formato -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-grid-2">
             <div class="form-group">
                 <label for="idiomas"><?= t('admin.juego.idiomas') ?></label>
                 <input type="text" 
@@ -151,13 +151,12 @@
         <div class="form-group">
             <label for="imagen"><?= t('admin.juego.portada') ?></label>
             <?php if (!empty($juego['imagen'])): ?>
-                <div style="display:flex; align-items:flex-start; gap:1rem; margin-bottom:0.75rem; padding:0.75rem; background:var(--cream-dark); border:2px solid var(--border-dark); box-shadow:var(--raise-shadow);">
+                <div class="img-preview">
                     <img src="<?= htmlspecialchars($juego['imagen']) ?>"
-                         alt="<?= t('admin.juego.alt_portada_actual') ?>"
-                         style="width:80px; height:80px; object-fit:cover; border:2px solid var(--border-dark); flex-shrink:0;">
-                    <div style="font-family:'Courier Prime',monospace;">
-                        <p style="font-size:0.78rem; font-weight:700; color:var(--slate); margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.05em;"><?= t('admin.juego.imagen_actual') ?></p>
-                        <p style="font-size:0.78rem; color:var(--slate-mid); font-style:italic;"><i data-i="warning"></i> <?= t('admin.juego.portada_reemplaza_aviso') ?></p>
+                         alt="<?= t('admin.juego.alt_portada_actual') ?>">
+                    <div class="img-preview-text">
+                        <p class="img-preview-label"><?= t('admin.juego.imagen_actual') ?></p>
+                        <p class="img-preview-aviso"><i data-i="warning"></i> <?= t('admin.juego.portada_reemplaza_aviso') ?></p>
                     </div>
                 </div>
             <?php endif; ?>
@@ -208,7 +207,7 @@
         <!-- Botones -->
         <div class="form-actions">
             <button type="submit" class="btn-primary"><i data-i="save"></i> <?= t('admin.juego.guardar_cambios') ?></button>
-                <a href="/admin/dashboard" class="btn-primary" style="background:var(--cream-dark);color:var(--slate);box-shadow:3px 3px 0 var(--border-mid);border-color:var(--border-mid);">
+                <a href="/admin/dashboard" class="btn-primary btn-primary--ghost">
                     <i data-i="close"></i> <?= t('admin.juego.cancelar') ?>
                 </a>
         </div>

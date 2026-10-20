@@ -52,6 +52,13 @@
     min-width: 0;           /* evita que flexbox desborde */
 }
 
+/* Enlace que cubre la tarjeta del juego (home) — antes style inline */
+.game-detail-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
 .game-card::before {
     content: '';
     position: absolute;
@@ -64,6 +71,7 @@
 
 .game-card:hover {
     transform: translate(-2px, -2px);
+    /* Único en su escala (7px): variante mayor de --card-raise para la tarjeta grande */
     box-shadow: 6px 6px 0 #8a7a58, 7px 7px 0 #6a5a38;
 }
 
@@ -119,68 +127,46 @@
 
 .game-cover.no-image { background: var(--slate); }
 
-/* ── TÍTULO: siempre exactamente 2 líneas ── */
-.game-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.55rem;
-    color: var(--slate);
-    margin-bottom: 0.5rem;
-    line-height: 1.7;
-    /* Exactamente 2 líneas: font-size × line-height × 2 */
-    height: calc(0.55rem * 1.7 * 2);
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    flex-shrink: 0;
-    word-break: break-word;
-}
-
-/* ── TAGS: siempre 1 línea, sin wrap ── */
-.game-metadata {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0.2rem;
-    margin-bottom: 0.5rem;
-    overflow: hidden;
-    flex-shrink: 0;
-    height: 1.3rem;
+/* ── RIBBONS de portada (mismo lenguaje visual que la ficha del juego) ──
+   HACK a la izquierda (ámbar oscuro) y NUEVO a la derecha (rojo). Ambos van
+   sobre la portada, sin capturar clics (el enlace de la tarjeta sigue vivo). */
+.game-hack-ribbon,
+.game-new-badge {
+    position: absolute;
+    top: 0;
+    z-index: 4;
+    display: inline-flex;
     align-items: center;
-}
-
-.game-tag {
-    background: var(--cream-dark);
-    color: var(--slate);
-    padding: 0.12rem 0.28rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    gap: 0.25rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.34rem;
     letter-spacing: 0.05em;
-    border: 1px solid var(--border-mid);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    flex-shrink: 1;
+    color: var(--cream-light);
+    padding-block: 0.3rem;
+    pointer-events: none;
 }
 
-.game-tag.genre {
+/* HACK: ámbar oscuro (AA 6.78:1 sobre cream-light, igual que la ficha — D2) */
+.game-hack-ribbon {
+    inset-inline-start: 0;
+    background: var(--amber-dark);
+    border-inline-end: 2px solid var(--border-dark);
+    border-bottom: 2px solid var(--border-dark);
+    padding-inline: 0.5rem 0.4rem;
+}
+
+.game-hack-ribbon svg.pxi {
+    width: 9px;
+    height: 9px;
+}
+
+/* NUEVO: rojo (AA 7.98:1 sobre cream-light) */
+.game-new-badge {
+    inset-inline-end: 0;
     background: var(--red);
-    color: var(--cream-light);
-    border-color: var(--red-dark);
-}
-
-.game-tag.platform {
-    background: var(--blue-btn);
-    color: var(--cream-light);
-    border-color: #1e4266;
-}
-
-.game-tag.language {
-    background: var(--slate);
-    color: var(--cream-light);
-    border-color: #1a1a1a;
+    border-inline-start: 2px solid var(--border-dark);
+    border-bottom: 2px solid var(--border-dark);
+    padding-inline: 0.4rem 0.5rem;
 }
 
 /* ── INFO: filas de datos, cada fila misma altura ── */
@@ -231,29 +217,28 @@
     max-width: 55%;
 }
 
-/* Hack/Mod info */
-.game-hack-info {
-    background: #f5edd0;
-    padding: 0.28rem 0.4rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.66rem;
-    margin-bottom: 0.4rem;
-    color: var(--slate);
-    border: 1px solid var(--amber);
-    border-inline-start: 4px solid var(--amber);
-    flex-shrink: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
+/* Hack/Mod: se muestra como ribbon sobre la portada (.game-hack-ribbon),
+   ya no como caja de texto con la descripción del juego. */
 
-/* ── ACCIONES: siempre al fondo de la tarjeta ── */
+/* ── ACCIONES: siempre al fondo de la tarjeta ──
+   Reserva del botón Jugar: min-height = alto natural del bloque "Jugar + gap +
+   Descargar" (padding + borde 4px + icono 11px de cada botón, según sus métricas
+   de escritorio). Las tarjetas sin emulación online (sin botón Jugar) reservan
+   su hueco → el espacio entre la caja de información y Descarga es visible también
+   en vistas homogéneas (p. ej. filtro PC), y con flex-end Descarga queda anclada y
+   alineada al fondo con el resto de la fila.
+   GARANTÍA de cero cambio en tarjetas con los dos botones: su alto natural es
+   SIEMPRE ≥ este cálculo (el contenido de un botón es ≥ icono de 11px y el
+   line-height heredado 1.6 solo puede añadir altura), luego el min-height no
+   llega a actuar en ellas. */
 .game-actions {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
     margin-top: auto;
     flex-shrink: 0;
+    justify-content: flex-end;
+    min-height: calc(0.42rem * 2 + 4px + 11px + 0.35rem + 0.38rem * 2 + 4px + 11px);
 }
 
 /* Botón Play */
@@ -310,263 +295,4 @@
 .game-download:active {
     transform: translate(3px, 3px);
     box-shadow: none;
-}
-
-.game-download span {
-    margin-inline-end: 0.35rem;
-    font-size: 0.85rem;
-}
-
-
-/* ===================================================
-   JUEGOS RELACIONADOS — "Estante de cartuchos"
-   =================================================== */
-
-.related-section {
-    margin: 3rem auto 2rem;
-    max-width: 1200px;
-    padding: 0 1.5rem;
-}
-
-.related-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.72rem;
-    color: var(--slate);
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 3px solid var(--border-dark);
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-}
-
-/* Icono del título en recuadro pixel */
-.related-title-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 2rem;
-    height: 2rem;
-    background: var(--blue-btn);
-    border: 2px solid var(--border-dark);
-    box-shadow: 3px 3px 0 #8a7a58;
-}
-.related-title-icon svg.pxi {
-    width: 18px;
-    height: 18px;
-    color: var(--cream-light);
-    vertical-align: middle;
-}
-
-.related-title-text {
-    min-width: 0;
-}
-
-/* Variantes de sección: misma consola (azul) vs mismo género (slate) */
-.related-section--genero .related-title-icon { background: var(--slate); }
-
-.related-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
-}
-
-/* ── Tarjeta: cartucho físico ── */
-.related-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    background: var(--card-bg);
-    border: 3px solid var(--border-dark);
-    box-shadow: var(--card-raise);
-    text-decoration: none;
-    color: var(--slate);
-    transition: transform 0.15s, box-shadow 0.15s;
-    overflow: hidden;
-}
-/* Brillo superior: reflejo del plástico del cartucho */
-.related-card::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.35);
-    pointer-events: none;
-    z-index: 2;
-}
-.related-card:hover {
-    transform: translate(-3px, -3px);
-    box-shadow:
-        8px 8px 0 #8a7a58,
-        9px 9px 0 #6a5a38;
-}
-/* ── Hover retro "cartucho encendido" ──
-   La portada se enciende como una pantalla CRT: brillo y contraste,
-   scanlines más visibles y un barrido de power-on de una sola pasada. */
-.related-card:hover .related-cover {
-    filter: brightness(1.12) contrast(1.1) saturate(1.12);
-}
-.related-card:hover .related-cover::after {
-    background:
-        repeating-linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.22) 0px,
-            rgba(0, 0, 0, 0.22) 1px,
-            transparent 1px,
-            transparent 2px
-        ),
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.05) 0%,
-            transparent 45%,
-            rgba(0, 0, 0, 0.18) 100%
-        );
-}
-/* Barrido de brillo: banda que cruza la portada al entrar el cursor */
-.related-cover::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.22) 50%,
-        transparent 100%
-    );
-    transform: translateY(-110%);
-    opacity: 0;
-}
-.related-card:hover .related-cover::before {
-    animation: relatedPowerOn 0.55s ease-out 1;
-}
-@keyframes relatedPowerOn {
-    0%   { transform: translateY(-110%); opacity: 0; }
-    15%  { opacity: 1; }
-    100% { transform: translateY(110%); opacity: 0; }
-}
-/* Sin movimiento si el usuario lo prefiere: solo efectos estáticos */
-@media (prefers-reduced-motion: reduce) {
-    .related-card:hover .related-cover::before {
-        animation: none;
-        opacity: 0;
-    }
-}
-
-/* ── Portada: marco + scanline CRT ── */
-.related-cover {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    background: var(--cream-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    overflow: hidden;
-    border-bottom: 2px solid var(--border-mid);
-    transition: filter 0.15s;
-}
-.related-cover.no-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-/* Placeholder: icono disco SIEMPRE presente detrás de la imagen (z-index 0).
-   Se ve cuando no hay carátula o cuando la imagen falla (onerror la oculta). */
-.related-cover i[data-i],
-.related-cover svg.pxi {
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: 55%;
-    height: 55%;
-    opacity: 0.75;
-    z-index: 0;
-}
-.related-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: relative;
-    z-index: 1;
-}
-/* Scanline sutil estilo CRT */
-.related-cover::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        transparent 45%,
-        rgba(0, 0, 0, 0.15) 100%
-    );
-    pointer-events: none;
-    z-index: 1;
-    transition: background 0.2s;
-}
-
-/* ── Info: título + tags tipo sello ── */
-.related-info {
-    padding: 0.65rem 0.7rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-}
-.related-game-title {
-    font-family: 'Courier Prime', monospace;
-    font-weight: 700;
-    font-size: 0.74rem;
-    line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    min-height: calc(0.74rem * 1.35 * 2);
-    transition: color 0.15s;
-}
-.related-game-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-}
-.related-tag {
-    display: inline-block;
-    font-family: 'Courier Prime', monospace;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.55rem;
-    padding: 0.12rem 0.42rem;
-    white-space: nowrap;
-    border: 2px solid var(--border-dark);
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
-}
-.related-tag--platform {
-    background: var(--blue-btn);
-    color: var(--cream-light);
-    border-color: #1e4266;
-}
-.related-tag--language {
-    background: var(--slate);
-    color: var(--cream-light);
-    border-color: #1a1a1a;
-}
-
-/* ── Subsecciones: espaciado entre las dos secciones curadas ── */
-.related-subsection {
-    margin-top: 0;
-    margin-bottom: 2.5rem;
-}
-.related-subsection:first-of-type {
-    margin-top: 3rem;
-}
-.related-subsection:last-of-type {
-    margin-bottom: 2rem;
 }

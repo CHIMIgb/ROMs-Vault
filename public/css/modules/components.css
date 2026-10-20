@@ -8,8 +8,6 @@
     flex-wrap: wrap;
 }
 
-.search-form { width: 100%; }
-
 .search-wrapper {
     position: relative;
     width: 100%;
@@ -65,6 +63,77 @@
 .search-button:hover { background: var(--red); }
 
 /* ===== FILTROS ===== */
+/* Fila de controles de filtros (sin form nativo) */
+.filters-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Barra de carga debajo de los filtros */
+.filter-loading {
+    display: none; /* Oculto hasta que el JS de filtros escribe style.display='flex'
+                       (fetchResults); en carga inicial no hay fetch → debe nacer
+                       oculto. Corrige la regresión del Lote C (olas 1 y 3). */
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+    padding: 0.4rem 0;
+}
+
+.filter-loading-bar {
+    display: block;
+    width: 120px;
+    height: 8px;
+    background: var(--cream-dark);
+    border: 2px solid var(--border-dark);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.filter-loading-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 60%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--red)      0px,
+        var(--red)      5px,
+        var(--red-dark) 5px,
+        var(--red-dark) 10px
+    );
+    animation: filterScan 0.9s linear infinite;
+}
+
+@keyframes filterScan {
+    0%   { left: -60%; }
+    100% { left: 110%; }
+}
+
+.filter-loading-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.38rem;
+    color: var(--slate-mid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: filterBlink 1s step-end infinite;
+}
+
+@keyframes filterBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+/* Suavizar la zona de resultados durante la carga */
+#catalog-results,
+#admin-results {
+    transition: opacity 0.15s ease;
+}
+
 .filters {
     margin-bottom: 2rem;
     padding: 1rem;
@@ -146,7 +215,9 @@
     background: var(--cream);
     box-shadow: 2px 2px 0 var(--border-mid);
     transition: all 0.1s;
-    display: inline-block;
+    /* C1: oculto hasta que el JS de filtros lo muestra (style.display);
+       las 5 vistas lo renderizan inicialmente oculto */
+    display: none;
 }
 
 .clear-filters:hover {
@@ -154,6 +225,13 @@
     border-color: var(--red);
     box-shadow: 2px 2px 0 var(--red-dark);
 }
+.clear-filters--nowrap { white-space: nowrap; }
+
+/* Texto atenuado genérico (marcadores "—", iconos sin portada…) */
+.text-muted { color: var(--slate-light); }
+
+/* Enlace subrayado explícito (los enlaces base no lo llevan) */
+.text-underline { text-decoration: underline; }
 
 
 /* ===== PAGINACIÓN ===== */
@@ -161,7 +239,9 @@
     display: flex;
     justify-content: center;
     gap: 0.4rem;
-    margin: 2.5rem 0 1rem;
+    /* C1 ola 3: era 2.5rem; Pagination.php siempre sobreescribía a 1.5rem
+       con style inline — se fija el valor efectivo y se elimina el inline */
+    margin: 1.5rem 0 1rem;
     flex-wrap: wrap;
 }
 
@@ -176,7 +256,7 @@
     font-size: 0.5rem;
     min-width: 38px;
     text-align: center;
-    box-shadow: 3px 3px 0 #8a7a58;
+    box-shadow: var(--raise-shadow);
     transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
     display: inline-flex;
     align-items: center;
@@ -187,7 +267,7 @@
     background: var(--slate);
     color: var(--cream-light);
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #8a7a58;
+    box-shadow: var(--raise-shadow-sm);
 }
 
 .pagination-current,
@@ -198,9 +278,17 @@
     box-shadow: 3px 3px 0 var(--red-dark) !important;
 }
 
+.pagination .pagination-ellipsis {
+    /* "…" entre números — antes style inline (ganaba a .pagination span) */
+    padding: 0 0.3rem;
+    color: var(--slate-light);
+}
+
 .pagination-info {
     text-align: center;
-    margin-top: 0.6rem;
+    /* C1 ola 3: era 0.6rem; el componente siempre sobreescribía a 0.75rem
+       con style inline — se fija el valor efectivo y se elimina el inline */
+    margin-top: 0.75rem;
     color: var(--slate-mid);
     font-family: 'Courier Prime', monospace;
     font-size: 0.82rem;
@@ -230,6 +318,27 @@
     box-shadow: 1px 1px 0 #6a5a38;
 }
 
+/* C1: variantes sólidas de .btn-primary (antes style inline).
+   Se declara tras :hover con doble clase para que el color del estado
+   normal pase a ser el del hover — mismo comportamiento que con el
+   estilo inline anterior. */
+.btn-primary.btn-primary--success { background: var(--green-ok); }
+.btn-primary.btn-primary--danger  { background: var(--red); }
+/* Volver (fantasma) y Borrar (destructivo sólido) — ola 2 */
+.btn-primary.btn-primary--ghost  {
+    background: var(--cream-dark);
+    color: var(--slate);
+    box-shadow: 3px 3px 0 var(--border-mid);
+    border-color: var(--border-mid);
+}
+.btn-primary.btn-primary--delete {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 3px 3px 0 var(--border-dark);
+}
+/* C1 ola 3: botón a ancho completo (formularios auth) */
+.btn-block { width: 100%; }
+
 .btn-edit {
     padding: 0.35rem 0.7rem;
     background: var(--blue-btn);
@@ -247,24 +356,6 @@
 .btn-edit:hover {
     transform: translate(1px, 1px);
     box-shadow: 1px 1px 0 #1e4266;
-}
-
-.btn-delete {
-    padding: 0.35rem 0.7rem;
-    background: var(--red);
-    color: var(--cream-light);
-    text-decoration: none;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.42rem;
-    border: 2px solid var(--red-dark);
-    box-shadow: 2px 2px 0 var(--red-dark);
-    display: inline-block;
-    transition: transform 0.1s, box-shadow 0.1s;
-}
-
-.btn-delete:hover {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0 var(--red-dark);
 }
 
 
@@ -303,25 +394,10 @@
     border: 2px solid;
     border-inline-start-width: 5px;
 }
-.alert-error, .alert-danger {
+.alert-error {
     background: var(--rv-danger-bg);
     color: var(--rv-danger-fg);
     border-color: var(--rv-danger-brd);
-}
-.alert-success {
-    background: var(--rv-success-bg);
-    color: var(--rv-success-fg);
-    border-color: var(--rv-success-brd);
-}
-.alert-warning {
-    background: var(--rv-warning-bg);
-    color: var(--rv-warning-fg);
-    border-color: var(--rv-warning-brd);
-}
-.alert-info {
-    background: var(--rv-info-bg);
-    color: var(--rv-info-fg);
-    border-color: var(--rv-info-brd);
 }
 
 /* ─────────────────────────────────────────────────────
@@ -331,7 +407,10 @@
     position: fixed;
     inset: 0;
     background: rgba(30, 25, 15, 0.72);
-    display: flex;
+    /* C1: base oculto; rv-alerts.js y dashboard.js lo muestran con
+       style.display='flex' (gestión inline, la lectura de style.display
+       no depende de esta regla) */
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 10000;
@@ -386,6 +465,8 @@
     color: var(--slate-mid);
     line-height: 1.65;
 }
+/* C1: cuerpo del modal de exportación (dashboard) — antes style inline */
+.rv-modal-body--export { padding-top: 0.5rem; text-align: center; }
 .rv-modal-body strong { color: var(--slate); }
 
 .rv-modal-footer {
@@ -413,8 +494,8 @@
 
 .rv-btn-cancel                { background: var(--cream-light); color: var(--slate); }
 .rv-btn-cancel:hover          { background: var(--cream-dark); }
-.rv-btn--warning              { background: var(--amber);       color: #fff; }
-.rv-btn--warning:hover        { background: #9a6f09; }
+.rv-btn--warning              { background: var(--amber-dark); color: #fff; } /* D2: AA (7.98:1; antes 3.26:1) */
+.rv-btn--warning:hover        { background: #4a3606; } /* hover: 11.5:1 */
 .rv-btn--danger               { background: var(--red);         color: #fff; }
 .rv-btn--danger:hover         { background: var(--red-dark); }
 .rv-btn--success              { background: var(--green-ok);    color: #fff; }
@@ -488,7 +569,8 @@
 .rv-toast-close {
     background: none;
     border: none;
-    color: var(--slate-light);
+    /* cream-light (no slate-light): el toast tiene fondo slate oscuro → AA 12.4:1 */
+    color: var(--cream-light);
     cursor: pointer;
     font-size: 0.8rem;
     padding: 0 0.2rem;
@@ -621,7 +703,8 @@
 }
 .ac-consola {
     font-size: 0.65rem;
-    color: var(--slate-light);
+    /* slate-mid (no slate-light): en hover la fila pone fondo cream-dark → AA 4.96:1 */
+    color: var(--slate-mid);
     font-family: 'Press Start 2P', monospace;
 }
 
@@ -653,30 +736,6 @@
    BOTÓN COMPARTIR + TOAST
    =================================================== */
 
-.btn-share {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.55rem 1rem;
-    background: var(--blue-btn);
-    color: #fff;
-    border: 3px solid var(--border-dark);
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    cursor: pointer;
-    box-shadow: var(--raise-shadow);
-    transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
-}
-.btn-share:hover {
-    background: #1e4a73;
-    transform: translateY(-2px);
-    box-shadow: var(--raise-shadow-lg);
-}
-.btn-share:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
-
 .share-toast {
     position: fixed;
     bottom: 2rem;
@@ -700,8 +759,91 @@
     transform: translateX(-50%) translateY(0);
 }
 
-@media (max-width: 600px) {
-    .btn-share { font-size: 0.5rem; padding: 0.45rem 0.8rem; }
+
+/* ===================================================
+   EMPTY STATE — Estado vacío del catálogo (CRT)
+   Pantalla oscura con scanlines, coherente con la
+   estética retro (mismo lenguaje que .screenshot-viewport
+   y las pantallas de error).
+   =================================================== */
+
+.empty-state {
+    grid-column: 1 / -1;
+    background: var(--slate);
+    border: 3px solid var(--border-dark);
+    box-shadow:
+        inset 0 0 30px rgba(0, 0, 0, 0.55),
+        var(--raise-shadow);
+    padding: 3rem 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+/* Scanlines CRT (mismo patrón que el visor de capturas) */
+.empty-state::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.18) 2px,
+        rgba(0, 0, 0, 0.18) 4px
+    );
+    pointer-events: none;
+}
+
+.empty-state-icon svg.pxi {
+    width: 44px;
+    height: 44px;
+    color: var(--cream);
+    opacity: 0.85;
+}
+
+.empty-state-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cream-light);
+}
+
+.empty-state-msg {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.88rem;
+    color: var(--cream);
+    max-width: 42ch;
+    line-height: 1.6;
+}
+
+.empty-state-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.4rem;
+    padding: 0.6rem 1.1rem;
+    background: var(--cream-light);
+    color: var(--slate);
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--raise-shadow);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.empty-state-clear:hover {
+    transform: translate(2px, 2px);
+    box-shadow: var(--raise-shadow-sm);
+}
+.empty-state-clear svg.pxi {
+    width: 12px;
+    height: 12px;
 }
 
 
@@ -831,35 +973,12 @@ nav a svg.pxi {
     vertical-align: middle;
 }
 
-/* ── error page big icon ─────────────────────────── */
-.proxy-error-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    font-size: 1rem; /* reset emoji */
-}
-.proxy-error-icon svg.pxi {
-    width: 52px;
-    height: 52px;
-    opacity: 0.7;
-}
-
 /* ── tip label icon ──────────────────────────────── */
 .proxy-tip-label svg.pxi {
     width: 14px;
     height: 14px;
     vertical-align: middle;
     margin-inline-end: 0.3em;
-}
-
-/* ── emulator meta icons ─────────────────────────── */
-.emulator-meta-item svg.pxi {
-    width: 14px;
-    height: 14px;
-    vertical-align: middle;
-    margin-inline-end: 0.3em;
-    flex-shrink: 0;
 }
 
 /* ── streaming notice icon ───────────────────────── */
@@ -871,9 +990,7 @@ nav a svg.pxi {
 
 /* ── btn icons ───────────────────────────────────── */
 .btn-primary svg.pxi,
-.btn-secondary svg.pxi,
-.btn-primary i[data-i],
-.btn-secondary i[data-i] {
+.btn-primary i[data-i] {
     width: 12px;
     height: 12px;
     vertical-align: middle;
@@ -937,4 +1054,80 @@ p svg.pxi {
     height: 14px;
     vertical-align: middle;
     margin-inline-end: 0.3em;
+}
+
+
+/* =====================================================
+   TARJETA DE JUEGO — título y tags compartidos
+   (movido de game-grid.css, auditoría CSS 2026-10-18:
+   los usan game_card.php, play.php y el dashboard)
+   ===================================================== */
+
+/* ── TÍTULO: siempre exactamente 2 líneas ── */
+.game-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--slate);
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
+    /* Exactamente 2 líneas: font-size × line-height × 2 */
+    height: calc(0.55rem * 1.7 * 2);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+/* ── TAGS: siempre 1 línea, sin wrap ── */
+/* DECISIÓN DELIBERADA (auditoría UI/UX 2026-10-17, B2): el nowrap + ellipsis
+   de los tags y el clamp de 2 líneas del título NO son bugs. Mantener la
+   arquitectura de altura fija de la tarjeta (grid 4×5, 20 por página) es
+   prioritario sobre mostrar cadenas completas en idiomas largos (de/ru).
+   No "arreglar" sin reevaluar la rejilla completa. */
+.game-metadata {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.2rem;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    height: 1.3rem;
+    align-items: center;
+}
+
+.game-tag {
+    background: var(--cream-dark);
+    color: var(--slate);
+    padding: 0.12rem 0.28rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border-mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    flex-shrink: 1;
+}
+
+.game-tag.genre {
+    background: var(--red);
+    color: var(--cream-light);
+    border-color: var(--red-dark);
+}
+
+.game-tag.platform {
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    border-color: #1e4266;
+}
+
+.game-tag.language {
+    background: var(--slate);
+    color: var(--cream-light);
+    border-color: #1a1a1a;
 }

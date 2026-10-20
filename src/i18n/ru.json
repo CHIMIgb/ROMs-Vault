@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Показать пароль",
     "auth.usuario": "Имя пользователя",
     "catalog.sin_resultados": "Нет доступных игр, соответствующих фильтрам.",
+    "catalog.vacio_titulo": "Нет результатов",
     "common.saludo": "Привет, {nombre}",
     "component.anterior": "Предыдущая",
     "component.descargar": "Скачать",
@@ -587,5 +588,8 @@
     "component.consolas": "консолей",
     "component.consolas_con_emulador": "консолей с эмулятором",
     "play.error_sin_juego": "Ошибка: не указана игра для запуска.",
-    "play.error_juego_no_existe": "Ошибка: запрошенная игра не существует в базе данных."
+    "play.error_juego_no_existe": "Ошибка: запрошенная игра не существует в базе данных.",
+    "component.idiomas_count": "{count} язык(ов)",
+    "component.idiomas_varios": "Несколько языков",
+    "component.idiomas_todos": "Все языки"
 }

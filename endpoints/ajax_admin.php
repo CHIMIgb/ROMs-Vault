@@ -78,7 +78,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                         <img src="<?= htmlspecialchars($juego['imagen']) ?>" alt="<?= t('admin.juego.alt_portada') ?>"
                              style="width:40px;height:40px;object-fit:cover;border-radius:4px;">
                     <?php else: ?>
-                        <span style="color:var(--text-light);" aria-hidden="true">&mdash;</span>
+                        <span style="color:var(--slate-light);" aria-hidden="true">&mdash;</span>
                     <?php endif; ?>
                 </td>
                 <td><strong><?= htmlspecialchars($juego['titulo']) ?></strong></td>
@@ -86,7 +86,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
                 <td><?= htmlspecialchars($juego['consola_nombre']  ?? '—') ?></td>
                 <td><?= htmlspecialchars($juego['categoria_nombre'] ?? '—') ?></td>
                 <td>
-                    <span class="game-tag" style="background:var(--background);color:var(--text);">
+                    <span class="game-tag" style="background:var(--cream-dark);color:var(--slate);">
                         <?= htmlspecialchars($juego['region'] ?? '—') ?>
                     </span>
                 </td>
@@ -116,7 +116,7 @@ $qBase = $qParts ? '&' . implode('&', $qParts) : '';
 <!-- PAGINACIÓN -->
 <?php 
 require_once __DIR__ . '/../src/views/components/Pagination.php';
-$extra = $hayFiltros ? '<span style="color:var(--text-light);">' . t('admin.juego.filtros_activos') . '</span>' : '';
+$extra = $hayFiltros ? '<span style="color:var(--slate-light);">' . t('admin.juego.filtros_activos') . '</span>' : '';
 Pagination::render(
     $currentPage, 
     $totalPages ?? 1, 

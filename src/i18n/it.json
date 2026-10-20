@@ -324,6 +324,7 @@
     "auth.mostrar_contrasena": "Mostra password",
     "auth.usuario": "Nome utente",
     "catalog.sin_resultados": "Nessun gioco disponibile corrisponde ai filtri.",
+    "catalog.vacio_titulo": "Nessun risultato",
     "common.saludo": "Ciao, {nombre}",
     "component.anterior": "Precedente",
     "component.descargar": "Scarica",
@@ -587,5 +588,8 @@
     "component.consolas": "console",
     "component.consolas_con_emulador": "console con emulatore",
     "play.error_sin_juego": "Errore: non è stato specificato il gioco da riprodurre.",
-    "play.error_juego_no_existe": "Errore: il gioco richiesto non esiste nel database."
+    "play.error_juego_no_existe": "Errore: il gioco richiesto non esiste nel database.",
+    "component.idiomas_count": "{count} lingue",
+    "component.idiomas_varios": "Più lingue",
+    "component.idiomas_todos": "Tutte le lingue"
 }

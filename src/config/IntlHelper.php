@@ -208,7 +208,11 @@ class IntlHelper
     }
 
     /**
-     * Bytes → B/KB/MB/GB, formateando el número según locale.
+     * Bytes → B/KB/MB/GB con redondeo, formateando el número según locale.
+     *
+     * Redondeo (decisión 2026-10-17): GB con 1 decimal, MB/KB/B enteros. Así
+     * conviven ambas unidades en el catálogo (MB para ROMs pequeñas, GB para
+     * las grandes) sin decimales ruidosos. Umbrales binarios: 1 GB = 1024 MB.
      *
      * @param int|float|string|null $bytes
      */
@@ -219,14 +223,26 @@ class IntlHelper
         }
         $bytes = (float) $bytes;
 
-        foreach ([
-            ['GB', 1073741824, 2],
-            ['MB', 1048576,    2],
-            ['KB', 1024,       1],
-        ] as [$unit, $factor, $decimals]) {
-            if ($bytes >= $factor) {
-                return self::formatNumber($bytes / $factor, $decimals) . ' ' . $unit;
+        // Unidades de mayor a menor: [unidad, factor, decimales].
+        $units = [
+            ['GB', 1073741824, 1],
+            ['MB', 1048576,    0],
+            ['KB', 1024,       0],
+        ];
+
+        foreach ($units as $i => [$unit, $factor, $decimals]) {
+            if ($bytes < $factor) {
+                continue;
             }
+            $value = $bytes / $factor;
+            // El redondeo no debe alcanzar la unidad superior: 1073741823 B
+            // (1 byte menos que 1 GB) se vería como "1024 MB". En ese caso se
+            // muestra en la unidad inmediatamente mayor ("1,0 GB").
+            if ($i > 0 && round($value, $decimals) >= 1024) {
+                [$unit, $factor, $decimals] = $units[$i - 1];
+                $value = $bytes / $factor;
+            }
+            return self::formatNumber($value, $decimals) . ' ' . $unit;
         }
 
         return self::formatNumber($bytes, 0) . ' B';

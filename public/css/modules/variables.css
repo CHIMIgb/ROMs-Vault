@@ -1,4 +1,4 @@
-/* public/css/style.css */
+/* public/css/modules/variables.css */
 /* =====================================================
    ROMs Vault — Retro Console Theme
    Estética: Game Boy / consola portátil 90s
@@ -14,32 +14,23 @@
     --cream-dark:   #d4c9a8;
     --cream-light:  #f2ece0;
     --slate:        #3a3a3a;
-    --slate-mid:    #5a5a5a;
-    --slate-light:  #8a8a8a;
+    --slate-mid:    #4f4f4f; /* AA sobre cream-dark (4.96:1) — era #5a5a5a (4.18:1, fallaba) */
+    --slate-light:  #666666; /* AA sobre cream-light (4.88:1) — era #8a8a8a (2.93:1, fallaba) */
     --red:          #c0392b;
     --red-dark:     #962d22;
     --blue-btn:     #2c5f8a;
     --green-ok:     #3a7d44;
     --amber:        #b8860b;
+    --amber-dark:   #664d0a; /* Texto sobre cream: AA (4.83:1 sobre cream-dark, 6.78:1 sobre cream-light) */
     --border-dark:  #3a3a3a;
     --border-mid:   #a09070;
     --border-light: #c8bda0;
     --inset-shadow: inset 2px 2px 0 #c0b48a, inset -2px -2px 0 #8a7a58;
     --raise-shadow: 3px 3px 0 #8a7a58;
+    --raise-shadow-sm: 1px 1px 0 #8a7a58;
     --raise-shadow-lg: 5px 5px 0 #8a7a58;
     --card-raise: 4px 4px 0 #8a7a58, 5px 5px 0 #6a5a38;
-    /* Alias para compatibilidad con código PHP existente */
-    --primary:      #3a3a3a;
-    --secondary:    #5a5a5a;
-    --accent:       #c0392b;
-    --background:   #d4c9a8;
-    --card-bg:      #f2ece0;
-    --text:         #3a3a3a;
-    --text-light:   #8a8a8a;
-    --border:       #c8bda0;
-    --success:      #3a7d44;
-    --warning:      #b8860b;
-    --danger:       #c0392b;
-    --shadow:       4px 4px 0 #8a7a58;
-    --shadow-hover: 6px 6px 0 #6a5a38;
+    --card-raise-lg: 8px 8px 0 #8a7a58, 9px 9px 0 #6a5a38;
+    /* Ancho máximo de las páginas de detalle (ficha y jugar online) */
+    --page-max-width: 1060px;
 }
