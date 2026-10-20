@@ -71,7 +71,11 @@ if ($emuladorLocal) {
                         <span class="detail-year"><?= htmlspecialchars(IntlHelper::formatYear($juego['fecha_lanzamiento'])) ?></span>
                     <?php endif; ?>
                 </div>
+                <!-- Fila 1: plataforma + categoría -->
                 <div class="detail-tags">
+                    <?php if (!empty($juego['consola_nombre'])): ?>
+                        <span class="tag tag-plataforma"><?= htmlspecialchars($juego['consola_nombre']) ?></span>
+                    <?php endif; ?>
                     <?php if (!empty($juego['categoria_id'])): ?>
                         <a href="/?categoria=<?= (int) $juego['categoria_id'] ?>" class="tag tag-categoria" title="<?= t('show.ver_mas_de', ['categoria' => htmlspecialchars($juego['categoria_nombre'] ?? t('show.esta_categoria'))]) ?>">
                             <?= htmlspecialchars($juego['categoria_nombre'] ?? t('show.sin_categoria')) ?>
@@ -82,7 +86,13 @@ if ($emuladorLocal) {
                     <?php if (($juego['formato_imagen'] ?? '') === 'Hack'): ?>
                         <span class="tag tag-hack"><?= t('show.hack_rom') ?></span>
                     <?php endif; ?>
-                    <!-- Compartir: chip al final de la fila de tags (rediseño panel, opción b) -->
+                </div>
+                <!-- Fila 2: dato (idiomas) a la izquierda, compartir anclado a la derecha -->
+                <div class="detail-tags detail-tags--data">
+                    <?php if (!empty($juego['idiomas'])): ?>
+                        <span class="tag tag-idiomas" title="<?= htmlspecialchars($juego['idiomas']) ?>"><?= htmlspecialchars($juego['idiomas']) ?></span>
+                    <?php endif; ?>
+                    <!-- Compartir: al final de la fila de datos (rediseño panel, opción b) -->
                     <button type="button" class="stat-chip stat-chip--share" id="btn-share-game" title="<?= t('show.compartir_title') ?>">
                         <i data-i="share" aria-hidden="true"></i>
                         <?= t('show.compartir') ?>

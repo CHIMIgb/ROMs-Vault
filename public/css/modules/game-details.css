@@ -455,6 +455,11 @@
     margin-inline-start: auto;
 }
 
+/* Fila de datos bajo la principal: idiomas + compartir */
+.detail-tags--data {
+    margin-top: 0.5rem;
+}
+
 .stat-chip {
     display: inline-flex;
     align-items: center;
@@ -1024,6 +1029,24 @@
     color: var(--cream-light);
     border-color: #4a3606; /* Borro/sombra más oscuros que el nuevo fondo (patrón de los .tag hermanos) */
     box-shadow: 3px 3px 0 #4a3606;
+}
+/* Chip de idiomas: variante neutra de dato (eco del chip base del catálogo) */
+.tag-idiomas {
+    background: var(--cream-dark);
+    color: var(--slate);
+    border-color: var(--border-mid);
+    box-shadow: 3px 3px 0 var(--border-dark);
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Chip de plataforma (fila 1): azul, patrón de sus hermanos */
+.tag-plataforma {
+    background: var(--blue-btn);
+    color: var(--cream-light);
+    border-color: #1e4266;
+    box-shadow: 3px 3px 0 #1a3a5a;
 }
 
 /* ── Sello de región + ribbon Hack sobre el cover ── */
