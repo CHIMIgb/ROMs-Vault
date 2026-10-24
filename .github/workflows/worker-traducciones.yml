@@ -51,10 +51,10 @@ jobs:
       TRANSLATE_TIMEOUT: ${{ secrets.TRANSLATE_TIMEOUT }}
     steps:
       - uses: actions/checkout@v4
-      - name: Configurar PHP 8.2
+      - name: Configurar PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           # curl es obligatorio: AbstractTranslateProvider usa curl_init().
           extensions: pdo_pgsql, curl
           coverage: none
