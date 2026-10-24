@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Configurar PHP 8.2
+      - name: Configurar PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           coverage: none
       - name: php -l sobre el código de aplicación
         run: |
@@ -41,11 +41,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # necesario para el diff de phpcs
-      - name: Configurar PHP 8.2
+          fetch-depth: 0 # necesario para the diff of phpcs
+      - name: Configurar PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           coverage: none
           tools: composer:v2
       - name: Cache de Composer
