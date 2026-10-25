@@ -74,9 +74,21 @@
                 $currentUser = AuthMiddleware::getUser();
                 if ($currentUser): 
                 ?>
-                <a href="/admin/dashboard">
+                <a href="/consola/index">
+                    <i data-i="gamepad" aria-hidden="true"></i>
+                    <?= t('nav.consolas') ?>
+                </a>
+                <a href="/emulador/index">
+                    <i data-i="joystick" aria-hidden="true"></i>
+                    <?= t('nav.emuladores') ?>
+                </a>
+                <a href="/categoria/index">
+                    <i data-i="dashboard" aria-hidden="true"></i>
+                    <?= t('nav.categorias') ?>
+                </a>
+                <a href="/admin/tfa">
                     <i data-i="shield-2" aria-hidden="true"></i>
-                    <?= t('nav.panel_admin') ?>
+                    <?= t('nav.2fa') ?>
                 </a>
                 <a href="/auth/logout">
                     <i data-i="logout"   aria-hidden="true"></i>

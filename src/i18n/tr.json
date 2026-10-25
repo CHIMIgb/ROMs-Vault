@@ -591,5 +591,10 @@
     "play.error_juego_no_existe": "Hata: İstenen oyun veritabanında mevcut değil.",
     "component.idiomas_count": "{count} dil",
     "component.idiomas_varios": "Birkaç dil",
-    "component.idiomas_todos": "Tüm diller"
+    "component.idiomas_todos": "Tüm diller",
+    "admin.dashboard.acciones": "Hızlı İşlemler",
+    "nav.consolas": "Konsollar",
+    "nav.emuladores": "Öykünücüler",
+    "nav.categorias": "Kategoriler",
+    "nav.2fa": "2FA Güvenliği"
 }

@@ -591,5 +591,10 @@
     "play.error_juego_no_existe": "Errore: il gioco richiesto non esiste nel database.",
     "component.idiomas_count": "{count} lingue",
     "component.idiomas_varios": "Più lingue",
-    "component.idiomas_todos": "Tutte le lingue"
+    "component.idiomas_todos": "Tutte le lingue",
+    "admin.dashboard.acciones": "Azioni rapide",
+    "nav.consolas": "Console",
+    "nav.emuladores": "Emulatori",
+    "nav.categorias": "Categorie",
+    "nav.2fa": "Sicurezza 2FA"
 }

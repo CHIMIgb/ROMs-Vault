@@ -591,5 +591,10 @@
     "play.error_juego_no_existe": "エラー: 要求されたゲームはデータベースに存在しません。",
     "component.idiomas_count": "{count} 言語",
     "component.idiomas_varios": "複数の言語",
-    "component.idiomas_todos": "すべての言語"
+    "component.idiomas_todos": "すべての言語",
+    "admin.dashboard.acciones": "クイックアクション",
+    "nav.consolas": "コンソール",
+    "nav.emuladores": "エミュレーター",
+    "nav.categorias": "カテゴリ",
+    "nav.2fa": "2FAセキュリティ"
 }

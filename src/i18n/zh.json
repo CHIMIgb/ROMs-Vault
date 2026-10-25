@@ -591,5 +591,10 @@
     "play.error_juego_no_existe": "错误：请求的游戏在数据库中不存在。",
     "component.idiomas_count": "{count} 种语言",
     "component.idiomas_varios": "多种语言",
-    "component.idiomas_todos": "所有语言"
+    "component.idiomas_todos": "所有语言",
+    "admin.dashboard.acciones": "快速操作",
+    "nav.consolas": "游戏机",
+    "nav.emuladores": "模拟器",
+    "nav.categorias": "分类",
+    "nav.2fa": "2FA 安全"
 }

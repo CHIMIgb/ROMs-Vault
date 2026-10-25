@@ -591,5 +591,10 @@
     "play.error_juego_no_existe": "오류: 요청한 게임이 데이터베이스에 없습니다.",
     "component.idiomas_count": "{count}개 언어",
     "component.idiomas_varios": "여러 언어",
-    "component.idiomas_todos": "모든 언어"
+    "component.idiomas_todos": "모든 언어",
+    "admin.dashboard.acciones": "빠른 작업",
+    "nav.consolas": "콘솔",
+    "nav.emuladores": "에뮬레이터",
+    "nav.categorias": "카테고리",
+    "nav.2fa": "2FA 보안"
 }

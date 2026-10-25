@@ -591,5 +591,10 @@
     "play.error_juego_no_existe": "خطأ: اللعبة المطلوبة غير موجودة في قاعدة البيانات.",
     "component.idiomas_count": "{count} لغات",
     "component.idiomas_varios": "عدة لغات",
-    "component.idiomas_todos": "جميع اللغات"
+    "component.idiomas_todos": "جميع اللغات",
+    "admin.dashboard.acciones": "إجراءات سريعة",
+    "nav.consolas": "أجهزة",
+    "nav.emuladores": "محاكيات",
+    "nav.categorias": "فئات",
+    "nav.2fa": "أمان 2FA"
 }

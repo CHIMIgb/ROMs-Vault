@@ -76,20 +76,8 @@ require_once __DIR__ . '/../../config/IntlHelper.php';
 
 <!-- CABECERA -->
 <div class="admin-header">
-    <h2><?= t('admin.dashboard.panel_administracion') ?></h2>
+    <h2><?= t('admin.dashboard.acciones') ?></h2>
     <div class="admin-header-actions">
-        <a href="/admin/tfa" class="btn-primary" title="<?= t('admin.dashboard.verificacion_dos_pasos') ?>">
-            <i data-i="shield-2"></i> <?= t('admin.dashboard.seguridad_2fa') ?>
-        </a>
-        <a href="/consola/index" class="btn-primary">
-            <i data-i="gamepad"></i> <?= t('admin.dashboard.consolas') ?>
-        </a>
-        <a href="/emulador/index" class="btn-primary">
-            <i data-i="joystick"></i> <?= t('admin.dashboard.emuladores') ?>
-        </a>
-        <a href="/categoria/index" class="btn-primary">
-            <i data-i="dashboard"></i> <?= t('admin.dashboard.categorias') ?>
-        </a>
         <button type="button" id="btn-export" class="btn-primary btn-primary--success">
             <i data-i="save"></i> <?= t('admin.dashboard.exportar') ?>
         </button>
